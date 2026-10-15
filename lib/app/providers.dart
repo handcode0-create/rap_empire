@@ -27,6 +27,9 @@ class GameNotifier extends AsyncNotifier<GameState> {
   Future<void> pickInstru(String id) => apply((s) => studio.pick(s, id));
   Future<void> writeText({String theme = 'quartier', String amb = 'sombre'}) => apply((s) => studio.write(s, theme: theme, amb: amb));
 
+  /// Cabine : prises simulées du prototype (le mini-jeu de timing n'est pas porté).
+  Future<void> recordSession() => apply((s) => studio.record(s));
+
   /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
   Future<void> sleep() async {
     final before = state.requireValue;

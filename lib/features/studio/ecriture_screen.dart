@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../domain/studio.dart';
 import '../shell/buttons.dart';
 import '../shell/tired_sheet.dart';
-import '../shell/toast.dart';
 import 'studio_widgets.dart';
 
 /// Écrire le texte (04.5) puis résultat (04.6). Thème et ambiance passent à write() (lib/domain/studio.dart).
@@ -62,7 +62,7 @@ class _EcritureScreenState extends ConsumerState<EcritureScreen> {
           ]),
         ),
         const SizedBox(height: 24),
-        PrimaryButton(label: 'Passer en cabine', onPressed: () => showInfo(context, 'Cabine : étape suivante')),
+        PrimaryButton(label: 'Passer en cabine', onPressed: () => context.go('/studio/cabine')),
         const SizedBox(height: 8),
         GhostButton(label: 'Réécrire', onPressed: () => setState(() => _rewriting = true)),
       ] else ...[

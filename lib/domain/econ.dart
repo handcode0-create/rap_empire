@@ -12,6 +12,8 @@ class Econ {
   static const levelXp = [0, 100, 250, 500, 900]; // N1..N5
   static const levelNames = ['Inconnu', 'Espoir du quartier', 'Révélation locale', 'Nom qui circule', 'Star de Bakoma'];
   static const entryListens = 252200; // seuil d'entrée Top 100 Singles (R25, proposition)
+  static const levelReward = {2: 2000, 3: 4000, 4: 8000, 5: 15000}; // cauris offerts au passage de niveau (ECON.levelReward)
+  static const xpRecord = 30; // XP d'un mix terminé (A.record)
   static const confirmFrom = 15000; // confirmation d'achat ou de promo à partir de ce montant (promoCbig de game.js : >= 15000)
 }
 

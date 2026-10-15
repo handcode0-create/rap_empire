@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/game_state.dart';
+import 'package:rap_empire/domain/studio.dart';
 
 import 'support.dart';
 
@@ -175,6 +176,98 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Écrire le texte'), findsOneWidget);
       expect(repo.current.texte, isNull);
+    });
+  });
+
+  Future<void> tapText(WidgetTester tester, String text) async {
+    await tester.ensureVisible(find.text(text));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(text));
+    await tester.pumpAndSettle();
+  }
+
+  group('cabine et mix (04.7, 04.9) : parcours réel', () {
+    testWidgets('instru, écriture, cabine simulée, mix : 61 / 72 / 55 / 56, +30 XP', (tester) async {
+      final repo = await pumpApp(tester, const GameState());
+      await tester.tap(find.text('Aller au studio'));
+      await tester.pumpAndSettle();
+      await tapText(tester, 'Nouveau son');
+      await tapText(tester, 'Gbaka de 6h');
+      await tapText(tester, 'Écrire · Sombre');
+      await tapText(tester, 'Passer en cabine');
+      expect(find.text('Session cabine'), findsOneWidget);
+      expect(find.text('Étape 3 / 3'), findsOneWidget);
+      expect(find.text('Micro de base'), findsOneWidget);
+      await tapText(tester, 'Simuler les 3 prises');
+      expect(find.text('Mix terminé'), findsOneWidget);
+      expect(find.text('61'), findsOneWidget);
+      expect(find.text('/ 100'), findsOneWidget);
+      expect(find.text('72'), findsOneWidget);
+      expect(find.text('55'), findsNWidgets(2)); // voix 55 et énergie 55 dans le HUD
+      expect(find.text('56'), findsOneWidget);
+      expect(find.text('+30 XP · Son ajouté au studio'), findsOneWidget);
+      final s = repo.current;
+      expect([s.energy, s.hour, s.xp, s.cash, s.song!.q, s.ms['m1']], [55, 11, 30, 17000, 61, 'done']);
+      expect(find.text('J1 11:00'), findsOneWidget);
+      await tapText(tester, 'Retour au studio');
+      expect(find.text('Gbaka de 6h'), findsWidgets);
+      expect(find.text('Qualité'), findsOneWidget);
+      expect(find.text('Kôrô · Ndolo · 1 son'), findsOneWidget);
+    });
+
+    testWidgets('cabine avec énergie 24 : « Trop fatigué », aucun son enregistré', (tester) async {
+      final repo = await pumpApp(tester, const GameState(inst: 'gbaka', energy: 24), location: '/studio/cabine');
+      await tapText(tester, 'Simuler les 3 prises');
+      expect(find.text('Trop fatigué'), findsOneWidget);
+      expect(repo.current.song, isNull);
+    });
+
+    testWidgets('énergie basse dans le jeu réel : deux sons de suite, « Trop fatigué » au QG, Dormir', (tester) async {
+      final repo = await pumpApp(tester, const GameState());
+      await tester.tap(find.text('Aller au studio'));
+      await tester.pumpAndSettle();
+      for (final instru in ['Gbaka de 6h', 'Nuit à Ndo']) {
+        await tapText(tester, 'Nouveau son');
+        await tapText(tester, instru);
+        await tapText(tester, 'Écrire · Sombre');
+        await tapText(tester, 'Passer en cabine');
+        await tapText(tester, 'Simuler les 3 prises');
+        if (instru == 'Gbaka de 6h') await tapText(tester, 'Retour au studio');
+      }
+      expect(repo.current.energy, 10);
+      expect(repo.current.song!.title, 'Nuit à Ndo');
+      await tester.tap(find.text('QG'));
+      await tester.pumpAndSettle();
+      expect(find.text('Trop fatigué'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Dormir'));
+      await tester.pumpAndSettle();
+      expect(find.text('Nouvelle journée'), findsOneWidget);
+      expect([repo.current.energy, repo.current.day, repo.current.hour], [100, 2, 8]);
+      expect(repo.current.song, isNotNull);
+    });
+  });
+
+  group('reprise de l’étape en cours (restauration au rechargement)', () {
+    testWidgets('rien en cours : pas de « Reprendre »', (tester) async {
+      await pumpApp(tester, const GameState(), location: '/studio');
+      expect(find.textContaining('Reprendre'), findsNothing);
+    });
+    testWidgets('instru choisie : Reprendre l’écriture', (tester) async {
+      await pumpApp(tester, const GameState(inst: 'gbaka'), location: '/studio');
+      await tapText(tester, 'Reprendre : Écrire le texte');
+      expect(find.text('Écrire le texte'), findsOneWidget);
+    });
+    testWidgets('texte écrit : Reprendre la cabine', (tester) async {
+      final base = write(pick(const GameState(), 'gbaka'));
+      await pumpApp(tester, base, location: '/studio');
+      await tapText(tester, 'Reprendre : Passer en cabine');
+      expect(find.text('Session cabine'), findsOneWidget);
+    });
+    testWidgets('son enregistré : Reprendre sur le mix', (tester) async {
+      final base = record(write(pick(const GameState(), 'gbaka')));
+      await pumpApp(tester, base, location: '/studio');
+      await tapText(tester, 'Reprendre : Voir le mix');
+      expect(find.text('Mix terminé'), findsOneWidget);
     });
   });
 }
