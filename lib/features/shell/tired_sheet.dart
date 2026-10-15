@@ -19,7 +19,8 @@ Future<void> sleepNow(BuildContext context, WidgetRef ref) async {
   if (context.mounted) context.go('/fin-journee');
 }
 
-String get _nightLabel => Econ.nightCost == 0 ? 'Nuit gratuite · démo' : 'Nuit : ${fmt(Econ.nightCost)} cauris';
+/// Libellé de la nuit : gratuite en démo (nightCost = 0, D-08), sinon son prix.
+String get nightLabel => Econ.nightCost == 0 ? 'Nuit gratuite · démo' : 'Nuit : ${fmt(Econ.nightCost)} cauris';
 
 /// Feuille « Trop fatigué » (03.2) avec l'action Dormir.
 void showTiredSheet(BuildContext context, WidgetRef ref, int energy) {
@@ -47,7 +48,7 @@ void showTiredSheet(BuildContext context, WidgetRef ref, int energy) {
       const SizedBox(height: 16),
       PrimaryButton(
         label: 'Dormir',
-        sublabel: _nightLabel,
+        sublabel: nightLabel,
         onPressed: () {
           Navigator.of(sheetContext).pop();
           sleepNow(context, ref);

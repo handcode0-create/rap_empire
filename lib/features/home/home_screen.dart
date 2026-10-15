@@ -6,6 +6,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/action_tile.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/mission_card.dart';
+import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/reward_chip.dart';
 import '../../core/widgets/scene_banner.dart';
 import '../../core/widgets/stat_kpi.dart';
@@ -97,10 +98,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ])),
       const SizedBox(height: 10),
       IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Expanded(child: ActionTile(icon: 'trophy', title: 'Missions', subtitle: 'Objectifs et primes', badge: '$msOpen', onTap: () => showInfo(context, 'Missions : bientôt'))),
+        Expanded(child: ActionTile(icon: 'trophy', title: 'Missions', subtitle: 'Objectifs et primes', badge: '$msOpen', onTap: () => context.go('/missions'))),
         const SizedBox(width: 10),
         Expanded(child: ActionTile(icon: 'trend', title: 'Classements', subtitle: 'Rang : Non classé', onTap: () => showInfo(context, 'Classements : bientôt'))),
       ])),
+      const SizedBox(height: 12),
+      // Passer la journée sans faire de musique : la règle est A.sleep (jour suivant 08:00, énergie 100). Pas de planche pour ce bouton.
+      PrimaryButton(label: 'Passer la journée', sublabel: nightLabel, style: GameButtonStyle.secondary, onPressed: () => sleepNow(context, ref)),
     ]);
   }
 }

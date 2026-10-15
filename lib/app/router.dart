@@ -1,8 +1,11 @@
 import 'package:go_router/go_router.dart';
+import '../features/business/business_screen.dart';
+import '../features/business/formation_screen.dart';
 import '../features/end_of_day/end_of_day_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/missions/level_up_screen.dart';
 import '../features/missions/mission_done_screen.dart';
+import '../features/missions/missions_screen.dart';
 import '../features/missions/new_mission_screen.dart';
 import '../features/shell/app_shell.dart';
 import '../features/soon/soon_screen.dart';
@@ -17,14 +20,19 @@ import '../features/studio/sortie_screen.dart';
 import '../features/studio/studio_home_screen.dart';
 
 /// Les identifiants d'écran du prototype (ex. 03-1-QG) deviennent des routes. Cinq onglets : QG, Studio, Scène, Business, Profil (I-07).
-/// Scène, Business et Profil affichent « Bientôt » jusqu'à leur port. La barre de navigation n'apparaît que sur les écrans racines.
-const _rootPaths = {'/', '/studio', '/scene', '/business', '/profil'};
+/// Scène et Profil affichent « Bientôt » jusqu'à leur port. La barre de navigation n'apparaît que sur les écrans racines
+/// (la liste des missions 10.1 et la formation 09.3 en font partie, comme dans les planches).
+const _rootPaths = {'/', '/missions', '/studio', '/scene', '/business', '/business/formation', '/profil'};
 
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(initialLocation: initialLocation, routes: [
       StatefulShellRoute.indexedStack(
         builder: (_, state, shell) => AppShell(shell: shell, showNav: _rootPaths.contains(state.matchedLocation)),
         branches: [
-          StatefulShellBranch(routes: [GoRoute(path: '/', name: '03-1-QG', builder: (_, __) => const HomeScreen())]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/', name: '03-1-QG', builder: (_, __) => const HomeScreen(), routes: [
+              GoRoute(path: 'missions', name: '10-1-Missions', builder: (_, __) => const MissionsScreen()),
+            ]),
+          ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/studio', name: '04-1-Studio', builder: (_, __) => const StudioHomeScreen(), routes: [
               GoRoute(path: 'instru', name: '04-3-Instru', builder: (_, __) => const InstruScreen()),
@@ -38,7 +46,11 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(initialLocation
             ]),
           ]),
           StatefulShellBranch(routes: [GoRoute(path: '/scene', name: 'scene', builder: (_, __) => const SoonScreen(title: 'Scène'))]),
-          StatefulShellBranch(routes: [GoRoute(path: '/business', name: 'business', builder: (_, __) => const SoonScreen(title: 'Business'))]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/business', name: '09-1-Matos', builder: (_, __) => const BusinessScreen(), routes: [
+              GoRoute(path: 'formation', name: '09-3-Formation', builder: (_, __) => const FormationScreen()),
+            ]),
+          ]),
           StatefulShellBranch(routes: [GoRoute(path: '/profil', name: 'profil', builder: (_, __) => const SoonScreen(title: 'Profil'))]),
         ],
       ),
