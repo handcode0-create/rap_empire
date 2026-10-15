@@ -15,6 +15,8 @@ class Econ {
   static const levelReward = {2: 2000, 3: 4000, 4: 8000, 5: 15000}; // cauris offerts au passage de niveau (ECON.levelReward)
   static const xpRecord = 30; // XP d'un mix terminé (A.record)
   static const xpRelease = 40; // XP d'une sortie (A.release)
+  static const openMicFee = 3000; // cachet de l'open mic (ECON.openMicFee de game.js) : récompense annoncée par la mission « open mic » (10.3)
+  static const xpOpenMic = 60; // XP d'un open mic gagné (A.openmic)
   static const monetised = 1.0; // part des écoutes monétisées (démo : 100 %)
   static const fanSat = 5000; // saturation de la conversion en fans (évite la croissance exponentielle), test D-08
   static const fanConversion = 0.07; // part des écoutes qui devient fans (avant saturation)

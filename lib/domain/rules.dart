@@ -32,6 +32,10 @@ int xpPercent(int xp) {
   return max(0, min(100, (100 * (xp - lo) / (hi - lo)).round()));
 }
 
+/// Part (0 à 100, une décimale) du seuil d'entrée du Top 100 Singles atteinte par les écoutes de la semaine :
+/// gapPct de game.js (view) = min(100, round(100 x lw / ENTRY x 10) / 10).
+double gapPercent(int weekListens) => min(100, (100 * weekListens / Econ.entryListens * 10).round() / 10);
+
 /// Espace pur : aucune dépendance Flutter ni Supabase (testable, reproductible, rejouable côté serveur).
 String fmt(num n) {
   final s = n.abs().round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ' ');
