@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/core/widgets/game_nav_bar.dart';
 import 'package:rap_empire/domain/game_state.dart';
 import 'package:rap_empire/domain/minigame.dart';
 import 'package:rap_empire/domain/studio.dart';
+import 'package:rap_empire/domain/titles.dart';
 
 import 'support.dart';
 
@@ -559,7 +561,7 @@ void main() {
       await tapText(tester, 'Nuit à Ndo');
       await song(); // 55 - 20 - 25 = 10
       expect(repo.current.energy, 10);
-      expect(repo.current.song!.title, 'Nuit à Ndo');
+      expect(generatedTitles, contains(repo.current.song!.title)); // titre généré à l'écriture
       await tapText(tester, 'Récupérer la mission'); // retour au QG
       expect(txt('Trop fatigué'), findsOneWidget);
       await tapText(tester, 'Dormir');
@@ -567,6 +569,60 @@ void main() {
       expect([repo.current.energy, repo.current.day, repo.current.hour], [100, 2, 8]);
       expect(repo.current.song, isNotNull);
       await tester.pump(const Duration(seconds: 4));
+    });
+  });
+
+  Future<void> recordWithSimulation(WidgetTester tester) async {
+    await tapText(tester, 'Passer en cabine');
+    await tester.tap(txt('Entrer en cabine'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(txt('Simuler les 3 prises'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+  }
+
+  group('titre du son (généré, aléatoire, saisi)', () {
+    testWidgets('le titre est généré automatiquement quand le texte s\u2019affiche', (tester) async {
+      final repo = await pumpApp(tester, picked, location: '/studio/ecriture');
+      await tapText(tester, 'Écrire · Sombre');
+      expect(txt('Titre du son'), findsOneWidget);
+      expect(txt('Titre aléatoire'), findsOneWidget);
+      expect(generatedTitles, contains(repo.current.title));
+      expect(find.widgetWithText(TextField, repo.current.title!), findsOneWidget);
+    });
+
+    testWidgets('Titre aléatoire : un autre titre, affiché dans le champ', (tester) async {
+      final repo = await pumpApp(tester, picked, location: '/studio/ecriture');
+      await tapText(tester, 'Écrire · Sombre');
+      final first = repo.current.title;
+      await tapText(tester, 'Titre aléatoire');
+      expect(repo.current.title, isNot(first));
+      expect(generatedTitles, contains(repo.current.title));
+      expect(find.widgetWithText(TextField, repo.current.title!), findsOneWidget);
+    });
+
+    testWidgets('titre saisi à la main : conservé jusqu\u2019au mix', (tester) async {
+      final repo = await pumpApp(tester, picked, location: '/studio/ecriture');
+      await tapText(tester, 'Écrire · Sombre');
+      await tester.enterText(find.byType(TextField), 'Mon premier son');
+      await tester.pump();
+      expect(repo.current.title, 'Mon premier son');
+      await recordWithSimulation(tester);
+      expect(txt('Mon premier son'), findsOneWidget);
+      expect(repo.current.song!.title, 'Mon premier son');
+      expect(repo.current.title, isNull); // le prochain son aura son propre titre
+    });
+
+    testWidgets('champ vidé : un titre est généré à l\u2019enregistrement', (tester) async {
+      final repo = await pumpApp(tester, picked, location: '/studio/ecriture');
+      await tapText(tester, 'Écrire · Sombre');
+      await tester.enterText(find.byType(TextField), '');
+      await tester.pump();
+      expect(repo.current.title, '');
+      await recordWithSimulation(tester);
+      expect(repo.current.song!.title.trim(), isNotEmpty);
     });
   });
 }

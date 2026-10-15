@@ -45,6 +45,9 @@ class GameState {
   /// Style choisi (STYLES de game.js).
   final String style;
 
+  /// Titre du son en cours (généré à l'écriture, relançable ou saisi), null tant qu'aucun texte n'est écrit.
+  final String? title;
+
   /// Dernière sortie (rel de game.js), null avant la première.
   final Release? rel;
 
@@ -60,7 +63,7 @@ class GameState {
   const GameState({
     this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo',
     this.inst, this.texte, this.sk = defaultSkills, this.takes = const [], this.song, this.micro = false, this.ms = defaultMissions, this.pend, this.style = 'drill',
-    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat,
+    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat, this.title,
   });
 
   int get level => levelOf(xp);
@@ -70,7 +73,7 @@ class GameState {
   GameState copyWith({
     int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood,
     Object? inst = _keep, Object? texte = _keep, Map<String, int>? sk, List<int>? takes, Object? song = _keep, bool? micro, Map<String, String>? ms, Object? pend = _keep, String? style,
-    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat,
+    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat, Object? title = _keep,
   }) =>
       GameState(
         version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
@@ -85,13 +88,14 @@ class GameState {
         rel: identical(rel, _keep) ? this.rel : rel as Release?,
         disco: disco ?? this.disco, lw: lw ?? this.lw, lc: lc ?? this.lc, fgain: fgain ?? this.fgain,
         led: led ?? this.led, cat: cat ?? this.cat,
+        title: identical(title, _keep) ? this.title : title as String?,
       );
 
   Map<String, dynamic> toJson() => {
         'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood,
         'inst': inst, 'texte': texte?.toJson(), 'sk': sk, 'takes': takes, 'song': song?.toJson(), 'micro': micro, 'ms': ms, 'pend': pend?.toJson(), 'style': style,
         'rel': rel?.toJson(), 'disco': disco.map((d) => d.toJson()).toList(), 'lw': lw, 'lc': lc, 'fgain': fgain,
-        'led': led.map((e) => e.toJson()).toList(), 'cat': cat,
+        'led': led.map((e) => e.toJson()).toList(), 'cat': cat, 'title': title,
       };
   factory GameState.fromJson(Map<String, dynamic> j) => GameState(
         version: (j['v'] ?? 1) as int, cash: (j['cash'] ?? 25000) as int, energy: (j['en'] ?? 100) as int, day: (j['day'] ?? 1) as int,
@@ -110,6 +114,7 @@ class GameState {
         lw: (j['lw'] ?? 0) as int, lc: (j['lc'] ?? 0) as int, fgain: (j['fgain'] ?? 0) as int,
         led: j['led'] == null ? const [] : [for (final e in j['led'] as List) LedgerEntry.fromJson(Map<String, dynamic>.from(e as Map))],
         cat: j['cat'] == null ? defaultCat : {...defaultCat, ...Map<String, int>.from(j['cat'] as Map)},
+        title: j['title'] as String?,
       );
   String encode() => jsonEncode(toJson());
 }

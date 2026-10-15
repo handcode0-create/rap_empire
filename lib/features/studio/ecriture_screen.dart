@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
@@ -12,6 +13,7 @@ import '../../core/widgets/reward_chip.dart';
 import '../../core/widgets/stat_kpi.dart';
 import '../../domain/rules.dart';
 import '../../domain/studio.dart';
+import '../../domain/titles.dart';
 import '../shell/tired_sheet.dart';
 
 /// Écrire le texte (04.5) puis « Ton texte » (04.6).
@@ -24,6 +26,15 @@ class EcritureScreen extends ConsumerStatefulWidget {
 
 class _EcritureScreenState extends ConsumerState<EcritureScreen> {
   bool _rewriting = false;
+  final _titleCtl = TextEditingController();
+  final _titleFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _titleCtl.dispose();
+    _titleFocus.dispose();
+    super.dispose();
+  }
 
   Future<void> _write(String amb) async {
     try {
@@ -41,6 +52,13 @@ class _EcritureScreenState extends ConsumerState<EcritureScreen> {
     final instru = s.inst == null ? null : instruById(s.inst!);
     final texte = s.texte;
     if (texte != null && !_rewriting) {
+      // le titre est généré dès que le texte s'affiche ; le champ suit l'état sauf pendant la saisie
+      if ((s.title ?? '').trim().isEmpty && !_titleFocus.hasFocus) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) ref.read(gameProvider.notifier).ensureTitle();
+        });
+      }
+      if (!_titleFocus.hasFocus && _titleCtl.text != (s.title ?? '')) _titleCtl.text = s.title ?? '';
       return ListView(padding: const EdgeInsets.all(16), children: [
         BackHeader(title: 'Ton texte', onBack: () => setState(() => _rewriting = true)),
         const SizedBox(height: 12),
@@ -54,6 +72,41 @@ class _EcritureScreenState extends ConsumerState<EcritureScreen> {
           const StatKpi(label: 'Rimes', value: '70'),
           const StatKpi(label: 'Images', value: '74'),
         ]),
+        const SizedBox(height: 12),
+        GameCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text('TITRE DU SON', style: V20Text.lab()),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _titleCtl,
+              focusNode: _titleFocus,
+              inputFormatters: [LengthLimitingTextInputFormatter(maxTitleLength)],
+              textCapitalization: TextCapitalization.sentences,
+              style: V20Text.nm(),
+              cursorColor: Tk.acc,
+              onChanged: (v) => ref.read(gameProvider.notifier).setTitle(v),
+              decoration: InputDecoration(
+                isDense: true,
+                filled: true,
+                fillColor: Tk.s2,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            PrimaryButton(
+              label: 'Titre aléatoire',
+              style: GameButtonStyle.secondary,
+              compact: true,
+              onPressed: () {
+                _titleFocus.unfocus();
+                ref.read(gameProvider.notifier).rerollTitle();
+              },
+            ),
+          ]),
+        ),
         const SizedBox(height: 12),
         const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           RewardChip(value: 'Écriture +$writeSkillGain', color: Tk.ok),

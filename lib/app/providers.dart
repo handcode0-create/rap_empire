@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/save_repository.dart';
 import '../domain/clock.dart' as clock;
 import '../domain/game_state.dart';
 import '../domain/studio.dart' as studio;
+import '../domain/titles.dart' as titles;
 import '../domain/training.dart' as training;
 
 final saveRepoProvider = Provider((_) => SaveRepository());
@@ -33,6 +36,11 @@ class GameNotifier extends AsyncNotifier<GameState> {
 
   /// Sortie d'un single avec la promo choisie (index de promos).
   Future<void> releaseSingle(int promo) => apply((s) => studio.release(s, promo));
+
+  /// Titre du son en cours : saisi à la main, ou tiré au hasard (le hasard vient d'ici, le domaine reste pur).
+  Future<void> setTitle(String text) => apply((s) => titles.setTitle(s, text));
+  Future<void> ensureTitle() => apply(titles.ensureTitle);
+  Future<void> rerollTitle() => apply((s) => titles.rerollTitle(s, Random().nextInt(1 << 30)));
 
   /// Matériel et formation (Business).
   Future<void> buyMicro() => apply(studio.buyMicro);

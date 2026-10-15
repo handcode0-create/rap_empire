@@ -26,7 +26,7 @@ GameState pick(GameState s, String id) {
   final code = pickBlocker(s, id);
   if (code != null) throw GameError(code);
   final i = instruById(id);
-  return (i.price > 0 ? pay(s, -i.price, cat: 'instru', label: 'Instru ${i.name}') : s).copyWith(inst: i.id, texte: null, takes: const [], song: null);
+  return (i.price > 0 ? pay(s, -i.price, cat: 'instru', label: 'Instru ${i.name}') : s).copyWith(inst: i.id, texte: null, takes: const [], song: null, title: null);
 }
 
 /// Écriture : 1 h et 20 énergie (A.write).
@@ -85,13 +85,14 @@ GameState record(GameState s, [List<int>? takes]) {
   final prod = instru?.q ?? noInstruProd;
   final tx = s.texte?.note ?? noTextNote;
   final song = Song(
-    title: s.inst == 'nuit' ? 'Nuit à Ndo' : 'Gbaka de 6h', // titre fixe du prototype : « Gbaka de 6h » sauf pour la Nuit
+    title: (s.title ?? '').trim().isNotEmpty ? s.title!.trim() : (s.inst == 'nuit' ? 'Nuit à Ndo' : 'Gbaka de 6h'), // sans titre choisi : titre fixe du prototype
     q: quality(tx, voix, prod, s.energy),
     texte: tx, voix: voix, prod: prod, inst: instru?.name ?? '',
   );
   var n = tick(s.copyWith(energy: s.energy - recordEnergy), recordHours).copyWith(
     takes: t,
     song: song,
+    title: null,
     sk: {...s.sk, 'voix': s.sk['voix']! + recordVoiceGain},
     ms: s.ms['m1'] == 'todo' ? {...s.ms, 'm1': 'done'} : s.ms,
   );
