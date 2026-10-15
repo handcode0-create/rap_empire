@@ -1,5 +1,5 @@
 /// Économie de DÉMONSTRATION — paramètres provisoires (D-08), centralisés ici. NON VALIDÉS.
-/// Port fidèle de ECON dans le moteur du prototype v20 (engine.js).
+/// Port fidèle de ECON dans le moteur du prototype v20 (game.js ; engine.js n'est pas dans l'archive).
 class Econ {
   static const listenValue = 0.01; // cauris par écoute monétisée
   static const labelCut = 0.20; // commission label sur revenus nets du catalogue sous contrat
@@ -12,6 +12,7 @@ class Econ {
   static const levelXp = [0, 100, 250, 500, 900]; // N1..N5
   static const levelNames = ['Inconnu', 'Espoir du quartier', 'Révélation locale', 'Nom qui circule', 'Star de Bakoma'];
   static const entryListens = 252200; // seuil d'entrée Top 100 Singles (R25, proposition)
+  static const confirmFrom = 15000; // confirmation d'achat ou de promo à partir de ce montant (promoCbig de game.js : >= 15000)
 }
 
 class Promo {
@@ -22,3 +23,17 @@ class Promo {
 }
 
 const promos = [Promo('Aucune', 0, 1), Promo('Réseaux sociaux', 2000, 1.6), Promo('Radio locale', 15000, 3.2)];
+
+/// Instrus du studio (INSTRU de game.js). [rep] = 0 : pas de condition de réputation.
+class Instru {
+  final String id, name, who;
+  final int q, price, lvl, rep;
+  const Instru(this.id, this.name, this.who, this.q, this.price, this.lvl, [this.rep = 0]);
+}
+
+const instrus = [
+  Instru('nuit', 'Nuit à Ndo', 'Gratuite', 32, 0, 1),
+  Instru('gbaka', 'Gbaka de 6h', 'DJ Kôrô', 56, 8000, 1),
+  Instru('pont', 'Pont des Griots', 'Sanko Beats', 68, 15000, 2),
+  Instru('lagune', "Lagune d'Ambre", 'Mister Wôrô', 86, 40000, 1, 30),
+];

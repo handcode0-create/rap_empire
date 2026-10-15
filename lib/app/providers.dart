@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/save_repository.dart';
 import '../domain/clock.dart' as clock;
 import '../domain/game_state.dart';
+import '../domain/studio.dart' as studio;
 
 final saveRepoProvider = Provider((_) => SaveRepository());
 
@@ -21,6 +22,9 @@ class GameNotifier extends AsyncNotifier<GameState> {
     await repo.saveLocal(next);
     repo.pushRemote(next).ignore();
   }
+
+  /// Studio : chaque action appelle une fonction pure de lib/domain/studio.dart ; une GameError remonte à l'écran.
+  Future<void> pickInstru(String id) => apply((s) => studio.pick(s, id));
 
   /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
   Future<void> sleep() async {

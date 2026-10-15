@@ -1,39 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rap_empire/app/providers.dart';
-import 'package:rap_empire/app/router.dart';
-import 'package:rap_empire/data/save_repository.dart';
 import 'package:rap_empire/domain/game_state.dart';
 
-/// Dépôt factice : pas de shared_preferences, pas de Supabase.
-class _FakeRepo extends SaveRepository {
-  GameState current;
-  _FakeRepo(this.current);
-  @override
-  Future<GameState> loadLocal() async => current;
-  @override
-  Future<void> saveLocal(GameState s) async => current = s;
-  @override
-  Future<void> pushRemote(GameState s) async {}
-}
-
-Future<_FakeRepo> _pump(WidgetTester tester, GameState start) async {
-  tester.view.physicalSize = const Size(390, 844);
-  tester.view.devicePixelRatio = 1;
-  addTearDown(tester.view.reset);
-  final repo = _FakeRepo(start);
-  await tester.pumpWidget(ProviderScope(
-    overrides: [saveRepoProvider.overrideWithValue(repo)],
-    child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter()),
-  ));
-  await tester.pumpAndSettle();
-  return repo;
-}
+import 'support.dart';
 
 void main() {
   testWidgets('QG au départ : HUD, mission 1, indicateurs, bouton studio', (tester) async {
-    await _pump(tester, const GameState());
+    await pumpApp(tester, const GameState());
     expect(find.text('Djo Kéné'), findsOneWidget);
     expect(find.text('N1 · INCONNU'), findsOneWidget);
     expect(find.text('25 000'), findsOneWidget);
@@ -45,7 +18,7 @@ void main() {
   });
 
   testWidgets('cinq onglets, barre de 72 px', (tester) async {
-    await _pump(tester, const GameState());
+    await pumpApp(tester, const GameState());
     for (final t in ['QG', 'Studio', 'Scène', 'Business', 'Profil']) {
       expect(find.text(t), findsOneWidget);
     }
@@ -54,21 +27,25 @@ void main() {
     expect(tester.getSize(bar), const Size(390, 72));
   });
 
-  testWidgets('onglet Studio et bouton « Aller au studio » mènent à « Bientôt »', (tester) async {
-    await _pump(tester, const GameState());
+  testWidgets('« Aller au studio » ouvre le studio ; Scène et Profil affichent « Bientôt »', (tester) async {
+    await pumpApp(tester, const GameState());
     await tester.tap(find.text('Aller au studio'));
     await tester.pumpAndSettle();
-    expect(find.text('Bientôt'), findsOneWidget);
+    expect(find.text('Aucun son enregistré'), findsOneWidget);
+    expect(find.text('Bientôt'), findsNothing);
     await tester.tap(find.text('QG'));
     await tester.pumpAndSettle();
-    expect(find.text('Bientôt'), findsNothing);
+    expect(find.text('Salut, Djo'), findsOneWidget);
+    await tester.tap(find.text('Scène'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bientôt'), findsOneWidget);
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
     expect(find.text('Bientôt'), findsOneWidget);
   });
 
   testWidgets('énergie 12 (planche 03.2) : « Trop fatigué », Dormir, fin de journée (03.6)', (tester) async {
-    final repo = await _pump(tester, const GameState(cash: 6000, energy: 12, hour: 14));
+    final repo = await pumpApp(tester, const GameState(cash: 6000, energy: 12, hour: 14));
     expect(find.text('Trop fatigué'), findsOneWidget);
     expect(find.text('Nuit gratuite · démo'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Dormir'));
@@ -88,7 +65,7 @@ void main() {
   });
 
   testWidgets('« Pas maintenant » ferme la feuille ; le bandeau reste avec Dormir', (tester) async {
-    await _pump(tester, const GameState(energy: 12));
+    await pumpApp(tester, const GameState(energy: 12));
     await tester.tap(find.text('Pas maintenant'));
     await tester.pumpAndSettle();
     expect(find.text('Trop fatigué'), findsNothing);
@@ -97,7 +74,7 @@ void main() {
   });
 
   testWidgets('énergie 20 : pas de feuille ni de bandeau', (tester) async {
-    await _pump(tester, const GameState(energy: 20));
+    await pumpApp(tester, const GameState(energy: 20));
     expect(find.text('Trop fatigué'), findsNothing);
     expect(find.textContaining('Énergie basse'), findsNothing);
   });
