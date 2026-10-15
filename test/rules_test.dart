@@ -22,6 +22,11 @@ void main() {
     expect(() => pay(const GameState(cash: 100), -200), throwsA(isA<GameError>()));
     expect(pay(const GameState(cash: 100), -100).cash, 0);
   });
+  test('copyWith conserve la version de sauvegarde', () {
+    const s = GameState(version: 2);
+    expect(s.copyWith(cash: 1).version, 2);
+    expect(s.copyWith(version: 3).version, 3);
+  });
   test('sauvegarde aller-retour', () {
     const s = GameState(cash: 777, xp: 120);
     expect(GameState.fromJson(s.toJson()).cash, 777);

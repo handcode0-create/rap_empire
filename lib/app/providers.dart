@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/save_repository.dart';
+import '../domain/clock.dart' as clock;
 import '../domain/game_state.dart';
 
 final saveRepoProvider = Provider((_) => SaveRepository());
+
+/// Dernier bilan de nuit, lu par l'écran 03.6 Fin de journée. Éphémère : non sauvegardé.
+final lastSleepProvider = StateProvider<clock.SleepReport?>((_) => null);
 
 class GameNotifier extends AsyncNotifier<GameState> {
   @override
@@ -16,6 +20,14 @@ class GameNotifier extends AsyncNotifier<GameState> {
     final repo = ref.read(saveRepoProvider);
     await repo.saveLocal(next);
     repo.pushRemote(next).ignore();
+  }
+
+  /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
+  Future<void> sleep() async {
+    final before = state.requireValue;
+    final after = clock.sleep(before);
+    ref.read(lastSleepProvider.notifier).state = clock.SleepReport.between(before, after);
+    await apply((_) => after);
   }
 }
 

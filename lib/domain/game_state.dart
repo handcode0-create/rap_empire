@@ -11,8 +11,8 @@ class GameState {
   int get level => levelOf(xp);
   String get levelName => Econ.levelNames[level - 1];
 
-  GameState copyWith({int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood}) => GameState(
-        cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
+  GameState copyWith({int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood}) => GameState(
+        version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
         fans: fans ?? this.fans, pop: pop ?? this.pop, rep: rep ?? this.rep, xp: xp ?? this.xp, hood: hood ?? this.hood);
 
   Map<String, dynamic> toJson() => {'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood};
