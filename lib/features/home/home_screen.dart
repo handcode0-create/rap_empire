@@ -3,16 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/action_tile.dart';
+import '../../core/widgets/game_hint.dart';
+import '../../core/widgets/mission_card.dart';
+import '../../core/widgets/reward_chip.dart';
+import '../../core/widgets/scene_banner.dart';
+import '../../core/widgets/stat_kpi.dart';
 import '../../domain/clock.dart';
 import '../../domain/econ.dart';
+import '../../domain/game_state.dart';
 import '../../domain/missions.dart';
 import '../../domain/rules.dart';
-import '../shell/buttons.dart';
+import '../../domain/studio.dart';
 import '../shell/tired_sheet.dart';
 import '../shell/toast.dart';
 
-/// QG (03.1) : objectif en cours, indicateurs, accès au studio. Le HUD est dans la coque.
-/// Énergie basse (03.2) : feuille « Trop fatigué » avec l'action Dormir.
+/// QG (03.1) : bannière, objectif en cours, KPI, tuiles d'accès. Le HUD et la navigation sont dans la coque.
+/// Énergie basse (03.2) : bandeau et feuille « Trop fatigué » avec l'action Dormir.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
   @override
@@ -26,10 +33,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final r = missionRewards[id]!;
     try {
       await ref.read(gameProvider.notifier).claimMission(id);
-      if (mounted) showInfo(context, 'Mission accomplie · +${fmt(r.cash)} cauris · +${r.xp} XP');
+      if (mounted) showSuccess(context, 'Mission accomplie · +${fmt(r.cash)} cauris · +${r.xp} XP');
     } on Object catch (e) {
       if (mounted) showError(context, e);
     }
+  }
+
+  Widget _objective(GameState s, Mission m) {
+    final r = missionRewards[m.id]!;
+    final done = s.ms[m.id] == 'done';
+    final readyToRelease = m.id == 'm2' && studioStep(s) == StudioStep.sortie;
+    return MissionCard(
+      tag: 'Mission ${m.id.substring(1)}',
+      statusTag: done ? 'Terminée' : null,
+      title: m.title,
+      hint: done ? null : m.hint,
+      progress: done ? 1 : 0,
+      rewards: done ? [RewardChip(value: '+${fmt(r.cash)}', label: 'cauris'), RewardChip(value: '+${r.xp}', label: 'XP', color: Tk.ok)] : const [],
+      actionLabel: done ? 'Récupérer' : (readyToRelease ? 'Préparer la sortie' : 'Aller au studio'),
+      onAction: done ? () => _claim(m.id) : () => context.go(readyToRelease ? '/studio/sortie' : '/studio'),
+    );
   }
 
   @override
@@ -45,112 +68,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if (!tired) {
       _sheetShown = false;
     }
+    final objective = currentObjective(s);
+    final msOpen = s.ms.values.where((v) => v == 'todo').length;
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Text('Salut, Djo', style: Theme.of(context).textTheme.displayMedium),
-      const SizedBox(height: 16),
+      const SceneBanner(kind: 'qg_sky', height: 72, name: 'Salut, Djo', chars: [BannerChar('djo', mood: 'cool', crop: 'torso', width: 64, left: 306)]),
       if (tired) ...[
-        _TiredBanner(energy: s.energy, onSleep: () => sleepNow(context, ref)),
-        const SizedBox(height: 16)
+        const SizedBox(height: 8),
+        GameHint(icon: '⚡', warn: true, text: 'Énergie basse (${s.energy}) : dors avant d’enchaîner.', onTap: () => showTiredSheet(context, ref, s.energy)),
       ],
-      if (currentObjective(s) case final obj?) ...[
-        _ObjectiveCard(mission: obj, status: s.ms[obj.id] ?? 'todo', reward: missionRewards[obj.id]!, onClaim: () => _claim(obj.id)),
-        const SizedBox(height: 16),
-      ],
-      Row(children: [
-        _Indicator(label: 'Fans', value: fmt(s.fans)),
+      if (objective != null) ...[const SizedBox(height: 8), _objective(s, objective)],
+      const SizedBox(height: 8),
+      IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Expanded(child: StatKpi(label: 'Fans', value: fmt(s.fans))),
         const SizedBox(width: 8),
-        _Indicator(label: 'Popularité', value: fmt(s.pop)),
+        Expanded(child: StatKpi(label: 'Popularité', value: fmt(s.pop))),
         const SizedBox(width: 8),
-        _Indicator(label: 'Réputation', value: fmt(s.rep)),
-      ]),
-      const SizedBox(height: 24),
-      PrimaryButton(
-          label: 'Aller au studio', onPressed: () => context.go('/studio')),
+        Expanded(child: StatKpi(label: 'Réputation', value: fmt(s.rep))),
+      ])),
+      const SizedBox(height: 8),
+      IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Expanded(child: ActionTile(icon: 'mic', title: 'Studio', subtitle: 'Créer un son', onTap: () => context.go('/studio'))),
+        const SizedBox(width: 10),
+        Expanded(child: ActionTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic, battle', onTap: () => context.go('/scene'))),
+      ])),
+      const SizedBox(height: 10),
+      IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Expanded(child: ActionTile(icon: 'trophy', title: 'Missions', subtitle: 'Objectifs et primes', badge: '$msOpen', onTap: () => showInfo(context, 'Missions : bientôt'))),
+        const SizedBox(width: 10),
+        Expanded(child: ActionTile(icon: 'trend', title: 'Classements', subtitle: 'Rang : Non classé', onTap: () => showInfo(context, 'Classements : bientôt'))),
+      ])),
     ]);
   }
-}
-
-class _TiredBanner extends StatelessWidget {
-  final int energy;
-  final VoidCallback onSleep;
-  const _TiredBanner({required this.energy, required this.onSleep});
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-            color: Tk.tint,
-            borderRadius: BorderRadius.circular(Tk.rCard),
-            border: Border.all(color: Tk.acc7)),
-        child: Row(children: [
-          const Icon(Icons.bolt_rounded, color: Tk.gold),
-          const SizedBox(width: 8),
-          Expanded(
-              child: Text("Énergie basse ($energy) : dors avant d'enchaîner.",
-                  style: const TextStyle(color: Tk.ink))),
-          TextButton(
-            onPressed: onSleep,
-            style: TextButton.styleFrom(
-                minimumSize: const Size(Tk.minTap, Tk.minTap),
-                foregroundColor: Tk.acc4),
-            child: const Text('Dormir'),
-          ),
-        ]),
-      );
-}
-
-class _ObjectiveCard extends StatelessWidget {
-  final Mission mission;
-  final String status;
-  final MissionReward reward;
-  final VoidCallback onClaim;
-  const _ObjectiveCard({required this.mission, required this.status, required this.reward, required this.onClaim});
-  @override
-  Widget build(BuildContext context) {
-    final done = status == 'done';
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Tk.s1, borderRadius: BorderRadius.circular(Tk.rCard), border: Border.all(color: done ? Tk.ok : Tk.line)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Expanded(child: Text('OBJECTIF EN COURS', style: TextStyle(color: Tk.acc4, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1))),
-          if (done) const Text('Terminée · À récupérer', style: TextStyle(color: Tk.ok, fontSize: 12, fontWeight: FontWeight.w800)),
-        ]),
-        const SizedBox(height: 8),
-        Text('Mission ${mission.id.substring(1)}', style: const TextStyle(color: Tk.ink2, fontSize: 12)),
-        Text(mission.title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 4),
-        Text(mission.hint, style: const TextStyle(color: Tk.ink2)),
-        const SizedBox(height: 8),
-        Text('+${fmt(reward.cash)} cauris · +${reward.xp} XP', style: const TextStyle(color: Tk.gold, fontWeight: FontWeight.w800)),
-        if (done) ...[
-          const SizedBox(height: 12),
-          PrimaryButton(label: 'Récupérer', onPressed: onClaim),
-        ],
-      ]),
-    );
-  }
-}
-
-class _Indicator extends StatelessWidget {
-  final String label, value;
-  const _Indicator({required this.label, required this.value});
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-              color: Tk.s1,
-              borderRadius: BorderRadius.circular(Tk.rCard),
-              border: Border.all(color: Tk.line)),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(color: Tk.ink2, fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(value,
-                style: const TextStyle(
-                    color: Tk.ink, fontWeight: FontWeight.w800, fontSize: 20)),
-          ]),
-        ),
-      );
 }

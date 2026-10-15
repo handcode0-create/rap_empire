@@ -13,6 +13,7 @@ dependencies:
   supabase_flutter: ^2.5.6
   shared_preferences: ^2.2.3
   google_fonts: ^6.2.1
+  flutter_svg: ^2.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -21,3 +22,19 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/
+    - assets/characters/
+    - assets/scenes/
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
+          weight: 800
+    - family: Baloo2
+      fonts:
+        - asset: assets/fonts/Baloo2-Variable.ttf
+          weight: 800

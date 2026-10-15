@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/router.dart';
 import 'core/config/env.dart';
-import 'core/theme/tokens.dart';
+import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,5 +16,5 @@ Future<void> main() async {
 class RapEmpireApp extends StatelessWidget {
   const RapEmpireApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp.router(title: 'RAP EMPIRE', theme: buildTheme(), routerConfig: router, debugShowCheckedModeBanner: false);
+  Widget build(BuildContext context) => MaterialApp.router(title: 'RAP EMPIRE', theme: buildGameTheme(), routerConfig: router, debugShowCheckedModeBanner: false);
 }

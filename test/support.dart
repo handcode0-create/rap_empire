@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/app/providers.dart';
 import 'package:rap_empire/app/router.dart';
+import 'package:rap_empire/core/widgets/game_nav_bar.dart';
 import 'package:rap_empire/data/save_repository.dart';
 import 'package:rap_empire/domain/game_state.dart';
 
@@ -31,3 +32,9 @@ Future<FakeRepo> pumpApp(WidgetTester tester, GameState start, {String location 
   await tester.pumpAndSettle();
   return repo;
 }
+
+/// Texte affiché, sans tenir compte de la casse : la v20 met boutons, étiquettes et toasts en majuscules (text-transform CSS).
+Finder txt(String text) => find.byWidgetPredicate((w) => w is Text && w.data != null && w.data!.toLowerCase() == text.toLowerCase(), description: 'texte « $text » (casse ignorée)');
+
+/// Onglet de la barre de navigation (QG, Studio, Scène, Business, Profil), sans le confondre avec une tuile ou un titre du même nom.
+Finder navTab(String label) => find.descendant(of: find.byType(GameNavBar), matching: txt(label));

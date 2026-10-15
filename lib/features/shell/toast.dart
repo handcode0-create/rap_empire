@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/tokens.dart';
+import '../../core/widgets/game_toast.dart';
 import '../../domain/game_state.dart';
 
-/// Messages courts (SnackBar). Les erreurs métier (GameError) s'affichent avec le texte du prototype.
-void showError(BuildContext context, Object error) => showInfo(context, error is GameError ? error.message : 'Action impossible');
+/// Messages courts : GameToast en haut de l'écran. Les erreurs métier (GameError) s'affichent avec le texte du prototype.
+void showError(BuildContext context, Object error) => showGameToast(context, error is GameError ? error.message : 'Action impossible', kind: ToastKind.error);
 
-void showInfo(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      content: Text(message, style: const TextStyle(color: Tk.ink)),
-      backgroundColor: Tk.s2,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 3),
-    ));
-}
+void showInfo(BuildContext context, String message) => showGameToast(context, message);
+
+void showSuccess(BuildContext context, String message) => showGameToast(context, message, kind: ToastKind.success);

@@ -1,0 +1,1710 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "00-Overview.dc.html": {
+   "h": 760,
+   "title": "00 · Boucle de jeu, navigation, légende",
+   "w": 1000,
+   "x": 1080,
+   "y": 300
+  },
+  "00b-Monde-fictif.dc.html": {
+   "h": 760,
+   "title": "00 · Monde fictif",
+   "w": 1000,
+   "x": 2160,
+   "y": 300
+  },
+  "02-1-Splash.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.1 Splash",
+   "w": 390,
+   "x": 0,
+   "y": 2900
+  },
+  "02-2-Univers1.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.2 Univers 1",
+   "w": 390,
+   "x": 470,
+   "y": 2900
+  },
+  "02-3-Univers2.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.3 Univers 2",
+   "w": 390,
+   "x": 940,
+   "y": 2900
+  },
+  "02-4-Univers3.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.4 Univers 3",
+   "w": 390,
+   "x": 1410,
+   "y": 2900
+  },
+  "02-5-Identite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.5 Identité",
+   "w": 390,
+   "x": 1880,
+   "y": 2900
+  },
+  "02-5b-Identite-vide.dc.html": {
+   "h": 844,
+   "title": "02.5b Identité · nom vide",
+   "w": 390,
+   "x": 2350,
+   "y": 2900
+  },
+  "02-6-Look.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.6 Look",
+   "w": 390,
+   "x": 2820,
+   "y": 2900
+  },
+  "02-7-Style.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.7 Style musical",
+   "w": 390,
+   "x": 3290,
+   "y": 2900
+  },
+  "02-8-Objectif.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "02.8 Premier objectif",
+   "w": 390,
+   "x": 3760,
+   "y": 2900
+  },
+  "03-1-QG.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.1 QG",
+   "w": 390,
+   "x": 0,
+   "y": 4164
+  },
+  "03-1b-QG-360.dc.html": {
+   "h": 800,
+   "title": "03.1 QG · variante 360×800",
+   "w": 360,
+   "x": 2820,
+   "y": 4164
+  },
+  "03-1c-QG-progression.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.1c QG · après le premier concert",
+   "w": 390,
+   "x": -211,
+   "y": 45738
+  },
+  "03-2-QG-energie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.2 QG · énergie basse",
+   "w": 390,
+   "x": 470,
+   "y": 4164
+  },
+  "03-3-Journal.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.3 Journal",
+   "w": 390,
+   "x": 940,
+   "y": 4164
+  },
+  "03-4-Profil.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.4 Profil",
+   "w": 390,
+   "x": 1410,
+   "y": 4164
+  },
+  "03-5-Evenement.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.5 Événement narratif",
+   "w": 390,
+   "x": 1880,
+   "y": 4164
+  },
+  "03-6-Fin-journee.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "03.6 Fin de journée",
+   "w": 390,
+   "x": 2350,
+   "y": 4164
+  },
+  "04-1-Studio-vide.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.1 Studio · vide",
+   "w": 390,
+   "x": 0,
+   "y": 5428
+  },
+  "04-2-Studio.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.2 Studio · discographie",
+   "w": 390,
+   "x": 470,
+   "y": 5428
+  },
+  "04-2b-Studio-360.dc.html": {
+   "h": 800,
+   "title": "04.2 Studio · variante 360×800",
+   "w": 360,
+   "x": 4230,
+   "y": 5428
+  },
+  "04-3-Instru.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.3 Choix de l'instru",
+   "w": 390,
+   "x": 940,
+   "y": 5428
+  },
+  "04-4-Achat.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.4 Confirmation d'achat",
+   "w": 390,
+   "x": 1410,
+   "y": 5428
+  },
+  "04-5-Ecriture.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.5 Écriture",
+   "w": 390,
+   "x": 1880,
+   "y": 5428
+  },
+  "04-6-Texte.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.6 Écriture · résultat",
+   "w": 390,
+   "x": 2350,
+   "y": 5428
+  },
+  "04-7-Cabine.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.7 Cabine · session",
+   "w": 390,
+   "x": 2820,
+   "y": 5428
+  },
+  "04-8-Minijeu.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.8 Cabine · mini-jeu",
+   "w": 390,
+   "x": 3290,
+   "y": 5428
+  },
+  "04-9-Mix.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "04.9 Mix et résultat",
+   "w": 390,
+   "x": 3760,
+   "y": 5428
+  },
+  "05-1-Sortie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.1 Préparer la sortie",
+   "w": 390,
+   "x": 0,
+   "y": 6692
+  },
+  "05-1b-Cash-insuffisant.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.1b Sortie · cash insuffisant",
+   "w": 390,
+   "x": 470,
+   "y": 6692
+  },
+  "05-2-Promo.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.2 Confirmation de promo",
+   "w": 390,
+   "x": 940,
+   "y": 6692
+  },
+  "05-3-Chargement.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.3 Mise en ligne",
+   "w": 390,
+   "x": 1410,
+   "y": 6692
+  },
+  "05-4-Resultats.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.4 Résultats 24 h",
+   "w": 390,
+   "x": 1880,
+   "y": 6692
+  },
+  "05-5-EP.dc.html": {
+   "h": 844,
+   "title": "05.5 Sortie d'EP",
+   "w": 390,
+   "x": 2350,
+   "y": 6692
+  },
+  "05-6-Classements.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "05.6 Classements",
+   "w": 390,
+   "x": 2820,
+   "y": 6692
+  },
+  "06-1-Scene.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.1 Scène",
+   "w": 390,
+   "x": 0,
+   "y": 7956
+  },
+  "06-2-OpenMic.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.2 Résultat d'open mic",
+   "w": 390,
+   "x": 470,
+   "y": 7956
+  },
+  "06-3-Battle.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.3 Battle",
+   "w": 390,
+   "x": 940,
+   "y": 7956
+  },
+  "06-4-Victoire.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.4 Open mic · victoire",
+   "w": 390,
+   "x": 1410,
+   "y": 7956
+  },
+  "06-4b-Defaite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.4b Open mic · défaite",
+   "w": 390,
+   "x": 1880,
+   "y": 7956
+  },
+  "06-5-Battle-victoire.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.5 Battle · victoire",
+   "w": 390,
+   "x": 239,
+   "y": 45738
+  },
+  "06-5b-Battle-defaite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "06.5b Battle · défaite",
+   "w": 390,
+   "x": 666,
+   "y": 45738
+  },
+  "07-1-Preparation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "07.1 Concert · préparation",
+   "w": 390,
+   "x": 0,
+   "y": 9220
+  },
+  "07-2-Scene.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "07.2 Concert · sur scène",
+   "w": 390,
+   "x": 470,
+   "y": 9220
+  },
+  "07-3-Resultats.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "07.3 Concert · résultats",
+   "w": 390,
+   "x": 940,
+   "y": 9220
+  },
+  "08-1-Labels.dc.html": {
+   "h": 844,
+   "title": "08.1 Labels · verrouillé",
+   "w": 390,
+   "x": 0,
+   "y": 10484
+  },
+  "08-2-Contrat.dc.html": {
+   "h": 844,
+   "title": "08.2 Offre de contrat",
+   "w": 390,
+   "x": 470,
+   "y": 10484
+  },
+  "08-3-Featuring.dc.html": {
+   "h": 844,
+   "title": "08.3 Featuring",
+   "w": 390,
+   "x": 940,
+   "y": 10484
+  },
+  "08-4-Reseau.dc.html": {
+   "h": 844,
+   "title": "08.4 Réseau",
+   "w": 390,
+   "x": 1410,
+   "y": 10484
+  },
+  "09-1-Matos.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "09.1 Business · Matos",
+   "w": 390,
+   "x": 0,
+   "y": 11748
+  },
+  "09-2-Achat.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "09.2 Achat du micro",
+   "w": 390,
+   "x": 470,
+   "y": 11748
+  },
+  "09-3-Formation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "09.3 Formation",
+   "w": 390,
+   "x": 940,
+   "y": 11748
+  },
+  "09-4-Toast.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "09.4 Toast de compétence",
+   "w": 390,
+   "x": 1410,
+   "y": 11748
+  },
+  "09-5-Finances.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "09.5 Finances",
+   "w": 390,
+   "x": 1880,
+   "y": 11748
+  },
+  "09-6-Boutique.dc.html": {
+   "h": 844,
+   "title": "09.6 Boutique de vêtements",
+   "w": 390,
+   "x": 2350,
+   "y": 11748
+  },
+  "09-7-Equipe.dc.html": {
+   "h": 844,
+   "title": "09.7 Équipe",
+   "w": 390,
+   "x": 2820,
+   "y": 11748
+  },
+  "10-1-Missions.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "10.1 Feuille des missions",
+   "w": 390,
+   "x": 0,
+   "y": 13012
+  },
+  "10-2-Mission-accomplie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "10.2 Mission accomplie",
+   "w": 390,
+   "x": 470,
+   "y": 13012
+  },
+  "10-3-Nouvelle-mission.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "10.3 Nouvelle mission",
+   "w": 390,
+   "x": 940,
+   "y": 13012
+  },
+  "10-4-Level-up.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "10.4 Montée de niveau",
+   "w": 390,
+   "x": 1410,
+   "y": 13012
+  },
+  "10-5-Reputation.dc.html": {
+   "h": 844,
+   "title": "10.5 Réputation et rivalités",
+   "w": 390,
+   "x": 1880,
+   "y": 13012
+  },
+  "11-Prototype.dc.html": {
+   "h": 1000,
+   "title": "11 · Liens du prototype",
+   "w": 1200,
+   "x": 0,
+   "y": 14276
+  },
+  "11b-Prototype-Ajouts.dc.html": {
+   "h": 760,
+   "title": "11 · Liens ajoutés : avatar et classements",
+   "w": 1200,
+   "x": 1280,
+   "y": 14276
+  },
+  "12-1-Createur.dc.html": {
+   "h": 844,
+   "title": "12.1 Créateur : coiffures",
+   "w": 390,
+   "x": 0,
+   "y": 15540
+  },
+  "12-2-Teint-Visage.dc.html": {
+   "h": 844,
+   "title": "12.2 Teint, barbe, visage",
+   "w": 390,
+   "x": 470,
+   "y": 15540
+  },
+  "12-3-Vetements.dc.html": {
+   "h": 844,
+   "title": "12.3 Vêtements, chaussures",
+   "w": 390,
+   "x": 940,
+   "y": 15540
+  },
+  "12-4-Tenues.dc.html": {
+   "h": 844,
+   "title": "12.4 Tenues sauvegardées",
+   "w": 390,
+   "x": 1410,
+   "y": 15540
+  },
+  "12-5-Boutique.dc.html": {
+   "h": 844,
+   "title": "12.5 Boutique",
+   "w": 390,
+   "x": 1880,
+   "y": 15540
+  },
+  "12-5b-Achat.dc.html": {
+   "h": 844,
+   "title": "12.5b Confirmation d'achat",
+   "w": 390,
+   "x": 2350,
+   "y": 15540
+  },
+  "12-6-Rendu-3D.dc.html": {
+   "h": 1000,
+   "title": "12.6 Avatar : 2D modulaire et rendu 3D prévu",
+   "w": 1200,
+   "x": 2820,
+   "y": 15540
+  },
+  "13-1-Classements.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "13.1 Classements",
+   "w": 390,
+   "x": 0,
+   "y": 16804
+  },
+  "13-2-Top-Singles.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "13.2 Top 100 Singles",
+   "w": 390,
+   "x": 470,
+   "y": 16804
+  },
+  "13-3-Top-Albums.dc.html": {
+   "h": 844,
+   "title": "13.3 Top 200 Albums",
+   "w": 390,
+   "x": 940,
+   "y": 16804
+  },
+  "13-4-Top-EPs.dc.html": {
+   "h": 844,
+   "title": "13.4 Top 50 EPs",
+   "w": 390,
+   "x": 1410,
+   "y": 16804
+  },
+  "13-5-Top10-Global.dc.html": {
+   "h": 844,
+   "title": "13.5 Top 10 Global Artists (joueur #47)",
+   "w": 390,
+   "x": 1880,
+   "y": 16804
+  },
+  "13-5b-Top10-Dans.dc.html": {
+   "h": 844,
+   "title": "13.5b Top 10 Global (joueur dans le Top 10)",
+   "w": 390,
+   "x": 2350,
+   "y": 16804
+  },
+  "13-5c-Progression.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "13.5c Progression vers le Top 10",
+   "w": 390,
+   "x": 2820,
+   "y": 16804
+  },
+  "13-6-Artiste.dc.html": {
+   "h": 844,
+   "title": "13.6 Fiche artiste",
+   "w": 390,
+   "x": 3290,
+   "y": 16804
+  },
+  "14-1-Directions.dc.html": {
+   "h": 1250,
+   "title": "14.1 Avatar : trois directions artistiques",
+   "w": 1500,
+   "x": 0,
+   "y": 18068
+  },
+  "14-10-Accessoires.dc.html": {
+   "h": 844,
+   "title": "14.10 Accessoires",
+   "w": 390,
+   "x": 470,
+   "y": 21468
+  },
+  "14-11-Sauvegarde.dc.html": {
+   "h": 844,
+   "title": "14.11 Sauvegarder la tenue",
+   "w": 390,
+   "x": 940,
+   "y": 21468
+  },
+  "14-12-Sauvegarde-ok.dc.html": {
+   "h": 844,
+   "title": "14.12 Tenue sauvegardée",
+   "w": 390,
+   "x": 1410,
+   "y": 21468
+  },
+  "14-2-Angles.dc.html": {
+   "h": 1100,
+   "title": "14.2 Direction A : 4 angles",
+   "w": 1500,
+   "x": 1580,
+   "y": 18068
+  },
+  "14-3-Variantes.dc.html": {
+   "h": 1120,
+   "title": "14.3 Coiffures, carnations, tenues",
+   "w": 1500,
+   "x": 3160,
+   "y": 18068
+  },
+  "14-4-Coiffure.dc.html": {
+   "h": 844,
+   "title": "14.4 Éditeur · Coiffure · face (rotation câblée)",
+   "w": 390,
+   "x": 0,
+   "y": 19468
+  },
+  "14-4b-Coiffure-34.dc.html": {
+   "h": 844,
+   "title": "14.4b Trois-quarts",
+   "w": 390,
+   "x": 470,
+   "y": 19468
+  },
+  "14-4c-Coiffure-profil.dc.html": {
+   "h": 844,
+   "title": "14.4c Profil",
+   "w": 390,
+   "x": 940,
+   "y": 19468
+  },
+  "14-4d-Coiffure-dos.dc.html": {
+   "h": 844,
+   "title": "14.4d Dos",
+   "w": 390,
+   "x": 1410,
+   "y": 19468
+  },
+  "14-4e-Coiffure-zoom.dc.html": {
+   "h": 844,
+   "title": "14.4e Zoom visage",
+   "w": 390,
+   "x": 1880,
+   "y": 19468
+  },
+  "14-4f-Coiffure-afro.dc.html": {
+   "h": 844,
+   "title": "14.4f Afro appliqué + retour en arrière",
+   "w": 390,
+   "x": 2350,
+   "y": 19468
+  },
+  "14-5-Visage.dc.html": {
+   "h": 844,
+   "title": "14.5 Éditeur · Visage",
+   "w": 390,
+   "x": 0,
+   "y": 20468
+  },
+  "14-6-Teint.dc.html": {
+   "h": 844,
+   "title": "14.6 Teint",
+   "w": 390,
+   "x": 470,
+   "y": 20468
+  },
+  "14-6b-Teint-applique.dc.html": {
+   "h": 844,
+   "title": "14.6b Teint appliqué",
+   "w": 390,
+   "x": 940,
+   "y": 20468
+  },
+  "14-7-Barbe.dc.html": {
+   "h": 844,
+   "title": "14.7 Barbe",
+   "w": 390,
+   "x": 1410,
+   "y": 20468
+  },
+  "14-8-Vetements.dc.html": {
+   "h": 844,
+   "title": "14.8 Vêtements",
+   "w": 390,
+   "x": 1880,
+   "y": 20468
+  },
+  "14-8b-Vetements-applique.dc.html": {
+   "h": 844,
+   "title": "14.8b Vêtements appliqués",
+   "w": 390,
+   "x": 2350,
+   "y": 20468
+  },
+  "14-9-Chaussures.dc.html": {
+   "h": 844,
+   "title": "14.9 Chaussures",
+   "w": 390,
+   "x": 0,
+   "y": 21468
+  },
+  "15-1-Carte-systemes.dc.html": {
+   "h": 940,
+   "title": "15.1 Carte des systèmes",
+   "w": 1400,
+   "x": 0,
+   "y": 22860
+  },
+  "15-2-Ressources.dc.html": {
+   "h": 1120,
+   "title": "15.2 Ressources",
+   "w": 1400,
+   "x": 1480,
+   "y": 22860
+  },
+  "15-3-Regles.dc.html": {
+   "h": 1230,
+   "title": "15.3 Règles de calcul",
+   "w": 1400,
+   "x": 2960,
+   "y": 22860
+  },
+  "15-4-Boucles.dc.html": {
+   "h": 1060,
+   "title": "15.4 Trois boucles",
+   "w": 1400,
+   "x": 4440,
+   "y": 22860
+  },
+  "15-5-Semaine.dc.html": {
+   "h": 1180,
+   "title": "15.5 Semaine complète",
+   "w": 1400,
+   "x": 0,
+   "y": 23960
+  },
+  "15-6-Trajectoires-rivalites.dc.html": {
+   "h": 1000,
+   "title": "15.6 Trajectoires et rivalités",
+   "w": 1400,
+   "x": 1480,
+   "y": 23960
+  },
+  "15-7-Ecrans-risques.dc.html": {
+   "h": 1260,
+   "title": "15.7 Écrans et risques",
+   "w": 1400,
+   "x": 2960,
+   "y": 23960
+  },
+  "16-0-Dialogues.dc.html": {
+   "h": 1311,
+   "title": "16.0 Système de dialogues",
+   "w": 1400,
+   "x": 0,
+   "y": 24700
+  },
+  "16-1-Personnages.dc.html": {
+   "h": 610,
+   "title": "16.1 Personnages",
+   "w": 1400,
+   "x": 1480,
+   "y": 24700
+  },
+  "16-2-Poses.dc.html": {
+   "h": 844,
+   "title": "16.2 Poses",
+   "w": 1400,
+   "x": 2960,
+   "y": 24700
+  },
+  "16-A1-Producteur-ecoute.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "16.A1 Producteur · écoute",
+   "w": 390,
+   "x": 0,
+   "y": 26200
+  },
+  "16-A2-Producteur-offre.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "16.A2 Producteur · offre",
+   "w": 390,
+   "x": 470,
+   "y": 26200
+  },
+  "16-A3-Producteur-negocie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "16.A3 Négociation",
+   "w": 390,
+   "x": 940,
+   "y": 26200
+  },
+  "16-A4-Producteur-accord.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "16.A4 Accord",
+   "w": 390,
+   "x": 1410,
+   "y": 26200
+  },
+  "16-A5-Producteur-refus.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "16.A5 Refus",
+   "w": 390,
+   "x": 1880,
+   "y": 26200
+  },
+  "16-A6-Producteur-retour.dc.html": {
+   "h": 844,
+   "title": "16.A6 Retour après refus",
+   "w": 390,
+   "x": 2350,
+   "y": 26200
+  },
+  "16-B-Contrat-label.dc.html": {
+   "h": 844,
+   "title": "16.B Contrat",
+   "w": 390,
+   "x": 0,
+   "y": 27200
+  },
+  "16-C-Rivalite.dc.html": {
+   "h": 844,
+   "title": "16.C Rivalité",
+   "w": 390,
+   "x": 470,
+   "y": 27200
+  },
+  "16-D-Manager-resultat.dc.html": {
+   "h": 844,
+   "title": "16.D Mauvais résultat",
+   "w": 390,
+   "x": 940,
+   "y": 27200
+  },
+  "16-E-Promoteur-concert.dc.html": {
+   "h": 844,
+   "title": "16.E Concert",
+   "w": 390,
+   "x": 1410,
+   "y": 27200
+  },
+  "16-F-Succes-classement.dc.html": {
+   "h": 844,
+   "title": "16.F Succès",
+   "w": 390,
+   "x": 1880,
+   "y": 27200
+  },
+  "16-G-Collaboration.dc.html": {
+   "h": 844,
+   "title": "16.G Collaboration",
+   "w": 390,
+   "x": 2350,
+   "y": 27200
+  },
+  "17-0-Proposition.dc.html": {
+   "h": 823,
+   "title": "17.0 Sept écrans, pour validation",
+   "w": 1400,
+   "x": 0,
+   "y": 28600
+  },
+  "17-1-Audit.dc.html": {
+   "h": 1076,
+   "title": "17.1 Audit global",
+   "w": 1400,
+   "x": 1480,
+   "y": 28600
+  },
+  "17-10-Classement.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.10 Classement",
+   "w": 390,
+   "x": 2350,
+   "y": 31000
+  },
+  "17-11-Boutique.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.11 Boutique",
+   "w": 390,
+   "x": 2820,
+   "y": 31000
+  },
+  "17-12-Coherence-classements.dc.html": {
+   "h": 2324,
+   "title": "17.12 Cohérence des classements",
+   "w": 1500,
+   "x": 4440,
+   "y": 28600
+  },
+  "17-13-Plan-originaux.dc.html": {
+   "h": 1432,
+   "title": "17.13 Plan de correction des originaux",
+   "w": 1500,
+   "x": 6020,
+   "y": 28600
+  },
+  "17-14-Comparaison-avatars.dc.html": {
+   "h": 1400,
+   "title": "17.14 Comparaison des directions d’avatar",
+   "w": 1620,
+   "x": 7600,
+   "y": 28600
+  },
+  "17-15-Audit-harmonisation-2D.dc.html": {
+   "h": 1412,
+   "title": "17.15 Audit et plan d’harmonisation 2D",
+   "w": 1500,
+   "x": 9320,
+   "y": 28600
+  },
+  "17-16-Systeme-modulaire-2D.dc.html": {
+   "h": 962,
+   "title": "17.16 Système modulaire 2D",
+   "w": 1500,
+   "x": 10900,
+   "y": 28600
+  },
+  "17-17-Personnalisation-2D.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.17 Personnalisation 2D",
+   "w": 390,
+   "x": 12480,
+   "y": 28600
+  },
+  "17-2-Composants.dc.html": {
+   "h": 674,
+   "title": "17.2 Composants",
+   "w": 1400,
+   "x": 2960,
+   "y": 28600
+  },
+  "17-3-Plan.dc.html": {
+   "h": 716,
+   "title": "17.3 Plan d'harmonisation",
+   "w": 1400,
+   "x": 0,
+   "y": 29800
+  },
+  "17-4-Registre-personnages.dc.html": {
+   "h": 1082,
+   "title": "17.4 Registre des personnages",
+   "w": 1400,
+   "x": 1480,
+   "y": 29800
+  },
+  "17-5-QG.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.5 QG",
+   "w": 390,
+   "x": 0,
+   "y": 31000
+  },
+  "17-6-Studio.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.6 Studio",
+   "w": 390,
+   "x": 470,
+   "y": 31000
+  },
+  "17-7-Sortie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.7 Sortie",
+   "w": 390,
+   "x": 940,
+   "y": 31000
+  },
+  "17-8-Concert.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.8 Concert",
+   "w": 390,
+   "x": 1410,
+   "y": 31000
+  },
+  "17-9-Contrat.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "17.9 Contrat",
+   "w": 390,
+   "x": 1880,
+   "y": 31000
+  },
+  "18-0-Architecture.dc.html": {
+   "h": 2243,
+   "title": "18.0 Architecture et maquettes",
+   "w": 1500,
+   "x": 0,
+   "y": 32400
+  },
+  "18-1-Labels.dc.html": {
+   "h": 2054,
+   "title": "18.1 Les 10 labels",
+   "w": 1500,
+   "x": 1580,
+   "y": 32400
+  },
+  "18-10-Offres.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.10 Comparer les offres",
+   "w": 390,
+   "x": 940,
+   "y": 37300
+  },
+  "18-11-Invitation-festival.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.11 Invitation festival",
+   "w": 390,
+   "x": 1410,
+   "y": 37300
+  },
+  "18-12-Certification.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.12 Certification",
+   "w": 390,
+   "x": 1880,
+   "y": 37300
+  },
+  "18-13-Ceremonie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.13 Cérémonie",
+   "w": 390,
+   "x": 2350,
+   "y": 37300
+  },
+  "18-2-Artistes.dc.html": {
+   "h": 2213,
+   "title": "18.2 Catalogue de 1 000 artistes",
+   "w": 1500,
+   "x": 3160,
+   "y": 32400
+  },
+  "18-3-Festivals.dc.html": {
+   "h": 1862,
+   "title": "18.3 Festivals",
+   "w": 1500,
+   "x": 0,
+   "y": 35000
+  },
+  "18-4-Certifications.dc.html": {
+   "h": 1639,
+   "title": "18.4 Certifications",
+   "w": 1500,
+   "x": 1580,
+   "y": 35000
+  },
+  "18-5-Awards.dc.html": {
+   "h": 1584,
+   "title": "18.5 Awards",
+   "w": 1500,
+   "x": 3160,
+   "y": 35000
+  },
+  "18-6-Regles-industrie.dc.html": {
+   "h": 1182,
+   "title": "18.6 Règles de l’industrie",
+   "w": 1500,
+   "x": 4740,
+   "y": 35000
+  },
+  "18-8-Annuaire.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.8 Annuaire",
+   "w": 390,
+   "x": 0,
+   "y": 37300
+  },
+  "18-9-Fiche-artiste.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "18.9 Fiche artiste",
+   "w": 390,
+   "x": 470,
+   "y": 37300
+  },
+  "19-0-Managers.dc.html": {
+   "h": 1744,
+   "title": "19.0 Managers : vue d’ensemble",
+   "w": 1500,
+   "x": 0,
+   "y": 38700
+  },
+  "19-1-Niveaux.dc.html": {
+   "h": 1154,
+   "title": "19.1 Six niveaux",
+   "w": 1500,
+   "x": 1580,
+   "y": 38700
+  },
+  "19-2-Profils-contrat.dc.html": {
+   "h": 1568,
+   "title": "19.2 Profils et contrat",
+   "w": 1500,
+   "x": 3160,
+   "y": 38700
+  },
+  "19-3-Interactions.dc.html": {
+   "h": 994,
+   "title": "19.3 Interactions et équilibrage",
+   "w": 1500,
+   "x": 4740,
+   "y": 38700
+  },
+  "19-4-Gestion.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.4 Gestion du manager",
+   "w": 390,
+   "x": 0,
+   "y": 40600
+  },
+  "19-5-Annuaire-managers.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.5 Annuaire des managers",
+   "w": 390,
+   "x": 470,
+   "y": 40600
+  },
+  "19-6-Recrutement.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.6 Dialogue · recrutement",
+   "w": 390,
+   "x": 940,
+   "y": 40600
+  },
+  "19-6b-Recrutement-consequences.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.6b Conséquences",
+   "w": 390,
+   "x": 1410,
+   "y": 40600
+  },
+  "19-7-Negociation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.7 Dialogue · négociation",
+   "w": 390,
+   "x": 1880,
+   "y": 40600
+  },
+  "19-7b-Negociation-consequences.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.7b Conséquences",
+   "w": 390,
+   "x": 2350,
+   "y": 40600
+  },
+  "19-8-Crise.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.8 Dialogue · crise",
+   "w": 390,
+   "x": 2820,
+   "y": 40600
+  },
+  "19-8b-Crise-consequences.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "19.8b Conséquences",
+   "w": 390,
+   "x": 3290,
+   "y": 40600
+  },
+  "20-0-Manifeste.dc.html": {
+   "h": 1294,
+   "title": "20.0 Manifeste et audit",
+   "w": 1500,
+   "x": 0,
+   "y": 44300
+  },
+  "20-1-Registre-planches.dc.html": {
+   "h": 5154,
+   "title": "20.1 Registre des planches",
+   "w": 1500,
+   "x": 1580,
+   "y": 44300
+  },
+  "20-10-Echantillon-2D.dc.html": {
+   "h": 2360,
+   "title": "20.10 Échantillon avatars 2D (D-01)",
+   "w": 1500,
+   "x": 0,
+   "y": 46726
+  },
+  "20-2-Decisions.dc.html": {
+   "h": 1620,
+   "title": "20.2 Registre des décisions et corrections",
+   "w": 1500,
+   "x": 3160,
+   "y": 44300
+  },
+  "20-3-Economie-D08.dc.html": {
+   "h": 1004,
+   "title": "20.3 Économie D-08",
+   "w": 1500,
+   "x": 4740,
+   "y": 44300
+  },
+  "20-4-Indice-D17.dc.html": {
+   "h": 1088,
+   "title": "20.4 Indice D-17",
+   "w": 1500,
+   "x": 6320,
+   "y": 44300
+  },
+  "20-5-Accessibilite-AAA.dc.html": {
+   "h": 1116,
+   "title": "20.5 Accessibilité AAA",
+   "w": 1500,
+   "x": 7900,
+   "y": 44300
+  },
+  "20-6-Changements.dc.html": {
+   "h": 1238,
+   "title": "20.6 Avant / après",
+   "w": 1500,
+   "x": 9480,
+   "y": 44300
+  },
+  "20-7-Validation-finale.dc.html": {
+   "h": 788,
+   "title": "20.7 Validation finale",
+   "w": 1500,
+   "x": 11060,
+   "y": 44300
+  },
+  "20-8-Parcours-demo.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "20.8 Parcours de démo",
+   "w": 390,
+   "x": 1093,
+   "y": 45738
+  },
+  "20-9-Parametres-demo.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "20.9 Paramètres de démo",
+   "w": 390,
+   "x": -470,
+   "y": 46744
+  },
+  "DS-Components-A.dc.html": {
+   "h": 1000,
+   "title": "01 · Composants A",
+   "w": 1200,
+   "x": 1280,
+   "y": 1480
+  },
+  "DS-Components-B.dc.html": {
+   "h": 1000,
+   "title": "01 · Composants B",
+   "w": 1200,
+   "x": 2560,
+   "y": 1480
+  },
+  "DS-Icons.dc.html": {
+   "h": 1000,
+   "title": "01 · Icônes, avatars, modales",
+   "w": 1200,
+   "x": 3840,
+   "y": 1480
+  },
+  "DS-Tokens.dc.html": {
+   "h": 1000,
+   "title": "01 · Couleurs, typo, espacement",
+   "w": 1200,
+   "x": 0,
+   "y": 1480
+  },
+  "Main.dc.html": {
+   "h": 760,
+   "title": "00 · Cover",
+   "w": 1000,
+   "x": 0,
+   "y": 300
+  },
+  "Piece-gxo1.dc.html": {
+   "frameless": true,
+   "h": 36,
+   "title": "Text",
+   "w": 240,
+   "x": -518,
+   "y": 24737
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-09T19:10:00Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "view": "canvas"
+ },
+ "notes": {
+  "t00": {
+   "kind": "title1",
+   "maxW": 2080,
+   "text": "00 — Cover & Overview",
+   "w": 240,
+   "x": 0,
+   "y": 40
+  },
+  "t01": {
+   "kind": "title1",
+   "maxW": 5040,
+   "text": "01 — Design System",
+   "w": 240,
+   "x": 0,
+   "y": 1220
+  },
+  "t02": {
+   "kind": "title1",
+   "maxW": 4150,
+   "text": "02 — Onboarding & Character",
+   "w": 240,
+   "x": 0,
+   "y": 2640
+  },
+  "t03": {
+   "kind": "title1",
+   "maxW": 2660,
+   "text": "03 — Career Dashboard",
+   "w": 240,
+   "x": 0,
+   "y": 3904
+  },
+  "t04": {
+   "kind": "title1",
+   "maxW": 4150,
+   "text": "04 — Recording Studio",
+   "w": 240,
+   "x": 0,
+   "y": 5168
+  },
+  "t05": {
+   "kind": "title1",
+   "maxW": 3210,
+   "text": "05 — Releases & Streaming",
+   "w": 240,
+   "x": 0,
+   "y": 6432
+  },
+  "t06": {
+   "kind": "title1",
+   "maxW": 2270,
+   "text": "06 — Freestyle & Battles",
+   "w": 240,
+   "x": 0,
+   "y": 7696
+  },
+  "t07": {
+   "kind": "title1",
+   "maxW": 1330,
+   "text": "07 — Concerts & Performances (maquettes)",
+   "w": 240,
+   "x": 0,
+   "y": 8960
+  },
+  "t08": {
+   "kind": "title1",
+   "maxW": 1800,
+   "text": "08 — Labels & Collaborations (maquettes)",
+   "w": 240,
+   "x": 0,
+   "y": 10224
+  },
+  "t09": {
+   "kind": "title1",
+   "maxW": 3210,
+   "text": "09 — Finance & Equipment",
+   "w": 240,
+   "x": 0,
+   "y": 11488
+  },
+  "t10": {
+   "kind": "title1",
+   "maxW": 2270,
+   "text": "10 — Missions & Progression",
+   "w": 240,
+   "x": 0,
+   "y": 12752
+  },
+  "t11": {
+   "kind": "title1",
+   "maxW": 1200,
+   "text": "11 — Interactive Prototype",
+   "w": 240,
+   "x": 0,
+   "y": 14016
+  },
+  "t12": {
+   "kind": "title1",
+   "maxW": 1200,
+   "text": "12 — Avatar, garde-robe, boutique",
+   "w": 240,
+   "x": 0,
+   "y": 15280
+  },
+  "t13": {
+   "kind": "title1",
+   "maxW": 1200,
+   "text": "13 — Classements officiels",
+   "w": 240,
+   "x": 0,
+   "y": 16544
+  },
+  "t14": {
+   "kind": "title1",
+   "maxW": 1500,
+   "text": "14 — Avatar : nouvelle direction artistique (concepts et éditeur, à valider avant intégration)",
+   "w": 240,
+   "x": 0,
+   "y": 17808
+  },
+  "t15": {
+   "kind": "title1",
+   "maxW": 5800,
+   "text": "15 — Gameplay : conception des systèmes (à valider, aucune maquette modifiée)",
+   "w": 240,
+   "x": 0,
+   "y": 22560
+  },
+  "t16": {
+   "kind": "title1",
+   "maxW": 5800,
+   "text": "16 — Dialogues narratifs illustrés (concept à valider)",
+   "w": 240,
+   "x": 0,
+   "y": 24400
+  },
+  "t17": {
+   "kind": "title1",
+   "maxW": 5800,
+   "text": "17 — Harmonisation : audit, plan et sept écrans représentatifs (à valider)",
+   "w": 240,
+   "x": 0,
+   "y": 28300
+  },
+  "t18": {
+   "kind": "title1",
+   "maxW": 7200,
+   "text": "18 — Extension de l’industrie musicale : labels, artistes, festivals, certifications, awards (à valider)",
+   "w": 240,
+   "x": 0,
+   "y": 32100
+  },
+  "t19": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "19 — Système de managers (à valider)",
+   "w": 240,
+   "x": 0,
+   "y": 38400
+  },
+  "t20": {
+   "kind": "title1",
+   "maxW": 7200,
+   "text": "20 — Version 20 : reconstruction, registres, simulations et audit (propositions)",
+   "w": 240,
+   "x": 0,
+   "y": 44000
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "00-Overview.dc.html",
+  "DS-Tokens.dc.html",
+  "DS-Components-A.dc.html",
+  "DS-Components-B.dc.html",
+  "DS-Icons.dc.html",
+  "02-1-Splash.dc.html",
+  "02-2-Univers1.dc.html",
+  "02-3-Univers2.dc.html",
+  "02-4-Univers3.dc.html",
+  "02-5-Identite.dc.html",
+  "02-5b-Identite-vide.dc.html",
+  "02-6-Look.dc.html",
+  "02-7-Style.dc.html",
+  "02-8-Objectif.dc.html",
+  "03-1-QG.dc.html",
+  "03-2-QG-energie.dc.html",
+  "03-3-Journal.dc.html",
+  "03-4-Profil.dc.html",
+  "03-5-Evenement.dc.html",
+  "03-6-Fin-journee.dc.html",
+  "04-1-Studio-vide.dc.html",
+  "04-2-Studio.dc.html",
+  "04-3-Instru.dc.html",
+  "04-4-Achat.dc.html",
+  "04-5-Ecriture.dc.html",
+  "04-6-Texte.dc.html",
+  "04-7-Cabine.dc.html",
+  "04-8-Minijeu.dc.html",
+  "04-9-Mix.dc.html",
+  "05-1-Sortie.dc.html",
+  "05-1b-Cash-insuffisant.dc.html",
+  "05-2-Promo.dc.html",
+  "05-3-Chargement.dc.html",
+  "05-4-Resultats.dc.html",
+  "05-5-EP.dc.html",
+  "05-6-Classements.dc.html",
+  "06-1-Scene.dc.html",
+  "06-2-OpenMic.dc.html",
+  "06-3-Battle.dc.html",
+  "06-4-Victoire.dc.html",
+  "06-4b-Defaite.dc.html",
+  "07-1-Preparation.dc.html",
+  "07-2-Scene.dc.html",
+  "07-3-Resultats.dc.html",
+  "08-1-Labels.dc.html",
+  "08-2-Contrat.dc.html",
+  "08-3-Featuring.dc.html",
+  "08-4-Reseau.dc.html",
+  "09-1-Matos.dc.html",
+  "09-2-Achat.dc.html",
+  "09-3-Formation.dc.html",
+  "09-4-Toast.dc.html",
+  "09-5-Finances.dc.html",
+  "09-6-Boutique.dc.html",
+  "09-7-Equipe.dc.html",
+  "10-1-Missions.dc.html",
+  "10-2-Mission-accomplie.dc.html",
+  "10-3-Nouvelle-mission.dc.html",
+  "10-4-Level-up.dc.html",
+  "10-5-Reputation.dc.html",
+  "11-Prototype.dc.html",
+  "03-1b-QG-360.dc.html",
+  "04-2b-Studio-360.dc.html",
+  "00b-Monde-fictif.dc.html",
+  "11b-Prototype-Ajouts.dc.html",
+  "12-1-Createur.dc.html",
+  "12-2-Teint-Visage.dc.html",
+  "12-3-Vetements.dc.html",
+  "12-4-Tenues.dc.html",
+  "12-5-Boutique.dc.html",
+  "12-5b-Achat.dc.html",
+  "12-6-Rendu-3D.dc.html",
+  "13-1-Classements.dc.html",
+  "13-2-Top-Singles.dc.html",
+  "13-3-Top-Albums.dc.html",
+  "13-4-Top-EPs.dc.html",
+  "13-5-Top10-Global.dc.html",
+  "13-5b-Top10-Dans.dc.html",
+  "13-5c-Progression.dc.html",
+  "13-6-Artiste.dc.html",
+  "14-1-Directions.dc.html",
+  "14-2-Angles.dc.html",
+  "14-3-Variantes.dc.html",
+  "14-4-Coiffure.dc.html",
+  "14-4b-Coiffure-34.dc.html",
+  "14-4c-Coiffure-profil.dc.html",
+  "14-4d-Coiffure-dos.dc.html",
+  "14-4e-Coiffure-zoom.dc.html",
+  "14-4f-Coiffure-afro.dc.html",
+  "14-5-Visage.dc.html",
+  "14-6-Teint.dc.html",
+  "14-6b-Teint-applique.dc.html",
+  "14-7-Barbe.dc.html",
+  "14-8-Vetements.dc.html",
+  "14-8b-Vetements-applique.dc.html",
+  "14-9-Chaussures.dc.html",
+  "14-10-Accessoires.dc.html",
+  "14-11-Sauvegarde.dc.html",
+  "14-12-Sauvegarde-ok.dc.html",
+  "15-1-Carte-systemes.dc.html",
+  "15-2-Ressources.dc.html",
+  "15-3-Regles.dc.html",
+  "15-4-Boucles.dc.html",
+  "15-5-Semaine.dc.html",
+  "15-6-Trajectoires-rivalites.dc.html",
+  "15-7-Ecrans-risques.dc.html",
+  "16-0-Dialogues.dc.html",
+  "16-1-Personnages.dc.html",
+  "16-2-Poses.dc.html",
+  "16-A1-Producteur-ecoute.dc.html",
+  "16-A2-Producteur-offre.dc.html",
+  "16-A3-Producteur-negocie.dc.html",
+  "16-A4-Producteur-accord.dc.html",
+  "16-A5-Producteur-refus.dc.html",
+  "16-A6-Producteur-retour.dc.html",
+  "16-B-Contrat-label.dc.html",
+  "16-C-Rivalite.dc.html",
+  "16-D-Manager-resultat.dc.html",
+  "16-E-Promoteur-concert.dc.html",
+  "16-F-Succes-classement.dc.html",
+  "16-G-Collaboration.dc.html",
+  "17-0-Proposition.dc.html",
+  "17-1-Audit.dc.html",
+  "17-2-Composants.dc.html",
+  "17-3-Plan.dc.html",
+  "17-4-Registre-personnages.dc.html",
+  "17-5-QG.dc.html",
+  "17-6-Studio.dc.html",
+  "17-7-Sortie.dc.html",
+  "17-8-Concert.dc.html",
+  "17-9-Contrat.dc.html",
+  "17-10-Classement.dc.html",
+  "17-11-Boutique.dc.html",
+  "Piece-gxo1.dc.html",
+  "18-0-Architecture.dc.html",
+  "18-1-Labels.dc.html",
+  "18-2-Artistes.dc.html",
+  "18-3-Festivals.dc.html",
+  "18-4-Certifications.dc.html",
+  "18-5-Awards.dc.html",
+  "18-6-Regles-industrie.dc.html",
+  "18-8-Annuaire.dc.html",
+  "18-9-Fiche-artiste.dc.html",
+  "18-10-Offres.dc.html",
+  "18-11-Invitation-festival.dc.html",
+  "18-12-Certification.dc.html",
+  "18-13-Ceremonie.dc.html",
+  "19-0-Managers.dc.html",
+  "19-1-Niveaux.dc.html",
+  "19-2-Profils-contrat.dc.html",
+  "19-3-Interactions.dc.html",
+  "19-4-Gestion.dc.html",
+  "19-5-Annuaire-managers.dc.html",
+  "19-6-Recrutement.dc.html",
+  "19-6b-Recrutement-consequences.dc.html",
+  "19-7-Negociation.dc.html",
+  "19-7b-Negociation-consequences.dc.html",
+  "19-8-Crise.dc.html",
+  "19-8b-Crise-consequences.dc.html",
+  "17-12-Coherence-classements.dc.html",
+  "17-13-Plan-originaux.dc.html",
+  "17-14-Comparaison-avatars.dc.html",
+  "17-15-Audit-harmonisation-2D.dc.html",
+  "17-16-Systeme-modulaire-2D.dc.html",
+  "17-17-Personnalisation-2D.dc.html",
+  "20-0-Manifeste.dc.html",
+  "20-1-Registre-planches.dc.html",
+  "20-2-Decisions.dc.html",
+  "20-3-Economie-D08.dc.html",
+  "20-4-Indice-D17.dc.html",
+  "20-5-Accessibilite-AAA.dc.html",
+  "20-6-Changements.dc.html",
+  "20-7-Validation-finale.dc.html",
+  "03-1c-QG-progression.dc.html",
+  "06-5-Battle-victoire.dc.html",
+  "06-5b-Battle-defaite.dc.html",
+  "20-8-Parcours-demo.dc.html",
+  "20-9-Parametres-demo.dc.html",
+  "20-10-Echantillon-2D.dc.html"
+ ],
+ "pages": [],
+ "title": "RAP EMPIRE — Mobile Game UI/UX — v20"
+}
