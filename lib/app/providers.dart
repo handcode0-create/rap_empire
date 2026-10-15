@@ -3,6 +3,7 @@ import '../data/save_repository.dart';
 import '../domain/clock.dart' as clock;
 import '../domain/game_state.dart';
 import '../domain/studio.dart' as studio;
+import '../domain/training.dart' as training;
 
 final saveRepoProvider = Provider((_) => SaveRepository());
 
@@ -32,6 +33,10 @@ class GameNotifier extends AsyncNotifier<GameState> {
 
   /// Sortie d'un single avec la promo choisie (index de promos).
   Future<void> releaseSingle(int promo) => apply((s) => studio.release(s, promo));
+
+  /// Matériel et formation (Business).
+  Future<void> buyMicro() => apply(studio.buyMicro);
+  Future<void> train(String id) => apply((s) => training.train(s, id));
 
   /// Missions : récupérer une récompense, puis la récompense de niveau.
   Future<void> claimMission(String id) => apply((s) => studio.claim(s, id));

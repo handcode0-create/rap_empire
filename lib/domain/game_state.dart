@@ -6,6 +6,9 @@ import 'studio_models.dart';
 const Object _keep = Object();
 const defaultSkills = {'flow': 17, 'ecr': 14, 'voix': 10, 'cha': 8};
 
+/// Totaux par catégorie du registre (cat de game.js).
+const defaultCat = {'manager': 0, 'label': 0, 'ecoutes': 0, 'cachets': 0, 'mission': 0, 'instru': 0, 'promo': 0, 'materiel': 0, 'formation': 0, 'boutique': 0, 'niveau': 0};
+
 /// Statut d'une mission : 'todo' (à faire), 'done' (terminée, à récupérer), 'claimed' (récupérée).
 const defaultMissions = {'m1': 'todo', 'm2': 'todo', 'm3': 'todo', 'm4': 'todo'};
 
@@ -50,10 +53,14 @@ class GameState {
 
   /// Écoutes de la semaine (lw), écoutes cumulées (lc) et fans gagnés par les sorties (fgain) de game.js.
   final int lw, lc, fgain;
+
+  /// Registre des mouvements de cauris (led de game.js), le plus récent d'abord, et totaux par catégorie (cat).
+  final List<LedgerEntry> led;
+  final Map<String, int> cat;
   const GameState({
     this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo',
     this.inst, this.texte, this.sk = defaultSkills, this.takes = const [], this.song, this.micro = false, this.ms = defaultMissions, this.pend, this.style = 'drill',
-    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0,
+    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat,
   });
 
   int get level => levelOf(xp);
@@ -63,7 +70,7 @@ class GameState {
   GameState copyWith({
     int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood,
     Object? inst = _keep, Object? texte = _keep, Map<String, int>? sk, List<int>? takes, Object? song = _keep, bool? micro, Map<String, String>? ms, Object? pend = _keep, String? style,
-    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain,
+    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat,
   }) =>
       GameState(
         version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
@@ -77,12 +84,14 @@ class GameState {
         style: style ?? this.style,
         rel: identical(rel, _keep) ? this.rel : rel as Release?,
         disco: disco ?? this.disco, lw: lw ?? this.lw, lc: lc ?? this.lc, fgain: fgain ?? this.fgain,
+        led: led ?? this.led, cat: cat ?? this.cat,
       );
 
   Map<String, dynamic> toJson() => {
         'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood,
         'inst': inst, 'texte': texte?.toJson(), 'sk': sk, 'takes': takes, 'song': song?.toJson(), 'micro': micro, 'ms': ms, 'pend': pend?.toJson(), 'style': style,
         'rel': rel?.toJson(), 'disco': disco.map((d) => d.toJson()).toList(), 'lw': lw, 'lc': lc, 'fgain': fgain,
+        'led': led.map((e) => e.toJson()).toList(), 'cat': cat,
       };
   factory GameState.fromJson(Map<String, dynamic> j) => GameState(
         version: (j['v'] ?? 1) as int, cash: (j['cash'] ?? 25000) as int, energy: (j['en'] ?? 100) as int, day: (j['day'] ?? 1) as int,
@@ -99,6 +108,8 @@ class GameState {
         rel: j['rel'] == null ? null : Release.fromJson(Map<String, dynamic>.from(j['rel'] as Map)),
         disco: j['disco'] == null ? const [] : [for (final d in j['disco'] as List) DiscoEntry.fromJson(Map<String, dynamic>.from(d as Map))],
         lw: (j['lw'] ?? 0) as int, lc: (j['lc'] ?? 0) as int, fgain: (j['fgain'] ?? 0) as int,
+        led: j['led'] == null ? const [] : [for (final e in j['led'] as List) LedgerEntry.fromJson(Map<String, dynamic>.from(e as Map))],
+        cat: j['cat'] == null ? defaultCat : {...defaultCat, ...Map<String, int>.from(j['cat'] as Map)},
       );
   String encode() => jsonEncode(toJson());
 }
@@ -116,6 +127,7 @@ class GameError implements Exception {
         'rep' => 'Réputation requise',
         'son' => 'Aucun son prêt à sortir',
         'rien' => 'Rien à récupérer',
+        'deja' => 'Déjà acheté',
         _ => 'Action impossible',
       };
 
@@ -123,8 +135,13 @@ class GameError implements Exception {
   String toString() => 'GameError($code)';
 }
 
-/// Exemple d'action pure : payer un montant, jamais de cauris négatifs (invariant I-09).
-GameState pay(GameState s, int amount) {
+/// Payer ou encaisser un montant, jamais de cauris négatifs (invariant I-09). Avec [label], l'opération est inscrite au registre
+/// (pay de game.js : led en tête de liste, total de la catégorie [cat] mis à jour).
+GameState pay(GameState s, int amount, {String? cat, String? label}) {
   if (s.cash + amount < 0) throw const GameError('cash');
-  return s.copyWith(cash: s.cash + amount);
+  return s.copyWith(
+    cash: s.cash + amount,
+    led: label == null ? null : [LedgerEntry(label: label, amount: amount, cat: cat, day: s.day), ...s.led],
+    cat: cat == null ? null : {...s.cat, cat: (s.cat[cat] ?? 0) + amount},
+  );
 }

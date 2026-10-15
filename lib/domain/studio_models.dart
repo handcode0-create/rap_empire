@@ -83,3 +83,19 @@ class DiscoEntry {
   @override
   int get hashCode => Object.hash(title, q, listens);
 }
+
+/// Entrée du registre des dépenses et revenus (led de game.js : { l, a, c, d }) : libellé, montant, catégorie, jour. Plus récente d'abord.
+class LedgerEntry {
+  final String label;
+  final int amount, day;
+  final String? cat;
+  const LedgerEntry({required this.label, required this.amount, required this.cat, required this.day});
+
+  Map<String, dynamic> toJson() => {'l': label, 'a': amount, 'c': cat, 'd': day};
+  factory LedgerEntry.fromJson(Map<String, dynamic> j) => LedgerEntry(label: (j['l'] ?? '') as String, amount: (j['a'] ?? 0) as int, cat: j['c'] as String?, day: (j['d'] ?? 1) as int);
+
+  @override
+  bool operator ==(Object other) => other is LedgerEntry && other.label == label && other.amount == amount && other.cat == cat && other.day == day;
+  @override
+  int get hashCode => Object.hash(label, amount, cat, day);
+}

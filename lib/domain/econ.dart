@@ -22,6 +22,7 @@ class Econ {
   static const fanConversion = 0.07; // part des écoutes qui devient fans (avant saturation)
   static const listensPerPop = 900; // écoutes pour 1 point de popularité
   static const weekFactor = 1.5; // écoutes de la semaine = écoutes de la sortie x 1,5 (lw)
+  static const microPrice = 18000; // ECON.micro : prix du micro studio (A.gear)
   static const confirmFrom = 15000; // confirmation d'achat ou de promo à partir de ce montant (promoCbig de game.js : >= 15000)
 }
 
@@ -60,3 +61,33 @@ const missionRewards = {
   'm3': MissionReward(4000, 60),
   'm4': MissionReward(15000, 120),
 };
+
+/// Formation (table F de A.formation, game.js) : coût en cauris, énergie, heures, compétence gagnée. [unlocksMission3] : l'atelier d'écriture termine la mission 3.
+class Formation {
+  final String id, name, skill;
+  final int hours, cost, energy, gain;
+  final bool unlocksMission3;
+  const Formation(this.id, this.name, this.skill, {required this.hours, required this.cost, required this.energy, required this.gain, this.unlocksMission3 = false});
+}
+
+const formations = [
+  Formation('ecr', "Atelier d'écriture", 'ecr', hours: 2, cost: 6000, energy: 20, gain: 5, unlocksMission3: true),
+  Formation('flow', 'Freestyle au carrefour', 'flow', hours: 1, cost: 0, energy: 15, gain: 2),
+  Formation('voix', 'Coach vocal', 'voix', hours: 2, cost: 9000, energy: 20, gain: 5),
+  Formation('cha', 'Shooting et réseaux', 'cha', hours: 2, cost: 7000, energy: 15, gain: 4),
+];
+
+/// Équipement affiché par la planche 09.1. Seul le micro studio a une règle dans game.js (A.gear : +8 à la voix, voir record()) ;
+/// le casque (+4 mix) et la carte son (+6 mix) n'ont aucune formule : leurs valeurs sont celles de la planche, sans effet ni achat. [implemented] : règle portée.
+class GearItem {
+  final String id, name, effect, icon;
+  final int price;
+  final bool implemented;
+  const GearItem(this.id, this.name, this.effect, this.price, this.icon, {this.implemented = false});
+}
+
+const gearItems = [
+  GearItem('micro', 'Micro studio', 'Qualité enregistrement +8', Econ.microPrice, 'mic', implemented: true),
+  GearItem('casque', 'Casque monitoring', 'Qualité mix +4', 12000, 'music'),
+  GearItem('carte', 'Carte son', 'Qualité mix +6', 30000, 'briefcase'),
+];

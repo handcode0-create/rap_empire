@@ -10,6 +10,9 @@ class Mission {
 const mission1 = Mission('m1', 'Enregistre ton premier son', 'Choisis une instru, écris, passe en cabine.');
 const mission2 = Mission('m2', 'Sors ton premier single', 'Ton son est prêt : choisis la promo et mets-le en ligne.');
 
+/// Titres des quatre missions (MISSIONS[].t de game.js), repris dans le registre.
+const missionTitles = {'m1': 'Enregistre ton premier son', 'm2': 'Sors ton premier single', 'm3': "Fais un atelier d'écriture", 'm4': 'Atteins 1 000 fans'};
+
 /// Missions affichées au QG, dans l'ordre.
 const qgMissions = [mission1, mission2];
 

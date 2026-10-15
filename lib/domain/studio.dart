@@ -1,6 +1,7 @@
 import 'clock.dart';
 import 'econ.dart';
 import 'game_state.dart';
+import 'missions.dart';
 import 'rules.dart';
 import 'studio_models.dart';
 
@@ -25,7 +26,7 @@ GameState pick(GameState s, String id) {
   final code = pickBlocker(s, id);
   if (code != null) throw GameError(code);
   final i = instruById(id);
-  return (i.price > 0 ? pay(s, -i.price) : s).copyWith(inst: i.id, texte: null, takes: const [], song: null);
+  return (i.price > 0 ? pay(s, -i.price, cat: 'instru', label: 'Instru ${i.name}') : s).copyWith(inst: i.id, texte: null, takes: const [], song: null);
 }
 
 /// Écriture : 1 h et 20 énergie (A.write).
@@ -137,12 +138,12 @@ GameState release(GameState s, int promo) {
   if (promo < 0 || promo >= promos.length) throw const GameError('inconnu');
   final p = promos[promo];
   if (s.cash < p.cost) throw const GameError('cash');
-  var n = p.cost > 0 ? pay(s, -p.cost) : s;
+  var n = p.cost > 0 ? pay(s, -p.cost, cat: 'promo', label: 'Promo : ${p.name}') : s;
   final listens = listensFor(song.q, n.fans, promo);
   final rev = (listens * Econ.monetised * Econ.listenValue).round();
   final fg = (listens * Econ.fanConversion / (1 + n.fans / Econ.fanSat)).ceil();
   final pg = (listens / Econ.listensPerPop).floor();
-  n = pay(n, rev);
+  n = pay(n, rev, cat: 'ecoutes', label: 'Écoutes · ${song.title}');
   n = n.copyWith(
     fans: n.fans + fg, pop: n.pop + pg, fgain: n.fgain + fg,
     lw: (listens * Econ.weekFactor).round(), lc: n.lc + listens,
@@ -162,12 +163,20 @@ GameState release(GameState s, int promo) {
 GameState claim(GameState s, String id) {
   final reward = missionRewards[id];
   if (reward == null || s.ms[id] != 'done') throw const GameError('rien');
-  return addXp(pay(s.copyWith(ms: {...s.ms, id: 'claimed'}), reward.cash), reward.xp);
+  return addXp(pay(s.copyWith(ms: {...s.ms, id: 'claimed'}), reward.cash, cat: 'mission', label: 'Mission : ${missionTitles[id]}'), reward.xp);
 }
 
 /// A.ack : récupérer la récompense du niveau gagné (pend) ; sans effet s'il n'y en a pas.
 GameState ack(GameState s) {
   final pend = s.pend;
   if (pend == null) return s;
-  return (pend.reward > 0 ? pay(s, pend.reward) : s).copyWith(pend: null);
+  return (pend.reward > 0 ? pay(s, pend.reward, cat: 'niveau', label: 'Niveau ${pend.lvl}') : s).copyWith(pend: null);
+}
+
+/// A.gear : acheter le micro studio (18 000 cauris, +8 à la voix de chaque enregistrement, voir record()). Erreurs : 'deja', puis 'cash'.
+/// Le casque et la carte son n'ont pas de règle dans game.js : rien n'est porté pour eux.
+GameState buyMicro(GameState s) {
+  if (s.micro) throw const GameError('deja');
+  if (s.cash < Econ.microPrice) throw const GameError('cash');
+  return pay(s, -Econ.microPrice, cat: 'materiel', label: 'Micro studio').copyWith(micro: true);
 }

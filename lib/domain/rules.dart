@@ -36,6 +36,9 @@ int xpPercent(int xp) {
 /// gapPct de game.js (view) = min(100, round(100 x lw / ENTRY x 10) / 10).
 double gapPercent(int weekListens) => min(100, (100 * weekListens / Econ.entryListens * 10).round() / 10);
 
+/// Avancement (0 à 100) de la mission « Atteins 1 000 fans » : m4pct de game.js = min(100, round(fans / 10)).
+int fansMissionPercent(int fans) => min(100, (fans / 10).round());
+
 /// Espace pur : aucune dépendance Flutter ni Supabase (testable, reproductible, rejouable côté serveur).
 String fmt(num n) {
   final s = n.abs().round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ' ');
