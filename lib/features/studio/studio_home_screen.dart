@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../domain/game_state.dart';
+import '../../domain/rules.dart';
 import '../../domain/studio.dart';
 import '../../domain/studio_models.dart';
 import '../shell/toast.dart';
@@ -14,11 +15,11 @@ class StudioHomeScreen extends ConsumerWidget {
   const StudioHomeScreen({super.key});
 
   /// Étape à reprendre déduite de l'état sauvegardé (restauration de l'écran au rechargement).
-  static (String, String)? _resume(GameState s) => switch (studioStep(s)) {
+  static (String, String, String)? _resume(GameState s) => switch (studioStep(s)) {
         StudioStep.instru => null,
-        StudioStep.ecriture => ('Écrire le texte', '/studio/ecriture'),
-        StudioStep.cabine => ('Passer en cabine', '/studio/cabine'),
-        StudioStep.sortie => ('Voir le mix', '/studio/mix'),
+        StudioStep.ecriture => ('Écrire le texte', '/studio/ecriture', 'Étape 2 / 3'),
+        StudioStep.cabine => ('Passer en cabine', '/studio/cabine', 'Étape 3 / 3'),
+        StudioStep.sortie => ('Préparer la sortie', '/studio/sortie', 'Single · promo · mise en ligne'),
       };
 
   @override
@@ -28,9 +29,9 @@ class StudioHomeScreen extends ConsumerWidget {
     final resume = _resume(s);
     return ListView(padding: const EdgeInsets.all(16), children: [
       Text('Studio', style: Theme.of(context).textTheme.displayMedium),
-      Text('Kôrô · ${s.hood}${s.song != null ? ' · 1 son' : ''}', style: const TextStyle(color: Tk.ink2)),
+      Text('Kôrô · ${s.hood}${songCount(s) > 0 ? ' · ${songCount(s)} son${songCount(s) > 1 ? 's' : ''}' : ''}', style: const TextStyle(color: Tk.ink2)),
       const SizedBox(height: 16),
-      if (s.song == null)
+      if ((s.song == null || s.song!.released) && s.disco.isEmpty)
         TkCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Aucun son enregistré', style: Theme.of(context).textTheme.titleLarge),
@@ -42,11 +43,25 @@ class StudioHomeScreen extends ConsumerWidget {
             ],
           ]),
         )
-      else
+      else if (s.song != null && !s.song!.released)
         _SongCard(song: s.song!, style: styleNames[s.style] ?? ''),
+      if (s.disco.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        const Text('Discographie', style: TextStyle(color: Tk.ink2)),
+        const SizedBox(height: 8),
+        for (final d in s.disco.reversed) ...[
+          TkCard(
+            child: Row(children: [
+              Expanded(child: Text(d.title, style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink))),
+              Text('Q${d.q} · ${fmt(d.listens)} écoutes', style: const TextStyle(color: Tk.ink2, fontSize: 12)),
+            ]),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ],
       const SizedBox(height: 12),
       if (resume != null) ...[
-        _Tile(icon: Icons.play_circle_rounded, title: 'Reprendre : ${resume.$1}', subtitle: 'Là où tu t’es arrêté', onTap: () => context.go(resume.$2)),
+        _Tile(icon: Icons.play_circle_rounded, title: 'Reprendre : ${resume.$1}', subtitle: resume.$3, onTap: () => context.go(resume.$2)),
         const SizedBox(height: 8),
       ],
       _Tile(icon: Icons.add_circle_rounded, title: 'Nouveau son', subtitle: '3 étapes : instru · texte · cabine', onTap: () => context.go('/studio/instru')),

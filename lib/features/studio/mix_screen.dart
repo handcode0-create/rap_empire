@@ -45,7 +45,9 @@ class MixScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 24),
-      PrimaryButton(label: 'Retour au studio', onPressed: () => context.go('/studio')),
+      PrimaryButton(label: 'Préparer la sortie', onPressed: () => context.go('/studio/sortie')),
+      const SizedBox(height: 8),
+      GhostButton(label: 'Retour au studio', onPressed: () => context.go('/studio')),
     ]);
   }
 }

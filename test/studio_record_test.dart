@@ -127,9 +127,9 @@ void main() {
     test('instru choisie : écriture', () => expect(studioStep(pick(const GameState(), 'gbaka')), StudioStep.ecriture));
     test('texte écrit : cabine', () => expect(studioStep(afterWrite), StudioStep.cabine));
     test('son enregistré non sorti : sortie', () => expect(studioStep(record(afterWrite)), StudioStep.sortie));
-    test('son déjà sorti, texte conservé : cabine', () {
+    test('son déjà sorti : nouveau parcours, on repart de l’instru', () {
       final s = record(afterWrite);
-      expect(studioStep(s.copyWith(song: s.song!.copyWith(released: true))), StudioStep.cabine);
+      expect(studioStep(s.copyWith(song: s.song!.copyWith(released: true))), StudioStep.instru);
     });
   });
 

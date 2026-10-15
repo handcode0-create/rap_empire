@@ -4,7 +4,7 @@ import 'game_state.dart';
 import 'rules.dart';
 import 'studio_models.dart';
 
-/// Actions du studio. Port de A.pick, A.write et A.record (game.js v20), fonctions pures : aucune dépendance Flutter ni Supabase.
+/// Actions du studio. Port de A.pick, A.write, A.record et A.release (game.js v20), fonctions pures : aucune dépendance Flutter ni Supabase.
 
 Instru instruById(String id) => instrus.firstWhere((i) => i.id == id, orElse: () => throw const GameError('inconnu'));
 
@@ -102,8 +102,58 @@ GameState record(GameState s, [List<int>? takes]) {
 enum StudioStep { instru, ecriture, cabine, sortie }
 
 StudioStep studioStep(GameState s) {
+  final song = s.song;
+  if (song != null) return song.released ? StudioStep.instru : StudioStep.sortie;
   if (s.inst == null) return StudioStep.instru;
-  if (s.song != null && !s.song!.released) return StudioStep.sortie;
   if (s.texte == null) return StudioStep.ecriture;
   return StudioStep.cabine;
+}
+
+/// Nombre de sons du studio : sons sortis plus le son à sortir.
+int songCount(GameState s) => s.disco.length + ((s.song != null && !s.song!.released) ? 1 : 0);
+
+/// Aperçu de la sortie (planches 05.1 et 05.1b) : écoutes et revenus estimés, cash après promo.
+class ReleasePreview {
+  final int listens, revenue, promoCost, cashAfter;
+  final bool affordable;
+  const ReleasePreview({required this.listens, required this.revenue, required this.promoCost, required this.cashAfter, required this.affordable});
+}
+
+ReleasePreview releasePreview(GameState s, int promo) {
+  final song = s.song;
+  if (song == null) throw const GameError('son');
+  if (promo < 0 || promo >= promos.length) throw const GameError('inconnu');
+  final listens = listensFor(song.q, s.fans, promo);
+  final cost = promos[promo].cost;
+  return ReleasePreview(listens: listens, revenue: (listens * Econ.monetised * Econ.listenValue).round(), promoCost: cost, cashAfter: s.cash - cost, affordable: s.cash >= cost);
+}
+
+/// A.release : sortie d'un single avec la promo [promo] (index de promos).
+/// Promo payée, écoutes (listensFor), revenus (0,01 cauri par écoute monétisée), fans, popularité, résultat, XP, jour suivant 08:00 énergie 100.
+/// Écart assumé avec game.js : le son est marqué « sorti » et entre en discographie ; le prototype laissait le même son ressortable.
+GameState release(GameState s, int promo) {
+  final song = s.song;
+  if (song == null || song.released) throw const GameError('son');
+  if (promo < 0 || promo >= promos.length) throw const GameError('inconnu');
+  final p = promos[promo];
+  if (s.cash < p.cost) throw const GameError('cash');
+  var n = p.cost > 0 ? pay(s, -p.cost) : s;
+  final listens = listensFor(song.q, n.fans, promo);
+  final rev = (listens * Econ.monetised * Econ.listenValue).round();
+  final fg = (listens * Econ.fanConversion / (1 + n.fans / Econ.fanSat)).ceil();
+  final pg = (listens / Econ.listensPerPop).floor();
+  n = pay(n, rev);
+  n = n.copyWith(
+    fans: n.fans + fg, pop: n.pop + pg, fgain: n.fgain + fg,
+    lw: (listens * Econ.weekFactor).round(), lc: n.lc + listens,
+    rel: Release(title: song.title, listens: listens, revenue: rev, fans: fg, pop: pg, promo: promo, q: song.q),
+    song: song.copyWith(released: true),
+    disco: [...n.disco, DiscoEntry(title: song.title, q: song.q, listens: listens)],
+    day: n.day + 1, hour: wakeHour, energy: maxEnergy,
+  );
+  n = addXp(n, Econ.xpRelease);
+  final ms = {...n.ms};
+  if (ms['m2'] == 'todo') ms['m2'] = 'done';
+  if (n.fans >= 1000 && ms['m4'] == 'todo') ms['m4'] = 'done';
+  return n.copyWith(ms: ms);
 }

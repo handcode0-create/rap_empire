@@ -50,3 +50,36 @@ class Pending {
   @override
   int get hashCode => Object.hash(lvl, reward);
 }
+
+/// Résultat de la dernière sortie (rel de game.js) : écoutes, revenus, fans et popularité gagnés.
+class Release {
+  final String title;
+  final int listens, revenue, fans, pop, promo, q;
+  const Release({required this.title, required this.listens, required this.revenue, required this.fans, required this.pop, required this.promo, required this.q});
+
+  Map<String, dynamic> toJson() => {'title': title, 'l': listens, 'rev': revenue, 'fans': fans, 'pop': pop, 'promo': promo, 'q': q};
+  factory Release.fromJson(Map<String, dynamic> j) => Release(
+        title: (j['title'] ?? '') as String, listens: (j['l'] ?? 0) as int, revenue: (j['rev'] ?? 0) as int, fans: (j['fans'] ?? 0) as int,
+        pop: (j['pop'] ?? 0) as int, promo: (j['promo'] ?? 0) as int, q: (j['q'] ?? 0) as int);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Release && other.title == title && other.listens == listens && other.revenue == revenue && other.fans == fans && other.pop == pop && other.promo == promo && other.q == q;
+  @override
+  int get hashCode => Object.hash(title, listens, revenue, fans, pop, promo, q);
+}
+
+/// Ligne de discographie : un son sorti (ajout validé : game.js ne garde que le dernier son et la dernière sortie).
+class DiscoEntry {
+  final String title;
+  final int q, listens;
+  const DiscoEntry({required this.title, required this.q, required this.listens});
+
+  Map<String, dynamic> toJson() => {'title': title, 'q': q, 'l': listens};
+  factory DiscoEntry.fromJson(Map<String, dynamic> j) => DiscoEntry(title: (j['title'] ?? '') as String, q: (j['q'] ?? 0) as int, listens: (j['l'] ?? 0) as int);
+
+  @override
+  bool operator ==(Object other) => other is DiscoEntry && other.title == title && other.q == q && other.listens == listens;
+  @override
+  int get hashCode => Object.hash(title, q, listens);
+}

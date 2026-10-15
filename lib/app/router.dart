@@ -7,6 +7,8 @@ import '../features/studio/cabine_screen.dart';
 import '../features/studio/ecriture_screen.dart';
 import '../features/studio/instru_screen.dart';
 import '../features/studio/mix_screen.dart';
+import '../features/studio/resultats_screen.dart';
+import '../features/studio/sortie_screen.dart';
 import '../features/studio/studio_home_screen.dart';
 
 /// Les identifiants d'écran du prototype (ex. 03-1-QG) deviennent des routes. Cinq onglets : QG, Studio, Scène, Business, Profil (I-07).
@@ -22,6 +24,8 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(initialLocation
               GoRoute(path: 'ecriture', name: '04-5-Ecriture', builder: (_, __) => const EcritureScreen()),
               GoRoute(path: 'cabine', name: '04-7-Cabine', builder: (_, __) => const CabineScreen()),
               GoRoute(path: 'mix', name: '04-9-Mix', builder: (_, __) => const MixScreen()),
+              GoRoute(path: 'sortie', name: '05-1-Sortie', builder: (_, __) => const SortieScreen()),
+              GoRoute(path: 'resultats', name: '05-4-Resultats', builder: (_, __) => const ResultatsScreen()),
             ]),
           ]),
           StatefulShellBranch(routes: [GoRoute(path: '/scene', name: 'scene', builder: (_, __) => const SoonScreen(title: 'Scène'))]),

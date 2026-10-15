@@ -30,6 +30,9 @@ class GameNotifier extends AsyncNotifier<GameState> {
   /// Cabine : prises simulées du prototype (le mini-jeu de timing n'est pas porté).
   Future<void> recordSession() => apply((s) => studio.record(s));
 
+  /// Sortie d'un single avec la promo choisie (index de promos).
+  Future<void> releaseSingle(int promo) => apply((s) => studio.release(s, promo));
+
   /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
   Future<void> sleep() async {
     final before = state.requireValue;

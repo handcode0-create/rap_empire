@@ -14,6 +14,12 @@ class Econ {
   static const entryListens = 252200; // seuil d'entrée Top 100 Singles (R25, proposition)
   static const levelReward = {2: 2000, 3: 4000, 4: 8000, 5: 15000}; // cauris offerts au passage de niveau (ECON.levelReward)
   static const xpRecord = 30; // XP d'un mix terminé (A.record)
+  static const xpRelease = 40; // XP d'une sortie (A.release)
+  static const monetised = 1.0; // part des écoutes monétisées (démo : 100 %)
+  static const fanSat = 5000; // saturation de la conversion en fans (évite la croissance exponentielle), test D-08
+  static const fanConversion = 0.07; // part des écoutes qui devient fans (avant saturation)
+  static const listensPerPop = 900; // écoutes pour 1 point de popularité
+  static const weekFactor = 1.5; // écoutes de la semaine = écoutes de la sortie x 1,5 (lw)
   static const confirmFrom = 15000; // confirmation d'achat ou de promo à partir de ce montant (promoCbig de game.js : >= 15000)
 }
 

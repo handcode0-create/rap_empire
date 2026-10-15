@@ -49,9 +49,9 @@ class KeyValueRow extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(label, style: const TextStyle(color: Tk.ink2)),
+          Flexible(flex: 3, child: Text(label, style: const TextStyle(color: Tk.ink2))),
           const SizedBox(width: 12),
-          Flexible(child: Text(value, textAlign: TextAlign.end, style: TextStyle(color: color, fontWeight: FontWeight.w800))),
+          Flexible(flex: 2, child: Text(value, textAlign: TextAlign.end, style: TextStyle(color: color, fontWeight: FontWeight.w800))),
         ]),
       );
 }
