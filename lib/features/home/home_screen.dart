@@ -4,11 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../domain/clock.dart';
-import '../../domain/econ.dart';
-import '../../domain/game_state.dart';
 import '../../domain/missions.dart';
 import '../../domain/rules.dart';
 import '../shell/buttons.dart';
+import '../shell/tired_sheet.dart';
 
 /// QG (03.1) : objectif en cours, indicateurs, accès au studio. Le HUD est dans la coque.
 /// Énergie basse (03.2) : feuille « Trop fatigué » avec l'action Dormir.
@@ -21,66 +20,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _sheetShown = false;
 
-  Future<void> _sleep() async {
-    await ref.read(gameProvider.notifier).sleep();
-    if (mounted) context.go('/fin-journee');
-  }
-
-  void _showTiredSheet(GameState s) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Tk.s1,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(Tk.rSheet))),
-      builder: (sheetContext) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Énergie insuffisante',
-                    style: TextStyle(color: Tk.ink2)),
-                Text('${s.energy}',
-                    style: const TextStyle(
-                        color: Tk.cy,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 32)),
-                const SizedBox(height: 8),
-                Text('Trop fatigué',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 8),
-                const Text(
-                  'Dors une nuit pour retrouver $maxEnergy énergie. Dans cette démo, la nuit est gratuite : paramètre provisoire (D-08).',
-                  style: TextStyle(color: Tk.ink2),
-                ),
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  label: 'Dormir',
-                  onPressed: () {
-                    Navigator.of(sheetContext).pop();
-                    _sleep();
-                  },
-                ),
-                const SizedBox(height: 8),
-                Center(
-                    child: Text(_nightLabel,
-                        style: const TextStyle(color: Tk.ink2, fontSize: 12))),
-                const SizedBox(height: 8),
-                GhostButton(
-                    label: 'Pas maintenant',
-                    onPressed: () => Navigator.of(sheetContext).pop()),
-              ]),
-        ),
-      ),
-    );
-  }
-
-  static String get _nightLabel => Econ.nightCost == 0
-      ? 'Nuit gratuite · démo'
-      : 'Nuit : ${fmt(Econ.nightCost)} cauris';
-
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(gameProvider).valueOrNull;
@@ -89,7 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (tired && !_sheetShown) {
       _sheetShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _showTiredSheet(s);
+        if (mounted) showTiredSheet(context, ref, s.energy);
       });
     } else if (!tired) {
       _sheetShown = false;
@@ -98,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Text('Salut, Djo', style: Theme.of(context).textTheme.displayMedium),
       const SizedBox(height: 16),
       if (tired) ...[
-        _TiredBanner(energy: s.energy, onSleep: _sleep),
+        _TiredBanner(energy: s.energy, onSleep: () => sleepNow(context, ref)),
         const SizedBox(height: 16)
       ],
       const _ObjectiveCard(mission: mission1),

@@ -24,14 +24,15 @@ void main() {
       }
     });
 
-    testWidgets('Gbaka (8 000) : achat direct, sans confirmation, retour au studio', (tester) async {
+    testWidgets('Gbaka (8 000) : achat direct, sans confirmation, puis écran d écriture', (tester) async {
       final repo = await pumpApp(tester, const GameState());
       await openInstru(tester);
       await tester.tap(find.text('Gbaka de 6h'));
       await tester.pumpAndSettle();
       expect(find.text('Confirmation'), findsNothing);
       expect([repo.current.cash, repo.current.inst], [17000, 'gbaka']);
-      expect(find.text('Instru choisie : Gbaka de 6h'), findsOneWidget);
+      expect(find.text('Écrire le texte'), findsOneWidget);
+      expect(find.text('Étape 2 / 3'), findsOneWidget);
     });
 
     testWidgets('Nuit à Ndo : gratuite', (tester) async {
@@ -100,6 +101,80 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Acheter  − 40 000 cauris'));
       await tester.pumpAndSettle();
       expect([repo.current.cash, repo.current.inst], [10000, 'lagune']);
+    });
+  });
+
+  group('écriture (04.5, 04.6)', () {
+    const gbaka = GameState(inst: 'gbaka', cash: 17000);
+
+    testWidgets('choix du thème et de l’ambiance, rappel de l’instru', (tester) async {
+      await pumpApp(tester, gbaka, location: '/studio/ecriture');
+      expect(find.text('Écrire le texte'), findsOneWidget);
+      expect(find.text('Étape 2 / 3'), findsOneWidget);
+      expect(find.text('Gbaka de 6h'), findsOneWidget);
+      expect(find.text('· qualité 56'), findsOneWidget);
+      for (final t in ['Le quartier', 'La galère', "L'ambition", "L'amour", 'Écrire · Sombre', 'Écrire · Fière', 'Écrire · Légère']) {
+        expect(find.text(t), findsOneWidget, reason: t);
+      }
+    });
+
+    testWidgets('Écrire · Sombre : note 72, énergie 80, 09:00, écriture +2', (tester) async {
+      final repo = await pumpApp(tester, gbaka, location: '/studio/ecriture');
+      await tester.tap(find.text('Écrire · Sombre'));
+      await tester.pumpAndSettle();
+      expect(find.text('Ton texte'), findsOneWidget);
+      expect(find.text('72'), findsWidgets);
+      expect(find.text('Écriture +2 · −20 énergie · 1 h'), findsOneWidget);
+      expect([repo.current.texte!.note, repo.current.energy, repo.current.hour, repo.current.sk['ecr']], [72, 80, 9, 16]);
+    });
+
+    testWidgets('La galère + Fière : note 75', (tester) async {
+      final repo = await pumpApp(tester, gbaka, location: '/studio/ecriture');
+      await tester.tap(find.text('La galère'));
+      await tester.pump();
+      await tester.tap(find.text('Écrire · Fière'));
+      await tester.pumpAndSettle();
+      expect(repo.current.texte!.note, 75);
+      expect(find.text('La galère · Fière'), findsOneWidget);
+    });
+
+    testWidgets('Réécrire revient au choix et remplace le texte (énergie 60)', (tester) async {
+      final repo = await pumpApp(tester, gbaka, location: '/studio/ecriture');
+      await tester.tap(find.text('Écrire · Sombre'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Réécrire'));
+      await tester.pumpAndSettle();
+      expect(find.text('Écrire · Légère'), findsOneWidget);
+      await tester.ensureVisible(find.text('Écrire · Légère'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Écrire · Légère'));
+      await tester.pumpAndSettle();
+      expect([repo.current.texte!.note, repo.current.energy, repo.current.sk['ecr']], [70, 60, 18]);
+    });
+
+    testWidgets('énergie 19 : « Trop fatigué » avec Dormir, rien n’est écrit', (tester) async {
+      final repo = await pumpApp(tester, const GameState(inst: 'gbaka', energy: 19), location: '/studio/ecriture');
+      await tester.tap(find.text('Écrire · Sombre'));
+      await tester.pumpAndSettle();
+      expect(find.text('Trop fatigué'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Dormir'), findsOneWidget);
+      expect(repo.current.texte, isNull);
+    });
+
+    testWidgets('énergie 20 : écriture permise, énergie à 0', (tester) async {
+      final repo = await pumpApp(tester, const GameState(inst: 'gbaka', energy: 20), location: '/studio/ecriture');
+      await tester.tap(find.text('Écrire · Sombre'));
+      await tester.pumpAndSettle();
+      expect(repo.current.energy, 0);
+      expect(find.text('Ton texte'), findsOneWidget);
+    });
+
+    testWidgets('l’achat d’une instru mène à l’écriture, le texte précédent est effacé', (tester) async {
+      final repo = await pumpApp(tester, const GameState(inst: 'nuit'), location: '/studio/instru');
+      await tester.tap(find.text('Gbaka de 6h'));
+      await tester.pumpAndSettle();
+      expect(find.text('Écrire le texte'), findsOneWidget);
+      expect(repo.current.texte, isNull);
     });
   });
 }

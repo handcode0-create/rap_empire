@@ -25,6 +25,7 @@ class GameNotifier extends AsyncNotifier<GameState> {
 
   /// Studio : chaque action appelle une fonction pure de lib/domain/studio.dart ; une GameError remonte à l'écran.
   Future<void> pickInstru(String id) => apply((s) => studio.pick(s, id));
+  Future<void> writeText({String theme = 'quartier', String amb = 'sombre'}) => apply((s) => studio.write(s, theme: theme, amb: amb));
 
   /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
   Future<void> sleep() async {

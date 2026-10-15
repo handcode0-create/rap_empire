@@ -19,14 +19,14 @@ class FakeRepo extends SaveRepository {
 }
 
 /// Lance l'app en 390 x 844 avec un état de départ donné.
-Future<FakeRepo> pumpApp(WidgetTester tester, GameState start) async {
+Future<FakeRepo> pumpApp(WidgetTester tester, GameState start, {String location = '/'}) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final repo = FakeRepo(start);
   await tester.pumpWidget(ProviderScope(
     overrides: [saveRepoProvider.overrideWithValue(repo)],
-    child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter()),
+    child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter(initialLocation: location)),
   ));
   await tester.pumpAndSettle();
   return repo;

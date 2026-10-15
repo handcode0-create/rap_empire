@@ -36,7 +36,7 @@ class InstruScreen extends ConsumerWidget {
     }
     if (context.mounted) {
       showInfo(context, '${i.name} : instru choisie');
-      context.go('/studio');
+      context.go('/studio/ecriture');
     }
   }
 

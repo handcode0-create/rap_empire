@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'econ.dart';
 import 'rules.dart';
+import 'studio_models.dart';
 
 const Object _keep = Object();
+const defaultSkills = {'flow': 17, 'ecr': 14, 'voix': 10, 'cha': 8};
 
 /// État de partie (version 1 de la sauvegarde). Immuable ; chaque action renvoie un nouvel état.
 /// Les champs ajoutés après la v1 ont une valeur par défaut : une ancienne sauvegarde reste lisible.
@@ -12,22 +14,31 @@ class GameState {
 
   /// Identifiant de l'instru choisie (Econ : instrus), null tant qu'aucune n'est choisie.
   final String? inst;
-  const GameState({this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo', this.inst});
+
+  /// Texte en cours d'écriture pour le son (A.write), null tant qu'aucun texte n'est écrit.
+  final Texte? texte;
+
+  /// Compétences (sk de game.js) : flow, ecr (écriture), voix, cha.
+  final Map<String, int> sk;
+  const GameState({this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo', this.inst, this.texte, this.sk = defaultSkills});
 
   int get level => levelOf(xp);
   String get levelName => Econ.levelNames[level - 1];
 
   /// Pour les champs nullables (inst), passer null efface la valeur ; ne rien passer la conserve.
-  GameState copyWith({int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood, Object? inst = _keep}) => GameState(
+  GameState copyWith({int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood, Object? inst = _keep, Object? texte = _keep, Map<String, int>? sk}) => GameState(
         version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
         fans: fans ?? this.fans, pop: pop ?? this.pop, rep: rep ?? this.rep, xp: xp ?? this.xp, hood: hood ?? this.hood,
-        inst: identical(inst, _keep) ? this.inst : inst as String?);
+        inst: identical(inst, _keep) ? this.inst : inst as String?,
+        texte: identical(texte, _keep) ? this.texte : texte as Texte?, sk: sk ?? this.sk);
 
-  Map<String, dynamic> toJson() => {'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood, 'inst': inst};
+  Map<String, dynamic> toJson() => {'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood, 'inst': inst, 'texte': texte?.toJson(), 'sk': sk};
   factory GameState.fromJson(Map<String, dynamic> j) => GameState(
         version: (j['v'] ?? 1) as int, cash: (j['cash'] ?? 25000) as int, energy: (j['en'] ?? 100) as int, day: (j['day'] ?? 1) as int,
         hour: (j['hour'] ?? 8) as int, fans: (j['fans'] ?? 120) as int, pop: (j['pop'] ?? 3) as int, rep: (j['rep'] ?? 8) as int,
-        xp: (j['xp'] ?? 0) as int, hood: (j['hood'] ?? 'Ndolo') as String, inst: j['inst'] as String?);
+        xp: (j['xp'] ?? 0) as int, hood: (j['hood'] ?? 'Ndolo') as String, inst: j['inst'] as String?,
+        texte: j['texte'] == null ? null : Texte.fromJson(Map<String, dynamic>.from(j['texte'] as Map)),
+        sk: j['sk'] == null ? defaultSkills : Map<String, int>.from(j['sk'] as Map));
   String encode() => jsonEncode(toJson());
 }
 
