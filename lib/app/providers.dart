@@ -27,8 +27,8 @@ class GameNotifier extends AsyncNotifier<GameState> {
   Future<void> pickInstru(String id) => apply((s) => studio.pick(s, id));
   Future<void> writeText({String theme = 'quartier', String amb = 'sombre'}) => apply((s) => studio.write(s, theme: theme, amb: amb));
 
-  /// Cabine : prises simulées du prototype (le mini-jeu de timing n'est pas porté).
-  Future<void> recordSession() => apply((s) => studio.record(s));
+  /// Cabine : notes des trois prises du mini-jeu ; sans argument, les prises simulées du prototype (« Simuler les 3 prises »).
+  Future<void> recordSession([List<int>? takes]) => apply((s) => studio.record(s, takes));
 
   /// Sortie d'un single avec la promo choisie (index de promos).
   Future<void> releaseSingle(int promo) => apply((s) => studio.release(s, promo));

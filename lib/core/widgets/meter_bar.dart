@@ -9,7 +9,10 @@ class MeterBar extends StatelessWidget {
   final double value;
   final MeterTone tone;
   final bool thin;
-  const MeterBar({super.key, required this.value, this.tone = MeterTone.brand, this.thin = false});
+
+  /// Lisse les changements de valeur (500 ms) ; à désactiver quand la valeur est déjà animée par l'appelant (écran de chargement).
+  final bool animate;
+  const MeterBar({super.key, required this.value, this.tone = MeterTone.brand, this.thin = false, this.animate = true});
 
   LinearGradient get _fill => switch (tone) {
         MeterTone.brand => const LinearGradient(colors: [Tk.acc, Tk.violet]),
@@ -21,7 +24,7 @@ class MeterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final v = value.clamp(0.0, 1.0);
-    final animate = !MediaQuery.of(context).disableAnimations;
+    final smooth = animate && !MediaQuery.of(context).disableAnimations;
     return Semantics(
       value: '${(v * 100).round()} %',
       child: ClipRRect(
@@ -32,7 +35,7 @@ class MeterBar extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: LayoutBuilder(
             builder: (context, c) => AnimatedContainer(
-              duration: animate ? const Duration(milliseconds: 500) : Duration.zero,
+              duration: smooth ? const Duration(milliseconds: 500) : Duration.zero,
               width: c.maxWidth * v,
               decoration: BoxDecoration(color: thin ? Tk.acc : null, gradient: thin ? null : _fill, borderRadius: BorderRadius.circular(999)),
             ),

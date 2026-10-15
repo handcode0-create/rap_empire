@@ -52,8 +52,14 @@ void main() {
     await tester.tap(txt('Dormir'));
     await tester.pumpAndSettle();
     expect(txt('Nouvelle journée'), findsOneWidget);
-    expect(txt('Gratuite · démo'), findsOneWidget);
-    expect(txt('100  (+88 repos)'), findsOneWidget);
+    expect(txt('Nuit passée'), findsOneWidget);
+    expect(txt('Énergie'), findsWidgets);
+    expect(txt('+ repos'), findsOneWidget);
+    expect(txt('Nuit'), findsOneWidget);
+    expect(txt('Gratuite'), findsOneWidget);
+    expect(txt('démo'), findsOneWidget);
+    expect(txt('Commencer le jour'), findsOneWidget);
+    expect(txt('Retour au QG'), findsOneWidget);
     expect(repo.current.energy, 100);
     expect(repo.current.day, 2);
     expect(repo.current.hour, 8);

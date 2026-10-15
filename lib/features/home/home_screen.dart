@@ -51,7 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       progress: done ? 1 : 0,
       rewards: done ? [RewardChip(value: '+${fmt(r.cash)}', label: 'cauris'), RewardChip(value: '+${r.xp}', label: 'XP', color: Tk.ok)] : const [],
       actionLabel: done ? 'Récupérer' : (readyToRelease ? 'Préparer la sortie' : 'Aller au studio'),
-      onAction: done ? () => _claim(m.id) : () => context.go(readyToRelease ? '/studio/sortie' : '/studio'),
+      onAction: done ? (m.id == 'm2' ? () => context.go('/mission-accomplie') : () => _claim(m.id)) : () => context.go(readyToRelease ? '/studio/sortie' : '/studio'),
     );
   }
 
@@ -71,10 +71,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final objective = currentObjective(s);
     final msOpen = s.ms.values.where((v) => v == 'todo').length;
     return ListView(padding: const EdgeInsets.all(16), children: [
-      const SceneBanner(kind: 'qg_sky', height: 72, name: 'Salut, Djo', chars: [BannerChar('djo', mood: 'cool', crop: 'torso', width: 64, left: 306)]),
+      const SceneBanner(kind: 'qg_sky', height: 72, name: 'Salut, Djo', chars: [BannerChar('djo', mood: 'smile', crop: 'torso', width: 64, left: 306)]),
+      if (s.pend != null) ...[
+        const SizedBox(height: 8),
+        GameHint(icon: 'star', text: 'Niveau supérieur à récupérer', onTap: () => context.go('/niveau')),
+      ],
       if (tired) ...[
         const SizedBox(height: 8),
-        GameHint(icon: '⚡', warn: true, text: 'Énergie basse (${s.energy}) : dors avant d’enchaîner.', onTap: () => showTiredSheet(context, ref, s.energy)),
+        GameHint(icon: 'zap', warn: true, text: 'Énergie basse (${s.energy}) : dors avant d’enchaîner.', onTap: () => showTiredSheet(context, ref, s.energy)),
       ],
       if (objective != null) ...[const SizedBox(height: 8), _objective(s, objective)],
       const SizedBox(height: 8),

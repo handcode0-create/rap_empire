@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/v20.dart';
+import 'game_icon.dart';
 
 /// Bandeau d'information (.hint de v20.css) : cyan par défaut, or avec [warn]. 12/16, rayon 14, bordure 1,5 px.
+/// [icon] : nom d'icône (info, zap, star) ; les planches écrivent ⓘ, ⚡ et ★ en texte, mais la police ne les contient pas.
 class GameHint extends StatelessWidget {
   final String icon, text;
   final bool warn;
@@ -25,7 +27,7 @@ class GameHint extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(icon, style: V20Text.poppins(size: 12, line: 16, color: fg)),
+                Padding(padding: const EdgeInsets.only(top: 1), child: GameIcon(icon, size: 14, color: fg)),
                 const SizedBox(width: 8),
                 Expanded(child: Text(text, style: V20Text.poppins(size: 12, line: 16, color: fg))),
               ]),

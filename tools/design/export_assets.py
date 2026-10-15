@@ -50,6 +50,8 @@ def main():
         open(os.path.join(OUT_S, kind + '.svg'), 'w', encoding='utf-8').write(clean(f()))
     # bannière du QG (03.1) : ciel nocturne 390 x 72, identique à art.skyline(72) de la planche
     open(os.path.join(OUT_S, 'qg_sky.svg'), 'w', encoding='utf-8').write(clean(art.skyline(72, title=False)))
-    print('%d personnages, %d décors + qg_sky' % (len(files), len(scenes.BGS)))
+    # rayonnement des écrans de célébration (niveau supérieur, mission accomplie) : art.burst() de la planche 10.4
+    open(os.path.join(OUT_S, 'burst.svg'), 'w', encoding='utf-8').write(clean(art.burst()))
+    print('%d personnages, %d décors + qg_sky, burst' % (len(files), len(scenes.BGS)))
 
 if __name__ == '__main__': main()

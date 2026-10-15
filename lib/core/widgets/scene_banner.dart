@@ -16,10 +16,13 @@ class BannerChar {
 class SceneBanner extends StatelessWidget {
   final String kind;
   final String? role, name;
-  final double height;
+  final double height, nameSize;
   final List<BannerChar> chars;
   final Widget? top;
-  const SceneBanner({super.key, required this.kind, this.role, this.name, this.height = 190, this.chars = const [], this.top});
+
+  /// Garde le nom sur une ligne en le réduisant au besoin (planche 10.3) ; sinon il passe à la ligne (planche 04.1).
+  final bool nameSingleLine;
+  const SceneBanner({super.key, required this.kind, this.role, this.name, this.height = 190, this.nameSize = 24, this.nameSingleLine = false, this.chars = const [], this.top});
 
   /// Rapport hauteur / largeur des personnages (viewBox torse 260 x 340, buste 220 x 250).
   static double _ratio(String crop) => crop == 'torso' ? 340 / 260 : 250 / 220;
@@ -51,16 +54,20 @@ class SceneBanner extends StatelessWidget {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                   if (role != null) Text(role!.toUpperCase(), style: V20Text.lab(color: Colors.white)),
                   if (role != null && name != null) const SizedBox(height: 4),
-                  if (name != null)
-                    Text(
-                      name!.toUpperCase(),
-                      style: V20Text.baloo(size: 24, line: 24, color: Colors.white).copyWith(shadows: const [Shadow(color: Color.fromRGBO(0, 0, 0, .55), blurRadius: 14, offset: Offset(0, 2))]),
-                    ),
+                  if (name != null) _name(),
                 ]),
               ),
           ]),
         ),
       );
+
+  Widget _name() {
+    final text = Text(
+      name!.toUpperCase(),
+      style: V20Text.baloo(size: nameSize, line: nameSize == 32 ? 30 : nameSize, color: Colors.white).copyWith(shadows: const [Shadow(color: Color.fromRGBO(0, 0, 0, .55), blurRadius: 14, offset: Offset(0, 2))]),
+    );
+    return nameSingleLine ? FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: text) : text;
+  }
 
   Widget _placed(BannerChar c) {
     final h = c.width * _ratio(c.crop);

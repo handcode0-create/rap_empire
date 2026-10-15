@@ -3,12 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/theme/v20.dart';
+import '../../core/widgets/back_header.dart';
+import '../../core/widgets/game_card.dart';
+import '../../core/widgets/game_tag.dart';
+import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/reward_chip.dart';
+import '../../core/widgets/stat_kpi.dart';
+import '../../domain/rules.dart';
 import '../../domain/studio.dart';
-import '../shell/buttons.dart';
 import '../shell/tired_sheet.dart';
-import 'studio_widgets.dart';
 
-/// Écrire le texte (04.5) puis résultat (04.6). Thème et ambiance passent à write() (lib/domain/studio.dart).
+/// Écrire le texte (04.5) puis « Ton texte » (04.6).
+/// Valeurs de la planche sans formule dans game.js : thème « Le quartier » seul appliqué (la planche le dit), extrait du texte, Rimes 70 et Images 74.
 class EcritureScreen extends ConsumerStatefulWidget {
   const EcritureScreen({super.key});
   @override
@@ -16,12 +23,11 @@ class EcritureScreen extends ConsumerStatefulWidget {
 }
 
 class _EcritureScreenState extends ConsumerState<EcritureScreen> {
-  String _theme = 'quartier';
   bool _rewriting = false;
 
   Future<void> _write(String amb) async {
     try {
-      await ref.read(gameProvider.notifier).writeText(theme: _theme, amb: amb);
+      await ref.read(gameProvider.notifier).writeText(theme: 'quartier', amb: amb);
       if (mounted) setState(() => _rewriting = false);
     } on Object catch (e) {
       if (mounted) showGameError(context, ref, e);
@@ -34,66 +40,56 @@ class _EcritureScreenState extends ConsumerState<EcritureScreen> {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final instru = s.inst == null ? null : instruById(s.inst!);
     final texte = s.texte;
+    if (texte != null && !_rewriting) {
+      return ListView(padding: const EdgeInsets.all(16), children: [
+        BackHeader(title: 'Ton texte', onBack: () => setState(() => _rewriting = true)),
+        const SizedBox(height: 12),
+        GameCard(
+          selected: true,
+          child: Text('« Gbaka de six heures, le quartier se réveille, dans ma tête une mélodie, dans mes poches des étincelles. Ndo city dort encore, moi je… »', style: V20Text.bm.copyWith(fontStyle: FontStyle.italic)),
+        ),
+        const SizedBox(height: 12),
+        KpiRow(children: [
+          StatKpi(label: 'Note texte', value: fmt(texte.note), delta: 'Estimé', big: true),
+          const StatKpi(label: 'Rimes', value: '70'),
+          const StatKpi(label: 'Images', value: '74'),
+        ]),
+        const SizedBox(height: 12),
+        const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          RewardChip(value: 'Écriture +$writeSkillGain', color: Tk.ok),
+          GameTag('−$writeEnergy énergie · $writeHours h'),
+        ]),
+        const SizedBox(height: 12),
+        PrimaryButton(label: 'Passer en cabine', sublabel: 'Étape 3 / 3', onPressed: () => context.go('/studio/cabine')),
+      ]);
+    }
     return ListView(padding: const EdgeInsets.all(16), children: [
-      StepHeader(title: texte != null && !_rewriting ? 'Ton texte' : 'Écrire le texte', step: 'Étape 2 / 3', backTo: '/studio/instru'),
+      BackHeader(title: 'Écrire le texte', step: 'Étape 2 / 3', onBack: () => context.go('/studio/instru')),
       const SizedBox(height: 8),
-      TkCard(
-        child: Row(children: [
-          const Text('Instru', style: TextStyle(color: Tk.ink2)),
-          const SizedBox(width: 12),
-          Expanded(child: Text(instru?.name ?? 'Aucune', style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink))),
-          Text('· qualité ${instru?.q ?? 32}', style: const TextStyle(color: Tk.ink2)),
+      GameCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('INSTRU', style: V20Text.lab()),
+          Text('${instru?.name ?? 'Aucune'} · qualité ${instru?.q ?? noInstruProd}', style: V20Text.nm()),
         ]),
       ),
-      const SizedBox(height: 16),
-      if (texte != null && !_rewriting) ...[
-        TkCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${themeNames[texte.theme]} · ${ambNames[texte.amb]}', style: const TextStyle(color: Tk.ink2)),
-            const SizedBox(height: 8),
-            const Text('Note texte', style: TextStyle(color: Tk.ink2, fontSize: 12)),
-            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text('${texte.note}', style: const TextStyle(color: Tk.ink, fontWeight: FontWeight.w800, fontSize: 40)),
-              const SizedBox(width: 8),
-              const Padding(padding: EdgeInsets.only(bottom: 8), child: Text('Estimé', style: TextStyle(color: Tk.ink2))),
-            ]),
-            const SizedBox(height: 8),
-            const Text('Écriture +$writeSkillGain · −$writeEnergy énergie · $writeHours h', style: TextStyle(color: Tk.cy)),
-          ]),
+      const SizedBox(height: 8),
+      Text('THÈME', style: V20Text.lab()),
+      const SizedBox(height: 6),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final t in themeNames.entries) GameTag(t.value, style: t.key == 'quartier' ? GameTagStyle.accent : GameTagStyle.outline),
+      ]),
+      const SizedBox(height: 6),
+      Text('Démo : le thème « Le quartier » est appliqué ; l’ambiance modifie la note.', style: V20Text.bs()),
+      const SizedBox(height: 8),
+      Text('AMBIANCE · CHOISIS POUR ÉCRIRE', style: V20Text.lab()),
+      for (final a in ambNames.entries) ...[
+        const SizedBox(height: 8),
+        PrimaryButton(
+          label: 'Écrire · ${a.value}',
+          sublabel: '$writeHours h · −$writeEnergy énergie',
+          style: a.key == 'sombre' ? GameButtonStyle.primary : GameButtonStyle.secondary,
+          onPressed: () => _write(a.key),
         ),
-        const SizedBox(height: 24),
-        PrimaryButton(label: 'Passer en cabine', onPressed: () => context.go('/studio/cabine')),
-        const SizedBox(height: 8),
-        GhostButton(label: 'Réécrire', onPressed: () => setState(() => _rewriting = true)),
-      ] else ...[
-        const Text('Thème', style: TextStyle(color: Tk.ink2)),
-        const SizedBox(height: 8),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final t in themeNames.entries)
-            ChoiceChip(
-              label: Text(t.value),
-              selected: _theme == t.key,
-              onSelected: (_) => setState(() => _theme = t.key),
-              labelStyle: TextStyle(color: _theme == t.key ? Tk.ink : Tk.ink2, fontWeight: FontWeight.w600),
-              selectedColor: Tk.acc7,
-              backgroundColor: Tk.s1,
-              side: BorderSide(color: _theme == t.key ? Tk.acc : Tk.line),
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-            ),
-        ]),
-        const SizedBox(height: 16),
-        const Text('Ambiance · choisis pour écrire', style: TextStyle(color: Tk.ink2)),
-        const SizedBox(height: 8),
-        for (final a in ambNames.entries) ...[
-          TkCard(
-            onTap: () => _write(a.key),
-            child: Row(children: [
-              Expanded(child: Text('Écrire · ${a.value}', style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink))),
-              const Text('$writeHours h · −$writeEnergy énergie', style: TextStyle(color: Tk.ink2, fontSize: 12)),
-            ]),
-          ),
-          const SizedBox(height: 8),
-        ],
       ],
     ]);
   }

@@ -25,3 +25,19 @@ class StatKpi extends StatelessWidget {
         ]),
       );
 }
+
+/// Rangée de KPI de même largeur (.kpis de v20.css) : 8 px d'écart, hauteur égale.
+class KpiRow extends StatelessWidget {
+  final List<Widget> children;
+  const KpiRow({super.key, required this.children});
+
+  @override
+  Widget build(BuildContext context) => IntrinsicHeight(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(child: children[i]),
+          ],
+        ]),
+      );
+}

@@ -3,140 +3,111 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
-import '../../domain/game_state.dart';
+import '../../core/theme/v20.dart';
+import '../../core/widgets/action_tile.dart';
+import '../../core/widgets/game_card.dart';
+import '../../core/widgets/game_cover.dart';
+import '../../core/widgets/game_tag.dart';
+import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/scene_banner.dart';
+import '../../core/widgets/stat_kpi.dart';
 import '../../domain/rules.dart';
 import '../../domain/studio.dart';
-import '../../domain/studio_models.dart';
 import '../shell/toast.dart';
-import 'studio_widgets.dart';
+import 'studio_parts.dart';
 
-/// Studio : 04.1 (studio vide) ou 04.2 (un son enregistré), avec reprise de l'étape en cours.
+/// Studio : 04.1 (studio vide) ou 04.2 (un son à sortir), avec reprise de l'étape en cours et discographie.
 class StudioHomeScreen extends ConsumerWidget {
   const StudioHomeScreen({super.key});
 
-  /// Étape à reprendre déduite de l'état sauvegardé (restauration de l'écran au rechargement).
-  static (String, String, String)? _resume(GameState s) => switch (studioStep(s)) {
-        StudioStep.instru => null,
-        StudioStep.ecriture => ('Écrire le texte', '/studio/ecriture', 'Étape 2 / 3'),
-        StudioStep.cabine => ('Passer en cabine', '/studio/cabine', 'Étape 3 / 3'),
-        StudioStep.sortie => ('Préparer la sortie', '/studio/sortie', 'Single · promo · mise en ligne'),
+  /// Étape à reprendre déduite de l'état sauvegardé (restauration de l'écran au rechargement) : titre, étiquette d'étape, route.
+  static (String, String, String)? _resume(StudioStep step) => switch (step) {
+        StudioStep.instru || StudioStep.sortie => null,
+        StudioStep.ecriture => ('Écrire le texte', 'Étape 2 / 3', '/studio/ecriture'),
+        StudioStep.cabine => ('Session cabine', 'Étape 3 / 3', '/studio/cabine'),
       };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(gameProvider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
-    final resume = _resume(s);
+    final pending = s.song != null && !s.song!.released;
+    final count = songCount(s);
+    final resume = _resume(studioStep(s));
+    final styleName = styleNames[s.style] ?? '';
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Text('Studio', style: Theme.of(context).textTheme.displayMedium),
-      Text('Kôrô · ${s.hood}${songCount(s) > 0 ? ' · ${songCount(s)} son${songCount(s) > 1 ? 's' : ''}' : ''}', style: const TextStyle(color: Tk.ink2)),
-      const SizedBox(height: 16),
-      if ((s.song == null || s.song!.released) && s.disco.isEmpty)
-        TkCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Aucun son enregistré', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            const Text('Choisis une instru, écris ton texte, passe en cabine. Ton premier son ouvre la sortie, les fans et le classement.', style: TextStyle(color: Tk.ink2)),
-            if (s.inst != null) ...[
-              const SizedBox(height: 8),
-              Text('Instru choisie : ${instruById(s.inst!).name}', style: const TextStyle(color: Tk.cy, fontWeight: FontWeight.w800)),
-            ],
-          ]),
-        )
-      else if (s.song != null && !s.song!.released)
-        _SongCard(song: s.song!, style: styleNames[s.style] ?? ''),
+      if (count == 0) ...[
+        SceneBanner(
+          kind: 'studio',
+          height: 190,
+          nameSize: 32,
+          role: 'Studio Kôrô · ${s.hood}',
+          name: 'Aucun son enregistré',
+          chars: const [BannerChar('kore', mood: 'smile', crop: 'torso', width: 100, left: 280)],
+        ),
+        const SizedBox(height: 12),
+        Text('Choisis une instru, écris ton texte, passe en cabine. Ton premier son ouvre la sortie, les fans et le classement.', style: V20Text.bm),
+      ] else ...[
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Flexible(child: Text('STUDIO', style: V20Text.baloo(size: 28, line: 28))),
+          GameTag('$count son${count > 1 ? 's' : ''}', style: GameTagStyle.accent),
+        ]),
+      ],
+      if (pending) ...[
+        const SizedBox(height: 12),
+        SongHeaderCard(song: s.song!, styleName: styleName),
+        const SizedBox(height: 12),
+        KpiRow(children: [StatKpi(label: 'Texte', value: fmt(s.song!.texte)), StatKpi(label: 'Voix', value: fmt(s.song!.voix)), StatKpi(label: 'Prod.', value: fmt(s.song!.prod))]),
+        if (count == 1) ...[
+          const SizedBox(height: 12),
+          GameCard(dashed: true, child: Center(child: Text('Emplacement libre. Enregistre un deuxième son.', textAlign: TextAlign.center, style: V20Text.bs()))),
+        ],
+        const SizedBox(height: 12),
+        PrimaryButton(label: 'Préparer la sortie', sublabel: 'Single · promo · mise en ligne', onPressed: () => context.go('/studio/sortie')),
+        const SizedBox(height: 12),
+        PrimaryButton(label: 'Nouveau son', style: GameButtonStyle.secondary, onPressed: () => context.go('/studio/instru')),
+      ] else ...[
+        if (resume != null) ...[
+          const SizedBox(height: 12),
+          GameCard(
+            selected: true,
+            onTap: () => context.go(resume.$3),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Flexible(child: Text('Reprendre', style: V20Text.nm())),
+                GameTag(resume.$2, style: GameTagStyle.ok),
+              ]),
+              Text(resume.$1, style: V20Text.bs()),
+            ]),
+          ),
+        ],
+        const SizedBox(height: 12),
+        PrimaryButton(label: 'Nouveau son', sublabel: '3 étapes : instru · texte · cabine', onPressed: () => context.go('/studio/instru')),
+      ],
       if (s.disco.isNotEmpty) ...[
         const SizedBox(height: 12),
-        const Text('Discographie', style: TextStyle(color: Tk.ink2)),
+        Text('DISCOGRAPHIE', style: V20Text.lab()),
         const SizedBox(height: 8),
         for (final d in s.disco.reversed) ...[
-          TkCard(
-            child: Row(children: [
-              Expanded(child: Text(d.title, style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink))),
-              Text('Q${d.q} · ${fmt(d.listens)} écoutes', style: const TextStyle(color: Tk.ink2, fontSize: 12)),
-            ]),
+          BeatCard(
+            leading: const GameCover(size: 48),
+            title: d.title,
+            subtitle: 'Qualité ${d.q}',
+            trailing: Text('${fmt(d.listens)} écoutes', style: V20Text.nm(color: Tk.cy).copyWith(fontSize: 14)),
           ),
           const SizedBox(height: 8),
         ],
       ],
-      const SizedBox(height: 12),
-      if (resume != null) ...[
-        _Tile(icon: Icons.play_circle_rounded, title: 'Reprendre : ${resume.$1}', subtitle: resume.$3, onTap: () => context.go(resume.$2)),
-        const SizedBox(height: 8),
+      if (!pending) ...[
+        const SizedBox(height: 12),
+        IntrinsicHeight(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(child: ActionTile(icon: 'music', title: 'Instrus', subtitle: 'Gratuite ou à acheter', onTap: () => context.go('/studio/instru'))),
+            const SizedBox(width: 10),
+            Expanded(child: ActionTile(icon: 'briefcase', title: 'Matériel', subtitle: 'Micro, casque', onTap: () => showInfo(context, 'Matériel : bientôt'))),
+          ]),
+        ),
       ],
-      _Tile(icon: Icons.add_circle_rounded, title: 'Nouveau son', subtitle: '3 étapes : instru · texte · cabine', onTap: () => context.go('/studio/instru')),
-      const SizedBox(height: 8),
-      _Tile(icon: Icons.library_music_rounded, title: 'Instrus', subtitle: 'Gratuite ou à acheter', onTap: () => context.go('/studio/instru')),
-      const SizedBox(height: 8),
-      _Tile(icon: Icons.mic_rounded, title: 'Matériel', subtitle: 'Micro, casque', onTap: () => showInfo(context, 'Matériel : bientôt')),
     ]);
   }
-}
-
-class _SongCard extends StatelessWidget {
-  final Song song;
-  final String style;
-  const _SongCard({required this.song, required this.style});
-  @override
-  Widget build(BuildContext context) => TkCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Container(
-              width: 44,
-              height: 44,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(gradient: Tk.grad, shape: BoxShape.circle),
-              child: Text(song.title.characters.first, style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(song.title, style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink)),
-                Text('$style · instru ${song.inst}', style: const TextStyle(color: Tk.ink2, fontSize: 12)),
-              ]),
-            ),
-          ]),
-          const SizedBox(height: 12),
-          Row(children: [
-            _Stat('Qualité', '${song.q}'),
-            _Stat('Texte', '${song.texte}'),
-            _Stat('Voix', '${song.voix}'),
-            _Stat('Prod.', '${song.prod}'),
-          ]),
-        ]),
-      );
-}
-
-class _Stat extends StatelessWidget {
-  final String label, value;
-  const _Stat(this.label, this.value);
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: Tk.ink2, fontSize: 11)),
-          Text(value, style: const TextStyle(color: Tk.ink, fontWeight: FontWeight.w800, fontSize: 18)),
-        ]),
-      );
-}
-
-class _Tile extends StatelessWidget {
-  final IconData icon;
-  final String title, subtitle;
-  final VoidCallback onTap;
-  const _Tile({required this.icon, required this.title, required this.subtitle, required this.onTap});
-  @override
-  Widget build(BuildContext context) => TkCard(
-        onTap: onTap,
-        child: Row(children: [
-          Icon(icon, color: Tk.acc),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w800, color: Tk.ink)),
-              Text(subtitle, style: const TextStyle(color: Tk.ink2, fontSize: 12)),
-            ]),
-          ),
-          const Icon(Icons.chevron_right_rounded, color: Tk.ink2),
-        ]),
-      );
 }
