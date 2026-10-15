@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../domain/clock.dart';
+import '../../domain/econ.dart';
 import '../../domain/missions.dart';
 import '../../domain/rules.dart';
 import '../shell/buttons.dart';
 import '../shell/tired_sheet.dart';
+import '../shell/toast.dart';
 
 /// QG (03.1) : objectif en cours, indicateurs, accès au studio. Le HUD est dans la coque.
 /// Énergie basse (03.2) : feuille « Trop fatigué » avec l'action Dormir.
@@ -19,6 +21,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _sheetShown = false;
+
+  Future<void> _claim(String id) async {
+    final r = missionRewards[id]!;
+    try {
+      await ref.read(gameProvider.notifier).claimMission(id);
+      if (mounted) showInfo(context, 'Mission accomplie · +${fmt(r.cash)} cauris · +${r.xp} XP');
+    } on Object catch (e) {
+      if (mounted) showError(context, e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +52,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         _TiredBanner(energy: s.energy, onSleep: () => sleepNow(context, ref)),
         const SizedBox(height: 16)
       ],
-      const _ObjectiveCard(mission: mission1),
-      const SizedBox(height: 16),
+      if (currentObjective(s) case final obj?) ...[
+        _ObjectiveCard(mission: obj, status: s.ms[obj.id] ?? 'todo', reward: missionRewards[obj.id]!, onClaim: () => _claim(obj.id)),
+        const SizedBox(height: 16),
+      ],
       Row(children: [
         _Indicator(label: 'Fans', value: fmt(s.fans)),
         const SizedBox(width: 8),
@@ -86,30 +100,36 @@ class _TiredBanner extends StatelessWidget {
 
 class _ObjectiveCard extends StatelessWidget {
   final Mission mission;
-  const _ObjectiveCard({required this.mission});
+  final String status;
+  final MissionReward reward;
+  final VoidCallback onClaim;
+  const _ObjectiveCard({required this.mission, required this.status, required this.reward, required this.onClaim});
   @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-            color: Tk.s1,
-            borderRadius: BorderRadius.circular(Tk.rCard),
-            border: Border.all(color: Tk.line)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('OBJECTIF EN COURS',
-              style: TextStyle(
-                  color: Tk.acc4,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1)),
-          const SizedBox(height: 8),
-          const Text('Mission 1',
-              style: TextStyle(color: Tk.ink2, fontSize: 12)),
-          Text(mission.title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(mission.hint, style: const TextStyle(color: Tk.ink2)),
+  Widget build(BuildContext context) {
+    final done = status == 'done';
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Tk.s1, borderRadius: BorderRadius.circular(Tk.rCard), border: Border.all(color: done ? Tk.ok : Tk.line)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Expanded(child: Text('OBJECTIF EN COURS', style: TextStyle(color: Tk.acc4, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1))),
+          if (done) const Text('Terminée · À récupérer', style: TextStyle(color: Tk.ok, fontSize: 12, fontWeight: FontWeight.w800)),
         ]),
-      );
+        const SizedBox(height: 8),
+        Text('Mission ${mission.id.substring(1)}', style: const TextStyle(color: Tk.ink2, fontSize: 12)),
+        Text(mission.title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 4),
+        Text(mission.hint, style: const TextStyle(color: Tk.ink2)),
+        const SizedBox(height: 8),
+        Text('+${fmt(reward.cash)} cauris · +${reward.xp} XP', style: const TextStyle(color: Tk.gold, fontWeight: FontWeight.w800)),
+        if (done) ...[
+          const SizedBox(height: 12),
+          PrimaryButton(label: 'Récupérer', onPressed: onClaim),
+        ],
+      ]),
+    );
+  }
 }
 
 class _Indicator extends StatelessWidget {

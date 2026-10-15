@@ -33,6 +33,10 @@ class GameNotifier extends AsyncNotifier<GameState> {
   /// Sortie d'un single avec la promo choisie (index de promos).
   Future<void> releaseSingle(int promo) => apply((s) => studio.release(s, promo));
 
+  /// Missions : récupérer une récompense, puis la récompense de niveau.
+  Future<void> claimMission(String id) => apply((s) => studio.claim(s, id));
+  Future<void> acknowledgeLevel() => apply(studio.ack);
+
   /// Dormir : la règle est dans lib/domain/clock.dart ; ici seulement l'enchaînement état, bilan et sauvegarde.
   Future<void> sleep() async {
     final before = state.requireValue;

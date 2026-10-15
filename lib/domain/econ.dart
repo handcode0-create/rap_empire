@@ -45,3 +45,16 @@ const instrus = [
   Instru('pont', 'Pont des Griots', 'Sanko Beats', 68, 15000, 2),
   Instru('lagune', "Lagune d'Ambre", 'Mister Wôrô', 86, 40000, 1, 30),
 ];
+
+/// Récompense d'une mission (cauris et XP), MISSIONS de game.js. Provisoire (D-08).
+class MissionReward {
+  final int cash, xp;
+  const MissionReward(this.cash, this.xp);
+}
+
+const missionRewards = {
+  'm1': MissionReward(5000, 50),
+  'm2': MissionReward(10000, 80),
+  'm3': MissionReward(4000, 60),
+  'm4': MissionReward(15000, 120),
+};

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/game_state.dart';
 import 'package:rap_empire/domain/studio.dart';
+import 'package:rap_empire/domain/studio_models.dart';
 
 import 'support.dart';
 
@@ -399,11 +400,123 @@ void main() {
       await tapText(tester, 'Écrire · Sombre');
       await tapText(tester, 'Passer en cabine');
       await tapText(tester, 'Simuler les 3 prises');
+      expect(find.text('Niveau supérieur'), findsOneWidget); // 30 + 40 + 30 = 100 XP : N2 dès le 2e enregistrement
+      await tapText(tester, 'Continuer');
       await tapText(tester, 'Préparer la sortie');
       await tapText(tester, 'Sortir le single');
       await tapText(tester, 'Retour au studio');
       expect(find.text('Kôrô · Ndolo · 2 sons'), findsOneWidget);
       expect(repo.current.disco.map((d) => d.title), ['Gbaka de 6h', 'Nuit à Ndo']);
+    });
+  });
+
+  group('missions et niveau (10.1, 10.4)', () {
+    final rec = record(write(pick(const GameState(), 'gbaka')));
+
+    testWidgets('départ : mission 1 avec sa récompense, pas de bouton Récupérer', (tester) async {
+      await pumpApp(tester, const GameState());
+      expect(find.text('Mission 1'), findsOneWidget);
+      expect(find.text('Enregistre ton premier son'), findsOneWidget);
+      expect(find.text('+5 000 cauris · +50 XP'), findsOneWidget);
+      expect(find.text('Terminée · À récupérer'), findsNothing);
+      expect(find.widgetWithText(FilledButton, 'Récupérer'), findsNothing);
+    });
+
+    testWidgets('mission 1 terminée : Récupérer verse 5 000 cauris et 50 XP, puis la mission 2 apparaît', (tester) async {
+      final repo = await pumpApp(tester, rec);
+      expect(find.text('Terminée · À récupérer'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Récupérer'));
+      await tester.pumpAndSettle();
+      expect([repo.current.cash, repo.current.xp, repo.current.ms['m1']], [22000, 80, 'claimed']);
+      expect(find.text('Mission accomplie · +5 000 cauris · +50 XP'), findsOneWidget);
+      expect(find.text('Mission 2'), findsOneWidget);
+      expect(find.text('Sors ton premier single'), findsOneWidget);
+      expect(find.text('Ton son est prêt : choisis la promo et mets-le en ligne.'), findsOneWidget);
+      expect(find.text('Niveau supérieur'), findsNothing);
+    });
+
+    testWidgets('mission 2 terminée après la sortie : Récupérer verse 10 000 cauris et 80 XP', (tester) async {
+      final s = claim(rec, 'm1');
+      final released = ack(release(s, 0));
+      final repo = await pumpApp(tester, released);
+      expect(find.text('Mission 2'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Récupérer'));
+      await tester.pumpAndSettle();
+      expect([repo.current.cash, repo.current.xp, repo.current.ms['m2']], [34054, 200, 'claimed']);
+      expect(find.text('Mission 1'), findsNothing);
+      expect(find.text('Mission 2'), findsNothing);
+      expect(find.text('OBJECTIF EN COURS'), findsNothing);
+    });
+
+    testWidgets('60 XP + mission 1 : la feuille « Niveau supérieur » N2 apparaît avec 2 000 cauris', (tester) async {
+      final repo = await pumpApp(tester, rec.copyWith(xp: 60));
+      await tester.tap(find.widgetWithText(FilledButton, 'Récupérer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Niveau supérieur'), findsOneWidget);
+      expect(find.text('N2'), findsWidgets);
+      expect(find.text('Espoir du quartier'), findsWidgets);
+      expect(find.text('Nouvelles options : open mic, instru Pont des Griots, missions avancées.'), findsOneWidget);
+      expect(find.text('+ 2 000 cauris'), findsOneWidget);
+      expect(repo.current.pend, const Pending(2, 2000));
+      expect(repo.current.cash, 22000);
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Niveau supérieur'), findsNothing);
+      expect([repo.current.cash, repo.current.pend, repo.current.level], [24000, null, 2]);
+      expect(find.text('N2 · ESPOIR DU QUARTIER'), findsOneWidget);
+    });
+
+    testWidgets('niveau en attente dans la sauvegarde : la feuille s’ouvre au rechargement, une seule fois', (tester) async {
+      final repo = await pumpApp(tester, const GameState(xp: 120, pend: Pending(2, 2000), cash: 5000));
+      expect(find.text('Niveau supérieur'), findsOneWidget);
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Niveau supérieur'), findsNothing);
+      expect([repo.current.cash, repo.current.pend], [7000, null]);
+      await tester.tap(find.text('Studio'));
+      await tester.pumpAndSettle();
+      expect(find.text('Niveau supérieur'), findsNothing);
+    });
+
+    testWidgets('la sortie qui fait passer N2 ouvre la feuille sur l’écran des résultats', (tester) async {
+      final repo = await pumpApp(tester, rec.copyWith(xp: 80), location: '/studio/sortie');
+      await tapText(tester, 'Sortir le single');
+      expect(find.text('Résultats · 24 h'), findsOneWidget);
+      expect(find.text('Niveau supérieur'), findsOneWidget);
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect([repo.current.pend, repo.current.cash, repo.current.level], [null, 19054, 2]);
+    });
+
+    testWidgets('parcours : cabine, récupérer la mission 1 au QG, sortie, niveau, mission 2', (tester) async {
+      final repo = await pumpApp(tester, const GameState());
+      await tester.tap(find.text('Aller au studio'));
+      await tester.pumpAndSettle();
+      await tapText(tester, 'Nouveau son');
+      await tapText(tester, 'Gbaka de 6h');
+      await tapText(tester, 'Écrire · Sombre');
+      await tapText(tester, 'Passer en cabine');
+      await tapText(tester, 'Simuler les 3 prises');
+      await tester.tap(find.text('QG'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Récupérer'));
+      await tester.pumpAndSettle();
+      expect([repo.current.cash, repo.current.xp], [22000, 80]);
+      await tester.pump(const Duration(seconds: 4)); // la bulle « Mission accomplie » disparaît
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Aller au studio'));
+      await tester.pumpAndSettle();
+      await tapText(tester, 'Reprendre : Préparer la sortie');
+      await tapText(tester, 'Sortir le single');
+      expect(find.text('Niveau supérieur'), findsOneWidget); // 80 + 40 = 120 XP
+      await tapText(tester, 'Continuer');
+      expect([repo.current.cash, repo.current.xp, repo.current.level], [24054, 120, 2]);
+      await tester.tap(find.text('QG'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mission 2'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Récupérer'));
+      await tester.pumpAndSettle();
+      expect([repo.current.cash, repo.current.xp, repo.current.ms['m2']], [34054, 200, 'claimed']);
     });
   });
 }

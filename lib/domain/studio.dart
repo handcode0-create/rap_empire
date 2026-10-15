@@ -4,7 +4,7 @@ import 'game_state.dart';
 import 'rules.dart';
 import 'studio_models.dart';
 
-/// Actions du studio. Port de A.pick, A.write, A.record et A.release (game.js v20), fonctions pures : aucune dépendance Flutter ni Supabase.
+/// Actions du studio. Port de A.pick, A.write, A.record, A.release, A.claim et A.ack (game.js v20), fonctions pures : aucune dépendance Flutter ni Supabase.
 
 Instru instruById(String id) => instrus.firstWhere((i) => i.id == id, orElse: () => throw const GameError('inconnu'));
 
@@ -156,4 +156,18 @@ GameState release(GameState s, int promo) {
   if (ms['m2'] == 'todo') ms['m2'] = 'done';
   if (n.fans >= 1000 && ms['m4'] == 'todo') ms['m4'] = 'done';
   return n.copyWith(ms: ms);
+}
+
+/// A.claim : récupérer la récompense d'une mission terminée (cauris puis XP). Erreur 'rien' si elle n'est pas à récupérer.
+GameState claim(GameState s, String id) {
+  final reward = missionRewards[id];
+  if (reward == null || s.ms[id] != 'done') throw const GameError('rien');
+  return addXp(pay(s.copyWith(ms: {...s.ms, id: 'claimed'}), reward.cash), reward.xp);
+}
+
+/// A.ack : récupérer la récompense du niveau gagné (pend) ; sans effet s'il n'y en a pas.
+GameState ack(GameState s) {
+  final pend = s.pend;
+  if (pend == null) return s;
+  return (pend.reward > 0 ? pay(s, pend.reward) : s).copyWith(pend: null);
 }
