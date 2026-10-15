@@ -23,6 +23,15 @@ int levelOf(int xp) {
   return l;
 }
 
+/// Pourcentage (0 à 100) de la barre d'XP du HUD : xpPct de game.js (view).
+/// (xp - début du niveau) / (début du niveau suivant - début du niveau), arrondi au pour cent ; le niveau 5 compte 600 XP de plus.
+int xpPercent(int xp) {
+  final lvl = levelOf(xp);
+  final lo = Econ.levelXp[lvl - 1];
+  final hi = lvl < Econ.levelXp.length ? Econ.levelXp[lvl] : Econ.levelXp.last + 600;
+  return max(0, min(100, (100 * (xp - lo) / (hi - lo)).round()));
+}
+
 /// Espace pur : aucune dépendance Flutter ni Supabase (testable, reproductible, rejouable côté serveur).
 String fmt(num n) {
   final s = n.abs().round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ' ');

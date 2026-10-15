@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/widgets/hud_bar.dart';
-import '../../core/widgets/xp_progress.dart';
 import '../../domain/clock.dart';
 import '../../domain/rules.dart';
 import 'toast.dart';
@@ -17,7 +16,7 @@ class Hud extends ConsumerWidget {
     return HudBar(
       name: 'Djo Kéné',
       levelLabel: 'N${s.level} · ${s.levelName}',
-      xp: xpFraction(s.xp),
+      xp: xpPercent(s.xp) / 100,
       cash: fmt(s.cash),
       energy: '${s.energy}',
       time: formatClock(s),

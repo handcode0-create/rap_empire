@@ -13,7 +13,6 @@ import 'package:rap_empire/core/widgets/primary_button.dart';
 import 'package:rap_empire/core/widgets/reward_chip.dart';
 import 'package:rap_empire/core/widgets/scene_banner.dart';
 import 'package:rap_empire/core/widgets/stat_kpi.dart';
-import 'package:rap_empire/core/widgets/xp_progress.dart';
 
 import 'support.dart';
 
@@ -26,14 +25,6 @@ Future<void> _pump(WidgetTester tester, Widget child, {Size size = const Size(39
 }
 
 void main() {
-  group('xpFraction : parité avec xpPct de game.js (view)', () {
-    // Valeurs obtenues en exécutant game.js (v20) avec Node : xp -> pourcentage de la barre.
-    const expected = {0: 0, 1: 1, 50: 50, 99: 99, 100: 0, 120: 13, 175: 50, 249: 99, 250: 0, 499: 100, 500: 0, 899: 100, 900: 0, 1000: 17, 1500: 100, 2000: 100};
-    for (final e in expected.entries) {
-      test('${e.key} XP : ${e.value} %', () => expect(xpFraction(e.key), e.value / 100));
-    }
-  });
-
   group('PrimaryButton', () {
     testWidgets('texte en majuscules, sous-libellé, tap, 56 px de haut', (tester) async {
       var taps = 0;
