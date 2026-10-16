@@ -9,7 +9,7 @@ import '../../domain/econ.dart';
 import '../../domain/rules.dart';
 import '../shell/game_frame.dart';
 
-/// Nouvelle mission (10.3) : « Fais-toi voir à l'open mic ». La scène n'est pas encore portée : « Y aller » ouvre l'onglet Scène (« Bientôt »).
+/// Nouvelle mission (10.3) : « Fais-toi voir à l'open mic ». « Y aller » ouvre la scène.
 /// Cachet et XP : ECON.openMicFee et A.openmic de game.js.
 class NewMissionScreen extends StatelessWidget {
   const NewMissionScreen({super.key});
@@ -34,7 +34,7 @@ class NewMissionScreen extends StatelessWidget {
           const RewardChip(value: '+${Econ.xpOpenMic} XP', color: Tk.ink),
         ]),
         const SizedBox(height: 12),
-        PrimaryButton(label: 'Y aller', onPressed: () => context.go('/scene')),
+        PrimaryButton(label: 'Y aller', onPressed: () => context.go('/scene/openmic')),
         const SizedBox(height: 12),
         PrimaryButton(label: 'Plus tard', style: GameButtonStyle.ghost, onPressed: () => context.go('/')),
       ]);

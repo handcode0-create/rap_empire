@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/widgets/hud_bar.dart';
 import '../../domain/clock.dart';
 import '../../domain/rules.dart';
-import 'toast.dart';
 
 /// HUD relié à l'état de partie : niveau, XP, cauris, énergie, jour et heure (HudBar est un widget d'affichage pur).
 class Hud extends ConsumerWidget {
@@ -20,7 +20,8 @@ class Hud extends ConsumerWidget {
       cash: fmt(s.cash),
       energy: '${s.energy}',
       time: formatClock(s),
-      onBell: () => showInfo(context, 'Journal : bientôt'),
+      bellBadge: s.pend != null || s.ms.values.contains('done'),
+      onBell: () => context.go('/journal'),
     );
   }
 }

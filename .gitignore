@@ -7,3 +7,23 @@ build/
 env.json
 key.properties
 *.jks
+
+# Flutter / Dart (compléments standard)
+.pub-cache/
+.pub/
+.packages
+.flutter-plugins-dependencies
+.flutter-versions
+*.log
+.DS_Store
+*.swp
+
+# Android / secrets locaux
+local.properties
+android/.gradle/
+android/captures/
+android/app/*.keystore
+google-services.json
+*.pem
+*.p12
+.env.*

@@ -45,6 +45,19 @@ def main():
         svg = clean(cast.P(who, mood, g, STYLE, crop, 'front', pose=pose))
         fn = name(who, mood, g, pose, crop)
         open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
+    # avatar du joueur (v21, créateur d'artiste) : coiffure x haut x teint x humeur x cadrage, sous le nom me_<coiffure>_<haut>_<teint>_<humeur>_<cadrage>.svg
+    # (hoodie rose = « Hoodie Néon », bomber violet, t-shirt cyan ; teints 3, 5 et 6 de SKINS ; la chaîne dorée du joueur reste)
+    from chars import figure, SKINS
+    tops = {'hoodie': dict(top='#F43F9D', kind='hoodie'), 'bomber': dict(top='#3A3270', kind='bomber', logo=False), 'tee': dict(top='#3CD6F2', kind='tee')}
+    base = dict(pants='#2B2459', shoe='#F43F9D', accent='#FFC83D')
+    for hair in ('hitwist', 'afro', 'cornrows'):
+        for tk, tv in tops.items():
+            for sk in (3, 5, 6):
+                for mood in ('smile', 'cool'):
+                    for crop in ('torso', 'bust'):
+                        svg = clean(figure(STYLE, 'front', skin=SKINS[sk], hair=hair, hc='#1B1424', beard='stubble', mood=mood, outfit={**base, **tv}, acc=('chain',), crop=crop))
+                        fn = 'me_%s_%s_%d_%s_%s.svg' % (hair, tk, sk, mood, crop)
+                        open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
     json.dump({'style': STYLE, 'cast': {k: v['name'] for k, v in CAST.items()}, 'files': files}, open(os.path.join(OUT_C, 'manifest.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     for kind, f in scenes.BGS.items():
         open(os.path.join(OUT_S, kind + '.svg'), 'w', encoding='utf-8').write(clean(f()))

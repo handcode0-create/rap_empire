@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'neon_tokens.dart';
 import 'tokens.dart';
 import 'v20.dart';
 
@@ -13,6 +14,7 @@ ThemeData buildGameTheme() {
       displayMedium: V20Text.dm().copyWith(letterSpacing: 0),
       titleLarge: V20Text.nm(),
     ),
+    extensions: const [NeonTokens.standard],
     splashFactory: InkRipple.splashFactory,
     focusColor: Tk.gold,
   );

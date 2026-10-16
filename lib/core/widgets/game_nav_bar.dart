@@ -34,7 +34,8 @@ class GameNavBar extends StatelessWidget {
           top: false,
           child: SizedBox(
             height: 72,
-            child: Row(children: [
+            // stretch : la zone touchable de chaque onglet occupe les 72 px de la barre (≥ 48 px), pas seulement son contenu
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               for (var i = 0; i < entries.length; i++)
                 Expanded(child: _NavItem(entry: entries[i], active: i == currentIndex, onTap: () => onTap(i))),
             ]),

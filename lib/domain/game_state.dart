@@ -10,7 +10,7 @@ const defaultSkills = {'flow': 17, 'ecr': 14, 'voix': 10, 'cha': 8};
 const defaultCat = {'manager': 0, 'label': 0, 'ecoutes': 0, 'cachets': 0, 'mission': 0, 'instru': 0, 'promo': 0, 'materiel': 0, 'formation': 0, 'boutique': 0, 'niveau': 0};
 
 /// Statut d'une mission : 'todo' (à faire), 'done' (terminée, à récupérer), 'claimed' (récupérée).
-const defaultMissions = {'m1': 'todo', 'm2': 'todo', 'm3': 'todo', 'm4': 'todo'};
+const defaultMissions = {'m1': 'todo', 'm2': 'todo', 'm3': 'todo', 'm4': 'todo', 'm5': 'todo', 'm6': 'todo', 'm7': 'todo', 'm8': 'todo', 'm9': 'todo', 'm10': 'todo'};
 
 /// État de partie (version 1 de la sauvegarde). Immuable ; chaque action renvoie un nouvel état.
 /// Les champs ajoutés après la v1 ont une valeur par défaut : une ancienne sauvegarde reste lisible.
@@ -20,6 +20,9 @@ class GameState {
 
   /// Identifiant de l'instru choisie (Econ : instrus), null tant qu'aucune n'est choisie.
   final String? inst;
+
+  /// Nom de l'instru au moment où elle a été choisie : il ne change pas si le jour change avant la fin du morceau.
+  final String? instName;
 
   /// Texte en cours d'écriture pour le son (A.write), null tant qu'aucun texte n'est écrit.
   final Texte? texte;
@@ -60,10 +63,20 @@ class GameState {
   /// Registre des mouvements de cauris (led de game.js), le plus récent d'abord, et totaux par catégorie (cat).
   final List<LedgerEntry> led;
   final Map<String, int> cat;
+
+  /// Accord avec DJ Kôrô (kc de game.js).
+  final KoreDeal kc;
+
+  /// Vrai tant que le dialogue d'introduction de Kôrô (planche 16-A1) n'a pas été montré : il s'ouvre à la première visite au Studio.
+  /// Faux par défaut (anciennes sauvegardes, tests) ; vrai pour une nouvelle partie.
+  final bool koreIntro;
+
+  /// Graine de la partie : fait varier les noms des instrus (instru_names.dart). 0 pour une ancienne sauvegarde : noms d'origine.
+  final int seed;
   const GameState({
     this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo',
-    this.inst, this.texte, this.sk = defaultSkills, this.takes = const [], this.song, this.micro = false, this.ms = defaultMissions, this.pend, this.style = 'drill',
-    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat, this.title,
+    this.inst, this.instName, this.texte, this.sk = defaultSkills, this.takes = const [], this.song, this.micro = false, this.ms = defaultMissions, this.pend, this.style = 'drill',
+    this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat, this.title, this.kc = const KoreDeal(), this.koreIntro = false, this.seed = 0,
   });
 
   int get level => levelOf(xp);
@@ -72,13 +85,14 @@ class GameState {
   /// Pour les champs nullables (inst, texte, song, pend), passer null efface la valeur ; ne rien passer la conserve.
   GameState copyWith({
     int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood,
-    Object? inst = _keep, Object? texte = _keep, Map<String, int>? sk, List<int>? takes, Object? song = _keep, bool? micro, Map<String, String>? ms, Object? pend = _keep, String? style,
-    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat, Object? title = _keep,
+    Object? inst = _keep, Object? instName = _keep, Object? texte = _keep, Map<String, int>? sk, List<int>? takes, Object? song = _keep, bool? micro, Map<String, String>? ms, Object? pend = _keep, String? style,
+    Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat, Object? title = _keep, KoreDeal? kc, bool? koreIntro, int? seed,
   }) =>
       GameState(
         version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
         fans: fans ?? this.fans, pop: pop ?? this.pop, rep: rep ?? this.rep, xp: xp ?? this.xp, hood: hood ?? this.hood,
         inst: identical(inst, _keep) ? this.inst : inst as String?,
+        instName: identical(instName, _keep) ? this.instName : instName as String?,
         texte: identical(texte, _keep) ? this.texte : texte as Texte?,
         sk: sk ?? this.sk, takes: takes ?? this.takes,
         song: identical(song, _keep) ? this.song : song as Song?,
@@ -89,18 +103,19 @@ class GameState {
         disco: disco ?? this.disco, lw: lw ?? this.lw, lc: lc ?? this.lc, fgain: fgain ?? this.fgain,
         led: led ?? this.led, cat: cat ?? this.cat,
         title: identical(title, _keep) ? this.title : title as String?,
+        kc: kc ?? this.kc, koreIntro: koreIntro ?? this.koreIntro, seed: seed ?? this.seed,
       );
 
   Map<String, dynamic> toJson() => {
         'v': version, 'cash': cash, 'en': energy, 'day': day, 'hour': hour, 'fans': fans, 'pop': pop, 'rep': rep, 'xp': xp, 'hood': hood,
-        'inst': inst, 'texte': texte?.toJson(), 'sk': sk, 'takes': takes, 'song': song?.toJson(), 'micro': micro, 'ms': ms, 'pend': pend?.toJson(), 'style': style,
+        'inst': inst, 'in': instName, 'texte': texte?.toJson(), 'sk': sk, 'takes': takes, 'song': song?.toJson(), 'micro': micro, 'ms': ms, 'pend': pend?.toJson(), 'style': style,
         'rel': rel?.toJson(), 'disco': disco.map((d) => d.toJson()).toList(), 'lw': lw, 'lc': lc, 'fgain': fgain,
-        'led': led.map((e) => e.toJson()).toList(), 'cat': cat, 'title': title,
+        'led': led.map((e) => e.toJson()).toList(), 'cat': cat, 'title': title, 'kc': kc.toJson(), 'ki': koreIntro, 'sd': seed,
       };
   factory GameState.fromJson(Map<String, dynamic> j) => GameState(
         version: (j['v'] ?? 1) as int, cash: (j['cash'] ?? 25000) as int, energy: (j['en'] ?? 100) as int, day: (j['day'] ?? 1) as int,
         hour: (j['hour'] ?? 8) as int, fans: (j['fans'] ?? 120) as int, pop: (j['pop'] ?? 3) as int, rep: (j['rep'] ?? 8) as int,
-        xp: (j['xp'] ?? 0) as int, hood: (j['hood'] ?? 'Ndolo') as String, inst: j['inst'] as String?,
+        xp: (j['xp'] ?? 0) as int, hood: (j['hood'] ?? 'Ndolo') as String, inst: j['inst'] as String?, instName: j['in'] as String?,
         texte: j['texte'] == null ? null : Texte.fromJson(Map<String, dynamic>.from(j['texte'] as Map)),
         sk: j['sk'] == null ? defaultSkills : Map<String, int>.from(j['sk'] as Map),
         takes: j['takes'] == null ? const [] : List<int>.from(j['takes'] as List),
@@ -115,9 +130,15 @@ class GameState {
         led: j['led'] == null ? const [] : [for (final e in j['led'] as List) LedgerEntry.fromJson(Map<String, dynamic>.from(e as Map))],
         cat: j['cat'] == null ? defaultCat : {...defaultCat, ...Map<String, int>.from(j['cat'] as Map)},
         title: j['title'] as String?,
+        kc: j['kc'] == null ? const KoreDeal() : KoreDeal.fromJson(Map<String, dynamic>.from(j['kc'] as Map)),
+        koreIntro: (j['ki'] ?? false) as bool,
+        seed: (j['sd'] ?? 0) as int,
       );
   String encode() => jsonEncode(toJson());
 }
+
+/// État d'une NOUVELLE partie : celui de départ, avec le dialogue d'introduction de Kôrô (16-A1) à montrer à la première visite au Studio.
+const newGameState = GameState(koreIntro: true);
 
 /// Erreurs métier affichables (mêmes codes que le prototype : cash, energie, niveau, rep…).
 class GameError implements Exception {
@@ -133,6 +154,8 @@ class GameError implements Exception {
         'son' => 'Aucun son prêt à sortir',
         'rien' => 'Rien à récupérer',
         'deja' => 'Déjà acheté',
+        'accord' => 'Accord déjà conclu avec Kôrô',
+        'attente' => 'Sors ton son en attente avant d’en créer un autre',
         _ => 'Action impossible',
       };
 

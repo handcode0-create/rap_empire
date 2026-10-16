@@ -17,6 +17,9 @@ import '../shell/toast.dart';
 class MissionsScreen extends ConsumerWidget {
   const MissionsScreen({super.key});
 
+  /// Où mène « Y aller » pour les missions qui sont une action.
+  static const _goTo = {'m3': '/business/formation', 'm5': '/scene/openmic', 'm6': '/scene/battle', 'm7': '/scene/concert', 'm8': '/studio'};
+
   Future<void> _claim(BuildContext context, WidgetRef ref, String id) async {
     final r = missionRewards[id]!;
     try {
@@ -40,9 +43,9 @@ class MissionsScreen extends ConsumerWidget {
         _MissionCard(
           id: id,
           status: s.ms[id] ?? 'todo',
-          fans: s.fans,
+          progress: missionProgress(id, s),
           onClaim: () => _claim(context, ref, id),
-          onGo: () => context.go('/business/formation'),
+          onGo: () => context.go(_goTo[id] ?? '/'),
         ),
       ],
     ]);
@@ -51,14 +54,14 @@ class MissionsScreen extends ConsumerWidget {
 
 class _MissionCard extends StatelessWidget {
   final String id, status;
-  final int fans;
+  final double? progress;
   final VoidCallback onClaim, onGo;
-  const _MissionCard({required this.id, required this.status, required this.fans, required this.onClaim, required this.onGo});
+  const _MissionCard({required this.id, required this.status, required this.progress, required this.onClaim, required this.onGo});
 
   @override
   Widget build(BuildContext context) {
     final r = missionRewards[id]!;
-    final pct = fansMissionPercent(fans);
+    final pct = ((progress ?? 0) * 100).round();
     return GameCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -67,7 +70,7 @@ class _MissionCard extends StatelessWidget {
         ]),
         const SizedBox(height: 4),
         Text('+${fmt(r.cash)} cauris · +${r.xp} XP', style: V20Text.bs()),
-        if (id == 'm4' && status == 'todo') ...[
+        if (progress != null && status == 'todo') ...[
           const SizedBox(height: 8),
           Row(children: [
             Expanded(child: MeterBar(value: pct / 100, tone: MeterTone.ok)),
@@ -78,7 +81,7 @@ class _MissionCard extends StatelessWidget {
         if (status == 'done') ...[
           const SizedBox(height: 8),
           PrimaryButton(label: 'Récupérer', compact: true, onPressed: onClaim),
-        ] else if (id == 'm3' && status == 'todo') ...[
+        ] else if (status == 'todo' && (id == 'm3' || id == 'm5' || id == 'm6' || id == 'm7' || id == 'm8')) ...[
           const SizedBox(height: 8),
           PrimaryButton(label: 'Y aller', style: GameButtonStyle.secondary, compact: true, onPressed: onGo),
         ],

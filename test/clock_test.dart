@@ -2,11 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/clock.dart';
 import 'package:rap_empire/domain/econ.dart';
 import 'package:rap_empire/domain/game_state.dart';
+import 'package:rap_empire/domain/catalog.dart';
 import 'package:rap_empire/domain/missions.dart';
+import 'package:rap_empire/domain/studio_models.dart';
 
 /// Valeurs de référence : moteur de démo v20 (game.js : tick, A.sleep, lowEn) et planches 03.1, 03.2, 03.6.
 /// engine.js n'est pas dans l'archive v20 ; game.js en est la source.
 void main() {
+  _catalogTests();
   group('tick (parité game.js)', () {
     test('1 h : 08:00 -> 09:00, même jour (A.write)', () {
       final s = tick(const GameState(), 1);
@@ -85,6 +88,29 @@ void main() {
       expect(mission1.id, 'm1');
       expect(mission1.title, 'Enregistre ton premier son');
       expect(mission1.hint, 'Choisis une instru, écris, passe en cabine.');
+    });
+  });
+}
+
+void _catalogTests() {
+  group('catalogue : écoutes passives chaque nuit', () {
+    const song = DiscoEntry(title: 'Gbaka de 6h', q: 61, listens: 5418, day: 2);
+    test('le lendemain de la sortie, le son rapporte écoutes, cauris et fans', () {
+      final s = sleep(const GameState(day: 2, disco: [song]));
+      expect(s.cash, greaterThan(25000));
+      expect(s.fans, greaterThan(120));
+      expect(s.lc, greaterThan(0));
+    });
+    test('les écoutes baissent d\'un jour à l\'autre', () {
+      expect(catalogListens(song, 2), lessThan(catalogListens(song, 1)));
+    });
+    test('le son passe de mode après le délai', () {
+      expect(catalogListens(song, Econ.catalogDays), greaterThan(0));
+      expect(catalogListens(song, Econ.catalogDays + 1), 0);
+    });
+    test('sans son sorti, rien ne change', () {
+      final s = sleep(const GameState());
+      expect((s.cash, s.fans), (25000, 120));
     });
   });
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
+import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/mini_game_parts.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/minigame.dart';
@@ -43,6 +45,7 @@ class _PrisesScreenState extends ConsumerState<PrisesScreen> with SingleTickerPr
   Future<void> _rec() async {
     if (_done) return;
     final score = takeScore(_cursor, _takes.length);
+    HapticFeedback.lightImpact(); // retour léger à chaque prise
     setState(() {
       _takes.add(score);
       _message = takeMessage(score);
@@ -50,6 +53,7 @@ class _PrisesScreenState extends ConsumerState<PrisesScreen> with SingleTickerPr
     });
     if (_takes.length < takesPerSession) return;
     _done = true;
+    HapticFeedback.mediumImpact(); // session terminée
     try {
       await ref.read(gameProvider.notifier).recordSession(List.of(_takes));
     } on Object catch (e) {
@@ -93,11 +97,17 @@ class _PrisesScreenState extends ConsumerState<PrisesScreen> with SingleTickerPr
         ],
       ]),
       const SizedBox(height: 14),
-      MiniGameTrack(cursor: _done ? 0.5 : _cursor, zone: zoneCenter(take)),
-      const SizedBox(height: 14),
-      Text(_message, textAlign: TextAlign.center, style: V20Text.bs()),
-      const SizedBox(height: 14),
-      Center(child: RecButton(onPressed: _done ? null : _rec)),
+      GlassCard(
+        accent: GlassAccent.cyan,
+        halo: false,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          MiniGameTrack(cursor: _done ? 0.5 : _cursor, zone: zoneCenter(take)),
+          const SizedBox(height: 14),
+          Text(_message, textAlign: TextAlign.center, style: V20Text.bs()),
+          const SizedBox(height: 14),
+          Center(child: RecButton(onPressed: _done ? null : _rec)),
+        ]),
+      ),
       const SizedBox(height: 14),
       const GameHint(icon: 'info', text: 'Le mini-jeu fonctionne : ton timing fixe la note de voix. Si le script est indisponible, utilise « Simuler ».'),
       const SizedBox(height: 12),

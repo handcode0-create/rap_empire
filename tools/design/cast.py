@@ -10,6 +10,9 @@ CAST = {
  'rosine': dict(name='Rosine Adjoua', role='Manager · presse et crise', skin=SKINS[4], hair='locks', hc='#7A7A8C', beard='none', acc=('fem', 'ring'), outfit=dict(top='#0E7C86', pants='#14102B', shoe='#F8F7FF', accent='#FFC83D', kind='blazer', logo=False)),
  'anselme': dict(name='Anselme Bayoko', role='Manager · négociation de contrats', skin=SKINS[6], hair='fade', hc='#14102B', beard='stubble', acc=('glasses',), outfit=dict(top='#1B2A5C', pants='#14102B', shoe='#FFC83D', accent='#FFC83D', kind='blazer', logo=False)),
  'ayana': dict(name='Ayana Dembé', role='Artiste · chanteuse afro-soul', skin=SKINS[3], hair='afro', hc='#1B1424', beard='none', acc=('fem', 'ring'), outfit=dict(top='#3CD6F2', pants='#2B2459', shoe='#F8F7FF', accent='#FFC83D', kind='hoodie', logo=False)),
+ 'kzer':  dict(name="K-Zer d'Mabaya", role='Rappeur · adversaire de battle', skin=SKINS[5], hair='hitwist', hc='#14102B', beard='goatee', acc=('ring',), outfit=dict(top='#8B5CF6', pants='#14102B', shoe='#F8F7FF', accent='#3CD6F2', kind='hoodie', logo=False)),
+ 'woro':  dict(name='Mister Wôrô', role="Beatmaker · instru Lagune d'Ambre", skin=SKINS[4], hair='bald', hc='#14102B', beard='full', acc=('glasses', 'phones'), outfit=dict(top='#F8F7FF', pants='#2B2459', shoe='#FFC83D', accent='#FFC83D', kind='tee', logo=False)),
+ 'sanko': dict(name='Sanko Beats', role='Beatmaker · instru Pont des Griots', skin=SKINS[3], hair='fade', hc='#14102B', beard='stubble', acc=('cap',), outfit=dict(top='#3DDC97', pants='#14102B', shoe='#F43F9D', accent='#14102B', kind='tee', logo=False)),
 }
 
 def _arm(x1, y1, x2, y2, top, skin, w=22):

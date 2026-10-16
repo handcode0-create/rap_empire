@@ -1,0 +1,539 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "21-00-Consolidation.dc.html": {
+      "h": 2341,
+      "title": "21.00 Nouveautés intégrées dans la v21",
+      "w": 1600,
+      "x": 0,
+      "y": 130
+    },
+    "21-00b-Reglages.dc.html": {
+      "h": 2575,
+      "title": "21.00b Réglages provisoires centralisés",
+      "w": 1400,
+      "x": 1680,
+      "y": 130
+    },
+    "21-00c-Parcours.dc.html": {
+      "h": 1376,
+      "title": "21.00c Parcours et contrôles qualité",
+      "w": 1400,
+      "x": 3160,
+      "y": 130
+    },
+    "21-01-Candidats.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.01 Sélection parmi les 8 candidat(e)s",
+      "w": 390,
+      "x": 0,
+      "y": 8425
+    },
+    "21-02-Profil.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.02 Profil détaillé et compatibilité",
+      "w": 390,
+      "x": 470,
+      "y": 8425
+    },
+    "21-03-Interactions.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.03 Interactions romantiques",
+      "w": 390,
+      "x": 940,
+      "y": 8425
+    },
+    "21-04-Relation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.04 Jauge et historique de la relation",
+      "w": 390,
+      "x": 1410,
+      "y": 8425
+    },
+    "21-05-Officialisation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.05 Officialisation du couple",
+      "w": 390,
+      "x": 1880,
+      "y": 8425
+    },
+    "21-06-Couple.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.06 Vie quotidienne du couple",
+      "w": 390,
+      "x": 2350,
+      "y": 8425
+    },
+    "21-07-Demande.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.07 Événement de demande en mariage",
+      "w": 390,
+      "x": 2820,
+      "y": 8425
+    },
+    "21-08-Preparation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.08 Préparation du mariage",
+      "w": 390,
+      "x": 0,
+      "y": 9519
+    },
+    "21-09-Confirmation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.09 Confirmation du mariage",
+      "w": 390,
+      "x": 470,
+      "y": 9519
+    },
+    "21-10-Separation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.10 Séparation et conséquences",
+      "w": 390,
+      "x": 940,
+      "y": 9519
+    },
+    "21-10b-Rupture.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.10b Rupture décidée par le partenaire",
+      "w": 390,
+      "x": 1410,
+      "y": 9519
+    },
+    "21-11-Enfant.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.11 Profil de l'enfant et étape d'âge",
+      "w": 390,
+      "x": 1880,
+      "y": 9519
+    },
+    "21-12-Parent-enfant.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.12 Interactions parent-enfant",
+      "w": 390,
+      "x": 2350,
+      "y": 9519
+    },
+    "21-13-Evenements.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.13 Événements familiaux et décisions",
+      "w": 390,
+      "x": 2820,
+      "y": 9519
+    },
+    "21-14-Bilan-familial.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.14 Bilan familial de fin de journée",
+      "w": 390,
+      "x": 3290,
+      "y": 9519
+    },
+    "21-C1-Popularite.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.C1 Popularité par ville et par continent",
+      "w": 390,
+      "x": 1880,
+      "y": 6237
+    },
+    "21-C2-Scene.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.C2 Scène (06-1 complété)",
+      "w": 390,
+      "x": 940,
+      "y": 6237
+    },
+    "21-C3-Concert.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.C3 Résultats de concert (07-3 complété)",
+      "w": 390,
+      "x": 1410,
+      "y": 6237
+    },
+    "21-E1-Business.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.E1 Business (09-1 complété)",
+      "w": 390,
+      "x": 0,
+      "y": 7331
+    },
+    "21-E2-Boulot.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.E2 Résultat d'un petit boulot",
+      "w": 390,
+      "x": 470,
+      "y": 7331
+    },
+    "21-E3-Entreprises.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.E3 Entreprises",
+      "w": 390,
+      "x": 940,
+      "y": 7331
+    },
+    "21-E4-Patrimoine.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.E4 Patrimoine et effets",
+      "w": 390,
+      "x": 1410,
+      "y": 7331
+    },
+    "21-E5-Achat-bien.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.E5 Confirmation d'achat d'un bien",
+      "w": 390,
+      "x": 1880,
+      "y": 7331
+    },
+    "21-J1-Journal.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.J1 Journal et missions (03-3, 10-1 complétés)",
+      "w": 390,
+      "x": 940,
+      "y": 4049
+    },
+    "21-L1-Labels-merch.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.L1 Merchandising et déblocages label",
+      "w": 390,
+      "x": 2350,
+      "y": 7331
+    },
+    "21-M1-Creation.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M1 Studio (04-1 / 04-5 complétés)",
+      "w": 390,
+      "x": 0,
+      "y": 5143
+    },
+    "21-M2-Featurings.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M2 Featurings à plusieurs (08-3 complété)",
+      "w": 390,
+      "x": 470,
+      "y": 5143
+    },
+    "21-M3-Sortie.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M3 Préparer la sortie (05-1 complété)",
+      "w": 390,
+      "x": 940,
+      "y": 5143
+    },
+    "21-M3b-Resultats.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M3b Résultats de sortie (05-4 complété)",
+      "w": 390,
+      "x": 1410,
+      "y": 5143
+    },
+    "21-M4-Clip.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M4 Clip : préparer, tourner, publier",
+      "w": 390,
+      "x": 1880,
+      "y": 5143
+    },
+    "21-M5-Clip-publie.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M5 Résultats du clip",
+      "w": 390,
+      "x": 2350,
+      "y": 5143
+    },
+    "21-P1-Profil.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.P1 Profil (03-4 complété)",
+      "w": 390,
+      "x": 0,
+      "y": 10613
+    },
+    "21-Q0-Demarrer.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Q0 Lancer la démo",
+      "w": 390,
+      "x": 2820,
+      "y": 4049
+    },
+    "21-Q1-QG.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Q1 QG du jour (03-1 complété)",
+      "w": 390,
+      "x": 0,
+      "y": 4049
+    },
+    "21-Q2-Journee.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Q2 Choisir ses activités",
+      "w": 390,
+      "x": 1410,
+      "y": 4049
+    },
+    "21-Q3-Bilan.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Q3 Bilan de fin de journée (03-6 complété)",
+      "w": 390,
+      "x": 1880,
+      "y": 4049
+    },
+    "21-Q4-Annee.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Q4 Âge, énergie et nouvelle année",
+      "w": 390,
+      "x": 2350,
+      "y": 4049
+    },
+    "21-R1-Rang.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.R1 Rang de carrière (10-4 complété)",
+      "w": 390,
+      "x": 0,
+      "y": 6237
+    },
+    "21-R2-Classements.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.R2 Classements reliés aux données (13-1 complété)",
+      "w": 390,
+      "x": 470,
+      "y": 6237
+    },
+    "21-S0-Splash.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S0 Splash (02-1 complété)",
+      "w": 390,
+      "x": 0,
+      "y": 2955
+    },
+    "21-S0b-Nouvelle-partie.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S0b Nouvelle partie · confirmation",
+      "w": 390,
+      "x": 470,
+      "y": 2955
+    },
+    "21-S1-Univers.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S1 Univers 1 à 3 (02-2 à 02-4 complétés)",
+      "w": 390,
+      "x": 940,
+      "y": 2955
+    },
+    "21-S2-Identite.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S2 Identité (02-5 / 02-5b complétés)",
+      "w": 390,
+      "x": 1410,
+      "y": 2955
+    },
+    "21-S3-Look.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S3 Look (02-6 complété)",
+      "w": 390,
+      "x": 1880,
+      "y": 2955
+    },
+    "21-S4-Style.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S4 Styles musicaux (02-7 complété)",
+      "w": 390,
+      "x": 2350,
+      "y": 2955
+    },
+    "21-S5-Objectif.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.S5 Objectif et récapitulatif (02-8 complété)",
+      "w": 390,
+      "x": 2820,
+      "y": 2955
+    },
+    "21-V1-Evenement.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.V1 Événement (03-5, 16-A, 16-B reliés)",
+      "w": 390,
+      "x": 470,
+      "y": 4049
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-15T18:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t0": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21 — Nouveautés intégrées dans la v21 : ce qui est nouveau, ce qui complète l’existant, réglages, parcours vérifiés",
+      "w": 240,
+      "x": 0,
+      "y": 40
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.Q — Journée : QG, événement, journal et fin de journée complétés (03-1, 03-3, 03-5, 03-6), agenda et âge nouveaux",
+      "w": 240,
+      "x": 0,
+      "y": 3959
+    },
+    "t1s": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.S — NOUVEAU · Démarrage : splash, univers, création de l’artiste (blaze, âge, origine, styles, look, objectif)",
+      "w": 240,
+      "x": 0,
+      "y": 2775
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.M — Studio et sortie complétés (04-5, 08-3, 05-1, 05-4), clips nouveaux (D-G03, D-G04, D-G09)",
+      "w": 240,
+      "x": 0,
+      "y": 5053
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.R / 21.C — Rang et classements reliés aux données (10-4, 13-1 complétés), scène et résultats de concert (06-1, 07-3 complétés), popularité géographique",
+      "w": 240,
+      "x": 0,
+      "y": 6147
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.E / 21.L — Business complété (09-1) : petits boulots, entreprises, patrimoine, merch nouveaux (D-G02, D-G06, D-G08)",
+      "w": 240,
+      "x": 0,
+      "y": 7241
+    },
+    "t5": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.01 à 21.07 — NOUVEAU · Relations amoureuses, reliées au QG et à la fin de journée (D-G07)",
+      "w": 240,
+      "x": 0,
+      "y": 8245
+    },
+    "t6": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.08 à 21.14 — NOUVEAU · Mariage, séparation, famille (D-G07)",
+      "w": 240,
+      "x": 0,
+      "y": 9429
+    },
+    "t7": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.P — Profil (03-4 complété)",
+      "w": 240,
+      "x": 0,
+      "y": 10523
+    }
+  },
+  "order": [
+    "21-00-Consolidation.dc.html",
+    "21-00b-Reglages.dc.html",
+    "21-00c-Parcours.dc.html",
+    "21-S0-Splash.dc.html",
+    "21-S0b-Nouvelle-partie.dc.html",
+    "21-S1-Univers.dc.html",
+    "21-S2-Identite.dc.html",
+    "21-S3-Look.dc.html",
+    "21-S4-Style.dc.html",
+    "21-S5-Objectif.dc.html",
+    "21-Q1-QG.dc.html",
+    "21-V1-Evenement.dc.html",
+    "21-J1-Journal.dc.html",
+    "21-Q2-Journee.dc.html",
+    "21-Q3-Bilan.dc.html",
+    "21-Q4-Annee.dc.html",
+    "21-Q0-Demarrer.dc.html",
+    "21-M1-Creation.dc.html",
+    "21-M2-Featurings.dc.html",
+    "21-M3-Sortie.dc.html",
+    "21-M3b-Resultats.dc.html",
+    "21-M4-Clip.dc.html",
+    "21-M5-Clip-publie.dc.html",
+    "21-R1-Rang.dc.html",
+    "21-R2-Classements.dc.html",
+    "21-C2-Scene.dc.html",
+    "21-C3-Concert.dc.html",
+    "21-C1-Popularite.dc.html",
+    "21-E1-Business.dc.html",
+    "21-E2-Boulot.dc.html",
+    "21-E3-Entreprises.dc.html",
+    "21-E4-Patrimoine.dc.html",
+    "21-E5-Achat-bien.dc.html",
+    "21-L1-Labels-merch.dc.html",
+    "21-01-Candidats.dc.html",
+    "21-02-Profil.dc.html",
+    "21-03-Interactions.dc.html",
+    "21-04-Relation.dc.html",
+    "21-05-Officialisation.dc.html",
+    "21-06-Couple.dc.html",
+    "21-07-Demande.dc.html",
+    "21-08-Preparation.dc.html",
+    "21-09-Confirmation.dc.html",
+    "21-10-Separation.dc.html",
+    "21-10b-Rupture.dc.html",
+    "21-11-Enfant.dc.html",
+    "21-12-Parent-enfant.dc.html",
+    "21-13-Evenements.dc.html",
+    "21-14-Bilan-familial.dc.html",
+    "21-P1-Profil.dc.html"
+  ],
+  "pages": [],
+  "title": "RAP EMPIRE — Consolidation globale des améliorations (v21)"
+}

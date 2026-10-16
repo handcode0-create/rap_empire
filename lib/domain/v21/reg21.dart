@@ -1,0 +1,214 @@
+// ignore_for_file: prefer_const_declarations
+// RAP EMPIRE v21 : paramètres de la zone de consolidation (planche 21-00b Réglages).
+// Port de REG, CANDS, EVT et FEV de docs/RAP-EMPIRE-v21/sources/engine21.js. Toutes les valeurs sont PROVISOIRES (D-08) et centralisées ici.
+// Les structures restent des maps comme dans le moteur d'origine : l'état v21 est un JSON, sauvegardé tel quel.
+
+typedef J = Map<String, dynamic>;
+
+class Reg21 {
+  // temps et âge
+  static const daysPerYear = 364, startAge = 19, dayStart = 8, dayEnd = 24, babyMorning = 5;
+  static const enMaxByAge = [(0, 100), (30, 95), (40, 88), (50, 80), (60, 72)];
+
+  // petits boulots
+  static const jobs = <String, J>{
+    'livraison': {'n': 'Livraison à moto · Ndolo', 'h': 4, 'e': 25, 'cash': 3500, 'need': 'Aucune condition'},
+    'maquis': {'n': 'Service au maquis Le Couplet', 'h': 5, 'e': 30, 'cash': 4500, 'need': 'Aucune condition'},
+    'mc': {'n': 'Animateur de soirée (MC)', 'h': 3, 'e': 20, 'cash': 6000, 'cha': 8, 'need': 'Charisme 8'},
+  };
+
+  // entreprises (revenus estimés, jamais garantis)
+  static const biz = <String, J>{
+    'couplet': {'n': 'Maquis Le Couplet (parts)', 'rank': 3, 'cost': 250000, 'lo': 3000, 'hi': 5000},
+    'agence': {'n': 'Agence événementielle', 'rank': 4, 'cost': 600000, 'lo': 7000, 'hi': 12000},
+    'studioq': {'n': 'Studio de quartier', 'rank': 5, 'cost': 1200000, 'lo': 12000, 'hi': 20000},
+  };
+
+  // patrimoine : un effet distinct par bien
+  static const assets = <String, J>{
+    'moto': {'n': 'Moto', 'cost': 60000, 'eff': '−5 énergie sur chaque boulot, concert et tournée'},
+    'appart': {'n': 'Appartement à Lumbé', 'cost': 350000, 'upkeep': 2000, 'eff': '+5 énergie max ; entretien 2 000 / jour'},
+    'homestudio': {'n': 'Home studio', 'cost': 180000, 'eff': 'Enregistrement : −10 énergie et +4 production'},
+    'terrain': {'n': 'Terrain à Sélène', 'cost': 500000, 'lo': 1000, 'hi': 2000, 'eff': 'Loyer estimé 1 000 à 2 000 / jour'},
+  };
+
+  // création musicale
+  static const themes = <String, J>{
+    'quartier': {'n': 'Le quartier', 'tx': 0, 'vir': 10},
+    'galere': {'n': 'La galère', 'tx': 1, 'vir': 6},
+    'ambition': {'n': "L'ambition", 'tx': 2, 'vir': 12},
+    'amour': {'n': "L'amour", 'tx': -1, 'vir': 14},
+  };
+  static const ambs = <String, J>{
+    'sombre': {'n': 'Sombre', 'tx': 0, 'vir': 0},
+    'fiere': {'n': 'Fière', 'tx': 2, 'vir': 4},
+    'legere': {'n': 'Légère', 'tx': -2, 'vir': 8},
+  };
+  static const virBase = 20, clipVir = 15;
+  static const promoVir = [0, 5, 12];
+  static const feats = <String, J>{
+    'nadia': {'n': 'Nadia Kolo', 'role': 'Refrain chanté', 'cost': 8000, 'q': 2, 'vir': 6, 'boost': 1.15},
+    'ayana': {'n': 'Ayana Dembé', 'role': 'Refrain afro-soul', 'cost': 0, 'share': 50, 'q': 4, 'vir': 8, 'boost': 1.10, 'needPop': 8},
+    'orage': {'n': 'Madame Orage', 'role': 'Couplet invité', 'cost': 25000, 'q': 5, 'vir': 10, 'boost': 1.25, 'needPop': 30},
+    'zaki': {'n': 'Zaki Mbela', 'role': 'Couplet invité', 'cost': 40000, 'q': 5, 'vir': 12, 'boost': 1.3, 'needRival': true},
+  };
+  static const maxFeats = 2;
+  static const tiers = [(0, 'Discret'), (10000, 'Correct'), (50000, 'Bon'), (252200, 'Hit · entre au Top 100')];
+
+  // clips
+  static const directors = <String, J>{
+    'sika': {'n': 'Sika Nébo', 'lv': 'Réalisatrice débutante', 'cost': 15000, 'vir': 8, 'rank': 1},
+    'ombre': {'n': 'Collectif Ombre Bleue', 'lv': 'Collectif confirmé', 'cost': 40000, 'vir': 15, 'rank': 2},
+    'ilan': {'n': 'Ilan Mabé', 'lv': 'Réalisateur reconnu', 'cost': 120000, 'vir': 25, 'rank': 4},
+  };
+  static const shootE = 30, shootH = 6;
+  static const clipBoost = 0.25;
+
+  // rang de carrière : N1 à N6, seuils relevés le 16/10, conditions proposées
+  static const ranks = <J>[
+    {'n': 'Inconnu', 'xp': 0},
+    {'n': 'Espoir du quartier', 'xp': 100},
+    {'n': 'Révélation locale', 'xp': 1500, 'singles': 1, 'cl': '1 single sorti'},
+    {'n': 'Nom qui circule', 'xp': 3200, 'pop': 20, 'shows': 1, 'cl': 'popularité 20 et 1 concert'},
+    {'n': 'Star de Bakoma', 'xp': 6000, 'fans': 10000, 'bon': 1, 'cl': '10 000 fans et 1 titre « Bon »'},
+    {'n': 'Légende', 'xp': 12000, 'fans': 100000, 'hit': 1, 'cl': '100 000 fans et 1 hit'},
+  ];
+
+  // labels et merchandising
+  static const merch = <String, J>{
+    'tshirt': {'n': 'T-shirts Ndo City', 'cost': 20000, 'days': 14, 'perFan': 0.8, 'fans': 1000, 'singles': 1, 'cl': '1 000 fans et 1 single sorti'},
+    'capsule': {'n': 'Collection capsule', 'cost': 100000, 'days': 21, 'perFan': 1.5, 'fans': 10000, 'rank': 4, 'cl': '10 000 fans et rang N4'},
+  };
+  static const labelRep = 30, labelAdvance = 150000;
+  static const ownLabelRep = 60, ownLabelCash = 500000;
+  static const labelCut = 0.35;
+
+  // scène et géographie
+  static const cities = <String, String>{'bakoma': 'Bakoma', 'portambre': 'Port-Ambre', 'selene': 'Sélène', 'tamarel': 'Tamarel', 'korvane': 'Korvane', 'aldera': 'Aldéra'};
+  static const conts = <String, J>{
+    'solo': {'n': 'Rives de Sôlo', 'c': ['bakoma', 'portambre', 'selene']},
+    'tam': {'n': 'Terres de Tamarel', 'c': ['tamarel']},
+    'kor': {'n': 'Nord de Korvane', 'c': ['korvane']},
+    'ald': {'n': "Archipel d'Aldéra", 'c': ['aldera']},
+  };
+  static const tour = <String, dynamic>{'n': 'Tournée régionale (Port-Ambre, Sélène)', 'rank': 3, 'e': 50, 'h': 10, 'cost': 30000, 'fee': 20000, 'feeGeo': 2500, 'fans': 600, 'geo': 8};
+  static const intlRank = 5;
+
+  // relations et famille
+  static const romPerDay = 2;
+  static const romActs = <String, J>{
+    'parler': {'n': 'Discuter', 'g': 4, 'h': 1, 'e': 5, 'c': 0},
+    'sortie': {'n': 'Sortie au maquis', 'g': 8, 'h': 3, 'e': 10, 'c': 3000},
+    'cadeau': {'n': 'Offrir un cadeau', 'g': 6, 'h': 1, 'e': 0, 'c': 5000},
+    'scene': {'n': 'Inviter à ton concert', 'g': 7, 'h': 2, 'e': 10, 'c': 0},
+  };
+  static const likeMul = 1.5, dislikeMul = 0.5;
+  static const decayCourt = 1, decayCouple = 2;
+  static const officialAt = 60, proposeAt = 80, proposeMinDays = 14, refuseCooldown = 14, refuseLoss = 12, warnAt = 30, leaveAt = 20, exBlockDays = 30;
+  static const weddings = <String, J>{
+    'simple': {'n': 'Cérémonie simple', 'cost': 50000, 'g': 8, 'pop': 0},
+    'fete': {'n': 'Grande fête de quartier', 'cost': 150000, 'g': 12, 'pop': 3},
+  };
+  static const kidChance = 0.25, coupleCost = 1000, kidCost = 1500, maxKids = 2;
+  static const stages = [(0, 'Bébé'), (1, 'Petite enfance'), (6, 'Enfant'), (12, 'Adolescent'), (18, 'Adulte')];
+  static const kidActs = <String, J>{
+    'jouer': {'n': 'Jouer ensemble', 'l': 6, 'h': 1, 'e': 10, 'min': 0},
+    'histoire': {'n': 'Lire une histoire', 'l': 4, 'h': 1, 'e': 5, 'min': 1},
+    'devoirs': {'n': 'Aider aux devoirs', 'l': 7, 'h': 2, 'e': 10, 'min': 6},
+    'studio': {'n': "L'emmener au studio", 'l': 8, 'h': 2, 'e': 10, 'min': 6},
+  };
+
+  // création de l'artiste
+  static const nameMin = 2, nameMax = 18, ageMin = 18, ageMax = 30;
+  static const origins = <String, String>{'bakoma': 'Bakoma', 'portambre': 'Port-Ambre', 'selene': 'Sélène', 'tamarel': 'Tamarel', 'korvane': 'Korvane', 'aldera': 'Aldéra'};
+  static const styles = <String, J>{
+    'drill': {'n': 'Drill de Bakoma', 'k': 'flow', 'kn': 'Flow', 'd': 'Flow sec, voix grave, ambiance sombre.'},
+    'conscient': {'n': 'Rap conscient', 'k': 'ecr', 'kn': 'Écriture', 'd': 'Textes posés, messages forts.'},
+    'coupe': {'n': 'Coupé-décalé rap', 'k': 'cha', 'kn': 'Charisme', 'd': 'Énergie de fête, refrains qui tournent.'},
+    'trap': {'n': 'Trap bakomaise', 'k': 'voix', 'kn': 'Voix', 'd': 'Mélodies, voix travaillée, basses lourdes.'},
+  };
+  static const mainBonus = 3, secondBonus = 1;
+  static const goals = <String, J>{
+    'quartier': {'n': 'Être connu du quartier', 'd': 'Premier son, premiers fans, un nom qui circule.'},
+    'label': {'n': 'Signer en label', 'd': 'Réputation 30 pour ouvrir les portes.'},
+    'stade': {'n': 'Remplir un stade', 'd': 'Le rêve : une salle pleine à Lumbé.'},
+  };
+  static const skins = <String, String>{'3': 'Mate', '5': 'Brun foncé', '6': 'Ébène'};
+
+  // atelier et missions de départ
+  static const atelier = <String, dynamic>{'n': "Atelier d'écriture", 'h': 2, 'e': 20, 'cost': 6000, 'sk': 'ecr', 'gain': 5};
+  static const missions = <J>[
+    {'id': 'm1', 't': 'Enregistre ton premier son', 'cash': 5000, 'xp': 50},
+    {'id': 'm2', 't': 'Sors ton premier single', 'cash': 10000, 'xp': 80},
+    {'id': 'm3', 't': "Fais un atelier d'écriture", 'cash': 4000, 'xp': 60},
+    {'id': 'm4', 't': 'Atteins 1 000 fans', 'cash': 15000, 'xp': 120},
+  ];
+
+  // correctifs d'audit du 16/10
+  static const concertEvery = 7, tourEvery = 28, ticketPrice = 80, capacity = 300, tourAudience = 3, merchScale = 30;
+
+  // économie de démonstration
+  static const listenValue = 0.01, fanSat = 5000, listenCap = 15000000, entry = 252200;
+}
+
+/// Candidat(e)s de la vie perso : profils et préférences visibles.
+const cands21 = <String, J>{
+  'ines': {'n': 'Inès Waly', 'age': 23, 'job': 'Styliste', 'city': 'Lumbé', 'likes': ['cadeau', 'scene'], 'dis': ['parler'], 'comp': 72, 'bio': 'Habille la moitié des artistes de Lumbé. Aime les tenues réussies et les grandes scènes.'},
+  'kadi': {'n': 'Kadi Sora', 'age': 25, 'job': 'Infirmière', 'city': 'Mabaya', 'likes': ['parler', 'sortie'], 'dis': ['scene'], 'comp': 64, 'bio': 'Travaille de nuit. Préfère une vraie conversation à un concert bruyant.'},
+  'lina': {'n': 'Lina Mbaré', 'age': 22, 'job': 'Danseuse', 'city': 'Kôtoro', 'likes': ['scene', 'sortie'], 'dis': ['cadeau'], 'comp': 80, 'bio': "Danse sur les scènes de Kôtoro. Veut quelqu'un qui bouge autant qu'elle."},
+  'sefa': {'n': 'Sefa Doumbé', 'age': 27, 'job': 'Journaliste musique', 'city': 'Lumbé', 'likes': ['parler', 'scene'], 'dis': ['cadeau'], 'comp': 58, 'bio': 'Chronique la scène rap. Respecte le travail, se méfie du clinquant.'},
+  'amara': {'n': 'Amara Teki', 'age': 21, 'job': 'Étudiante en droit', 'city': 'Ndolo', 'likes': ['parler', 'cadeau'], 'dis': ['sortie'], 'comp': 69, 'bio': 'Révise ses examens au maquis du coin. Sincère, curieuse, directe.'},
+  'yao': {'n': 'Yao Bellam', 'age': 26, 'job': 'Photographe', 'city': 'Port-Ambre', 'likes': ['sortie', 'cadeau'], 'dis': ['scene'], 'comp': 61, 'bio': 'Photographie les rues de Port-Ambre. Aime les balades et les surprises.'},
+  'noe': {'n': 'Noé Akan', 'age': 28, 'job': 'Chef cuisinier', 'city': 'Sélène', 'likes': ['sortie', 'parler'], 'dis': ['cadeau'], 'comp': 66, 'bio': 'Tient une cuisine à Sélène. Pense déjà à fonder une famille.'},
+  'teo': {'n': 'Téo Gbéli', 'age': 24, 'job': 'Animateur radio', 'city': 'Kôtoro', 'likes': ['scene', 'parler'], 'dis': ['sortie'], 'comp': 75, 'bio': 'Passe du rap à la radio de Kôtoro. Fan de musique avant tout.'},
+};
+
+const kidNames21 = ['Nayla', 'Kenzo'];
+
+/// Promotions de la v20, reprises.
+const promos21 = <J>[
+  {'n': 'Aucune', 'c': 0, 'm': 1},
+  {'n': 'Réseaux sociaux', 'c': 2000, 'm': 1.6},
+  {'n': 'Radio locale', 'c': 15000, 'm': 3.2},
+];
+
+/// Titres proposés par thème (génération simple de la v21).
+const titles21 = <String, List<String>>{
+  'quartier': ['Gbaka de 6h', 'Ndolo la nuit', 'Carrefour Mabaya', 'Rue des Griots'],
+  'galere': ['Poches vides', 'Fin du mois', 'Ticket de bus', 'Pluie sur Kôtoro'],
+  'ambition': ['Monter au sommet', 'Plus haut que Lumbé', 'Couronne de cauris', 'Premier stade'],
+  'amour': ['Lagune et toi', 'Message de minuit', "Lumière d'Ambre", 'Toi et Ndolo'],
+};
+
+/// Événements de carrière : défi de K-Zer (03.5), offre de DJ Kôrô (16-A), offre de label (08.2).
+const evt21 = <String, J>{
+  'kzer': {
+    't': "K-Zer d'Mabaya te défie", 'who': "K-Zer d'Mabaya", 'q': '« Le nouveau de Ndolo ? Viens prouver que tu sais rapper. Ce soir, au carrefour. »',
+    'ch': [
+      {'id': 'a', 'n': 'Répondre en freestyle', 'c': '1 h · −15 énergie · +6 réputation · +150 fans'},
+      {'id': 'b', 'n': 'Ignorer', 'c': '+2 popularité · le défi est clos'},
+    ],
+  },
+  'kore': {
+    't': 'DJ Kôrô a écouté ton son', 'who': 'DJ Kôrô', 'q': '« La prod est brute, mais ta voix a du grain. Je te propose un deal : je produis tes trois prochains titres. »',
+    'ch': [
+      {'id': 'a', 'n': 'Accepter à 40 %', 'c': '−8 000 cauris · production +12 sur 3 titres · relation +15'},
+      {'id': 'b', 'n': 'Négocier à 35 %, mix signé', 'c': '−7 000 cauris · production +12 sur 3 titres · relation +8'},
+      {'id': 'c', 'n': 'Refuser', 'c': "relation −10 · il s'en souviendra"},
+    ],
+  },
+  'label': {
+    't': 'Bakoma Sound Records te fait une offre', 'who': 'Madame Orage', 'q': "« Six mois, deux sons par trimestre, 150 000 d'avance. On signe ? »",
+    'ch': [
+      {'id': 'a', 'n': 'Signer le contrat', 'c': "+150 000 cauris d'avance · 35 % de tes revenus d'écoutes au label · 6 mois"},
+      {'id': 'b', 'n': "Refuser pour l'instant", 'c': "tu restes indépendant"},
+    ],
+  },
+};
+
+/// Événements familiaux à deux choix aux conséquences certaines.
+const fev21 = <String, J>{
+  'anniv': {'need': 'couple', 't': 'Anniversaire de couple', 'q': "« Ce soir, c'est notre anniversaire. Tu restes avec moi ? »", 'a': {'n': 'Rester ce soir', 'g': 8, 'cash': -5000, 'h': 2}, 'b': {'n': 'Reporter : tu as du travail', 'g': -6}},
+  'fievre': {'need': 'kid', 't': "Fièvre la veille d'un concert", 'q': '« Ton enfant a de la fièvre. Tu restes à la maison ? »', 'a': {'n': 'Rester à la maison', 'l': 10, 'e': -15}, 'b': {'n': 'Confier à la famille', 'l': -5}},
+  'dimanche': {'need': 'married', 't': 'Repas de famille du dimanche', 'q': '« Les deux familles se retrouvent dimanche. On y va ? »', 'a': {'n': 'Y aller', 'g': 5, 'h': 3}, 'b': {'n': 'Décliner', 'g': -4}},
+};

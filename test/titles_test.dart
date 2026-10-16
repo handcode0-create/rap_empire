@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/game_state.dart';
+import 'package:rap_empire/domain/music_catalog.dart';
 import 'package:rap_empire/domain/studio.dart';
 import 'package:rap_empire/domain/titles.dart';
 
@@ -7,32 +8,42 @@ import 'package:rap_empire/domain/titles.dart';
 void main() {
   final written = write(pick(const GameState(), 'gbaka'));
 
-  group('titres générés', () {
-    test('64 titres, tous différents', () {
-      expect(generatedTitles.length, 64);
-      expect(generatedTitles.toSet().length, 64);
-    });
-    test('« Gbaka de 6h », le titre du prototype, en fait partie', () => expect(generatedTitles, contains('Gbaka de 6h')));
-    test('même graine, même titre ; la graine boucle sur la liste', () {
-      expect(titleFor(7), titleFor(7));
-      expect(titleFor(0), titleFor(64));
+  group('titres générés (bibliothèque musicale)', () {
+    final sample = [for (var i = 0; i < 3000; i++) titleFor(i)];
+    test('des milliers de titres différents', () => expect(sample.toSet().length, greaterThan(500)));
+    test('même graine et même thème, même titre', () {
+      expect(titleFor(7, theme: 'amour'), titleFor(7, theme: 'amour'));
       expect(titleFor(-3), titleFor(3));
     });
-    test('titres courts : jamais plus de la longueur maximale', () => expect(generatedTitles.every((t) => t.length <= maxTitleLength), isTrue));
+    test('titres courts : jamais plus de la longueur maximale, jamais vides', () {
+      expect(sample.every((t) => t.length <= maxTitleLength && t.trim().isNotEmpty), isTrue);
+    });
+    test('pas de doublon de mot collé (« de de », « la la »)', () {
+      for (final t in sample) {
+        expect(RegExp(r'\b(\w+) \1\b', caseSensitive: false).hasMatch(t), isFalse, reason: t);
+      }
+    });
+    test('chaque thème donne des titres', () {
+      for (final th in musicThemes) {
+        final titles = {for (var i = 0; i < 200; i++) titleFor(i, theme: th.id)};
+        expect(titles.length, greaterThan(20), reason: th.id);
+      }
+    });
+    test('un thème inconnu ne casse rien', () => expect(titleFor(4, theme: 'inconnu'), isNotEmpty));
   });
 
   group('ensureTitle, rerollTitle, setTitle', () {
     test('ensureTitle donne un titre généré, déterministe pour une même partie', () {
       final a = ensureTitle(written);
-      expect(generatedTitles, contains(a.title));
+      expect(a.title, isNotEmpty);
       expect(ensureTitle(written).title, a.title);
     });
     test('ensureTitle conserve un titre déjà choisi', () => expect(ensureTitle(written.copyWith(title: 'Mon titre')).title, 'Mon titre'));
-    test('ensureTitle remplace un titre vide', () => expect(generatedTitles, contains(ensureTitle(written.copyWith(title: '  ')).title)));
+    test('ensureTitle remplace un titre vide', () => expect(ensureTitle(written.copyWith(title: '  ')).title, isNotEmpty));
     test('rerollTitle : titre de la graine, jamais le même que l’actuel', () {
       final s = rerollTitle(written, 5);
-      expect(s.title, titleFor(5));
-      expect(rerollTitle(s, 5).title, titleFor(6));
+      expect(s.title, titleFor(5, theme: written.texte!.theme));
+      expect(rerollTitle(s, 5).title, isNot(s.title));
     });
     test('setTitle : espaces rognés, tronqué', () {
       expect(setTitle(written, '  Ma chanson  ').title, 'Ma chanson');
@@ -41,7 +52,7 @@ void main() {
     });
     test('currentTitle : le titre saisi, sinon un titre généré', () {
       expect(currentTitle(written.copyWith(title: 'Ma chanson')), 'Ma chanson');
-      expect(generatedTitles, contains(currentTitle(written)));
+      expect(currentTitle(written), isNotEmpty);
     });
   });
 

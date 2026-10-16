@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rap_empire/domain/instru_names.dart';
 import 'package:rap_empire/domain/game_state.dart';
 import 'package:rap_empire/domain/studio.dart';
 import 'package:rap_empire/domain/studio_models.dart';
@@ -25,7 +26,7 @@ void main() {
       expect([s.cash, s.energy, s.day, s.hour, s.fans, s.pop, s.xp, s.level], [17054, 100, 2, 8, 491, 9, 70, 1]);
       expect(s.rel, rel(5418, 54, 371, 6, 0, 61));
       expect([s.lw, s.lc, s.fgain], [8127, 5418, 371]);
-      expect(s.ms, {'m1': 'done', 'm2': 'done', 'm3': 'todo', 'm4': 'todo'});
+      expect({for (final k in ['m1', 'm2', 'm3', 'm4']) k: s.ms[k]}, {'m1': 'done', 'm2': 'done', 'm3': 'todo', 'm4': 'todo'});
       expect(s.pend, isNull);
     });
     test('Réseaux sociaux (2 000) : 8 667 écoutes, +87, +593 fans, +9', () {
@@ -40,7 +41,7 @@ void main() {
       expect([s.cash, s.fans, s.pop], [2173, 1305, 22]);
       expect(s.rel, rel(17324, 173, 1185, 19, 2, 61));
       expect([s.lw, s.lc, s.fgain], [25986, 17324, 1185]);
-      expect(s.ms, {'m1': 'done', 'm2': 'done', 'm3': 'todo', 'm4': 'done'});
+      expect({for (final k in ['m1', 'm2', 'm3', 'm4']) k: s.ms[k]}, {'m1': 'done', 'm2': 'done', 'm3': 'todo', 'm4': 'done'});
     });
   });
 
@@ -94,11 +95,11 @@ void main() {
   group('release : écart assumé avec game.js (son marqué sorti, discographie)', () {
     final s = release(rec, 0);
     test('le son est marqué sorti', () => expect([s.song!.released, s.song!.title, s.song!.q], [true, 'Gbaka de 6h', 61]));
-    test('discographie : titre, qualité, écoutes', () => expect(s.disco, const [DiscoEntry(title: 'Gbaka de 6h', q: 61, listens: 5418)]));
+    test('discographie : titre, qualité, écoutes', () => expect(s.disco, const [DiscoEntry(title: 'Gbaka de 6h', q: 61, listens: 5418, day: 2)]));
     test('le même son ne ressort pas (le prototype le permettait)', () => expect(errOf(() => release(s, 0))!.code, 'son'));
     test('un deuxième son s’ajoute à la discographie', () {
       final second = release(record(write(pick(s, 'nuit'))), 0);
-      expect(second.disco.map((d) => d.title), ['Gbaka de 6h', 'Nuit à Ndo']);
+      expect(second.disco.map((d) => d.title), ['Gbaka de 6h', instruName(s, 'nuit')]); // le nom de l'instru gratuite change d'un jour à l'autre
       expect(second.lc, second.disco.fold<int>(0, (a, d) => a + d.listens));
     });
     test('songCount : sons sortis + son à sortir', () {

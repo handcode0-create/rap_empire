@@ -21,8 +21,8 @@ class FakeRepo extends SaveRepository {
 }
 
 /// Lance l'app en 390 x 844 avec un état de départ donné.
-Future<FakeRepo> pumpApp(WidgetTester tester, GameState start, {String location = '/', bool settle = true, double height = 844}) async {
-  tester.view.physicalSize = Size(390, height);
+Future<FakeRepo> pumpApp(WidgetTester tester, GameState start, {String location = '/', bool settle = true, double height = 844, double width = 390}) async {
+  tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final repo = FakeRepo(start);

@@ -28,27 +28,26 @@ void main() {
     expect(tester.getSize(bar), const Size(390, 72));
   });
 
-  testWidgets('« Aller au studio » ouvre le studio ; Scène et Profil affichent « Bientôt »', (tester) async {
+  testWidgets('« Aller au studio » ouvre le studio ; Scène affiche la scène, Profil ouvre le profil', (tester) async {
     await pumpApp(tester, const GameState());
     await tester.tap(txt('Aller au studio'));
     await tester.pumpAndSettle();
     expect(txt('Aucun son enregistré'), findsOneWidget);
-    expect(txt('Bientôt'), findsNothing);
     await tester.tap(navTab('QG'));
     await tester.pumpAndSettle();
     expect(txt('Salut, Djo'), findsOneWidget);
     await tester.tap(navTab('Scène'));
     await tester.pumpAndSettle();
-    expect(txt('Bientôt'), findsOneWidget);
+    expect(txt('Open mic'), findsOneWidget);
     await tester.tap(navTab('Profil'));
     await tester.pumpAndSettle();
-    expect(txt('Bientôt'), findsOneWidget);
+    expect(txt('Mes finances'), findsOneWidget);
   });
 
   testWidgets('énergie 12 (planche 03.2) : « Trop fatigué », Dormir, fin de journée (03.6)', (tester) async {
     final repo = await pumpApp(tester, const GameState(cash: 6000, energy: 12, hour: 14));
     expect(txt('Trop fatigué'), findsOneWidget);
-    expect(txt('Nuit gratuite · démo'), findsOneWidget);
+    expect(txt('Nuit gratuite · démo'), findsNWidgets(2)); // feuille « Trop fatigué » + bouton « Passer la journée » du QG (désormais visible sans défiler)
     await tester.tap(txt('Dormir'));
     await tester.pumpAndSettle();
     expect(txt('Nouvelle journée'), findsOneWidget);

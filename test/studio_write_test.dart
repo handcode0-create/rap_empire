@@ -27,7 +27,7 @@ void main() {
     test('galère / sombre : 73', () => expect(write(base, theme: 'galere', amb: 'sombre').texte!.note, 73));
     test('ambition / fière : 76', () => expect(write(base, theme: 'ambition', amb: 'fiere').texte!.note, 76));
     test('amour / légère : 69', () => expect(write(base, theme: 'amour', amb: 'legere').texte!.note, 69));
-    test('valeurs par défaut : quartier / sombre', () => expect(write(base).texte, const Texte(72, 'quartier', 'sombre')));
+    test('valeurs par défaut : rue / sombre', () => expect(write(base).texte, const Texte(72, 'rue', 'sombre')));
     test('thème et ambiance conservés dans le texte', () {
       final t = write(base, theme: 'galere', amb: 'fiere').texte!;
       expect([t.theme, t.amb], ['galere', 'fiere']);

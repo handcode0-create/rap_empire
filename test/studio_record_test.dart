@@ -26,7 +26,7 @@ void main() {
     test('son : Gbaka de 6h, 61, 72, 55, 56', () => expect(view(s), ['Gbaka de 6h', 61, 72, 55, 56]));
     test('énergie 55, 11:00, XP 30, cauris inchangés', () => expect([s.energy, s.hour, s.day, s.xp, s.cash], [55, 11, 1, 30, 17000]));
     test('prises conservées, voix +1, écriture inchangée', () => expect([s.takes, s.sk['voix'], s.sk['ecr']], [[74, 48, 43], 11, 16]));
-    test('mission 1 terminée, les autres non', () => expect(s.ms, {'m1': 'done', 'm2': 'todo', 'm3': 'todo', 'm4': 'todo'}));
+    test('mission 1 terminée, les autres non', () => expect({for (final k in ['m1', 'm2', 'm3', 'm4']) k: s.ms[k]}, {'m1': 'done', 'm2': 'todo', 'm3': 'todo', 'm4': 'todo'}));
     test('instru du son : Gbaka de 6h, pas encore sorti', () => expect([s.song!.inst, s.song!.released], ['Gbaka de 6h', false]));
     test('pas de niveau en attente (30 XP)', () => expect(s.pend, isNull));
     test('prises par défaut = [74, 48, 43]', () {
@@ -107,10 +107,16 @@ void main() {
     });
   });
 
-  group('pick efface les prises et le son non sorti (A.pick)', () {
-    test('nouvelle instru après un enregistrement', () {
-      final s = pick(record(afterWrite), 'nuit');
-      expect([s.inst, s.song, s.takes, s.texte], ['nuit', null, <int>[], null]);
+  group('pick efface les prises du son sorti et refuse d écraser un son en attente (A.pick)', () {
+    test('son non sorti : erreur attente, son conservé', () {
+      final rec = record(afterWrite);
+      expect(() => pick(rec, 'nuit'), throwsA(isA<GameError>().having((e) => e.code, 'code', 'attente')));
+      expect(rec.song, isNotNull);
+    });
+    test('son sorti : nouvelle instru, état vidé', () {
+      final done = release(record(afterWrite), 0);
+      final s = pick(done, 'nuit');
+      expect([s.inst, s.takes, s.texte], ['nuit', <int>[], null]);
     });
   });
 

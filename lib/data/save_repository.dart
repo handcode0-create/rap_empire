@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,7 +12,7 @@ class SaveRepository {
   Future<GameState> loadLocal() async {
     final p = await SharedPreferences.getInstance();
     final raw = p.getString(_key);
-    if (raw == null) return const GameState();
+    if (raw == null) return newGameState.copyWith(seed: Random().nextInt(1 << 20));
     return GameState.fromJson(Map<String, dynamic>.from(jsonDecode(raw) as Map));
   }
 

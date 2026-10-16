@@ -1,6 +1,8 @@
 import 'clock.dart';
 import 'econ.dart';
 import 'game_state.dart';
+import 'instru_names.dart';
+import 'music_catalog.dart';
 import 'missions.dart';
 import 'rules.dart';
 import 'studio_models.dart';
@@ -12,6 +14,7 @@ Instru instruById(String id) => instrus.firstWhere((i) => i.id == id, orElse: ()
 /// Code d'erreur qui bloquerait le choix de l'instru (null si possible). Même ordre que A.pick : niveau, réputation, cash.
 String? pickBlocker(GameState s, String id) {
   final i = instruById(id);
+  if (s.song != null && !s.song!.released) return 'attente'; // un son enregistré attend sa sortie : ne pas l'écraser
   if (i.lvl > s.level) return 'niveau';
   if (i.rep > 0 && s.rep < i.rep) return 'rep';
   if (s.cash < i.price) return 'cash';
@@ -25,8 +28,8 @@ bool needsConfirm(int amount) => amount >= Econ.confirmFrom;
 GameState pick(GameState s, String id) {
   final code = pickBlocker(s, id);
   if (code != null) throw GameError(code);
-  final i = instruById(id);
-  return (i.price > 0 ? pay(s, -i.price, cat: 'instru', label: 'Instru ${i.name}') : s).copyWith(inst: i.id, texte: null, takes: const [], song: null, title: null);
+  final i = named(s, instruById(id));
+  return (i.price > 0 ? pay(s, -i.price, cat: 'instru', label: 'Instru ${i.name}') : s).copyWith(inst: i.id, instName: i.name, texte: null, takes: const [], song: null, title: null);
 }
 
 /// Écriture : 1 h et 20 énergie (A.write).
@@ -35,9 +38,13 @@ const writeHours = 1, writeEnergy = 20;
 /// Note de base du texte, puis décalages d'ambiance et de thème (A.write : 72 + ambiance + thème).
 const baseNote = 72;
 const ambOffsets = {'sombre': 0, 'fiere': 2, 'legere': -2};
-const themeOffsets = {'quartier': 0, 'galere': 1, 'ambition': 2, 'amour': -1};
+/// Les dix thèmes de la bibliothèque musicale ; « quartier » et « galere » restent valables pour les anciennes sauvegardes.
+final themeOffsets = {...legacyThemeOffsets, for (final t in musicThemes) t.id: t.offset};
 const ambNames = {'sombre': 'Sombre', 'fiere': 'Fière', 'legere': 'Légère'};
-const themeNames = {'quartier': 'Le quartier', 'galere': 'La galère', 'ambition': "L'ambition", 'amour': "L'amour"};
+final themeNames = {...legacyThemeNames, for (final t in musicThemes) t.id: t.name};
+
+/// Bonus de qualité apporté par une compétence au-dessus de sa valeur de départ : 1 point par 3 points de compétence.
+int skillBonus(int skill, int base) => (skill - base) ~/ 3;
 
 /// Gain de compétence d'écriture par texte (sk.ecr += 2).
 const writeSkillGain = 2;
@@ -50,9 +57,9 @@ int textNote(String theme, String amb) {
 }
 
 /// A.write : énergie -20, +1 h, note du texte, écriture +2. Erreur 'energie' sous 20.
-GameState write(GameState s, {String theme = 'quartier', String amb = 'sombre'}) {
+GameState write(GameState s, {String theme = 'rue', String amb = 'sombre'}) {
   if (s.energy < writeEnergy) throw const GameError('energie');
-  final note = textNote(theme, amb);
+  final note = textNote(theme, amb) + skillBonus(s.sk['ecr']!, defaultSkills['ecr']!);
   final n = tick(s.copyWith(energy: s.energy - writeEnergy), writeHours);
   return n.copyWith(texte: Texte(note, theme, amb), sk: {...n.sk, 'ecr': n.sk['ecr']! + writeSkillGain});
 }
@@ -80,20 +87,23 @@ const styleNames = {'drill': 'Drill de Bakoma', 'conscient': 'Rap conscient', 'c
 GameState record(GameState s, [List<int>? takes]) {
   if (s.energy < recordEnergy) throw const GameError('energie');
   final t = (takes == null || takes.isEmpty) ? defaultTakes : takes;
-  final voix = (t.reduce((a, b) => a + b) / t.length).round() + (s.micro ? microVoiceBonus : 0);
-  final instru = s.inst == null ? null : instruById(s.inst!);
-  final prod = instru?.q ?? noInstruProd;
+  final voix = (t.reduce((a, b) => a + b) / t.length).round() + (s.micro ? microVoiceBonus : 0) + skillBonus(s.sk['voix']!, defaultSkills['voix']!);
+  final instru = s.inst == null ? null : instruChosen(s);
+  final prod = (instru?.q ?? noInstruProd) + (s.kc.left > 0 ? s.kc.bonus : 0); // bonus de production de l'accord Kôrô (A.record de game.js)
   final tx = s.texte?.note ?? noTextNote;
+  final q = quality(tx, voix, prod, s.energy);
   final song = Song(
-    title: (s.title ?? '').trim().isNotEmpty ? s.title!.trim() : (s.inst == 'nuit' ? 'Nuit à Ndo' : 'Gbaka de 6h'), // sans titre choisi : titre fixe du prototype
-    q: quality(tx, voix, prod, s.energy),
-    texte: tx, voix: voix, prod: prod, inst: instru?.name ?? '',
+    title: (s.title ?? '').trim().isNotEmpty ? s.title!.trim() : (s.inst == 'nuit' ? instruName(s, 'nuit') : instruName(s, 'gbaka')), // sans titre choisi : titre fixe du prototype
+    q: q,
+    texte: tx, voix: voix, prod: prod, inst: instru?.name ?? '', theme: s.texte?.theme ?? '',
+    style: s.inst == null ? '' : instruStyle(s.inst!).id, viral: s.inst == null ? 0 : viralPotential(q, s.inst!, s.texte?.theme ?? ''),
   );
   var n = tick(s.copyWith(energy: s.energy - recordEnergy), recordHours).copyWith(
     takes: t,
     song: song,
     title: null,
     sk: {...s.sk, 'voix': s.sk['voix']! + recordVoiceGain},
+    kc: s.kc.left > 0 ? s.kc.copyWith(left: s.kc.left - 1) : s.kc,
     ms: s.ms['m1'] == 'todo' ? {...s.ms, 'm1': 'done'} : s.ms,
   );
   n = addXp(n, Econ.xpRecord);
@@ -150,14 +160,14 @@ GameState release(GameState s, int promo) {
     lw: (listens * Econ.weekFactor).round(), lc: n.lc + listens,
     rel: Release(title: song.title, listens: listens, revenue: rev, fans: fg, pop: pg, promo: promo, q: song.q),
     song: song.copyWith(released: true),
-    disco: [...n.disco, DiscoEntry(title: song.title, q: song.q, listens: listens)],
+    disco: [...n.disco, DiscoEntry(title: song.title, q: song.q, listens: listens, day: n.day + 1)],
     day: n.day + 1, hour: wakeHour, energy: maxEnergy,
   );
   n = addXp(n, Econ.xpRelease);
   final ms = {...n.ms};
   if (ms['m2'] == 'todo') ms['m2'] = 'done';
   if (n.fans >= 1000 && ms['m4'] == 'todo') ms['m4'] = 'done';
-  return n.copyWith(ms: ms);
+  return refreshMissions(n.copyWith(ms: ms));
 }
 
 /// A.claim : récupérer la récompense d'une mission terminée (cauris puis XP). Erreur 'rien' si elle n'est pas à récupérer.

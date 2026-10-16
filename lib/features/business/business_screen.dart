@@ -48,7 +48,7 @@ class BusinessScreen extends ConsumerWidget {
       const SizedBox(height: 8),
       IntrinsicHeight(
         child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Expanded(child: ActionTile(icon: 'trend', title: 'Finances', subtitle: 'Revenus, dépenses', onTap: () => showInfo(context, 'Finances : bientôt'))),
+          Expanded(child: ActionTile(icon: 'trend', title: 'Finances', subtitle: 'Revenus, dépenses', onTap: () => context.go('/business/finances'))),
           const SizedBox(width: 10),
           Expanded(child: ActionTile(icon: 'trophy', title: 'Formation', subtitle: 'Compétences', onTap: () => context.go('/business/formation'))),
         ]),

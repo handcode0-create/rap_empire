@@ -17,10 +17,15 @@ class Econ {
   static const xpRelease = 40; // XP d'une sortie (A.release)
   static const openMicFee = 3000; // cachet de l'open mic (ECON.openMicFee de game.js) : récompense annoncée par la mission « open mic » (10.3)
   static const xpOpenMic = 60; // XP d'un open mic gagné (A.openmic)
+  static const battleFee = 3000; // prime d'une battle gagnée (ECON.battleFee de game.js)
+  static const concertFee = 25000; // cachet maximal du concert (ECON.concertFee de game.js)
   static const monetised = 1.0; // part des écoutes monétisées (démo : 100 %)
   static const fanSat = 5000; // saturation de la conversion en fans (évite la croissance exponentielle), test D-08
   static const fanConversion = 0.07; // part des écoutes qui devient fans (avant saturation)
   static const listensPerPop = 900; // écoutes pour 1 point de popularité
+  static const catalogDaily = 0.08; // écoutes du 1er jour après la sortie = 8 % des écoutes de la sortie (catalogue : revenus passifs)
+  static const catalogDecay = 0.8; // chaque jour, le son est écouté 20 % de moins
+  static const catalogDays = 14; // au-delà, le son n'est plus à la mode : plus d'écoutes
   static const weekFactor = 1.5; // écoutes de la semaine = écoutes de la sortie x 1,5 (lw)
   static const microPrice = 18000; // ECON.micro : prix du micro studio (A.gear)
   static const confirmFrom = 15000; // confirmation d'achat ou de promo à partir de ce montant (promoCbig de game.js : >= 15000)
@@ -60,6 +65,12 @@ const missionRewards = {
   'm2': MissionReward(10000, 80),
   'm3': MissionReward(4000, 60),
   'm4': MissionReward(15000, 120),
+  'm5': MissionReward(6000, 70),
+  'm6': MissionReward(8000, 90),
+  'm7': MissionReward(20000, 150),
+  'm8': MissionReward(12000, 100),
+  'm9': MissionReward(30000, 200),
+  'm10': MissionReward(15000, 120),
 };
 
 /// Formation (table F de A.formation, game.js) : coût en cauris, énergie, heures, compétence gagnée. [unlocksMission3] : l'atelier d'écriture termine la mission 3.

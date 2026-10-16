@@ -15,14 +15,14 @@ class BannerChar {
 /// kind : studio, office, backstage, street, stage, call, qg_sky.
 class SceneBanner extends StatelessWidget {
   final String kind;
-  final String? role, name;
+  final String? role, name, subtitle;
   final double height, nameSize;
   final List<BannerChar> chars;
   final Widget? top;
 
   /// Garde le nom sur une ligne en le réduisant au besoin (planche 10.3) ; sinon il passe à la ligne (planche 04.1).
   final bool nameSingleLine;
-  const SceneBanner({super.key, required this.kind, this.role, this.name, this.height = 190, this.nameSize = 24, this.nameSingleLine = false, this.chars = const [], this.top});
+  const SceneBanner({super.key, required this.kind, this.role, this.name, this.subtitle, this.height = 190, this.nameSize = 24, this.nameSingleLine = false, this.chars = const [], this.top});
 
   /// Rapport hauteur / largeur des personnages (viewBox torse 260 x 340, buste 220 x 250).
   static double _ratio(String crop) => crop == 'torso' ? 340 / 260 : 250 / 220;
@@ -46,7 +46,7 @@ class SceneBanner extends StatelessWidget {
               ),
             ),
             if (top != null) Positioned(left: 12, right: 12, top: 12, child: top!),
-            if (role != null || name != null)
+            if (role != null || name != null || subtitle != null)
               Positioned(
                 left: 16,
                 right: 16,
@@ -55,6 +55,7 @@ class SceneBanner extends StatelessWidget {
                   if (role != null) Text(role!.toUpperCase(), style: V20Text.lab(color: Colors.white)),
                   if (role != null && name != null) const SizedBox(height: 4),
                   if (name != null) _name(),
+                  if (subtitle != null) Text(subtitle!, style: V20Text.bs(color: Colors.white)),
                 ]),
               ),
           ]),

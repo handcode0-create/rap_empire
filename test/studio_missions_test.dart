@@ -19,7 +19,7 @@ void main() {
     return null;
   }
 
-  String status(GameState s) => s.ms.values.map((v) => v[0]).join(); // t = todo, d = done, c = claimed
+  String status(GameState s) => s.ms.values.take(4).map((v) => v[0]).join(); // t = todo, d = done, c = claimed
 
   group('récompenses (MISSIONS de game.js, planche 10.1)', () {
     test('m1 : 5 000 cauris, 50 XP', () => expect([missionRewards['m1']!.cash, missionRewards['m1']!.xp], [5000, 50]));

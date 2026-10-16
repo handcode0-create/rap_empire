@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'catalog.dart';
 import 'econ.dart';
 import 'game_state.dart';
 import 'studio_models.dart';
@@ -26,12 +27,16 @@ GameState tick(GameState s, int hours) {
 
 /// A.sleep du prototype : jour suivant à 08:00, énergie à 100, coût Econ.nightCost (0 en démo, D-08).
 /// Les cauris ne descendent jamais sous 0 (comme pay() du prototype) : dormir n'est jamais bloqué.
-GameState sleep(GameState s) => s.copyWith(
-      led: Econ.nightCost != 0 ? [LedgerEntry(label: 'Nuit', amount: -Econ.nightCost, cat: null, day: s.day), ...s.led] : null,
-      cash: max(0, s.cash - Econ.nightCost),
-      energy: maxEnergy,
-      day: s.day + 1,
-      hour: wakeHour,
+/// Les sons sortis rapportent ensuite chaque nuit (catalog.dart) : écoutes, cauris et fans.
+GameState sleep(GameState s) => applyCatalog(
+      s.copyWith(
+        led: Econ.nightCost != 0 ? [LedgerEntry(label: 'Nuit', amount: -Econ.nightCost, cat: null, day: s.day), ...s.led] : null,
+        cash: max(0, s.cash - Econ.nightCost),
+        energy: maxEnergy,
+        day: s.day + 1,
+        hour: wakeHour,
+      ),
+      s.day + 1,
     );
 
 /// « J1 08:00 » (champ time du prototype).
@@ -42,15 +47,24 @@ String formatDayHour(int day, int hour) => 'J$day ${hour.toString().padLeft(2, '
 /// Bilan de l'écran 03.6 Fin de journée.
 class SleepReport {
   final int energyBefore, energyAfter, cost, newDay, newHour;
-  const SleepReport({required this.energyBefore, required this.energyAfter, required this.cost, required this.newDay, required this.newHour});
 
-  factory SleepReport.between(GameState before, GameState after) => SleepReport(
-        energyBefore: before.energy,
-        energyAfter: after.energy,
-        cost: before.cash - after.cash,
-        newDay: after.day,
-        newHour: after.hour,
-      );
+  /// Écoutes, cauris et fans rapportés par le catalogue pendant la nuit.
+  final int listens, earned, fansGained;
+  const SleepReport({required this.energyBefore, required this.energyAfter, required this.cost, required this.newDay, required this.newHour, this.listens = 0, this.earned = 0, this.fansGained = 0});
+
+  factory SleepReport.between(GameState before, GameState after) {
+    final g = catalogGain(before, after.day);
+    return SleepReport(
+      energyBefore: before.energy,
+      energyAfter: after.energy,
+      cost: before.cash + g.cash - after.cash,
+      newDay: after.day,
+      newHour: after.hour,
+      listens: g.listens,
+      earned: g.cash,
+      fansGained: g.fans,
+    );
+  }
 
   int get energyGained => energyAfter - energyBefore;
   String get newClock => formatDayHour(newDay, newHour);

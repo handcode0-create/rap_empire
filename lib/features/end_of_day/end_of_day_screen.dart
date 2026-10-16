@@ -36,6 +36,14 @@ class EndOfDayScreen extends ConsumerWidget {
         StatKpi(label: 'Énergie', value: '${report.energyAfter}', delta: '+ repos', big: true),
         StatKpi(label: 'Nuit', value: report.cost == 0 ? 'Gratuite' : fmt(report.cost), delta: 'démo'),
       ]),
+      if (report.listens > 0) ...[
+        const SizedBox(height: 12),
+        KpiRow(children: [
+          StatKpi(label: 'Écoutes', value: fmt(report.listens), delta: 'catalogue'),
+          StatKpi(label: 'Cauris', value: '+${fmt(report.earned)}', delta: 'écoutes'),
+          StatKpi(label: 'Fans', value: '+${fmt(report.fansGained)}', delta: 'catalogue'),
+        ]),
+      ],
       const SizedBox(height: 12),
       const GameHint(
         icon: 'info',

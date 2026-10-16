@@ -66,7 +66,7 @@ void main() {
 
     testWidgets('les quatre tuiles et le compteur de missions ouvertes', (tester) async {
       await pumpApp(tester, const GameState());
-      for (final t in ['Studio', 'Créer un son', 'Scène', 'Open mic, battle', 'Missions', 'Objectifs et primes', 'Classements', 'Rang : Non classé', '4']) {
+      for (final t in ['Studio', 'Créer un son', 'Scène', 'Open mic, battle', 'Missions', 'Objectifs et primes', 'Classements', 'Rang : Non classé', '10']) {
         expect(txt(t), findsWidgets, reason: t);
       }
     });
@@ -172,12 +172,11 @@ void main() {
       expect(find.byType(GameNavBar), findsNothing);
     });
 
-    testWidgets('Y aller : la scène n\'est pas encore portée, onglet « Bientôt »', (tester) async {
+    testWidgets('Y aller : la scène, onglet Scène avec l\'open mic', (tester) async {
       await pumpApp(tester, claimed, location: '/nouvelle-mission');
       await tester.tap(txt('Y aller'));
       await tester.pumpAndSettle();
-      expect(txt('Bientôt'), findsOneWidget);
-      expect(find.byType(GameNavBar), findsOneWidget);
+      expect(txt('Monter sur scène'), findsOneWidget);
     });
 
     testWidgets('Plus tard : le QG', (tester) async {

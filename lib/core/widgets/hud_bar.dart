@@ -77,7 +77,7 @@ class HudBar extends StatelessWidget {
                 _Cell(
                   label: 'Énergie',
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text(energy, style: V20Text.nm(color: Tk.cy)),
+                    Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text(energy, maxLines: 1, style: V20Text.nm(color: Tk.cy)))),
                     const SizedBox(width: 4),
                     const GameIcon('zap', size: 16, color: Tk.cy),
                   ]),
@@ -101,7 +101,7 @@ class _Cell extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: const BoxDecoration(gradient: V20.hudCell),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            Text(label.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
+            Align(alignment: Alignment.centerLeft, child: FittedBox(fit: BoxFit.scaleDown, child: Text(label.toUpperCase(), maxLines: 1, style: V20Text.lab()))),
             const SizedBox(height: 4),
             child,
           ]),

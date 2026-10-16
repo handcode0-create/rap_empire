@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
-import '../../core/widgets/game_card.dart';
+import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/scene_banner.dart';
 import '../../domain/minigame.dart';
 import '../../domain/studio.dart';
@@ -34,7 +35,9 @@ class CabineScreen extends ConsumerWidget {
         ],
       ),
       const SizedBox(height: 12),
-      GameCard(
+      GlassCard(
+        accent: s.micro ? GlassAccent.gold : GlassAccent.none,
+        halo: false,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('MATÉRIEL ACTIF', style: V20Text.lab()),
           Text(s.micro ? 'Micro studio · qualité 48' : 'Micro de base · qualité 40', style: V20Text.nm()),
@@ -47,7 +50,7 @@ class CabineScreen extends ConsumerWidget {
         GameTag('$takesPerSession prises', style: GameTagStyle.outline),
       ]),
       const SizedBox(height: 12),
-      PrimaryButton(label: 'Entrer en cabine', onPressed: () => context.go('/studio/prises')),
+      PrimaryGlowButton(label: 'Entrer en cabine', onPressed: () => context.go('/studio/prises')),
       const SizedBox(height: 12),
       PrimaryButton(label: 'Acheter du matériel', style: GameButtonStyle.ghost, onPressed: () => showInfo(context, 'Matériel : bientôt')),
     ]);

@@ -4,7 +4,6 @@ import 'package:rap_empire/core/widgets/game_nav_bar.dart';
 import 'package:rap_empire/domain/game_state.dart';
 import 'package:rap_empire/domain/minigame.dart';
 import 'package:rap_empire/domain/studio.dart';
-import 'package:rap_empire/domain/titles.dart';
 
 import 'support.dart';
 
@@ -27,12 +26,12 @@ void main() {
       expect(find.byType(GameNavBar), findsOneWidget);
     });
 
-    testWidgets('04.2 un son à sortir : carte, KPI, emplacement libre, deux boutons', (tester) async {
+    testWidgets('04.2 un son à sortir : carte, KPI, un seul son à la fois, deux boutons', (tester) async {
       await pumpApp(tester, rec.copyWith(cash: 22000), location: '/studio');
       for (final t in ['Studio', '1 son', 'Gbaka de 6h', 'Drill de Bakoma · instru Gbaka de 6h', 'Qualité', '61', 'Texte', '72', 'Voix', '55', 'Prod.', '56']) {
         expect(txt(t), findsWidgets, reason: t);
       }
-      expect(txt('Emplacement libre. Enregistre un deuxième son.'), findsOneWidget);
+      expect(txt('Un seul son à la fois : sors celui-ci pour en enregistrer un autre.'), findsOneWidget); // remplace « Emplacement libre » (faux depuis le blocage du pick)
       expect(txt('Préparer la sortie'), findsOneWidget);
       expect(txt('Single · promo · mise en ligne'), findsOneWidget);
       expect(txt('Nouveau son'), findsOneWidget);
@@ -166,12 +165,12 @@ void main() {
   });
 
   group('écriture (04.5, 04.6)', () {
-    testWidgets('04.5 : instru, thème « Le quartier » seul appliqué, trois ambiances', (tester) async {
+    testWidgets('04.5 : instru, dix thèmes à choisir, trois ambiances', (tester) async {
       await pumpApp(tester, picked, location: '/studio/ecriture');
       expect(txt('Écrire le texte'), findsOneWidget);
       expect(txt('Étape 2 / 3'), findsOneWidget);
       expect(txt('Gbaka de 6h · qualité 56'), findsOneWidget);
-      for (final t in ['Le quartier', 'La galère', "L'ambition", "L'amour", 'Démo : le thème « Le quartier » est appliqué ; l’ambiance modifie la note.', 'Écrire · Sombre', 'Écrire · Fière', 'Écrire · Légère']) {
+      for (final t in ['Rue et survie', 'Argent et réussite', 'Ambition et ascension', 'Amour et relations', 'Introspection et mélancolie', 'Gloire et héritage', 'Difficultés, loyauté, rivalité, respect, débrouillardise.', 'Écrire · Sombre', 'Écrire · Fière', 'Écrire · Légère']) {
         expect(txt(t), findsOneWidget, reason: t);
       }
       expect(txt('1 h · −20 énergie'), findsNWidgets(3));
@@ -188,7 +187,7 @@ void main() {
       expect(txt('−20 énergie · 1 h'), findsOneWidget);
       expect(txt('Passer en cabine'), findsOneWidget);
       expect(txt('Étape 3 / 3'), findsOneWidget);
-      expect([repo.current.texte!.note, repo.current.energy, repo.current.hour, repo.current.sk['ecr'], repo.current.texte!.theme], [72, 80, 9, 16, 'quartier']);
+      expect([repo.current.texte!.note, repo.current.energy, repo.current.hour, repo.current.sk['ecr'], repo.current.texte!.theme], [72, 80, 9, 16, 'rue']);
     });
 
     testWidgets('valeurs de la planche : extrait du texte, Rimes 70, Images 74', (tester) async {
@@ -552,17 +551,19 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      final repo = await pumpApp(tester, picked, location: '/studio/ecriture');
-      await song();
-      expect(repo.current.energy, 55);
+      final repo = await pumpApp(tester, picked.copyWith(energy: 45), location: '/studio/ecriture');
+      await song(); // 45 - 20 - 25 = 0
+      expect(repo.current.energy, 0);
       await tapText(tester, 'Préparer la sortie');
       await tapBack(tester); // studio avec le son à sortir
-      await tapText(tester, 'Nouveau son');
-      await tapText(tester, 'Nuit à Ndo');
-      await song(); // 55 - 20 - 25 = 10
-      expect(repo.current.energy, 10);
-      expect(generatedTitles, contains(repo.current.song!.title)); // titre généré à l'écriture
-      await tapText(tester, 'Récupérer la mission'); // retour au QG
+      await tapText(tester, 'Nouveau son'); // refusé : le son en attente ne doit pas être écrasé (toast, pas de navigation)
+      expect(txt('Sors ton son en attente avant d’en créer un autre'), findsOneWidget);
+      expect(txt('Choisis une instru'), findsNothing);
+      expect(repo.current.song, isNotNull);
+      expect(repo.current.song!.title, isNotEmpty); // titre généré à l'écriture
+      await tester.pump(const Duration(seconds: 5));
+      await tester.tap(navTab('QG'));
+      await tester.pumpAndSettle();
       expect(txt('Trop fatigué'), findsOneWidget);
       await tapText(tester, 'Dormir');
       expect(txt('Nouvelle journée'), findsOneWidget);
@@ -589,7 +590,7 @@ void main() {
       await tapText(tester, 'Écrire · Sombre');
       expect(txt('Titre du son'), findsOneWidget);
       expect(txt('Titre aléatoire'), findsOneWidget);
-      expect(generatedTitles, contains(repo.current.title));
+      expect(repo.current.title, isNotEmpty);
       expect(find.widgetWithText(TextField, repo.current.title!), findsOneWidget);
     });
 
@@ -599,7 +600,7 @@ void main() {
       final first = repo.current.title;
       await tapText(tester, 'Titre aléatoire');
       expect(repo.current.title, isNot(first));
-      expect(generatedTitles, contains(repo.current.title));
+      expect(repo.current.title, isNotEmpty);
       expect(find.widgetWithText(TextField, repo.current.title!), findsOneWidget);
     });
 
