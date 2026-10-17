@@ -15,6 +15,7 @@ import '../../core/widgets/glass_tile.dart';
 import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
+import '../../core/widgets/scene_banner.dart';
 import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
@@ -191,17 +192,13 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
-        GlassCard(
-          halo: false,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: SizedBox(
-            height: 112,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.end, children: [
-              Text('NDOLO · ANNÉE ${yearOf(s)} · ${s['age']} ANS', style: V20Text.lab(color: Tk.ink)),
-              Text('JOUR ${dayInYear(s)}', style: V20Text.baloo(size: 30, line: 32)),
-              Text("${hoursLeft(s)} h restantes aujourd'hui", style: V20Text.bm),
-            ]),
-          ),
+        SceneBanner(
+          kind: 'studio',
+          height: 150,
+          role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
+          name: 'Jour ${dayInYear(s)}',
+          nameSize: 30,
+          subtitle: "${hoursLeft(s)} h restantes aujourd'hui",
         ),
         Positioned(right: 8, top: -40, child: IgnorePointer(child: SizedBox(width: 100, height: 150, child: PlayerAvatar(s, mood: isTired(s) ? 'worried' : 'smile', height: 150)))),
       ]);

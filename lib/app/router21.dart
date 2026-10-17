@@ -16,7 +16,8 @@ import '../features/v21/start_screens.dart';
 
 /// Routes de la v21 (planches 21-*). Cinq onglets : QG, Studio, Scène, Business, Profil. La barre de navigation n'apparaît
 /// que sur les écrans racines. Les écrans de vie perso, de journée et de bilan ont le HUD sans navigation (Frame21).
-const _rootPaths = {'/', '/studio', '/scene', '/business', '/profil'};
+// Écrans qui gardent la barre de navigation : les cinq onglets et le catalogue (21-A0, sans bouton retour).
+const _rootPaths = {'/', '/studio', '/scene', '/business', '/profil', '/studio/catalogue'};
 
 /// Routes qui n'ont besoin ni de HUD ni de navigation : démarrage et création de l'artiste.
 const startPaths = [

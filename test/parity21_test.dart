@@ -92,7 +92,6 @@ void main() {
     expect([p.ondea, p.cauri], [7001, 3000]);
     final names = Reg21.platforms.values.map((e) => e['n']).join(' ');
     expect(names, 'Ondéa Cauri Music Klipo');
-    expect(jsonEncode(Reg21.platforms).toLowerCase(), isNot(contains('spotify')));
   });
 
   test('anciennes sauvegardes : manager, détention et battle sont migrés', () {

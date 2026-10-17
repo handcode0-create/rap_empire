@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/app/game21.dart';
 import 'package:rap_empire/app/router21.dart';
+import 'package:rap_empire/core/widgets/back_header.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
@@ -81,6 +82,49 @@ void main() {
     expect((repo.current['p'] as J)['goal'], 'label');
     expect(txt('JOUR 1'), findsOneWidget);
     expect(txt("K-Zer d'Mabaya te défie"), findsOneWidget);
+
+    // défi de K-Zer : la carte du QG ouvre l'événement, la battle se joue en 3 rounds
+    await tapText(tester, "K-Zer d'Mabaya te défie");
+    await tester.tap(txt('Choisir').first);
+    await tester.pumpAndSettle();
+    expect(repo.current['btq'], 'kzer');
+    await tapText(tester, 'Malin');
+    await tapText(tester, 'Agressif');
+    await tapText(tester, 'Cool');
+    await tapText(tester, 'Voir le résultat');
+    expect(txt('BATTLE GAGNÉE · 3 / 3'), findsOneWidget);
+    await tapText(tester, 'Retour au QG');
+
+    // studio : texte, instru, cabine, mix, sortie
+    await tester.tap(navTab('Studio'));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Écrire le texte');
+    await tapText(tester, 'Choisir l’instru, puis la cabine');
+    await tapText(tester, 'Nuit à Ndo');
+    await tester.tap(txt('Passer en cabine'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.ensureVisible(txt('Enregistrer sans le mini-jeu'));
+    await tester.tap(txt('Enregistrer sans le mini-jeu'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.ensureVisible(txt('Écouter le mix'));
+    await tester.tap(txt('Écouter le mix'));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Préparer la sortie');
+    await tapText(tester, 'Sortir le titre');
+    expect(txt('Résultats de la sortie'), findsOneWidget);
+    expect((repo.current['disco'] as List).length, 1);
+
+    // catalogue puis classements
+    await tester.tap(find.descendant(of: find.byType(BackHeader), matching: find.byType(GestureDetector)).first);
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Catalogue, EP et album');
+    expect(txt('CATALOGUE'), findsOneWidget);
+    await tester.tap(navTab('Profil'));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Classements');
+    expect(txt('Top 100 Singles'), findsOneWidget);
   });
 
   testWidgets('journée : événement, boulot, bilan', (tester) async {
@@ -110,7 +154,7 @@ void main() {
     (repo.current['disco'] as List).add({
       'id': 'OLD1', 'title': 'Ancien single', 'day': 1, 'launchL': 10000,
       'L': 10000, 'rev': 0, 'cut': 0, 'signed': 0, 'views': 0,
-      'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 5000, 'apple': 3000, 'youtube': 2000}),
+      'platforms': Map.unmodifiable(<dynamic, dynamic>{'plat1': 5000, 'plat2': 3000, 'plat3': 2000}),
       'clip': Map.unmodifiable(<dynamic, dynamic>{'st': 'aucun'}),
     });
     await tapText(tester, 'Terminer la journée');
@@ -125,7 +169,7 @@ void main() {
     (state['disco'] as List).add({
       'id': 'OLD1', 'title': 'Ancien single', 'format': 'single', 'year': 1,
       'label': 'Indépendant', 'L': 1200, 'views': 0, 'sales': 0,
-      'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 700, 'apple': 300, 'youtube': 200}),
+      'platforms': Map.unmodifiable(<dynamic, dynamic>{'plat1': 700, 'plat2': 300, 'plat3': 200}),
       'clip': {'st': 'aucun'}, 'feats': <dynamic>[]
     });
     await pump21(tester, state, location: '/studio/catalogue');

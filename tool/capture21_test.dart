@@ -85,6 +85,32 @@ List<Shot> shots() => [
       Shot('21-B2-Battle-resultat+defaite', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 1)])),
       Shot('21-C3-Concert', '/scene/resultat', st('carriere', const [('concert', null)])),
 
+      // Conformité des écrans existants
+      Shot('21-S0-Splash', '/demarrer', init21()),
+      Shot('21-S0b-Nouvelle-partie', '/nouvelle-partie', init21()),
+      Shot('21-S1-Univers', '/univers', init21()),
+      Shot('21-S2-Identite', '/artiste/identite', init21()),
+      Shot('21-S3-Look', '/artiste/look', init21()),
+      Shot('21-S4-Style', '/artiste/style', init21()),
+      Shot('21-S5-Objectif', '/artiste/objectif', init21()),
+      Shot('21-Q1-QG', '/', st('carriere', const [('openmic', null)], (s) {
+        s['ev'] = 'kzer';
+      })),
+      Shot('21-Q2-Journee', '/journee', st('carriere')),
+      Shot('21-Q3-Bilan', '/bilan', _bilan()),
+      Shot('21-V1-Evenement', '/evenement', st('debut', const [], (s) {
+        s['ev'] = 'kzer';
+      })),
+      Shot('21-J1-Journal', '/journal', st('carriere')),
+      Shot('21-E1-Business', '/business', st('carriere')),
+      Shot('21-E3-Entreprises', '/business/entreprises', st('carriere')),
+      Shot('21-E4-Patrimoine', '/business/patrimoine', st('carriere')),
+      Shot('21-R1-Rang', '/profil/rang', st('carriere')),
+      Shot('21-R2-Classements', '/profil/classements', st('star')),
+      Shot('21-C1-Popularite', '/scene/popularite', st('star')),
+      Shot('21-Q4-Annee', '/profil/annee', st('carriere')),
+      Shot('21-M3-Sortie', '/studio/sortie', st('carriere', const [('create', ['quartier', 'sombre']), ('record', null)])),
+      Shot('21-M3b-Resultats', '/studio/resultats', st('carriere', const [('create', ['quartier', 'sombre']), ('record', null), ('release', null)])),
       // Plateformes
       Shot('21-D1-Plateformes', '/profil/plateformes', st('star')),
       Shot('21-D2-Ondea', '/profil/plateformes/ondea', st('star')),
@@ -136,6 +162,8 @@ J _arrest({bool bail = false, bool trialDay = false, bool jail = false}) {
   if (trialDay) s['day'] = (s['cas'] as J)['trial'];
   return s;
 }
+
+J _bilan() => act21(st('carriere', const [('openmic', null), ('job', 'livraison')]), 'endDay').s;
 
 List<J> _extraSongs() => [
       for (var i = 0; i < 3; i++)
