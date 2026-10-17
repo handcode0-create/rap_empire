@@ -85,6 +85,9 @@ List<Shot> shots() => [
       Shot('21-B2-Battle-resultat+defaite', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 1)])),
       Shot('21-C3-Concert', '/scene/resultat', st('carriere', const [('concert', null)])),
 
+      // Labels
+      Shot('21-L2-Labels', '/business/labels/tous', st('carriere')),
+      Shot('21-L1-Labels-merch', '/business/labels', st('carriere')),
       // Dialogues
       Shot('21-X1-Dialogue', '/dialogue', st('debut', const [('create', ['quartier', 'sombre']), ('record', null)])),
       Shot('21-X1-Dialogue+label', '/dialogue', _labelState()),

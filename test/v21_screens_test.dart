@@ -302,7 +302,7 @@ void main() {
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
-      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/manager', '/business/justice',
+      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice',
       '/profil', '/profil/rang', '/profil/classements', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',

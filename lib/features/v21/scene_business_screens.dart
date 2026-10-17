@@ -13,7 +13,6 @@ import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
-import '../../core/widgets/label_logo.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
@@ -23,6 +22,7 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'labels_screens.dart';
 import 'shell21.dart';
 import 'widgets21.dart';
 
@@ -661,7 +661,9 @@ class LabelsScreen extends ConsumerWidget {
     if (s == null) return const SizedBox();
     final rep = _n(s['rep']);
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Merchandising', onBack: () => context.go('/business')),
+      BackHeader(title: 'Merchandising', step: 'D-G06', onBack: () => context.go('/business')),
+      const SizedBox(height: 12),
+      ActionRow(title: 'Les 10 labels', subtitle: 'Logos, sièges, contrats types (18.1)', trailing: ActionRow.arrow(), onTap: () => context.go('/business/labels/tous')),
       const SizedBox(height: 12),
       for (final e in Reg21.merch.entries) ...[
         Builder(builder: (context) {
@@ -728,7 +730,7 @@ class LabelsScreen extends ConsumerWidget {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Expanded(
                 child: Row(children: [
-              const LabelLogo(size: 40),
+              const LabelLogo21('BSR', size: 40),
               const SizedBox(width: 10),
               Flexible(
                   child: Text('Bakoma Sound Records', style: V20Text.nm())),

@@ -61,6 +61,21 @@ jobs.directeurs = () => {
   return out;
 };
 
+// Labels (21-L2) : dix logos fictifs (64 x 64) et le buste de chaque directeur, dans l'ordre de la planche.
+jobs.labels = () => {
+  const html = fs.readFileSync(path.join(boards, '21-L2-Labels.dc.html'), 'utf8');
+  const order = ['BSR', 'AMG', 'RCD', 'BLG', 'AUB', 'LYR', 'SKP', 'NUG', 'SIC', 'VAG'];
+  const who = { BSR: 'orage', AMG: 'benedicte', RCD: 'kofi', BLG: 'kre', AUB: 'awa', LYR: 'maze', SKP: 'kore', NUG: 'bakary', SIC: 'liv', VAG: 'marius' };
+  const out = [];
+  for (const svg of allSvgs(html)) {
+    const logo = /aria-label="Logo ([A-Z]{3}) \(fictif\)"/.exec(svg);
+    if (logo) out.push([`logo-${logo[1]}.svg`, svg.replace(/ role="img" aria-label="[^"]*"/, '').replace(/<text[\s\S]*?<\/text>/, '')]);
+  }
+  const busts = allSvgs(html).filter((x) => /viewBox="40 0 220 250"/.test(x));
+  busts.forEach((b, i) => out.push([`portrait-${who[order[i]]}-bust.svg`, b.replace(/ style="[^"]*"/, '')]));
+  return out;
+};
+
 const only = process.argv[2];
 let n = 0;
 for (const [name, job] of Object.entries(jobs)) {

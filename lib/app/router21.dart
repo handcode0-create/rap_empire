@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../features/v21/catalogue_screens.dart';
 import '../features/v21/dialogue_screens.dart';
+import '../features/v21/labels_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/profile_screens.dart';
@@ -181,7 +182,8 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                     GoRoute(
                         path: 'labels',
                         name: '21-L1-Labels-merch',
-                        builder: (_, __) => const LabelsScreen()),
+                        builder: (_, __) => const LabelsScreen(),
+                        routes: [GoRoute(path: 'tous', name: '21-L2-Labels', builder: (_, __) => const LabelsAllScreen())]),
                     GoRoute(
                         path: 'manager',
                         name: '20-Manager',
