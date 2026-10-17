@@ -137,7 +137,6 @@ J init21() {
     'rank': 1,
     'sk': {'flow': 17, 'ecr': 14, 'voix': 10, 'cha': 8},
     'cur': null,
-    'project': null,
     'disco': <dynamic>[],
     'shows': 0,
     'geo': {
@@ -218,6 +217,7 @@ J norm21(J s) {
     s['jail'] = left > 0 ? {'until': _n(s['day']) + left, 'days': left} : null;
   }
   s.remove('charges');
+  s.remove('project');
   if (s.containsKey('battlePending')) {
     if (_t(s['battlePending']) && s['btq'] == null) s['btq'] = 'kzer';
     s.remove('battlePending');
@@ -678,145 +678,6 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
-  // Nouveau parcours : titre, instru, écriture, prises, cabine puis mix.
-  // `create` reste compatible avec les appels et sauvegardes historiques.
-  'draft': (s, arg) {
-    if (s['cur'] != null && _m(s['cur'])['st'] != 'sorti') {
-      return _no(s, 'encours');
-    }
-    final n = clone21(s);
-    final ui = _m(n['ui']);
-    String th, am, mode = 'manuel';
-    if (arg == 'random' ||
-        (arg is List && arg.isNotEmpty && arg[0] == 'random')) {
-      final tk = Reg21.themes.keys
-          .where((k) => k != 'quartier' && k != 'galere')
-          .toList();
-      final ak = Reg21.ambs.keys.toList();
-      th = tk[(rng21(n, 11) * tk.length).floor()];
-      am = ak[(rng21(n, 12) * ak.length).floor()];
-      mode = 'aléatoire';
-    } else if (arg is List) {
-      th = arg[0] as String;
-      am = arg[1] as String;
-    } else {
-      th = (ui['th'] ?? 'rue') as String;
-      am = (ui['am'] ?? 'sombre') as String;
-    }
-    if (!Reg21.themes.containsKey(th) || !Reg21.ambs.containsKey(am)) {
-      return _no(s, 'inconnu');
-    }
-    var title = cleanName21(ui['title']);
-    if (title.length > 30) title = title.substring(0, 30);
-    if (title.isEmpty || _t(ui['rt'])) {
-      title = _randomTitle21(n, th);
-      mode = 'aléatoire';
-    }
-    ui['title'] = '';
-    ui['rt'] = 0;
-    n['cur'] = {
-      'id': 'T${_l(n['disco']).length + (n['project'] == null ? 0 : _l(_m(n['project'])['tracks']).length) + 1}',
-      'title': title,
-      'theme': th,
-      'amb': am,
-      'mode': mode,
-      'tx': 72 +
-          (Reg21.themes[th]!['tx'] as int) +
-          (Reg21.ambs[am]!['tx'] as int),
-      'st': 'draft',
-      'Q': 0,
-      'feats': <dynamic>[],
-      'takes': <dynamic>[],
-      'instId': null,
-      'clip': {'st': 'aucun'},
-    };
-    _log(n, 'Titre créé : $title ($mode)', 'musique');
-    return _ok(n);
-  },
-
-  'projectStart': (s, format) {
-    if (format != 'ep' && format != 'album') return _no(s, 'inconnu');
-    if (s['project'] != null || s['cur'] != null) return _no(s, 'encours');
-    final n = clone21(s);
-    final title = cleanName21(_m(n['ui'])['projectTitle']);
-    n['project'] = {
-      'format': format,
-      'tracks': <dynamic>[],
-      'title': title.isEmpty ? null : title
-    };
-    _log(n, 'Nouveau ${format == 'ep' ? 'EP' : 'album'} en préparation', 'musique');
-    return _ok(n);
-  },
-
-  'projectAdd': (s, a) {
-    final project = s['project'];
-    final cur = s['cur'];
-    if (project == null || cur == null || _m(cur)['st'] != 'enregistre') {
-      return _no(s, 'pasenregistre');
-    }
-    final p = _m(project), tracks = _l(p['tracks']);
-    if (tracks.length >= (Reg21.projectMaxTracks[p['format']] ?? 999)) {
-      return _no(s, 'max');
-    }
-    final n = clone21(s), pn = _m(n['project']), song = _m(clone21(_m(n['cur'])));
-    song['st'] = 'projet';
-    _l(pn['tracks']).add(song);
-    pn['title'] ??= song['title'];
-    n['cur'] = null;
-    _log(n, '${song['title']} ajouté au ${pn['format'] == 'ep' ? 'EP' : 'album'} (${_l(pn['tracks']).length} titre(s))', 'musique');
-    return _ok(n);
-  },
-
-  'pickInstru': (s, id) {
-    final i = instrus21[id];
-    final cur = s['cur'];
-    if (i == null) return _no(s, 'inconnu');
-    if (cur == null || _m(cur)['st'] != 'draft') return _no(s, 'pasdetitre');
-    if (_n(i['lvl']) > _n(s['rank'])) return _no(s, 'rang');
-    if (_n(i['rep']) > _n(s['rep'])) return _no(s, 'rep');
-    if (_n(s['cash']) < _n(i['price'])) return _no(s, 'cash');
-    final n = clone21(s), c = _m(clone21(_m(s['cur'])));
-    _pay(n, -_n(i['price']));
-    c['instId'] = id;
-    c['inst'] = i['n'];
-    c['instQ'] = i['q'];
-    c['st'] = 'instrumental';
-    n['cur'] = c;
-    _log(n, 'Instru choisie : ${i['n']} (−${fmt21(_n(i['price']))} cauris)',
-        'musique');
-    return _ok(n);
-  },
-
-  'write': (s, a) {
-    final cur = s['cur'];
-    if (cur == null || _m(cur)['st'] != 'instrumental') {
-      return _no(s, 'pasdetitre');
-    }
-    final n = clone21(s);
-    final e = _spend(n, 1, 20);
-    if (e != null) return _no(s, e);
-    final c = _m(n['cur']);
-    c['st'] = 'ecrit';
-    final sk = _m(n['sk']);
-    sk['ecr'] = _n(sk['ecr']) + 1;
-    _log(n, 'Texte écrit : ${c['title']} (${c['mode']})', 'musique');
-    return _ok(n);
-  },
-
-  'take': (s, score) {
-    final cur = s['cur'];
-    if (cur == null || _m(cur)['st'] != 'ecrit') return _no(s, 'pasdetexte');
-    if (score is! num || score < 0 || score > 100) return _no(s, 'inconnu');
-    final takes = _l(_m(cur)['takes']);
-    if (takes.length >= 3) return _no(s, 'deja');
-    final n = clone21(s);
-    _l(_m(n['cur'])['takes']).add(score.round());
-    if (_l(_m(n['cur'])['takes']).length == 3) {
-      return actions21['record']!(n, null);
-    }
-    return _ok(n);
-  },
-
   // Instru choisie (04.3), payée au choix ; utilisée à la prochaine prise de cabine.
   'pick': (s, id) {
     final i = Reg21.instrus[id];
@@ -846,13 +707,11 @@ final Map<String, Action> actions21 = {
     final kb = _n(kc['left']) > 0 ? _n(kc['bonus']) : 0;
     if (kb != 0) kc['left'] = _n(kc['left']) - 1;
     final cur = _m(n['cur']);
-    // `takes` : liste de prises 0-100 ; à défaut, celles déjà enregistrées sur le titre (ancien parcours), sinon les valeurs par défaut.
-    final src = takes is List && takes.isNotEmpty
-        ? takes
-        : (cur['takes'] is List && (cur['takes'] as List).length == 3 ? cur['takes'] as List : Reg21.takesDefault);
+    // `takes` : liste de prises 0-100 ; à défaut, les prises par défaut (cabine sans mini-jeu).
+    final src = takes is List && takes.isNotEmpty ? takes : Reg21.takesDefault;
     final tk = src.take(3).map((x) => clamp21(jsRound(x is num ? x : (num.tryParse('$x') ?? 0)), 0, 100)).toList();
     final ui = _m(n['ui']);
-    final iid = (ui['inst'] ?? cur['instId'] ?? 'nuit') as String;
+    final iid = (ui['inst'] ?? 'nuit') as String;
     final inst = Reg21.instrus[iid]!;
     final voix = jsRound(tk.fold<num>(0, (a, b) => a + b) / tk.length) + (hs ? 2 : 0);
     final prod = _n(inst['Q']) + (hs ? 4 : 0) + kb;
@@ -928,7 +787,6 @@ final Map<String, Action> actions21 = {
 
   // Sortie d'un single : écoutes, ventes (1,2 % des streams × 30 cauris), part du label déduite, popularité plafonnée à 12 et ralentie près de 100.
   'release': (s, a) {
-    if (s['project'] != null) return actions21['_releaseLegacy']!(s, a);
     final cur0 = s['cur'];
     if (cur0 == null || _m(cur0)['st'] != 'enregistre') return _no(s, 'pasenregistre');
     final promo = _n(_m(s['ui'])['promo']).toInt();
@@ -1074,136 +932,6 @@ final Map<String, Action> actions21 = {
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
     _log(n, '$t sorti : $title · ${tr.length} titres · ${fmt21(sl)} ventes · ${rk != 0 ? '#$rk au Top $top' : 'non classé'}', 'musique');
-    return _ok(n);
-  },
-
-  // Ancien parcours EP/album (action projectStart) : retiré avec l'écran correspondant (groupe catalogue).
-  '_releaseLegacy': (s, a) {
-    if (s['project'] != null) {
-      final project = _m(s['project']);
-      final tracks = _l(project['tracks']).cast<J>();
-      final minTracks = Reg21.projectMinTracks[project['format']] ?? 999;
-      if (s['cur'] != null) return _no(s, 'encours');
-      if (tracks.length < minTracks) return _no(s, 'titres');
-      final promo = _n(_m(s['ui'])['promo']).toInt();
-      final p = promos21[promo];
-      if (_n(s['cash']) < (p['c'] as num)) return _no(s, 'cash');
-      final n = clone21(s), pn = _m(n['project']);
-      if (_n(p['c']) != 0) _pay(n, -(p['c'] as num));
-      final fansAtRelease = _n(n['fans']);
-      num lTotal = 0, revTotal = 0, cutTotal = 0, fgTotal = 0, pgTotal = 0;
-      num qTotal = 0, virTotal = 0, salesTotal = 0;
-      final platforms = <String, num>{};
-      for (final track in _l(pn['tracks']).cast<J>()) {
-        final vir = virOf21(track, promo);
-        final l = jsRound(listensFor21(_n(track['Q']), fansAtRelease + fgTotal, promo) *
-            (0.8 + vir / 250) * featBoost21(track));
-        final gross = jsRound(l * Reg21.listenValue);
-        final rev = _t(n['signed']) ? jsRound(gross * (1 - Reg21.labelCut)) : gross;
-        final fg = (l * 0.07 / (1 + (fansAtRelease + fgTotal) / Reg21.fanSat)).ceil();
-        final pg = (l / 900).floor();
-        final salesFans = fansAtRelease + fgTotal;
-        salesTotal += jsRound(salesFans * Reg21.saleSegments['fidele']! * .12 +
-            salesFans * Reg21.saleSegments['passionne']! * .08 +
-            salesFans * Reg21.saleSegments['occasionnel']! * .01);
-        lTotal += l;
-        revTotal += rev;
-        cutTotal += gross - rev;
-        fgTotal += fg;
-        pgTotal += pg;
-        qTotal += _n(track['Q']);
-        virTotal += vir;
-        final split = _platformStreams21(l);
-        for (final key in split.keys) {
-          platforms[key] = (platforms[key] ?? 0) + _n(split[key]);
-        }
-      }
-      final pg = pgTotal.toInt();
-      _pay(n, revTotal);
-      n['fans'] = _n(n['fans']) + fgTotal;
-      n['pop'] = clamp21(_n(n['pop']) + pg, 0, 100);
-      _geoAdd(n, 'bakoma', math.min(12, jsRound(lTotal / 1500 * 10) / 10 + 1));
-      if (promo == 2) {
-        _geoAdd(n, 'portambre', 2);
-        _geoAdd(n, 'selene', 2);
-      }
-      final fmt = pn['format'] as String;
-      final package = <String, dynamic>{
-        'id': 'P${_l(n['disco']).length + 1}',
-        'title': '${pn['title']} · ${fmt == 'ep' ? 'EP' : 'Album'}',
-        'format': fmt,
-        'tracks': _l(pn['tracks']).map((t) => _m(t)['title']).toList(),
-        'st': 'sorti', 'day': n['day'], 'year': 1 + ((_n(n['day']) - 1) / Reg21.daysPerYear).floor(),
-        'Q': jsRound(qTotal / tracks.length), 'vir': jsRound(virTotal / tracks.length),
-        'L': lTotal, 'launchL': lTotal, 'rev': revTotal, 'cut': cutTotal,
-        'label': _t(n['signed']) ? 'Bakoma Sound Records' : 'Indépendant',
-        'signed': _t(n['signed']) ? 1 : 0, 'views': 0, 'sales': salesTotal,
-        'salesFans': fansAtRelease, 'salesPrice': null, 'platforms': platforms,
-        'fg': fgTotal, 'pg': pg, 'tier': tierOf21(lTotal), 'promo': promo,
-        'feats': <dynamic>[], 'clip': {'st': 'aucun'},
-      };
-      _l(n['disco']).insert(0, package);
-      n['project'] = null;
-      n['last'] = package['id'];
-      _addXp(n, 40);
-      _log(n, 'Sortie ${fmt == 'ep' ? 'EP' : 'album'} : ${package['title']} · ${fmt21(lTotal)} écoutes', 'musique');
-      return _ok(n);
-    }
-    final cur = s['cur'];
-    if (cur == null || _m(cur)['st'] != 'enregistre') {
-      return _no(s, 'pasenregistre');
-    }
-    final promo = _n(_m(s['ui'])['promo']).toInt();
-    final p = promos21[promo];
-    if (_n(s['cash']) < (p['c'] as num)) return _no(s, 'cash');
-    final n = clone21(s);
-    final c = _m(n['cur']);
-    final fansAtRelease = _n(n['fans']);
-    if (_n(p['c']) != 0) _pay(n, -(p['c'] as num));
-    c['vir'] = virOf21(c, promo);
-    final boost = featBoost21(c);
-    final l = jsRound(listensFor21(_n(c['Q']), _n(n['fans']), promo) *
-        (0.8 + _n(c['vir']) / 250) *
-        boost);
-    final gross = jsRound(l * Reg21.listenValue);
-    final rev = _t(n['signed']) ? jsRound(gross * (1 - Reg21.labelCut)) : gross;
-    final fg = (l * 0.07 / (1 + _n(n['fans']) / Reg21.fanSat)).ceil();
-    final pg = (l / 900).floor();
-    _pay(n, rev);
-    n['fans'] = _n(n['fans']) + fg;
-    n['pop'] = clamp21(_n(n['pop']) + pg, 0, 100);
-    _geoAdd(n, 'bakoma', math.min(12, jsRound(l / 1500 * 10) / 10 + 1));
-    if (promo == 2) {
-      _geoAdd(n, 'portambre', 2);
-      _geoAdd(n, 'selene', 2);
-    }
-    c['st'] = 'sorti';
-    c['day'] = n['day'];
-    c['L'] = l;
-    c['launchL'] = l;
-    c['rev'] = rev;
-    c['cut'] = gross - rev;
-    c['label'] = _t(n['signed']) ? 'Bakoma Sound Records' : 'Indépendant';
-    c['signed'] = _t(n['signed']) ? 1 : 0;
-    c['year'] = 1 + ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
-    c['views'] = _m(c['clip'])['st'] == 'publie' ? jsRound(l * .35) : 0;
-    final loyal = fansAtRelease * Reg21.saleSegments['fidele']!;
-    final passionate = fansAtRelease * Reg21.saleSegments['passionne']!;
-    final casual = fansAtRelease * Reg21.saleSegments['occasionnel']!;
-    c['sales'] = jsRound(loyal * .12 + passionate * .08 + casual * .01);
-    c['salesFans'] = fansAtRelease;
-    c['salesPrice'] = null; // aucun prix unitaire défini dans les sources.
-    c['platforms'] = _platformStreams21(l);
-    c['fg'] = fg;
-    c['pg'] = pg;
-    c['tier'] = tierOf21(l);
-    c['promo'] = promo;
-    _l(n['disco']).insert(0, c);
-    n['cur'] = null;
-    n['last'] = c['id'];
-    _addXp(n, 40);
-    _log(n, 'Sortie : ${c['title']} · ${fmt21(l)} écoutes · ${c['tier']}',
-        'musique');
     return _ok(n);
   },
 

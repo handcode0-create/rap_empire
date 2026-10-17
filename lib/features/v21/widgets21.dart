@@ -31,18 +31,15 @@ class Chip21 extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              decoration: BoxDecoration(
-                color: selected ? V20.pinkBtn : null,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: selected ? V20.pinkBtn : const Color.fromRGBO(255, 255, 255, .16), width: 2),
-              ),
-              child: Text(label, style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: selected ? Tk.bg : V20.ink2)),
+          // Hauteur 48 px (16 + ligne de 16 + 16) sans étirer la pastille : elle prend la largeur de son texte.
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              color: selected ? V20.pinkBtn : null,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: selected ? V20.pinkBtn : const Color.fromRGBO(255, 255, 255, .16), width: 2),
             ),
+            child: Text(label, style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: selected ? Tk.bg : V20.ink2)),
           ),
         ),
       );

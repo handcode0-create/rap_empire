@@ -6,7 +6,7 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
-import 'package:rap_empire/features/v21/music_screens.dart' show Cabine21Screen;
+import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
 import 'support.dart' show navTab, tapText, txt;
 
@@ -140,20 +140,26 @@ void main() {
 
   testWidgets('studio : écrire, enregistrer, sortir, résultats', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/studio');
-    await tapText(tester, 'Créer le titre');
-    expect((repo.current['cur'] as J)['st'], 'draft');
-    await tester.tap(find.textContaining('CHOISIR · −8 000 CAURIS'));
-    await tester.pumpAndSettle();
-    expect((repo.current['cur'] as J)['instId'], 'gbaka');
-    await tester.tap(txt('Terminer le texte'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tapText(tester, 'Écrire le texte');
     expect((repo.current['cur'] as J)['st'], 'ecrit');
+    await tapText(tester, 'Choisir l’instru, puis la cabine');
+    await tapText(tester, 'Gbaka de 6h');
+    expect([repo.current['cash'], (repo.current['ui'] as J)['inst']], [312000, 'gbaka']);
+    await tester.tap(txt('Passer en cabine'));
+    await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byType(Cabine21Screen), findsOneWidget);
-    await tester.ensureVisible(txt('Simuler les 3 prises'));
-    await tester.tap(txt('Simuler les 3 prises'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(txt('Enregistrer sans le mini-jeu'));
+    await tester.tap(txt('Enregistrer sans le mini-jeu'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
     expect((repo.current['cur'] as J)['st'], 'enregistre');
+    // aucune navigation automatique : le joueur touche « Écouter le mix »
+    expect(find.byType(Cabine21Screen), findsOneWidget);
+    await tester.ensureVisible(txt('Écouter le mix'));
+    await tester.tap(txt('Écouter le mix'));
+    await tester.pumpAndSettle();
+    expect(txt('MIX TERMINÉ'), findsOneWidget);
     await tapText(tester, 'Préparer la sortie');
     await tapText(tester, 'Sortir le titre');
     expect(txt('Résultats de la sortie'), findsOneWidget);
@@ -205,7 +211,7 @@ void main() {
 
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
-      '/', '/studio', '/studio/instru', '/studio/ecriture', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
+      '/', '/studio', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/manager', '/business/justice',
       '/profil', '/profil/rang', '/profil/classements', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',

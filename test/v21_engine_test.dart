@@ -343,20 +343,18 @@ void main() {
     expect(l(s['log']).first['t'], contains('Bienvenue à Ndolo'));
   });
 
-  test('studio v21 reprend instru, écriture, trois prises et qualité v20', () {
+  test('studio : texte, instru payée au choix, trois prises, qualité 0,35 / 0,30 / 0,35', () {
     var s = act21(init21(), 'preset', 'debut').s;
-    s = act21(s, 'draft', ['rue', 'sombre']).s;
-    expect([m(s['cur'])['st'], s['hour'], s['en'], s['cash']], ['draft', 8, 100, 25000]);
-    s = act21(s, 'pickInstru', 'gbaka').s;
-    expect([m(s['cur'])['inst'], m(s['cur'])['instQ'], s['cash']], ['Gbaka de 6h', 56, 17000]);
-    s = act21(s, 'write').s;
-    expect([m(s['cur'])['st'], s['hour'], s['en']], ['ecrit', 9, 80]);
-    s = act21(s, 'take', 90).s;
-    s = act21(s, 'take', 80).s;
-    s = act21(s, 'take', 70).s;
+    s = act21(s, 'create', ['quartier', 'sombre']).s;
+    expect([m(s['cur'])['st'], s['hour'], s['en'], s['cash']], ['ecrit', 9, 80, 25000]);
+    s = act21(s, 'pick', 'gbaka').s;
+    expect([m(s['ui'])['inst'], s['cash']], ['gbaka', 17000]);
+    expect(act21(s, 'pick', 'pont').err, 'rang');
+    s = act21(s, 'record', [90, 80, 70]).s;
     final song = m(s['cur']);
     expect([song['st'], song['takes'], song['voix'], song['prod'], song['Q']], ['enregistre', [90, 80, 70], 80, 56, 69]);
-    expect([s['hour'], s['en']], [11, 55]);
+    expect([s['hour'], s['en'], m(s['ui'])['inst']], [11, 55, null]);
+    expect(song['prodBy'], 'DJ Kôrô (« Gbaka de 6h »)');
     expect(m(s['ms'])['m1'], isNotNull);
   });
 
@@ -364,7 +362,7 @@ void main() {
     const themes = ['rue', 'argent', 'ambition', 'amour', 'fete', 'ego', 'introspection', 'identite', 'trap', 'gloire'];
     expect(themes.every(Reg21.themes.containsKey), isTrue);
     for (final theme in themes) {
-      final s = act21(init21(), 'draft', [theme, 'sombre']).s;
+      final s = act21(init21(), 'create', [theme, 'sombre']).s;
       final song = m(s['cur']);
       expect(song['tx'], 72 + (Reg21.themes[theme]!['tx'] as int), reason: theme);
       expect(virOf21(song), greaterThan(Reg21.virBase), reason: theme);

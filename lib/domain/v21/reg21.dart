@@ -192,9 +192,6 @@ class Reg21 {
     },
   };
   static const maxFeats = 2;
-  // L'EP 3–7 titres vient de la planche 05-5 ; le minimum album de 8 est provisoire.
-  static const projectMinTracks = {'ep': 3, 'album': 8};
-  static const projectMaxTracks = {'ep': 7};
   static const tiers = [
     (0, 'Discret'),
     (10000, 'Correct'),
@@ -286,9 +283,6 @@ class Reg21 {
   static const labelRep = 30, labelAdvance = 150000;
   static const ownLabelRep = 60, ownLabelCash = 500000;
   static const labelCut = 0.35;
-  // Ventes et managers v20. Segmentation provisoire autorisée par Smith;
-  // le prix unitaire reste absent, les unités sont suivies sans revenu.
-  static const saleSegments = {'fidele': .10, 'passionne': .20, 'occasionnel': .40};
   static const managerTiers = <String, J>{
     // Maya (M1) : 8 % de chaque cachet, « pas de fixe tant que tu débutes » (dialogue 19-6).
     'm1': {'n': 'Maya Tessé', 'rate': .08, 'fee': 0, 'rep': 0, 'xp': 0},
@@ -297,11 +291,6 @@ class Reg21 {
     'm4': {'n': 'Anselme Bayoko', 'rate': .15, 'fee': 12000, 'rep': 45, 'xp': 1000},
     'm5': {'n': 'Léa Sombré', 'rate': .17, 'fee': 30000, 'rep': 65, 'xp': 2200},
     'm6': {'n': 'Manager d’élite (profil à définir)', 'rate': .20, 'fee': 80000, 'rep': 80, 'xp': 4500},
-  };
-  // Justice provisoire, faute de règle chiffrée dans les sources v20.
-  static const crimeJobs = <String, J>{
-    'deal': {'n': 'Vente de stupéfiants', 'h': 2, 'e': 20, 'cash': 12000, 'risk': .20, 'days': 2},
-    'braquage': {'n': 'Braquage', 'h': 3, 'e': 35, 'cash': 30000, 'risk': .35, 'days': 5},
   };
   static const rivals = <String, String>{
     'kzer': 'K-Zer', 'zaki': 'Zaki Mbela', 'orage': 'Madame Orage', 'djo': 'Djo Kene'
@@ -698,42 +687,6 @@ const titles21 = <String, List<String>>{
     'La dernière ovation',
     "Bien plus qu'un disque"
   ],
-};
-
-/// Quatre instrus de game.js v20, conservées dans le parcours v21.
-const instrus21 = <String, J>{
-  'nuit': {
-    'n': 'Nuit à Ndo',
-    'who': 'Gratuite',
-    'q': 32,
-    'price': 0,
-    'lvl': 1,
-    'rep': 0
-  },
-  'gbaka': {
-    'n': 'Gbaka de 6h',
-    'who': 'DJ Kôrô',
-    'q': 56,
-    'price': 8000,
-    'lvl': 1,
-    'rep': 0
-  },
-  'pont': {
-    'n': 'Pont des Griots',
-    'who': 'Sanko Beats',
-    'q': 68,
-    'price': 15000,
-    'lvl': 2,
-    'rep': 0
-  },
-  'lagune': {
-    'n': "Lagune d'Ambre",
-    'who': 'Mister Wôrô',
-    'q': 86,
-    'price': 40000,
-    'lvl': 1,
-    'rep': 30
-  },
 };
 
 /// Événements de carrière : défi de K-Zer (03.5), offre de DJ Kôrô (16-A), offre de label (08.2).

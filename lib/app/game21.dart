@@ -40,6 +40,12 @@ const err21 = {
   'delai': "Trop tôt : cette date n'est pas encore disponible",
   'audience': 'Audience insuffisante à Port-Ambre et Sélène',
   'rien': 'Aucun événement en attente',
+  'mature': 'Contenu mature désactivé : active-le dans le Profil (16+)',
+  'prison': 'Impossible en prison : écris, fais du sport ou termine la journée',
+  'garde': 'En garde à vue : paie la caution ou accepte la détention',
+  'affaire': 'Une affaire est en cours : attends le procès',
+  'proces': "Le procès n'a pas encore eu lieu",
+  'pistes': 'Nombre de titres incorrect pour ce projet',
   'inconnu': 'Action impossible',
 };
 
