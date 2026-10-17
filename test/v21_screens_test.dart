@@ -86,15 +86,18 @@ void main() {
   testWidgets('journée : événement, boulot, bilan', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/evenement');
     expect(txt("K-Zer d'Mabaya te défie"), findsOneWidget);
-    await tester.tap(find.text('RÉPONDRE EN FREESTYLE').last);
+    await tester.tap(txt('Choisir').first);
     await tester.pumpAndSettle();
     expect(repo.current['ev'], isNull);
     expect(repo.current['btq'], 'kzer');
-    expect(txt('Battle · K-Zer'), findsOneWidget);
+    expect(txt('Round 1'), findsOneWidget);
     await tapText(tester, 'Malin');
     await tapText(tester, 'Agressif');
     await tapText(tester, 'Cool');
-    expect(txt('VICTOIRE'), findsOneWidget);
+    // aucune navigation automatique : le joueur touche « Voir le résultat »
+    expect(txt('Résultat de la battle'), findsNothing);
+    await tapText(tester, 'Voir le résultat');
+    expect(txt('BATTLE GAGNÉE · 3 / 3'), findsOneWidget);
     expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 28000]);
     await tapText(tester, 'Retour au QG');
     await tester.tap(navTab('Business'));
@@ -162,12 +165,13 @@ void main() {
     await tapText(tester, 'Discuter');
     expect((repo.current['rivals'] as J)['zaki']['relation'], 5);
     await tapText(tester, 'Répondre en freestyle');
-    expect(txt('Battle · Zaki Mbela'), findsOneWidget);
+    expect(txt('Djo Kéné · Zaki Mbela'), findsOneWidget);
     expect(txt('« Tu veux ma place sans avoir fait tes preuves. »'), findsOneWidget);
     await tapText(tester, 'Malin');
     await tapText(tester, 'Agressif');
     await tapText(tester, 'Cool');
-    expect(txt('Résultat · Zaki Mbela'), findsOneWidget);
+    await tapText(tester, 'Voir le résultat');
+    expect(txt('Battle · Zaki Mbela'), findsOneWidget);
     expect(repo.current['btl']['rival'], 'Zaki Mbela');
   });
 
@@ -206,6 +210,11 @@ void main() {
     await tapText(tester, 'Open mic de Ndolo');
     expect(repo.current['fans'], 270);
     expect(txt('Résultat de la date'), findsOneWidget);
+    expect(find.textContaining('Effet de ce passage : 100 %'), findsOneWidget);
+    await tapText(tester, 'Retour à la scène');
+    // une fois par jour : la ligne passe à « reviens demain »
+    expect(txt('Déjà joué aujourd’hui · reviens demain'), findsOneWidget);
+    expect(repo.current['omK'], 1);
   });
 
   testWidgets('vie de couple : le couple, la demande, le mariage', (tester) async {

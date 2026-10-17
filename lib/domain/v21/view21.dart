@@ -7,7 +7,7 @@ import 'reg21.dart';
 
 num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
-List _l(dynamic x) => x as List;
+List _l(dynamic x) => x is List ? x : const [];
 
 String playerName(J s) {
   final n = cleanName21(_m(s['p'])['name']);
@@ -152,4 +152,10 @@ J? selectedTitle(J s) {
 String titleInProjects(J s, J t) {
   final names = [for (final p in _l(s['projects'])) if (_l(_m(p)['tracks']).contains(t['id'])) '${_m(p)['type']} « ${_m(p)['title']} »'];
   return names.isEmpty ? 'Aucun projet' : names.join(', ');
+}
+
+/// Effet actuel de l'open mic en pourcentage : 100 % puis −15 points par passage sur 7 jours glissants (plancher 30 %).
+int openMicEffect(J s) {
+  final n = _l(s['omHist']).where((d) => _n(s['day']) - _n(d) < Reg21.omWindow).length;
+  return jsRound(100 * math.max(Reg21.omFloor, 1 - Reg21.omStep * n));
 }

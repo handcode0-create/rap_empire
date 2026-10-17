@@ -17,6 +17,7 @@ import '../../core/widgets/label_logo.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/scene_banner.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
@@ -85,16 +86,21 @@ class SceneScreen21 extends ConsumerWidget {
         StatKpi(label: 'Popularité', value: '${s['pop']}')
       ]),
       const SizedBox(height: 12),
-      row('Open mic de Ndolo',
-          '1 h · −${15 - moto} énergie · +150 fans, +${hasManager ? '${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net (manager)' : '3 000'}, Bakoma +2 si énergie ≥ 40',
-          tag: const GameTag('Ouvert', style: GameTagStyle.ok),
-          onTap: () => doAct(context, ref, 'openmic', null,
-              () => context.go('/scene/resultat'))),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Battle : jouable depuis le défi de K-Zer (21.B1). Concert et tournée : billetterie et résultats en 21.C3. Open mic : une fois par jour, effet réduit si tu y retournes souvent.'),
+      const SizedBox(height: 12),
       if (s['btq'] != null)
-        row("Battle contre K-Zer",
-            'Reprendre · 1 h · −15 énergie · issue selon tes réponses',
-            tag: const GameTag('En cours', style: GameTagStyle.ok),
-            onTap: () => context.go('/scene/battle')),
+        row("Battle contre K-Zer d'Mabaya", 'Défi accepté · 1 h · −15 énergie · 3 rounds',
+            tag: const GameTag('En attente', style: GameTagStyle.ok), onTap: () => context.go('/scene/battle')),
+      if (_n(s['omDay']) == day)
+        row('Open mic de Ndolo', 'Déjà joué aujourd’hui · reviens demain', off: true, tag: const GameTag('Demain', style: GameTagStyle.outline))
+      else
+        row('Open mic de Ndolo',
+            '1 h · −${15 - moto} énergie · +${hasManager ? '${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net (manager)' : '3 000'} · jusqu’à +${jsRound(Reg21.omFans * openMicEffect(s) / 100)} fans si énergie ≥ 40 · effet actuel ${openMicEffect(s)} % (baisse si tu y retournes souvent)',
+            tag: const GameTag('Ouvert', style: GameTagStyle.ok),
+            onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat'))),
       row('Rivalités', 'Défie d’autres artistes en battle · 1 h · −15 énergie',
           onTap: () => context.go('/scene/rivalites')),
       if (rank < 3)
@@ -166,11 +172,6 @@ class SceneScreen21 extends ConsumerWidget {
           subtitle: 'Effets des dates sur chaque territoire',
           trailing: ActionRow.arrow(),
           onTap: () => context.go('/scene/popularite')),
-      const SizedBox(height: 12),
-      const GameHint(
-          icon: 'info',
-          text:
-              'Battle et déroulé du concert : écrans existants 06.3 et 07.1 à 07.3, non refaits. Nouveau : tournée, date internationale et effet de chaque date sur les villes.'),
     ]);
   }
 }
@@ -197,9 +198,10 @@ class ConcertResultScreen extends ConsumerWidget {
               style: V20Text.nm()),
           Text(
               _n(s['om']) == 1
-                  ? '+150 fans · +${fmt21(_n(s['omCash']))} cauris nets · réputation +6 · XP +60'
+                  ? '+${jsRound(Reg21.omFans * _n(s['omK'] ?? 1))} fans · +${fmt21(_n(s['omCash']))} cauris nets · réputation +${_n(s['omK'] ?? 1) >= 0.7 ? 6 : 3} · XP +${jsRound(60 * _n(s['omK'] ?? 1))}'
                   : '+12 fans · XP +10',
               style: V20Text.bm),
+          Text('Effet de ce passage : ${jsRound(_n(s['omK'] ?? 1) * 100)} % (baisse si tu y retournes souvent)', style: V20Text.bs()),
           if (_n(s['omCut']) > 0)
             Text('Retenue manager : −${fmt21(_n(s['omCut']))} cauris',
                 style: V20Text.bs()),
@@ -885,7 +887,8 @@ class Justice21Screen extends ConsumerWidget {
   }
 }
 
-/// Battle 06.3 v20, pilotée par le défi K-Zer et sauvegardée dans l'état v21.
+/// Battle 21-B1 : 3 rounds, la bonne réplique se lit dans l'attaque de l'adversaire. Les trois réponses partent d'un coup à `battle`
+/// (ou `rivalBattle`) ; ensuite le joueur touche « Voir le résultat » : aucune navigation automatique.
 class Battle21Screen extends ConsumerStatefulWidget {
   const Battle21Screen({super.key, this.target = 'kzer'});
   final String target;
@@ -894,72 +897,122 @@ class Battle21Screen extends ConsumerStatefulWidget {
 }
 
 class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
-  List<(String, String, String)> get _rounds =>
-      Reg21.rivalRounds[widget.target] ?? Reg21.rivalRounds['kzer']!;
+  List<(String, String, String)> get _rounds => Reg21.rivalRounds[widget.target] ?? Reg21.rivalRounds['kzer']!;
   static const _answers = ['Agressif', 'Malin', 'Cool'];
-  int _round = 0, _score = 0;
-  bool _busy = false;
+  final List<bool> _won = [];
+  bool _busy = false, _done = false;
+
+  int get _score => _won.where((w) => w).length;
 
   Future<void> _answer(String answer) async {
-    if (_busy) return;
-    final score = _score + (answer == _rounds[_round].$3 ? 1 : 0);
-    if (_round < 2) {
-      setState(() {
-        _score = score;
-        _round++;
-      });
-      return;
-    }
+    if (_busy || _done || _won.length >= 3) return;
+    final win = answer == _rounds[_won.length].$3;
+    setState(() => _won.add(win));
+    if (_won.length < 3) return;
     setState(() => _busy = true);
     final error = widget.target == 'kzer'
-        ? await ref.read(game21Provider.notifier).act('battle', score)
-        : await ref.read(game21Provider.notifier).act('rivalBattle', [widget.target, score]);
+        ? await ref.read(game21Provider.notifier).act('battle', _score)
+        : await ref.read(game21Provider.notifier).act('rivalBattle', [widget.target, _score]);
     if (!mounted) return;
     if (error != null) {
       toastErr(context, error);
-      setState(() => _busy = false);
+      setState(() {
+        _won.clear();
+        _busy = false;
+      });
       return;
     }
-    context.go('/scene/battle-result');
+    setState(() {
+      _busy = false;
+      _done = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final round = _rounds[_round];
     final s = ref.watch(game21Provider).valueOrNull;
-    final moto = s != null && _m(s['own'])['moto'] != null;
+    if (s == null) return const SizedBox();
+    final kzer = widget.target == 'kzer';
+    final pending = !kzer || s['btq'] != null || _done;
+    final name = kzer ? "K-Zer d'Mabaya" : (Reg21.rivals[widget.target] ?? 'artiste');
+    final round = _rounds[_won.length.clamp(0, 2)];
+    final tier = managerTier21(s);
+    final prime = tier == null ? '3 000' : '${fmt21(3000 - jsRound(3000 * (tier['rate'] as num)))} net après manager';
+    final back = BackHeader(title: 'Battle', step: '1 h · −15 énergie', onBack: () => context.go('/scene'));
+    if (!pending) {
+      return ListView(padding: const EdgeInsets.all(16), children: [
+        back,
+        const SizedBox(height: 12),
+        const GlassCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Aucune battle en attente'),
+          SizedBox(height: 4),
+          Text('Une battle s’ouvre quand tu acceptes un défi, comme celui de K-Zer au début de ta carrière.'),
+        ])),
+        const SizedBox(height: 12),
+        PrimaryButton(label: 'Retour à la scène', onPressed: () => context.go('/scene')),
+      ]);
+    }
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(
-          title: 'Battle · ${Reg21.rivals[widget.target] ?? 'artiste'}',
-          step: 'Round ${_round + 1} / 3',
-          onBack: () => context.go('/scene')),
+      back,
       const SizedBox(height: 12),
-      GameCard(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('PUNCHLINE ${_round + 1}', style: V20Text.lab()),
-        const SizedBox(height: 6),
-        Text(round.$1, style: V20Text.nm()),
-        Text(round.$2, style: V20Text.bs()),
-        const SizedBox(height: 8),
-        Text('Score : $_score / 3', style: V20Text.bm),
-      ])),
+      LayoutBuilder(
+          builder: (context, c) => SceneBanner(
+                kind: 'street',
+                height: 120,
+                role: 'Djo Kéné · $name',
+                chars: [
+                  const BannerChar('djo', mood: 'serious', gesture: 'mic', crop: 'torso', width: 80, left: 70),
+                  if (kzer) const BannerChar("K-Zer d'Mabaya", crop: 'torso', width: 80, left: 236, asset: 'assets/svg/portrait-kzer.svg'),
+                ],
+              )),
       const SizedBox(height: 12),
-      for (final answer in _answers) ...[
-        PrimaryButton(
-            label: answer,
-            style: GameButtonStyle.secondary,
-            onPressed: _busy ? null : () => _answer(answer)),
-        const SizedBox(height: 8),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text('PUNCHLINE ${(_won.length + (_done ? 0 : 1)).clamp(1, 3)} / 3', style: V20Text.lab()),
+        Text('$_score / 3', style: V20Text.baloo(size: 18, line: 20)),
+      ]),
+      const SizedBox(height: 6),
+      MeterBar(value: _score / 3),
+      const SizedBox(height: 6),
+      Row(children: [
+        for (var i = 0; i < 3; i++) ...[
+          if (i > 0) const SizedBox(width: 6),
+          Expanded(
+              child: Container(
+                  height: 6,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(99),
+                      color: i < _won.length ? (_won[i] ? Tk.ok : Tk.acc) : const Color.fromRGBO(255, 255, 255, .14)))),
+        ],
+      ]),
+      const SizedBox(height: 12),
+      if (!_done)
+        GameCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('ROUND ${_won.length + 1}', style: V20Text.lab()),
+          const SizedBox(height: 4),
+          Text(round.$1, style: V20Text.nm()),
+          Text(round.$2, style: V20Text.bs()),
+        ])),
+      for (var i = 0; i < _won.length; i++)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text('Round ${i + 1} · ${_won[i] ? 'Round gagné' : 'Round perdu'}', style: V20Text.bs(color: _won[i] ? Tk.ok : V20.hintGoldText)),
+        ),
+      const SizedBox(height: 12),
+      if (!_done)
+        Row(children: [
+          for (var i = 0; i < _answers.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(child: _AnswerPill(_answers[i], _busy ? null : () => _answer(_answers[i]))),
+          ],
+        ]),
+      const SizedBox(height: 12),
+      Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +$prime cauris. Sinon : +12 fans.'),
+      if (_done) ...[
+        const SizedBox(height: 12),
+        PrimaryGlowButton(label: 'Voir le résultat', onPressed: () => context.go('/scene/battle-result')),
       ],
-      const Conseq21(ConsequenceKind.certain, 'Battle : 1 h · −15 énergie'),
-      Conseq21(ConsequenceKind.estimated,
-          'Victoire à 2 bonnes réponses ou plus : +${s != null && managerTier21(s) != null ? '${fmt21(3000 - jsRound(3000 * (managerTier21(s)!['rate'] as num)))} net après manager' : '3 000'} cauris, +150 fans, +6 réputation, +60 XP. Défaite : +12 fans.'),
-      if (moto)
-        const GameHint(
-            icon: 'info',
-            text:
-                'La moto réduit de 5 l’énergie des dates, pas celle de la battle.'),
     ]);
   }
 }
@@ -1017,6 +1070,7 @@ class Rivalites21Screen extends ConsumerWidget {
   }
 }
 
+/// Résultat de battle 21-B2 : victoire ou défaite, puis fans, réputation, prime et énergie dépensée.
 class BattleResult21Screen extends ConsumerWidget {
   const BattleResult21Screen({super.key});
   @override
@@ -1024,55 +1078,70 @@ class BattleResult21Screen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
     final r = s['btl'] as J?;
+    final back = BackHeader(title: 'Résultat de la battle', onBack: () => context.go('/scene'));
     if (r == null) {
       return ListView(padding: const EdgeInsets.all(16), children: [
-        BackHeader(
-            title: 'Résultat de la battle', onBack: () => context.go('/scene')),
-        const GameHint(
-            icon: 'info',
-            text:
-                'Aucune battle terminée. Les défis d’artistes se lancent depuis Scène · Rivalités.'),
+        back,
+        const SizedBox(height: 12),
+        const GlassCard(child: Text('Aucune battle jouée')),
+        const SizedBox(height: 12),
+        PrimaryGlowButton(label: 'Retour au QG', onPressed: () => context.go('/')),
       ]);
     }
     final win = _n(r['win']) == 1;
-    final isRivalBattle = r['rival'] != null;
-    final returnTo = isRivalBattle ? '/scene/rivalites' : '/';
+    final rival = r['rival'] as String?;
+    final isRivalBattle = rival != null;
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Résultat · ${r['rival'] ?? 'K-Zer'}', onBack: () => context.go('/scene')),
+      back,
       const SizedBox(height: 12),
-      GlassCard(
-          accent: win ? GlassAccent.cyan : GlassAccent.magenta,
-          halo: false,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(win ? 'VICTOIRE' : 'DÉFAITE',
-                style: V20Text.lab(color: win ? Tk.ok : V20.accText)),
-            Text('Punchlines gagnées : ${r['score']} / 3',
-                style: V20Text.dm(size: 26)),
-          ])),
-      const SizedBox(height: 12),
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(gradient: V20.objective, borderRadius: BorderRadius.circular(24)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('BATTLE · ${(rival ?? "K-Zer d'Mabaya").toUpperCase()}', style: V20Text.lab(color: Colors.white)),
+          Text('${win ? 'BATTLE GAGNÉE' : 'BATTLE PERDUE'} · ${r['score']} / 3', style: V20Text.baloo(size: 26, line: 28)),
+          Text(win ? '${rival ?? 'K-Zer'} salue ton flow. Ndolo en parle.' : '${rival ?? 'K-Zer'} a gardé la main. Retravaille tes punchlines.', style: V20Text.bm),
+        ]),
+      ),
+      const SizedBox(height: 8),
       KpiRow(children: [
         StatKpi(label: 'Fans', value: '+${r['fans']}'),
-        StatKpi(label: 'Réputation', value: '+${r['rep']}')
+        StatKpi(label: 'Réputation', value: '+${r['rep']}'),
       ]),
       const SizedBox(height: 8),
       KpiRow(children: [
-        StatKpi(label: 'Cauris', value: '+${fmt21(_n(r['cash']))}'),
-        StatKpi(label: 'XP', value: '+${r['xp']}')
+        StatKpi(label: 'Prime', value: win ? '+${fmt21(_n(r['gross']))}' : '0'),
+        const StatKpi(label: 'Énergie', value: '−15'),
       ]),
       if (_n(r['managerCut']) > 0) ...[
         const SizedBox(height: 8),
-        KeyVal('Commission manager',
-            '−${fmt21(_n(r['managerCut']))} sur ${fmt21(_n(r['gross']))} cauris'),
+        KeyVal('Commission manager', '−${fmt21(_n(r['managerCut']))} sur ${fmt21(_n(r['gross']))} cauris'),
       ],
       const SizedBox(height: 16),
-      PrimaryGlowButton(
-          label: isRivalBattle ? 'Retour aux rivalités' : 'Retour au QG', onPressed: () => context.go(returnTo)),
+      PrimaryGlowButton(label: isRivalBattle ? 'Retour aux rivalités' : 'Retour au QG', onPressed: () => context.go(isRivalBattle ? '/scene/rivalites' : '/')),
       const SizedBox(height: 8),
-      PrimaryButton(
-          label: 'Continuer vers le studio',
-          style: GameButtonStyle.secondary,
-          onPressed: () => context.go('/studio')),
+      PrimaryButton(label: 'Journal', style: GameButtonStyle.secondary, onPressed: () => context.go('/journal')),
     ]);
   }
+}
+
+/// Réponse de battle (.btn.s de la planche 21-B1) : pilule blanche, texte centré, 56 px.
+class _AnswerPill extends StatelessWidget {
+  final String label;
+  final VoidCallback? onTap;
+  const _AnswerPill(this.label, this.onTap);
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        enabled: onTap != null,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: 56,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: onTap == null ? V20.ink2 : Colors.white, width: 2)),
+            child: Text(label.toUpperCase(), style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w800, color: onTap == null ? V20.ink2 : Colors.white, spacing: .5)),
+          ),
+        ),
+      );
 }

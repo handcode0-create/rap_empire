@@ -76,6 +76,15 @@ List<Shot> shots() => [
       Shot('21-A1-Projet+choix', '/studio/catalogue/projet', _picked()),
       Shot('21-A2-Projet-sorti', '/studio/catalogue/projet-sorti', st('star')),
       Shot('21-A2-Projet-sorti+EP', '/studio/catalogue/projet-sorti', _epState()),
+      // Scène
+      Shot('21-C2-Scene', '/scene', st('carriere', const [], (s) {
+        s['btq'] = 'kzer';
+      })),
+      Shot('21-B1-Battle', '/scene/battle', st('debut', const [('evc', 'a')])),
+      Shot('21-B2-Battle-resultat', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 2)])),
+      Shot('21-B2-Battle-resultat+defaite', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 1)])),
+      Shot('21-C3-Concert', '/scene/resultat', st('carriere', const [('concert', null)])),
+
     ];
 
 List<J> _extraSongs() => [

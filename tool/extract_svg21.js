@@ -37,6 +37,14 @@ const jobs = {
   },
 };
 
+// Portraits sans équivalent dans assets/characters : K-Zer d'Mabaya (21-B1, « aperçu provisoire »)
+jobs.portraits = () => {
+  const html = fs.readFileSync(path.join(boards, '21-B1-Battle.dc.html'), 'utf8');
+  const svgs = allSvgs(html).filter((x) => /viewBox="20 -14 260 340"/.test(x));
+  // le premier est Djo (déjà dans assets/characters), le second K-Zer
+  return svgs.length >= 2 ? [['portrait-kzer.svg', svgs[1].replace(/ style="[^"]*"/, '')]] : [];
+};
+
 const only = process.argv[2];
 let n = 0;
 for (const [name, job] of Object.entries(jobs)) {

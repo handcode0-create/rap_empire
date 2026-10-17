@@ -7,7 +7,10 @@ import 'character_view.dart';
 class BannerChar {
   final String who, mood, gesture, crop, pose;
   final double width, left;
-  const BannerChar(this.who, {this.mood = 'cool', this.gesture = '', this.crop = 'torso', this.pose = '', required this.width, required this.left});
+
+  /// SVG de assets/svg/ pour un personnage absent de assets/characters (ex. K-Zer d'Mabaya, planche 21-B1).
+  final String? asset;
+  const BannerChar(this.who, {this.mood = 'cool', this.gesture = '', this.crop = 'torso', this.pose = '', required this.width, required this.left, this.asset});
 }
 
 /// Bannière de scène illustrée (.ban de v20.css) : rayon 24, bordure blanche 12 %, décor SVG (assets/scenes/<kind>.svg), personnages,
@@ -78,7 +81,9 @@ class SceneBanner extends StatelessWidget {
       bottom: bottom,
       width: c.width,
       height: h,
-      child: CharacterView(who: c.who, mood: c.mood, gesture: c.gesture, crop: c.crop, pose: c.pose, width: c.width, height: h),
+      child: c.asset != null
+          ? SvgPicture.asset(c.asset!, width: c.width, height: h, fit: BoxFit.contain, semanticsLabel: c.who)
+          : CharacterView(who: c.who, mood: c.mood, gesture: c.gesture, crop: c.crop, pose: c.pose, width: c.width, height: h),
     );
   }
 }
