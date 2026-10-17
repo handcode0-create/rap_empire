@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -844,47 +843,6 @@ class Manager21Screen extends ConsumerWidget {
       ],
       if (active) PrimaryButton(label: 'Mettre fin au contrat', style: GameButtonStyle.secondary, onPressed: () => doAct(context, ref, 'mgr', null, null, 'Contrat terminé')),
       const GameHint(icon: 'info', text: 'Barèmes et conditions provisoires issus des planches managers v20. Les bonus de développement commercial des planches ne sont pas chiffrés dans le moteur.'),
-    ]);
-  }
-}
-
-class Justice21Screen extends ConsumerWidget {
-  const Justice21Screen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(game21Provider).valueOrNull;
-    if (s == null) return const SizedBox();
-    final cas = s['cas'] as J?;
-    final mature = _n(s['mature']) != 0;
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Justice et détention', onBack: () => context.go('/business')),
-      const SizedBox(height: 12),
-      GameHint(icon: 'info', text: s['jail'] != null
-          ? "Détention : ${jailDaysLeft(s)} jour(s). Seuls l'écriture, le sport, le procès et la fin de journée sont accessibles."
-          : cas != null ? 'Affaire en cours : ${cas['n']} · procès au jour ${cas['trial']}.'
-          : mature ? 'Chaleur ${s['heat']} / 100. Les risques et les peines sont affichés avant chaque action.'
-          : 'Contenu mature (16+) désactivé : active-le dans le profil pour débloquer cet écran.'),
-      if (s['jail'] != null) ...[
-        ActionRow(title: 'Écrire en cellule', subtitle: 'Écriture +2 · une fois par jour', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'jw', null, null, 'Textes écrits')),
-        ActionRow(title: 'Faire du sport', subtitle: 'Charisme +1, énergie +10 · une fois par jour', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'js', null, null, 'Séance faite')),
-      ],
-      if (cas != null) ...[
-        if (cas['stage'] == 'garde') ...[
-          ActionRow(title: 'Payer la caution', subtitle: "${fmt21(_n(cas['bail']))} cauris · libre jusqu'au procès", trailing: ActionRow.arrow(), disabled: _n(s['cash']) < _n(cas['bail']), onTap: () => doAct(context, ref, 'bail', null, null, 'Caution payée')),
-          ActionRow(title: 'Rester en détention', subtitle: "Détention provisoire jusqu'au procès", trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'detention', null, null, 'Détention provisoire')),
-        ],
-        for (final lw in Reg21.lawyers.entries)
-          ActionRow(title: lw.value['n'] as String, subtitle: "${lw.value['role']} · ${lw.value['cost'] == 0 ? 'gratuit' : '${fmt21(lw.value['cost'] as num)} cauris'}", trailing: cas['lawyer'] == lw.key ? const GameTag('Choisi', style: GameTagStyle.ok) : ActionRow.arrow(), disabled: _n(s['cash']) < (lw.value['cost'] as num), onTap: () => doAct(context, ref, 'lawyer', lw.key, null, 'Avocat choisi')),
-        if (cas['stage'] != 'garde') ...[
-          ActionRow(title: 'Plaider non coupable', subtitle: _n(s['day']) >= _n(cas['trial']) ? 'Le tribunal est prêt' : 'Procès au jour ${cas['trial']}', trailing: ActionRow.arrow(), disabled: _n(s['day']) < _n(cas['trial']), onTap: () => doAct(context, ref, 'trial', 'nc', null, 'Procès jugé')),
-          ActionRow(title: 'Plaider coupable', subtitle: "Peine réduite d'un quart", trailing: ActionRow.arrow(), disabled: _n(s['day']) < _n(cas['trial']), onTap: () => doAct(context, ref, 'trial', 'coupable', null, 'Procès jugé')),
-        ],
-      ],
-      if (s['jail'] == null && cas == null) ...[
-        for (final job in Reg21.crimes.entries)
-          ActionRow(title: job.value['n'] as String, subtitle: '${job.value['h']} h · −${job.value['e']} énergie · risque ${math.min(85, (job.value['risk'] as num) + jsRound(_n(s['heat']) / 2))} % · ${fmt21(job.value['lo'] as num)} à ${fmt21(job.value['hi'] as num)} cauris', trailing: ActionRow.arrow(), disabled: !mature, onTap: () => doAct(context, ref, 'crime', job.key, null, 'Action terminée')),
-      ],
-      if (s['verdict'] != null) GameHint(icon: 'info', text: 'Dernier verdict : ${(s['verdict'] as J)['txt']}'),
     ]);
   }
 }

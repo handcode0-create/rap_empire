@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import '../features/v21/catalogue_screens.dart';
+import '../features/v21/characters_screen.dart';
 import '../features/v21/dialogue_screens.dart';
+import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
@@ -192,7 +194,13 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                     GoRoute(
                         path: 'justice',
                         name: '21-E6-Justice',
-                        builder: (_, __) => const Justice21Screen()),
+                        builder: (_, __) => const Justice21Screen(),
+                        routes: [
+                          GoRoute(path: 'garde', name: '21-Z2-Garde-a-vue', builder: (_, __) => const GardeScreen()),
+                          GoRoute(path: 'avocat', name: '21-Z3-Avocat', builder: (_, __) => const AvocatScreen()),
+                          GoRoute(path: 'tribunal', name: '21-Z4-Tribunal', builder: (_, __) => const TribunalScreen()),
+                          GoRoute(path: 'prison', name: '21-Z5-Prison', builder: (_, __) => const PrisonScreen()),
+                        ]),
                   ]),
             ]),
             StatefulShellBranch(routes: [
@@ -209,6 +217,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
+                    GoRoute(path: 'personnages', name: '21-K1-Personnages', builder: (_, __) => const PersonnagesScreen()),
                     GoRoute(
                         path: 'plateformes',
                         name: '21-D1-Plateformes',

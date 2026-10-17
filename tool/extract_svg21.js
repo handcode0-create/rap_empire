@@ -83,6 +83,26 @@ jobs.plateformes = () => {
   return ['ondea', 'klipo', 'cauri'].slice(0, logos.length).map((n, i) => [`logo-${n}.svg`, logos[i].replace(/ aria-label="[^"]*"/, '').replace(/ role="img"/, '')]);
 };
 
+// Justice (21-Z2 à Z5) : décors du commissariat, du tribunal et de la cellule ; lieutenant, juge et avocats.
+jobs.justice = () => {
+  const read = (n) => allSvgs(fs.readFileSync(path.join(boards, n), 'utf8'));
+  const z2 = read('21-Z2-Garde-a-vue.dc.html'), z3 = read('21-Z3-Avocat.dc.html'), z4 = read('21-Z4-Tribunal.dc.html'), z5 = read('21-Z5-Prison.dc.html');
+  const clean2 = (x) => x.replace(/ aria-hidden="true"/g, '').replace(/ class="art"/, '').replace(/ style="[^"]*"/, '');
+  return [
+    ['decor-commissariat.svg', z2[0]], ['decor-tribunal.svg', z4[0]], ['decor-cellule.svg', z5[0]],
+    ['portrait-gnaore.svg', z2[1]], ['portrait-juge.svg', z4[1]],
+    ['portrait-fofie-torso.svg', z4[3]], ['portrait-lobe-torso.svg', z4[7]], ['portrait-kouame-torso.svg', z4[11]],
+    ['portrait-fofie-bust.svg', z3[0]], ['portrait-lobe-bust.svg', z3[1]], ['portrait-kouame-bust.svg', z3[2]],
+  ].map(([n, x]) => [n, clean2(x)]);
+};
+
+// Galerie des personnages (21-K1) : 25 bustes dans l'ordre de la planche.
+const GALERIE = ['kzer', 'kaira', 'tito', 'lazuli', 'nadia-kolo', 'solo', 'sanko', 'woro', 'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi', 'djo', 'kore', 'orage', 'zaki', 'maya', 'zamba', 'ayana', 'rosine', 'anselme'];
+jobs.galerie = () => {
+  const html = fs.readFileSync(path.join(boards, '21-K1-Personnages.dc.html'), 'utf8');
+  return allSvgs(html).filter((x) => /viewBox="40 0 220 250"/.test(x)).map((x, i) => [`galerie-${GALERIE[i]}.svg`, x.replace(/ style="[^"]*"/, '')]);
+};
+
 const only = process.argv[2];
 let n = 0;
 for (const [name, job] of Object.entries(jobs)) {

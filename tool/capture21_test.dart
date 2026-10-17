@@ -90,6 +90,14 @@ List<Shot> shots() => [
       Shot('21-D2-Ondea', '/profil/plateformes/ondea', st('star')),
       Shot('21-D3-Klipo', '/profil/plateformes/klipo', st('star')),
       Shot('21-D4-Cauri-Music', '/profil/plateformes/cauri', st('star')),
+      Shot('21-K1-Personnages', '/profil/personnages', st('debut')),
+      Shot('21-P1-Profil', '/profil', st('debut')),
+      // Justice
+      Shot('21-Z1-Illegal', '/business/justice', st('carriere', const [('mature', 'on')])),
+      Shot('21-Z2-Garde-a-vue', '/business/justice/garde', _arrest()),
+      Shot('21-Z3-Avocat', '/business/justice/avocat', _arrest(bail: true)),
+      Shot('21-Z4-Tribunal', '/business/justice/tribunal', _arrest(bail: true, trialDay: true)),
+      Shot('21-Z5-Prison', '/business/justice/prison', _arrest(jail: true)),
       // Labels
       Shot('21-L2-Labels', '/business/labels/tous', st('carriere')),
       Shot('21-L1-Labels-merch', '/business/labels', st('carriere')),
@@ -108,6 +116,25 @@ J _labelState() {
   s['dseen'] = {'kore': 'x', 'mgr': 'x'};
   s['disco'] = [(st('carriere')['disco'] as List).first];
   return act21(s, 'setui', 'th=amour').s; // déclenche l'offre d'Aube Nouvelle
+}
+
+/// Dossier de braquage : garde à vue, puis caution payée, jour du procès ou détention provisoire.
+J _arrest({bool bail = false, bool trialDay = false, bool jail = false}) {
+  var s = st('carriere', const [('mature', 'on')], (s) {
+    s['heat'] = 80;
+    s['cash'] = 320000;
+  });
+  for (var d = 30; d < 400; d++) {
+    final r = act21(clone21(s)..['day'] = d, 'crime', 'braquage');
+    if (r.s['cas'] != null) {
+      s = r.s;
+      break;
+    }
+  }
+  if (bail) s = act21(act21(s, 'lawyer', 'conf').s, 'bail').s;
+  if (jail) s = act21(s, 'detention').s;
+  if (trialDay) s['day'] = (s['cas'] as J)['trial'];
+  return s;
 }
 
 List<J> _extraSongs() => [

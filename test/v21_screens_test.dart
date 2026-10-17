@@ -207,6 +207,56 @@ void main() {
     expect(txt('Signé chez Aube Nouvelle (15 %)'), findsOneWidget);
   });
 
+  testWidgets('contenu mature activé, arrestation, caution, avocat, procès, prison, sortie', (tester) async {
+    var base = preset('debut');
+    base['cash'] = 300000;
+    base['heat'] = 80;
+    // premier jour où le braquage mène à une garde à vue (hasard déterministe)
+    J? arrested;
+    var day = 1;
+    final on = act21(base, 'mature', 'on').s;
+    for (; day < 400 && arrested == null; day++) {
+      final r = act21(clone21(on)..['day'] = day, 'crime', 'braquage');
+      if (r.s['cas'] != null) arrested = r.s;
+    }
+    expect(arrested, isNotNull);
+    // 1. verrouillé tant que le contenu mature est désactivé
+    final repo = await pump21(tester, clone21(base), location: '/business/justice');
+    expect(txt('Contenu mature désactivé'), findsOneWidget);
+    expect((await ProviderScope.containerOf(tester.element(find.byType(Scaffold).first)).read(game21Provider.notifier).act('crime', 'braquage')), 'mature');
+    await tapText(tester, 'Activer le contenu mature (16+)');
+    expect(repo.current['mature'], 1);
+    // 2. garde à vue : caution puis choix de l'avocat
+    final repo2 = await pump21(tester, arrested!, location: '/business/justice/garde');
+    expect(txt('Lieutenant Gnaoré'), findsOneWidget);
+    await tapText(tester, 'Payer');
+    expect((repo2.current['cas'] as J)['stage'], 'libre');
+    expect(repo2.current['cash'], 300000 - 40000);
+    await tapText(tester, 'Maître Sandra Lobé');
+    expect((repo2.current['cas'] as J)['lawyer'], 'conf');
+    // 3. tribunal le jour du procès : plaider coupable, puis la prison
+    final trial = clone21(repo2.current)..['day'] = (repo2.current['cas'] as J)['trial'];
+    final repo3 = await pump21(tester, trial, location: '/business/justice/tribunal');
+    // le titre de la carte et son bouton portent le même texte : on touche le bouton (le dernier)
+    await tester.ensureVisible(txt('Plaider coupable').last);
+    await tester.pumpAndSettle();
+    await tester.tap(txt('Plaider coupable').last);
+    await tester.pumpAndSettle();
+    expect(repo3.current['cas'], isNull);
+    expect(repo3.current['verdict'], isNotNull);
+    expect(find.textContaining('Coupable'), findsWidgets);
+    expect((repo3.current['casier'] as List).length, 1);
+    final prison = clone21(repo3.current);
+    prison['jail'] = {'until': (prison['day'] as num) + 2, 'days': 2};
+    final repo4 = await pump21(tester, prison, location: '/business/justice/prison');
+    expect(txt('Encore 2 jour(s)'), findsOneWidget);
+    await tapText(tester, 'Écrire');
+    expect((repo4.current['sk'] as J)['ecr'], (prison['sk'] as J)['ecr'] + 2);
+    await tapText(tester, 'Terminer la journée');
+    await tapText(tester, 'Commencer la journée');
+    expect(repo4.current['day'], (prison['day'] as num) + 1);
+  });
+
   testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/scene/rivalites');
     expect(txt('Zaki Mbela'), findsOneWidget);
@@ -302,8 +352,8 @@ void main() {
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
-      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
+      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',
