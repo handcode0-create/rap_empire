@@ -30,6 +30,21 @@
     },
     // création musicale — D-G03, D-G09
     themes: { quartier: { n: 'Le quartier', tx: 0, vir: 10 }, galere: { n: 'La galère', tx: 1, vir: 6 }, ambition: { n: "L'ambition", tx: 2, vir: 12 }, amour: { n: "L'amour", tx: -1, vir: 14 } },
+    // instrus EXISTANTES (04.3, reprises de la v20) ; rang = niveau N requis
+    instrus: { nuit: { n: 'Nuit à Ndo', who: 'Gratuite', Q: 32, cost: 0, rank: 1 }, gbaka: { n: 'Gbaka de 6h', who: 'DJ Kôrô', Q: 56, cost: 8000, rank: 1 }, pont: { n: 'Pont des Griots', who: 'Sanko Beats', Q: 68, cost: 15000, rank: 2 }, lagune: { n: 'Lagune d\'Ambre', who: 'Mister Wôrô', Q: 86, cost: 40000, rank: 1, rep: 30 } },
+    // plateformes FICTIVES de diffusion [PROPOSÉ, à valider] : répartition des écoutes déjà calculées, aucun revenu en plus
+    platforms: { ondea: { n: 'Ondéa', share: 0.7 }, cauri: { n: 'Cauri Music', share: 0.3 }, klipo: { n: 'Klipo', viewsPerClipListen: 2 } }, listenersRatio: 0.35,
+    takesDefault: [74, 48, 43], mgrCut: 0.08,
+    // catalogue et projets (13.3, 13.4, 05-5) [PROPOSÉ, provisoire]
+    singleSales: 0.012, salePrice: 30, proj: { EP: { min: 3, max: 7, cost: 15000, h: 4, e: 20, entry: 20000, top: 50, k: 1.285 }, Album: { min: 8, max: 20, cost: 40000, h: 6, e: 30, entry: 15000, top: 200, k: 1.095 } },
+    // activités illégales et justice [PROPOSÉ · contenu mature 16+] : aucune méthode réelle, seulement risques et conséquences
+    crimes: { recel: { n: 'Recel de marchandises', h: 2, e: 10, lo: 5000, hi: 12000, risk: 8, heat: 5, ch: 'recel', sev: 1 },
+      arnaque: { n: 'Arnaque en ligne', h: 2, e: 10, lo: 8000, hi: 30000, risk: 12, heat: 10, ch: 'escroquerie', sev: 2 },
+      revente: { n: 'Revente de produits illicites', h: 3, e: 20, lo: 12000, hi: 20000, risk: 18, heat: 12, ch: 'trafic de stupéfiants', sev: 3 },
+      braquage: { n: 'Braquage', h: 4, e: 40, lo: 40000, hi: 90000, risk: 35, heat: 30, ch: 'vol à main armée', sev: 4 } },
+    heatDecay: 3, bailPer: 10000, trialIn: 3,
+    lawyers: { office: { n: 'Maître Yao Fofié', who: 'fofie', role: 'Avocat commis d\'office', cost: 0, skill: 10 }, conf: { n: 'Maître Sandra Lobé', who: 'lobe', role: 'Avocate pénaliste confirmée', cost: 25000, skill: 30 }, tenor: { n: 'Maître Ébène Kouamé', who: 'kouame', role: 'Ténor du barreau de Lumbé', cost: 90000, skill: 50 } },
+    sentences: { 1: { fine: 15000, jail: 0 }, 2: { fine: 40000, jail: 0, sursis: 1 }, 3: { fine: 20000, jail: 7 }, 4: { fine: 0, jail: 21 } }, battleWin: 2, battleFee: 3000,
     ambs: { sombre: { n: 'Sombre', tx: 0, vir: 0 }, fiere: { n: 'Fière', tx: 2, vir: 4 }, legere: { n: 'Légère', tx: -2, vir: 8 } },
     virBase: 20, promoVir: [0, 5, 12], clipVir: 15,
     feats: {   // données existantes 08.3 et 16-G ; rôles et effets [PROPOSÉ]
@@ -130,7 +145,7 @@
   function stageOf(age) { var n = REG.stages[0][1]; REG.stages.forEach(function (p) { if (age >= p[0]) n = p[1]; }); return n; }
 
   function init() {
-    var s = { v: 21, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
+    var s = { v: 21, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, mature: 0, projects: [], heat: 0, crimeN: 0, cas: null, jail: null, casier: [], dlg: null, dq: [], dseen: {}, rel: {}, mgr: null, lcut: null, duo: null, hype: 0, diss: 0, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
       sk: { flow: 17, ecr: 14, voix: 10, cha: 8 },
       cur: null, disco: [], shows: 0,
       geo: { bakoma: 4, portambre: 0, selene: 0, tamarel: 0, korvane: 0, aldera: 0 },
@@ -146,6 +161,7 @@
   function norm(s) { var d = init(); for (var k in d) if (s[k] === undefined) s[k] = d[k]; return s; }
   function log(s, t, cat) { s.log.unshift({ t: t, c: cat || 'jeu', d: s.day }); if (s.log.length > 40) s.log.length = 40; }
   function pay(s, a) { s.cash = Math.max(0, s.cash + a); }
+  function cachet(s, a) { var c = s.mgr ? Math.round(a * REG.mgrCut) : 0; pay(s, a - c); if (c) { s.mgrTot = (s.mgrTot || 0) + c; } return c; }   // 19.1 : commission du manager M1 sur les cachets
   function spend(s, h, e) { if (s.hour + h > REG.dayEnd) return 'tard'; if (s.en < e) return 'energie'; s.hour += h; s.en -= e; return null; }
   function geoAdd(s, city, n) { s.geo[city] = clamp(Math.round((s.geo[city] + n) * 10) / 10, 0, 100); }
 
@@ -191,16 +207,27 @@
     if (n.ui.rt) { title = pool[Math.floor(rng(n, 13) * pool.length)]; }
     n.ui.title = ''; n.ui.rt = 0;
     n.cur = { id: 'T' + (n.disco.length + 1), title: title, theme: th, amb: am, mode: mode, tx: 72 + REG.themes[th].tx + REG.ambs[am].tx, st: 'ecrit', Q: 0, feats: [], clip: { st: 'aucun' } };
+    if (n.duo) { n.cur.feats.push('ayana'); n.cur.duo = n.duo.share; n.duo = null; }
     n.sk.ecr += 1; log(n, 'Texte écrit : ' + title + ' (' + mode + ')', 'musique'); return { s: n };
   };
-  A.record = function (s) {
+  A.pick = function (s, id) {   // 04.3 : choix de l'instru, payé une fois, utilisé au prochain enregistrement
+    var I = REG.instrus[id]; if (!I) return { s: s, err: 'inconnu' };
+    if (s.cur && s.cur.st === 'enregistre') return { s: s, err: 'encours' };
+    if (s.ui.inst === id) return { s: s };
+    if (s.rank < I.rank) return { s: s, err: 'rang' }; if (I.rep && s.rep < I.rep) return { s: s, err: 'rep' }; if (s.cash < I.cost) return { s: s, err: 'cash' };
+    var n = clone(s); if (I.cost) pay(n, -I.cost); n.ui.inst = id; log(n, 'Instru choisie : ' + I.n + (I.cost ? ' (−' + fmt(I.cost) + ')' : ' (gratuite)'), 'musique'); return { s: n };
+  };
+  A.record = function (s, takes) {
     if (!s.cur || s.cur.st !== 'ecrit') return { s: s, err: 'pasdetexte' };
     var hs = !!s.own.homestudio, n = clone(s), e = spend(n, 2, hs ? 15 : 25); if (e) return { s: s, err: e };
     var kb = n.kc && n.kc.left > 0 ? n.kc.bonus : 0; if (kb) n.kc.left--;
-    var voix = 55 + (hs ? 2 : 0), prod = 56 + (hs ? 4 : 0) + kb, mal = Math.min(20, Math.max(0, 40 - s.en) / 2);
+    var tk = (takes && takes.length ? [].concat(takes) : REG.takesDefault).slice(0, 3).map(function (x) { return clamp(Math.round(+x || 0), 0, 100); });
+    var iid = n.ui.inst || 'nuit', I = REG.instrus[iid];
+    var voix = Math.round(tk.reduce(function (a, b) { return a + b; }, 0) / tk.length) + (hs ? 2 : 0), prod = I.Q + (hs ? 4 : 0) + kb, mal = Math.min(20, Math.max(0, 40 - s.en) / 2);
+    n.cur.takes = tk; n.cur.inst = iid; n.ui.inst = null; n.cur.prodBy = kb ? 'DJ Kôrô (Studio Kôrô)' : I.who === 'Gratuite' ? 'Instru libre « ' + I.n + ' »' : I.who + ' (« ' + I.n + ' »)';
     var fq = 0; n.cur.feats.forEach(function (f) { fq += REG.feats[f].q; });
     n.cur.voix = voix; n.cur.prod = prod; n.cur.Q = clamp(Math.round(0.35 * n.cur.tx + 0.30 * voix + 0.35 * prod - mal) + fq, 0, 100); n.cur.st = 'enregistre';
-    n.sk.voix += 1; addXp(n, 30); log(n, 'Enregistré : ' + n.cur.title + ' · qualité ' + n.cur.Q + (kb ? ' (production Kôrô +' + kb + ')' : ''), 'musique'); queueEv(n, 'kore'); return { s: n };
+    n.sk.voix += 1; addXp(n, 30); log(n, 'Enregistré : ' + n.cur.title + ' · qualité ' + n.cur.Q + (kb ? ' (production Kôrô +' + kb + ')' : ''), 'musique'); return { s: n };
   };
   A.feat = function (s, id) {
     var f = REG.feats[id]; if (!f) return { s: s, err: 'inconnu' };
@@ -218,15 +245,21 @@
   A.promo = function (s, k) { var n = clone(s); n.ui.promo = +k; return { s: n }; };
   A.release = function (s) {
     if (!s.cur || s.cur.st !== 'enregistre') return { s: s, err: 'pasenregistre' };
-    var p = PROMO[s.ui.promo]; if (s.cash < p.c) return { s: s, err: 'cash' };
-    var n = clone(s), c = n.cur; if (p.c) pay(n, -p.c);
+    var p = PROMO[s.ui.promo], pc = (s.lperk === 'radio' && s.ui.promo === 2) ? 0 : p.c; if (s.cash < pc) return { s: s, err: 'cash' };
+    var n = clone(s), c = n.cur; if (pc) pay(n, -pc);
     c.vir = virOf(c, n.ui.promo); var boost = 1; c.feats.forEach(function (f) { boost *= REG.feats[f].boost; });
     var L = Math.round(listensFor(c.Q, n.fans, n.ui.promo) * (0.8 + c.vir / 250) * boost);
-    var gross = Math.round(L * REG.listenValue), rev = n.signed ? Math.round(gross * (1 - REG.labelCut)) : gross, fg = Math.ceil(L * 0.07 / (1 + n.fans / REG.fanSat)), pg = Math.floor(L / 900);
-    pay(n, rev); n.fans += fg; n.pop = clamp(n.pop + pg, 0, 100);
+    if (n.hype && n.day <= n.hype) { L = Math.round(L * 1.2); c.hype = 1; } n.hype = 0;
+    if (n.diss) { L = Math.round(L * 1.1); c.diss = 1; n.diss = 0; }
+    var gross = Math.round(L * REG.listenValue), rev = n.signed ? Math.round(gross * (1 - (n.lcut || REG.labelCut))) : gross, fg = Math.ceil(L * 0.07 / (1 + n.fans / REG.fanSat)), pg = Math.floor(L / 900);
+    if (c.duo) { var dc = Math.round(rev * c.duo / 100); rev -= dc; c.duoCut = dc; }
+    var sl = Math.round(L * REG.singleSales), sg0 = sl * REG.salePrice, sr = n.signed ? Math.round(sg0 * (1 - (n.lcut || REG.labelCut))) : sg0; c.salesRev = sr; c.cut = (c.cut || 0); c.salesCut = sg0 - sr; rev += sr;
+    pg = Math.round(Math.min(12, pg) * (1 - n.pop / 100)); pay(n, rev); n.fans += fg; n.pop = clamp(n.pop + pg, 0, 100);
     geoAdd(n, 'bakoma', Math.min(12, Math.round(L / 1500 * 10) / 10 + 1));
     if (n.ui.promo === 2) { geoAdd(n, 'portambre', 2); geoAdd(n, 'selene', 2); }
-    c.st = 'sorti'; c.day = n.day; c.L = L; c.rev = rev; c.cut = gross - rev; c.fg = fg; c.pg = pg; c.tier = tierOf(L); c.promo = n.ui.promo;
+    c.labelAt = n.signed ? lblName(n) : 'Indépendant'; c.auteur = n.p.name; c.sales = Math.round(L * REG.singleSales);
+    if (n.lperk === 'export') { geoAdd(n, 'portambre', 3); geoAdd(n, 'selene', 3); } if (n.lperk === 'dev') { n.sk.flow += 1; n.sk.voix += 1; } if (n.lperk === 'ecr') n.sk.ecr += 2;
+    c.st = 'sorti'; c.day = n.day; c.L = L; c.rev = rev; c.streamRev = rev - (c.salesRev || 0); c.cut = gross - c.streamRev - (c.duoCut || 0) + (c.salesCut || 0); c.fg = fg; c.pg = pg; c.tier = tierOf(L); c.promo = n.ui.promo;
     n.disco.unshift(c); n.cur = null; n.last = c.id;
     addXp(n, 40); log(n, 'Sortie : ' + c.title + ' · ' + fmt(L) + ' écoutes · ' + c.tier, 'musique'); return { s: n };
   };
@@ -263,10 +296,20 @@
 
   // ---------- scène (D-G12) ----------
   A.openmic = function (s) {
+    if (s.omDay === s.day) return { s: s, err: 'deja' };
     var n = clone(s), e = spend(n, 1, 15 - (s.own.moto ? 5 : 0)); if (e) return { s: s, err: e };
+    n.omHist = (n.omHist || []).filter(function (d) { return n.day - d < 7; }); var k = Math.max(0.3, 1 - 0.15 * n.omHist.length); n.omHist.push(n.day); n.omDay = n.day; n.omK = k;
     var win = s.en >= 40; n.shows++;
-    if (win) { n.fans += 150; n.rep += 6; pay(n, 3000); geoAdd(n, 'bakoma', 2); addXp(n, 60); } else { n.fans += 12; addXp(n, 10); }
+    if (win) { n.fans += Math.round(150 * k); n.rep += k >= 0.7 ? 6 : 3; cachet(n, 3000); geoAdd(n, 'bakoma', 2 * k); addXp(n, Math.round(60 * k)); } else { n.fans += 12; addXp(n, 10); }
     log(n, 'Open mic de Ndolo : ' + (win ? 'le public a suivi (+150 fans)' : 'trou de mémoire'), 'scene'); n.om = win ? 1 : 0; return { s: n };
+  };
+  A.battle = function (s, wins) {   // 06.3 existant : 3 rounds, gagner 2 rounds = victoire (règle v20)
+    if (!s.btq) return { s: s, err: 'rien' };
+    var n = clone(s), e = spend(n, 1, 15); if (e) return { s: s, err: e };
+    var w = clamp(Math.round(+wins || 0), 0, 3), win = w >= REG.battleWin;
+    if (win) { n.fans += 150 + (n.lperk === 'street' ? 50 : 0); n.rep += 6; cachet(n, REG.battleFee); geoAdd(n, 'bakoma', 2); addXp(n, 60); } else { n.fans += 12; addXp(n, 10); }
+    n.bt = { win: win ? 1 : 0, w: w, vs: s.btq }; n.btq = null;
+    log(n, 'Battle contre K-Zer d\'Mabaya : ' + (win ? 'victoire ' : 'défaite ') + w + ' / 3' + (win ? ' (+150 fans, +6 réputation, +3 000)' : ' (+12 fans)'), 'scene'); return { s: n };
   };
   A.atelier = function (s) {   // 09.3 existant : 2 h, 6 000 cauris, −20 énergie, Écriture +5
     var T = REG.atelier; if (s.cash < T.cost) return { s: s, err: 'cash' };
@@ -279,7 +322,7 @@
     if (s.day - s.lastConcert < REG.concertEvery) return { s: s, err: 'delai' };
     var n = clone(s), e = spend(n, 4, 35 - (s.own.moto ? 5 : 0)); if (e) return { s: s, err: e };
     var A_ = s.en >= 60, tk = tickets(s), ca = Math.round(tk * REG.ticketPrice * (A_ ? 1 : 0.85)), fg = Math.round(tk * (A_ ? 1.6 : 1.1)), rp = A_ ? 10 : 6;
-    n.shows++; n.fans += fg; n.rep += rp; pay(n, ca); geoAdd(n, 'bakoma', 4); n.pop = clamp(n.pop + 1, 0, 100); addXp(n, 90); n.lastConcert = n.day; n.concertDay = n.day;
+    n.shows++; n.fans += fg; n.rep += rp; cachet(n, ca); geoAdd(n, 'bakoma', 4); n.pop = clamp(n.pop + 1, 0, 100); addXp(n, 90); n.lastConcert = n.day; n.concertDay = n.day;
     n.cc = { g: A_ ? 'A' : 'B', tk: tk, cash: ca, fans: fg, rep: rp, day: n.day };
     log(n, 'Concert au Parvis : ' + tk + ' billets, note ' + (A_ ? 'A' : 'B') + ' · +' + fmt(fg) + ' fans · billetterie ' + fmt(ca), 'scene'); return { s: n };
   };
@@ -287,7 +330,7 @@
     var T = REG.tour; if (s.rank < T.rank) return { s: s, err: 'rang' }; if (s.day - s.lastTour < REG.tourEvery) return { s: s, err: 'delai' };
     if ((s.geo.portambre + s.geo.selene) / 2 < REG.tourAudience) return { s: s, err: 'audience' }; if (s.cash < T.cost) return { s: s, err: 'cash' };
     var n = clone(s), e = spend(n, T.h, T.e - (s.own.moto ? 5 : 0)); if (e) return { s: s, err: e };
-    var fee = T.fee + Math.round(T.feeGeo * (s.geo.portambre + s.geo.selene)); pay(n, fee - T.cost); n.lastTour = n.day;
+    var fee = T.fee + Math.round(T.feeGeo * (s.geo.portambre + s.geo.selene)); cachet(n, fee); pay(n, -T.cost); n.lastTour = n.day;
     n.cc = { g: 'T', tk: 0, cash: fee - T.cost, fans: T.fans, rep: 4, day: n.day, tour: 1 }; n.rep += 4; n.fans += T.fans; n.shows += 2; geoAdd(n, 'portambre', T.geo); geoAdd(n, 'selene', T.geo); n.pop = clamp(n.pop + 2, 0, 100); addXp(n, 120);
     log(n, 'Tournée régionale : +' + fmt(T.fans) + ' fans, Port-Ambre et Sélène +' + T.geo, 'scene'); return { s: n };
   };
@@ -319,7 +362,7 @@
     if (m.need.rank && s.rank < m.need.rank) return { s: s, err: 'rang' }; if (s.cash < m.cost) return { s: s, err: 'cash' };
     var n = clone(s); pay(n, -m.cost); n.merch = { id: id, left: m.days, tot: 0 }; log(n, 'Merch lancé : ' + m.n, 'eco'); return { s: n };
   };
-  A.sign = function (s) { if (s.signed) return { s: s, err: 'deja' }; if (s.rep < REG.labelRep) return { s: s, err: 'rep' }; var n = clone(s); n.signed = 1; pay(n, 150000); log(n, 'Contrat signé : Bakoma Sound Records (avance 150 000)', 'carriere'); return { s: n }; };
+  A.sign = function (s) { if (s.signed) return { s: s, err: 'deja' }; if (s.rep < REG.labelRep) return { s: s, err: 'rep' }; var n = clone(s); n.signed = 1; n.label = 'BSR'; n.lcut = 0.35; n.lperk = 'radio'; pay(n, 150000); log(n, 'Contrat signé : Bakoma Sound Records (avance 150 000)', 'carriere'); return { s: n }; };
 
   // ---------- relations (D-G07) ----------
   function rel(s) { return s.rom.off ? s.rom.c[s.rom.off] : null; }
@@ -400,6 +443,8 @@
   // ---------- fin de journée et bilan (D-G11) ----------
   A.endDay = function (s) {
     var n = clone(s), ev = [], d0 = n.d0 || dayStart(n);
+    n.heat = Math.max(0, (n.heat || 0) - REG.heatDecay);
+    if (n.jail && n.day + 1 >= n.jail.until) { ev.push('Sortie de prison après ' + n.jail.days + ' jour(s)'); log(n, 'Sortie de prison', 'justice'); n.jail = null; }
     // revenus passifs
     var inc = 0;
     Object.keys(n.biz).forEach(function (id) { var b = REG.biz[id], x = Math.round(b.lo + (b.hi - b.lo) * rng(n, id.length)); inc += x; n.biz[id].tot += x; ev.push(b.n + ' : ' + sg(x) + ' (estimé)'); });
@@ -426,7 +471,6 @@
     var baby = n.fam.kids.some(function (k) { return kidAge(n, k) < 1 && k.garde === 'Au foyer'; });
     n.en = enMax(n) - (baby ? REG.babyMorning : 0);
     promote(n);
-    if (n.rep >= REG.labelRep && !n.signed) queueEv(n, 'label');
     var rel1 = rel(n);
     n.bil = { day: n.day - 1, cash: n.cash - d0.cash, pop: n.pop - d0.pop, fans: n.fans - d0.fans, xp: n.xp - d0.xp, rank0: d0.rank, rank: n.rank, en: n.en, enMax: enMax(n), rel0: d0.rel, rel: rel1 ? rel1.g : null, who: rel1 ? CANDS[n.rom.off].n : '', kids: n.fam.kids.length, kids0: d0.kids,
       fam: ev.filter(function (e) { return /Rupture|Attention|Naissance|Charges du foyer| : (Bébé|Petite enfance|Enfant|Adolescent|Adulte)$/.test(e); }).concat(n.log.filter(function (l) { return l.d === n.day - 1 && l.c === 'perso'; }).map(function (l) { return l.t; })).slice(0, 6),
@@ -448,7 +492,7 @@
       s.disco = [{ id: 'T1', title: 'Gbaka de 6h', theme: 'quartier', amb: 'sombre', mode: 'manuel', tx: 72, st: 'sorti', Q: 61, feats: [], clip: { st: 'aucun' }, L: 5418, rev: 54, fg: 371, pg: 6, tier: 'Discret', promo: 0, vir: 30, day: 3 }];
       s.geo = { bakoma: 14, portambre: 4, selene: 3, tamarel: 0, korvane: 0, aldera: 0 }; s.d0 = dayStart(s); return s; },
     star: function () { var s = PRE.carriere(); s.xp = 6200; s.rank = 5; s.fans = 14800; s.pop = 41; s.cash = 1400000; s.shows = 6;
-      s.disco.unshift({ id: 'T2', title: 'Monter au sommet', theme: 'ambition', amb: 'fiere', mode: 'manuel', tx: 76, st: 'sorti', Q: 70, feats: ['nadia'], clip: { st: 'publie', dir: 'ombre', vir: 15 }, L: 84000, rev: 840, fg: 2100, pg: 14, tier: 'Bon', promo: 2, vir: 69, day: 25 });
+      s.disco.unshift({ id: 'T2', title: 'Monter au sommet', theme: 'ambition', amb: 'fiere', mode: 'manuel', tx: 76, st: 'sorti', Q: 70, feats: ['nadia'], clip: { st: 'publie', dir: 'ombre', vir: 15 }, clipL: 21000, clipF: 600, vir0: 54, L: 84000, rev: 840, fg: 2100, pg: 14, tier: 'Bon', promo: 2, vir: 69, day: 25 });
       s.geo = { bakoma: 46, portambre: 22, selene: 19, tamarel: 3, korvane: 0, aldera: 1 }; s.own.moto = { since: 12 }; s.d0 = dayStart(s); return s; }
   };
   // ---------- création de l'artiste ----------
@@ -465,7 +509,7 @@
     else return { s: s, err: 'inconnu' };
     return { s: n };
   };
-  A.setui = function (s, arg) { var i = String(arg).indexOf('='), k = String(arg).slice(0, i), v = String(arg).slice(i + 1), n = clone(s); if (['title', 'th', 'am'].indexOf(k) < 0) return { s: s, err: 'inconnu' }; n.ui[k] = v.slice(0, 40); return { s: n }; };
+  A.setui = function (s, arg) { var i = String(arg).indexOf('='), k = String(arg).slice(0, i), v = String(arg).slice(i + 1), n = clone(s); if (['title', 'th', 'am', 'ptitle'].indexOf(k) < 0) return { s: s, err: 'inconnu' }; n.ui[k] = v.slice(0, 40); return { s: n }; };
   A.rtitle = function (s) { var n = clone(s); n.ui.rt = 1; n.ui.title = ''; return { s: n }; };
   A.uv = function (s, k) { var n = clone(s); n.ui.uv = clamp(+k || 1, 1, 3); return { s: n }; };
   A.finish = function (s) {
@@ -480,7 +524,7 @@
   // ---------- événements de carrière (EXISTANTS : 03.5 défi de K-Zer, 16-A offre de DJ Kôrô, 08.2 offre de label) ----------
   var EVT = {
     kzer: { t: 'K-Zer d\'Mabaya te défie', who: 'K-Zer d\'Mabaya', q: '« Le nouveau de Ndolo ? Viens prouver que tu sais rapper. Ce soir, au carrefour. »',
-      ch: [{ id: 'a', n: 'Répondre en freestyle', c: '1 h · −15 énergie · +6 réputation · +150 fans' }, { id: 'b', n: 'Ignorer', c: '+2 popularité · le défi est clos' }] },
+      ch: [{ id: 'a', n: 'Accepter la battle', c: '1 h · −15 énergie · 3 rounds : gagne-en 2 pour +6 réputation, +150 fans, +3 000' }, { id: 'b', n: 'Ignorer', c: '+2 popularité · le défi est clos' }] },
     kore: { t: 'DJ Kôrô a écouté ton son', who: 'DJ Kôrô', q: '« La prod est brute, mais ta voix a du grain. Je te propose un deal : je produis tes trois prochains titres. »',
       ch: [{ id: 'a', n: 'Accepter à 40 %', c: '−8 000 cauris · production +12 sur 3 titres · relation +15' }, { id: 'b', n: 'Négocier à 35 %, mix signé', c: '−7 000 cauris · production +12 sur 3 titres · relation +8' }, { id: 'c', n: 'Refuser', c: 'relation −10 · il s\'en souviendra' }] },
     label: { t: 'Bakoma Sound Records te fait une offre', who: 'Madame Orage', q: '« Six mois, deux sons par trimestre, 150 000 d\'avance. On signe ? »',
@@ -489,7 +533,7 @@
   function queueEv(n, id) { if (n.evDone[id] || n.ev === id || n.evq.indexOf(id) > -1) return; if (!n.ev) n.ev = id; else n.evq.push(id); }
   A.evc = function (s, ch) {
     var id = s.ev; if (!id) return { s: s, err: 'rien' }; var n = clone(s), cost = 0;
-    if (id === 'kzer') { if (ch === 'a') { var e = spend(n, 1, 15); if (e) return { s: s, err: e }; n.rep += 6; n.fans += 150; geoAdd(n, 'bakoma', 2); addXp(n, 20); } else n.pop = clamp(n.pop + 2, 0, 100); }
+    if (id === 'kzer') { if (ch === 'a') { if (s.en < 15) return { s: s, err: 'energie' }; if (s.hour + 1 > 24) return { s: s, err: 'tard' }; n.btq = 'kzer'; } else n.pop = clamp(n.pop + 2, 0, 100); }
     if (id === 'kore') { var D = { a: [8000, 15, 'Accord à 40 %'], b: [7000, 8, 'Accord à 35 %, mix signé'], c: [0, -10, 'Refus'] }[ch]; if (!D) return { s: s, err: 'inconnu' }; if (n.cash < D[0]) return { s: s, err: 'cash' }; pay(n, -D[0]); n.kc = { st: D[2], rel: D[1], bonus: ch === 'c' ? 0 : 12, left: ch === 'c' ? 0 : 3 }; }
     if (id === 'label') { if (ch === 'a') { n.signed = 1; pay(n, 150000); } else n.lr = 1; }
     var E = EVT[id], C = E.ch.filter(function (x) { return x.id === ch; })[0]; if (!C) return { s: s, err: 'inconnu' };
@@ -500,10 +544,242 @@
     var done = { m1: n.disco.length > 0 || !!(n.cur && n.cur.st === 'enregistre'), m2: n.disco.length > 0, m3: !!n.trained, m4: n.fans >= 1000 };
     REG.missions.forEach(function (m) { if (!n.ms[m.id] && done[m.id] && n.created) { n.ms[m.id] = n.day; pay(n, m.cash); addXp(n, m.xp); log(n, 'Mission accomplie : ' + m.t + ' (+' + fmt(m.cash) + ' cauris, +' + m.xp + ' XP)', 'mission'); } });
   }
-  function tickets(s) { return Math.min(REG.capacity, Math.round(40 + s.fans * 0.05 + s.geo.bakoma * 4)); }
-  A.preset = function (s, id) { var f = PRE[id]; if (!f) return { s: s, err: 'inconnu' }; var x = f(); if (!x.created) { x.created = 1; x.p.name = 'Djo Kéné'; } if (id === 'debut') { x.ev = 'kzer'; } else { x.evDone.kzer = 'b'; x.ms = {}; var dn = { m1: x.disco.length > 0, m2: x.disco.length > 0, m3: !!x.trained, m4: x.fans >= 1000 }; Object.keys(dn).forEach(function (k) { if (dn[k]) x.ms[k] = 1; }); } return { s: x }; };
+  function tickets(s) { return Math.min(REG.capacity, Math.round((40 + s.fans * 0.05 + s.geo.bakoma * 4) * (s.lperk === 'scene' ? 1.2 : 1))); }
+  // ---------- dialogues narratifs interactifs (section 16 et 19, scènes reliées au jeu) [PROPOSÉ] ----------
+  // effet : cash, en, h, fans, pop, rep, xp, rel{qui:d}, geo{ville:d}, set{clé:valeur}, kc, shows, cachet, q:[id, jours]
+  // ---------- offres des 9 autres labels (18.1) : chacun son directeur, ses conditions, sa contre-offre et son avantage [PROPOSÉ] ----------
+  var PERK = { radio: 'promo radio offerte à chaque sortie', export: 'Port-Ambre et Sélène +3 à chaque sortie', scene: '+20 % de billets en concert', dev: 'Flow et Voix +1 à chaque sortie', ecr: 'Écriture +2 à chaque sortie', prod: 'production Kôrô +12 sur 3 nouveaux titres', street: '+50 fans par battle gagnée', indie: 'part la plus basse du marché', none: 'aucun soutien garanti' };
+  var LBL = {
+    AUB: { n: 'Aube Nouvelle', who: 'awa', dn: 'Awa Liméa', role: 'Découvreuse · Aube Nouvelle (Mabaya)', place: 'office', adv: 30000, cut: 0.20, dur: '12 mois', perk: 'dev',
+      cond: function (s) { return s.rep >= 12 && s.disco.length >= 1; }, cl: 'Réputation 12 · 1 single sorti',
+      q1: '« On signe ceux que les autres n\'ont pas encore vus. 30 000 d\'avance, 20 %, et un coach vocal à chaque projet. »',
+      q2: '« L\'avance, je ne peux pas la bouger. Mais je baisse à 15 % si tu restes 18 mois. »', alt: { n: '15 % sur 18 mois', adv: 30000, cut: 0.15, rel: 6 } },
+    NUG: { n: 'Ndolo Underground', who: 'bakary', dn: 'Bakary Fé', role: 'Fondateur · Ndolo Underground', place: 'street', adv: 15000, cut: 0.15, dur: '3 mois', perk: 'street',
+      cond: function (s) { return s.shows >= 1 && s.geo.bakoma >= 8; }, cl: '1 date sur scène · notoriété 8 à Bakoma',
+      q1: '« Ici, pas de costard. 15 000, 15 %, trois mois. Tu gardes ta voix, on te met dans toutes les battles du quartier. »',
+      q2: '« T\'es dur en affaires, petit. 20 000, mais six mois. »', alt: { n: '20 000 sur 6 mois', adv: 20000, cut: 0.15, rel: 4 } },
+    SIC: { n: 'Sélène Indie Collective', who: 'liv', dn: 'Liv Sélou', role: 'Porte-parole · Sélène Indie Collective', place: 'backstage', adv: 25000, cut: 0.10, dur: '6 mois', perk: 'indie',
+      cond: function (s) { return s.geo.selene >= 5; }, cl: 'Notoriété 5 à Sélène',
+      q1: '« Le collectif ne prend que 10 %. Tout le monde vote, tout le monde partage. 25 000 pour démarrer. »',
+      q2: '« On peut ajouter une date à Sélène chaque mois, mais la part monte à 12 %. »', alt: { n: '12 % et dates à Sélène', adv: 25000, cut: 0.12, rel: 4, perk: 'export' } },
+    VAG: { n: 'Vague Argentée', who: 'marius', dn: 'Marius Argent', role: 'Directeur · Vague Argentée (en difficulté)', place: 'office', adv: 60000, cut: 0.30, dur: '12 mois', perk: 'none', risk: 1,
+      cond: function (s) { return s.rep >= 18; }, cl: 'Réputation 18',
+      q1: '« Vague Argentée a fait les plus grands de Port-Ambre. 60 000 tout de suite, 30 %. On a juste besoin d\'un nouveau nom. »',
+      q2: '« D\'accord, d\'accord… 75 000. Mais la part passe à 35 %. »', alt: { n: '75 000 et 35 %', adv: 75000, cut: 0.35, rel: 2 } },
+    BLG: { n: 'Black Lagune', who: 'kre', dn: 'Jonas Kré', role: 'Directeur artistique · Black Lagune (Kôtoro)', place: 'stage', adv: 80000, cut: 0.40, dur: '9 mois', perk: 'scene',
+      cond: function (s) { return (s.p.main === 'drill' || s.p.main === 'trap') && s.rep >= 20; }, cl: 'Style drill ou trap · réputation 20',
+      q1: '« La drill, c\'est Kôtoro. 80 000, 40 %, et je remplis tes salles : les gens suivent notre logo. »',
+      q2: '« 40 %, c\'est le prix des salles pleines. Je descends à 35 %, mais l\'avance tombe à 60 000. »', alt: { n: '60 000 et 35 %', adv: 60000, cut: 0.35, rel: 5 } },
+    LYR: { n: 'Lyrik Atelier', who: 'maze', dn: 'Prof Mazé', role: 'Fondateur · Lyrik Atelier (Mabaya)', place: 'studio', adv: 50000, cut: 0.25, dur: '12 mois', perk: 'ecr',
+      cond: function (s) { return s.sk.ecr >= 22; }, cl: 'Écriture 22',
+      q1: '« Tes rimes tiennent debout. Chez nous, on travaille le texte avant tout. 50 000, 25 %, un atelier par titre. »',
+      q2: '« Un vrai auteur négocie, c\'est bien. 55 000, et on garde 25 %. »', alt: { n: '55 000 et 25 %', adv: 55000, cut: 0.25, rel: 6 } },
+    SKP: { n: 'Studio Kôrô Productions', who: 'kore', dn: 'DJ Kôrô', role: 'Patron · Studio Kôrô Productions', place: 'studio', adv: 20000, cut: 0.35, dur: 'par projet', perk: 'prod',
+      cond: function (s) { return (s.rel.kore || 0) >= 8 && s.disco.length >= 2; }, cl: 'Relation Kôrô 8 · 2 singles sortis',
+      q1: '« On a fait deux titres ensemble. Je monte mon label : 20 000, 35 % sur la production, et je produis tout ce que tu sors. »',
+      q2: '« Pour toi, 30 %. Mais tu enregistres uniquement chez moi. »', alt: { n: '30 %, exclusivité studio', adv: 20000, cut: 0.30, rel: 8 } },
+    AMG: { n: 'Ambre Music Group', who: 'benedicte', dn: 'Bénédicte Kassi', role: 'Présidente · Ambre Music Group (Port-Ambre)', place: 'office', adv: 90000, cut: 0.30, dur: '12 mois', perk: 'radio',
+      cond: function (s) { return s.pop >= 25 && s.geo.portambre >= 6; }, cl: 'Popularité 25 · notoriété 6 à Port-Ambre',
+      q1: '« Le grand public t\'attend à Port-Ambre. 90 000, 30 %, et nos radios jouent chacun de tes singles. »',
+      q2: '« Je peux aller à 110 000 si tu acceptes 18 mois au lieu de 12. »', alt: { n: '110 000 sur 18 mois', adv: 110000, cut: 0.30, rel: 4 } },
+    RCD: { n: 'Rythme Cardinal', who: 'kofi', dn: 'Kofi Ndayé', role: 'Directeur export · Rythme Cardinal (Lumbé)', place: 'call', adv: 120000, cut: 0.30, dur: '18 mois', perk: 'export',
+      cond: function (s) { return s.rep >= 35 && (s.p.main === 'coupe' || !!s.dseen.collab); }, cl: 'Réputation 35 · coupé-décalé ou un duo',
+      q1: '« Ton son voyage. Rythme Cardinal t\'ouvre Port-Ambre, Sélène, puis l\'étranger : 120 000, 30 %, 18 mois. »',
+      q2: '« 18 mois, c\'est le temps qu\'il faut pour exporter. Je monte à 140 000, la part reste à 30 %. »', alt: { n: '140 000 et 30 %', adv: 140000, cut: 0.30, rel: 5 } }
+  };
+  function lblSet(code, L, adv, cut, perk) { return { cash: adv, set: { signed: 1, label: code, lcut: cut, lperk: perk || L.perk }, rel: {} }; }
+  function lblDlg(code, L) {
+    var P = function (c) { return Math.round(c * 100) + ' %'; }, F = function (x) { return fmt(x); }, A = L.alt;
+    var e1 = lblSet(code, L, L.adv, L.cut); e1.rel[L.who] = 8; var e2 = lblSet(code, L, A.adv, A.cut, A.perk); e2.rel[L.who] = A.rel;
+    var rk = L.risk ? 'r' : 'k', rt = L.risk ? ' · Risque : label en difficulté, soutien incertain' : '';
+    return { t: 'Offre · ' + L.n, ref: '18-1 · ' + code, place: L.place, who: L.who, role: L.role, cond: function (s) { return !s.signed && L.cond(s); }, cl: L.cl, lbl: code,
+      nodes: {
+        n1: { mood: 'poised', q: L.q1, ch: [
+          { id: 'a', n: 'Signer', c: '+' + F(L.adv) + ' cauris · ' + P(L.cut) + ' des écoutes · ' + L.dur + ' · ' + PERK[L.perk] + rt, k: rk, e: e1, end: 'Signé chez ' + L.n + ' (' + P(L.cut) + ')' },
+          { id: 'b', n: 'Négocier', c: 'réponse incertaine', k: 'i', go: 'n2' },
+          { id: 'c', n: 'Décliner', c: 'tu restes libre · les autres labels peuvent encore appeler', k: 'k', e: { rel: (function () { var r = {}; r[L.who] = -3; return r; })() }, end: 'Offre déclinée' }] },
+        n2: { mood: 'neutral', q: L.q2, ch: [
+          { id: 'a', n: A.n, c: '+' + F(A.adv) + ' cauris · ' + P(A.cut) + ' des écoutes · ' + PERK[A.perk || L.perk] + rt, k: rk, e: e2, end: 'Signé chez ' + L.n + ' (' + P(A.cut) + ')' },
+          { id: 'b', n: 'Revenir à l\'offre de départ', c: '+' + F(L.adv) + ' cauris · ' + P(L.cut), k: rk, e: e1, end: 'Signé chez ' + L.n + ' (' + P(L.cut) + ')' },
+          { id: 'c', n: 'Décliner', c: 'relation −5', k: 'r', e: (function () { var r = {}; r[L.who] = -5; return { rel: r }; })(), end: 'Offre déclinée' }] } } };
+  }
+  var CASTN = { kore: 'DJ Kôrô', nadia: 'Maya Tessé', orage: 'Madame Orage', zaki: 'Zaki Mbela', ayana: 'Ayana Dembé', zamba: 'Kouassi Zamba', rosine: 'Rosine Adjoua' };
+  var DLG = {
+    kore: { t: 'Premier producteur', ref: '16-A', place: 'studio', who: 'kore', role: 'Producteur · Studio Kôrô',
+      cond: function (s) { return s.disco.length > 0 || !!(s.cur && s.cur.st === 'enregistre'); }, cl: 'Après ton premier enregistrement',
+      nodes: {
+        n1: { mood: 'neutral', q: '« Pas mal, la prod est brute. Rejoue-moi le refrain, que je sente le grain de ta voix. »', ch: [{ id: 'a', n: 'Rejouer le refrain', c: 'L\'échange continue', k: 'k', go: 'n2' }] },
+        n2: { mood: 'poised', q: '« Je te propose un deal simple : je prends 40 % sur tes trois prochains titres, je produis et je mixe. »', ch: [
+          { id: 'a', n: 'Accepter à 40 %', c: '−8 000 cauris · production +12 sur 3 titres · relation +15', k: 'k', e: { cash: -8000, kc: { st: 'Accord à 40 %', bonus: 12, left: 3 }, rel: { kore: 15 } }, end: 'Accord à 40 %' },
+          { id: 'b', n: 'Négocier', c: '−5 énergie · il peut se vexer', k: 'i', e: { en: 5 }, go: 'n3' },
+          { id: 'c', n: 'Refuser', c: 'relation −10 · il reviendra dans 3 semaines, plus cher', k: 'r', e: { rel: { kore: -10 }, q: ['kore2', 21] }, end: 'Refus' }] },
+        n3: { mood: 'poised', q: '« 40 %, c\'est déjà un prix d\'ami. Je descends à 35 % si tu me laisses signer le mix. »', ch: [
+          { id: 'a', n: '35 %, mix signé', c: '−7 000 cauris · production +12 sur 3 titres · relation +8', k: 'k', e: { cash: -7000, kc: { st: 'Accord à 35 %, mix signé', bonus: 12, left: 3 }, rel: { kore: 8 } }, end: 'Accord à 35 %' },
+          { id: 'b', n: 'Tenter 30 %', c: 'relation −5 · réponse incertaine', k: 'i', e: { rel: { kore: -5 } }, go: 'n4' },
+          { id: 'c', n: 'Revenir à 40 %', c: '−8 000 cauris · relation +10', k: 'k', e: { cash: -8000, kc: { st: 'Accord à 40 %', bonus: 12, left: 3 }, rel: { kore: 10 } }, end: 'Accord à 40 %' }] },
+        n4: { mood: 'angry', q: '« 30 % ? Là tu me vexes. C\'est 35 % ou rien. »', ch: [
+          { id: 'a', n: 'D\'accord pour 35 %', c: '−7 000 cauris · production +12 sur 3 titres · relation +3', k: 'k', e: { cash: -7000, kc: { st: 'Accord à 35 % (tendu)', bonus: 12, left: 3 }, rel: { kore: 3 } }, end: 'Accord à 35 %' },
+          { id: 'b', n: 'Refuser', c: 'relation −10 · il reviendra dans 3 semaines, plus cher', k: 'r', e: { rel: { kore: -10 }, q: ['kore2', 21] }, end: 'Refus' }] } } },
+    kore2: { t: 'Kôrô revient', ref: '16-A6', place: 'studio', who: 'kore', role: 'Producteur · Studio Kôrô', cond: function () { return false; }, cl: '3 semaines après un refus',
+      nodes: { n1: { mood: 'smirk', q: '« Tu as refusé la dernière fois. J\'ai gardé un créneau, mais cette fois c\'est 45 %, à prendre ou à laisser. »', ch: [
+        { id: 'a', n: 'Accepter à 45 %', c: '−9 000 cauris · production +12 sur 3 titres · relation +5', k: 'k', e: { cash: -9000, kc: { st: 'Accord à 45 %', bonus: 12, left: 3 }, rel: { kore: 5 } }, end: 'Accord à 45 %' },
+        { id: 'b', n: 'Refuser pour de bon', c: 'relation −5 · plus d\'offre de Kôrô', k: 'r', e: { rel: { kore: -5 } }, end: 'Refus définitif' }] } } },
+    mgr: { t: 'Premier rendez-vous avec une manager', ref: '19-6', place: 'call', who: 'nadia', role: 'Manager · M1, débutante', cond: function (s) { return s.day >= 3 && !s.mgr; }, cl: 'À partir du jour 3',
+      nodes: {
+        n1: { mood: 'smile', q: '« Je n\'ai géré que deux groupes de Ndolo. Mais personne ne travaillera plus dur que moi pour toi. »', ch: [
+          { id: 'a', n: 'Écouter son offre', c: 'L\'échange continue', k: 'k', go: 'n2' },
+          { id: 'b', n: 'Pas maintenant', c: 'aucun manager · elle te laisse son numéro', k: 'i', e: { rel: { nadia: -2 } }, end: 'Rendez-vous écourté' }] },
+        n2: { mood: 'poised', q: '« 8 % sur tes cachets, pas de fixe tant que tu débutes. Je t\'ouvre mes contacts : promoteurs, petites salles, festivals. »', ch: [
+          { id: 'a', n: 'Engager Maya', c: '8 % de chaque cachet · ouvre les invitations et ses conseils', k: 'k', e: { set: { mgr: 'maya' }, rel: { nadia: 10 } }, end: 'Maya Tessé engagée (M1)' },
+          { id: 'b', n: 'Demander 6 %', c: 'réponse incertaine', k: 'i', go: 'n3' },
+          { id: 'c', n: 'Refuser', c: 'aucun manager pour l\'instant', k: 'r', e: { rel: { nadia: -5 } }, end: 'Refus' }] },
+        n3: { mood: 'neutral', q: '« 6 %, je ne m\'en sors pas. 8 %, et je te trouve une date avant la fin du mois. »', ch: [
+          { id: 'a', n: 'Va pour 8 %', c: '8 % de chaque cachet · relation +5', k: 'k', e: { set: { mgr: 'maya' }, rel: { nadia: 5 } }, end: 'Maya Tessé engagée (M1)' },
+          { id: 'b', n: 'Refuser', c: 'aucun manager pour l\'instant', k: 'r', e: { rel: { nadia: -5 } }, end: 'Refus' }] } } },
+    label: { t: 'Contrat de label', ref: '16-B · 08-2', place: 'office', who: 'orage', role: 'Directrice artistique · Bakoma Sound Records', cond: function (s) { return s.rep >= REG.labelRep && !s.signed; }, cl: 'Réputation 30',
+      nodes: {
+        n1: { mood: 'poised', q: '« Bakoma Sound Records te propose six mois, 150 000 d\'avance, 35 % sur tes écoutes et deux sons par trimestre. On signe ? »', ch: [
+          { id: 'a', n: 'Signer', c: '+150 000 cauris · 35 % des écoutes au label · 6 mois', k: 'k', e: { cash: 150000, set: { signed: 1, label: 'BSR', lcut: 0.35, lperk: 'radio' } }, end: 'Contrat signé (35 %)' },
+          { id: 'b', n: 'Contre-proposer', c: 'réponse incertaine', k: 'i', go: 'n2' },
+          { id: 'c', n: 'Réfléchir 7 jours', c: 'l\'offre revient dans 7 jours', k: 'i', e: { q: ['label', 7] }, end: 'Réflexion' }] },
+        n2: { mood: 'neutral', q: '« Je peux monter l\'avance à 180 000, mais la part passe à 40 %. Ou on garde l\'offre de départ. »', ch: [
+          { id: 'a', n: '180 000 et 40 %', c: '+180 000 cauris · 40 % des écoutes au label', k: 'k', e: { cash: 180000, set: { signed: 1, label: 'BSR', lcut: 0.40, lperk: 'radio' } }, end: 'Contrat signé (40 %)' },
+          { id: 'b', n: '150 000 et 35 %', c: '+150 000 cauris · 35 % des écoutes au label', k: 'k', e: { cash: 150000, set: { signed: 1, label: 'BSR', lcut: 0.35, lperk: 'radio' } }, end: 'Contrat signé (35 %)' },
+          { id: 'c', n: 'Rester indépendant', c: 'relation −5 · Bakoma Sound Records ne revient pas', k: 'r', e: { rel: { orage: -5 } }, end: 'Indépendant' }] } } },
+    rival: { t: 'Rivalité publique', ref: '16-C', place: 'street', who: 'zaki', role: 'Rappeur · rival de Ndolo', cond: function (s) { return s.disco.length >= 2; }, cl: 'Après ton deuxième single',
+      nodes: { n1: { mood: 'smirk', q: '« Ton single ? Pas mal pour une pause. Ndolo attend un vrai son, pas une démo. »', ch: [
+        { id: 'a', n: 'Ignorer', c: 'aucun effet · la rivalité s\'éteint', k: 'k', end: 'Ignoré' },
+        { id: 'b', n: 'Répondre avec humour', c: '+2 popularité · relation Zaki +5', k: 'k', e: { pop: 2, rel: { zaki: 5 } }, end: 'Réponse drôle' },
+        { id: 'c', n: 'Préparer un morceau de réponse', c: 'ton prochain single : +10 % d\'écoutes · relation Zaki −10', k: 'e', e: { set: { diss: 1 }, rel: { zaki: -10 } }, end: 'Morceau de réponse annoncé' }] } } },
+    collab: { t: 'Proposition de duo', ref: '16-G', place: 'backstage', who: 'ayana', role: 'Chanteuse afro-soul', cond: function (s) { return s.pop >= 15; }, cl: 'Popularité 15',
+      nodes: {
+        n1: { mood: 'smile', q: '« J\'aime ton énergie. Un duo ? Je veux 50 % des revenus et mon style afro-soul sur le refrain. »', ch: [
+          { id: 'a', n: 'Accepter à 50 %', c: 'prochain titre en duo · 50 % de ses revenus d\'écoutes pour elle', k: 'k', e: { set: { duo: { share: 50 } }, rel: { ayana: 10 } }, end: 'Duo à 50 %' },
+          { id: 'b', n: 'Proposer 60-40', c: 'réponse incertaine', k: 'i', go: 'n2' },
+          { id: 'c', n: 'Décliner', c: 'relation −3', k: 'r', e: { rel: { ayana: -3 } }, end: 'Décliné' }] },
+        n2: { mood: 'poised', q: '« Va pour 60-40. Mais le refrain, c\'est moi qui l\'écris. »', ch: [
+          { id: 'a', n: 'Marché conclu', c: 'prochain titre en duo · 40 % de ses revenus d\'écoutes pour elle', k: 'k', e: { set: { duo: { share: 40 } }, rel: { ayana: 5 } }, end: 'Duo à 40 %' },
+          { id: 'b', n: 'Finalement, non', c: 'relation −5', k: 'r', e: { rel: { ayana: -5 } }, end: 'Décliné' }] } } },
+    bad: { t: 'Mauvais résultat', ref: '16-D', place: 'call', who: 'nadia', role: 'Ta manager · M1', cond: function (s) { return !!s.mgr && s.disco.length > 0 && s.disco[0].tier === 'Discret' && s.disco[0].day === s.day; }, cl: 'Manager engagé · un single « Discret »',
+      nodes: { n1: { mood: 'worried', q: '« Les gens ont écouté, mais peu sont restés. Pas de promo, une qualité moyenne : on peut faire mieux. »', ch: [
+        { id: 'a', n: 'Revoir la stratégie', c: '+2 Écriture · conseil de Maya', k: 'k', e: { set: { 'sk.ecr': 2 } }, end: 'Stratégie revue' },
+        { id: 'b', n: 'Payer une promo de rattrapage', c: '−3 000 cauris · +300 fans', k: 'k', e: { cash: -3000, fans: 300 }, end: 'Promo de rattrapage' },
+        { id: 'c', n: 'Préparer vite un autre titre', c: 'ton prochain single sorti sous 7 jours : +20 % d\'écoutes', k: 'e', e: { hype: 7 }, end: 'Nouveau titre en préparation' }] } } },
+    success: { t: 'Succès au classement', ref: '16-F', place: 'call', who: 'nadia', role: 'Ta manager · M1', cond: function (s) { return !!s.mgr && s.disco.some(function (x) { return x.L >= ENTRY; }); }, cl: 'Manager engagé · un titre au Top 100',
+      nodes: { n1: { mood: 'smile', q: '« Tu as vu ? Ton single entre au Top 100 ! Il faut battre le fer tant qu\'il est chaud. »', ch: [
+        { id: 'a', n: 'Sortir un titre sous 7 jours', c: '+20 % d\'écoutes sur ce titre', k: 'e', e: { hype: 7 }, end: 'Titre express' },
+        { id: 'b', n: 'Fêter ça au quartier', c: '+4 réputation · −10 énergie', k: 'k', e: { rep: 4, en: 10 }, end: 'Fête à Ndolo' }] } } },
+    festival: { t: 'Invitation au festival', ref: '16-E · 18-11', place: 'backstage', who: 'zamba', role: 'Promoteur · Festival Lagune d\'Ambre', cond: function (s) { return !!s.mgr && s.rank >= 3 && s.shows >= 2; }, cl: 'Manager engagé · rang N3 · 2 dates',
+      nodes: {
+        n1: { mood: 'poised', q: '« Samedi, Festival Lagune d\'Ambre. Huit mille personnes, scène Découverte. 12 000 cauris. Tu es partant ? »', ch: [
+          { id: 'a', n: 'Accepter', c: '6 h · −40 énergie · cachet 12 000 · +600 fans · Port-Ambre +6', k: 'k', e: { h: 6, en: 40, cachet: 12000, fans: 600, geo: { portambre: 6 }, shows: 1, xp: 120, rel: { zamba: 8 } }, end: 'Festival joué' },
+          { id: 'b', n: 'Proposer dimanche', c: 'réponse incertaine', k: 'i', go: 'n2' },
+          { id: 'c', n: 'Refuser', c: 'relation Zamba −6', k: 'r', e: { rel: { zamba: -6 } }, end: 'Refus' }] },
+        n2: { mood: 'neutral', q: '« Dimanche, la scène est plus petite. 9 000 cauris, et tu ouvres à 16 h. »', ch: [
+          { id: 'a', n: 'D\'accord', c: '5 h · −35 énergie · cachet 9 000 · +400 fans · Port-Ambre +4', k: 'k', e: { h: 5, en: 35, cachet: 9000, fans: 400, geo: { portambre: 4 }, shows: 1, xp: 90, rel: { zamba: 4 } }, end: 'Festival joué (dimanche)' },
+          { id: 'b', n: 'Laisser tomber', c: 'relation Zamba −4', k: 'r', e: { rel: { zamba: -4 } }, end: 'Refus' }] } } },
+    crisis: { t: 'Polémique après la battle', ref: '19-8', place: 'call', who: 'rosine', role: 'Manager presse et crise · M3', cond: function (s) { return !!(s.bt && s.bt.win) && s.pop >= 10; }, cl: 'Une battle gagnée · popularité 10',
+      nodes: { n1: { mood: 'worried', q: '« Un extrait de ta battle circule sans contexte. Les gens croient que tu insultes Mabaya. Il faut réagir. »', ch: [
+        { id: 'a', n: 'Expliquer le contexte', c: '+3 popularité · +1 réputation', k: 'e', e: { pop: 3, rep: 1 }, end: 'Contexte expliqué' },
+        { id: 'b', n: 'Laisser Rosine gérer', c: '−5 000 cauris · +2 réputation · relation Rosine +10', k: 'k', e: { cash: -5000, rep: 2, rel: { rosine: 10 } }, end: 'Rosine a géré la crise' },
+        { id: 'c', n: 'Ne rien dire', c: '−3 popularité', k: 'r', e: { pop: -3 }, end: 'Silence' }] } } }
+  };
+  Object.keys(LBL).forEach(function (code) { DLG['lb_' + code] = lblDlg(code, LBL[code]); CASTN[LBL[code].who] = LBL[code].dn; });
+  var DLG_ORDER = ['kore', 'mgr', 'lb_AUB', 'lb_NUG', 'lb_SIC', 'lb_VAG', 'lb_BLG', 'lb_LYR', 'lb_SKP', 'lb_AMG', 'label', 'lb_RCD', 'rival', 'collab', 'bad', 'success', 'festival', 'crisis', 'kore2'];
+  function queueDlg(n, id, d) { if (n.dseen[id] && !d) return; if ((n.dlg && n.dlg.id === id) || n.dq.some(function (x) { return x.id === id; })) return; n.dq.push({ id: id, at: n.day + (d || 0) }); }
+  function triggers(n) {
+    if (!n.created) return;
+    DLG_ORDER.forEach(function (id) { if (!n.dseen[id] && DLG[id].cond(n)) queueDlg(n, id); });
+    if (!n.dlg) { for (var i = 0; i < n.dq.length; i++) { if (n.dq[i].at <= n.day) { n.dlg = { id: n.dq[i].id, node: 'n1', path: [] }; n.dq.splice(i, 1); break; } } }
+  }
+  function applyEff(n, e) {
+    if (!e) return null;
+    if (e.cash && e.cash < 0 && n.cash < -e.cash) return 'cash';
+    if (e.h || e.en) { var er = spend(n, e.h || 0, e.en || 0); if (er) return er; }
+    if (e.cash) pay(n, e.cash); if (e.cachet) cachet(n, e.cachet);
+    ['fans', 'rep', 'xp', 'shows'].forEach(function (k) { if (e[k]) { if (k === 'xp') addXp(n, e.xp); else n[k] += e[k]; } });
+    if (e.pop) n.pop = clamp(n.pop + e.pop, 0, 100);
+    if (e.rel) Object.keys(e.rel).forEach(function (k) { n.rel[k] = clamp((n.rel[k] || 0) + e.rel[k], -100, 100); });
+    if (e.geo) Object.keys(e.geo).forEach(function (k) { geoAdd(n, k, e.geo[k]); });
+    if (e.kc) n.kc = { st: e.kc.st, bonus: e.kc.bonus, left: e.kc.left, rel: n.rel.kore || 0 };
+    if (e.set) Object.keys(e.set).forEach(function (k) { if (k === 'sk.ecr') n.sk.ecr += e.set[k]; else n[k] = e.set[k]; });
+    if (e.set && e.set.lperk === 'prod') n.kc = { st: 'Label Studio Kôrô Productions', bonus: 12, left: 3, rel: n.rel.kore || 0 };
+    if (e.hype) n.hype = n.day + e.hype;
+    if (e.q) queueDlg(n, e.q[0], e.q[1]);
+    return null;
+  }
+  A.dch = function (s, ch) {   // choix dans le dialogue en cours
+    if (!s.dlg || s.dlg.done) return { s: s, err: 'rien' };
+    var D = DLG[s.dlg.id], N = D.nodes[s.dlg.node], C = N.ch.filter(function (x) { return x.id === ch; })[0]; if (!C) return { s: s, err: 'inconnu' };
+    var n = clone(s), er = applyEff(n, C.e); if (er) return { s: s, err: er };
+    n.dlg.path.push(C.n);
+    if (C.go) { n.dlg.node = C.go; return { s: n }; }
+    n.dlg.done = 1; n.dlg.end = C.end; n.dlg.c = C.c; n.dseen[n.dlg.id] = C.end;
+    log(n, D.t + ' : ' + C.end + ' (' + C.c + ')', 'evenement'); return { s: n };
+  };
+  A.dclose = function (s) { if (!s.dlg) return { s: s }; if (!s.dlg.done) return { s: s, err: 'encours' }; var n = clone(s); n.dlg = null; triggers(n); return { s: n }; };
+  A.dstart = function (s, id) {   // raccourci de démonstration : lance une scène pour la revoir
+    if (!DLG[id]) return { s: s, err: 'inconnu' };
+    var n = clone(s); if (n.dlg && !n.dlg.done && n.dlg.id !== id && !n.dlg.demo) n.dq.unshift({ id: n.dlg.id, at: n.day }); n.dlg = { id: id, node: 'n1', path: [], demo: 1 }; n.dq = n.dq.filter(function (x) { return x.id !== id; }); return { s: n };
+  };
+  function lblName(n) { return (LBL[n.label] && LBL[n.label].n) || 'Bakoma Sound Records'; }
+  // ---------- catalogue : fiche d'un titre ----------
+  A.ctk = function (s, id) { var n = clone(s); n.ui.ctk = id; return { s: n }; };
+  A.ctki = function (s, i) { var t = s.disco[+i]; if (!t) return { s: s, err: 'inconnu' }; var n = clone(s); n.ui.ctk = t.id; return { s: n }; };
+  A.ptki = function (s, i) { var t = s.disco[+i]; if (!t) return { s: s, err: 'inconnu' }; return A.ptk(s, t.id); };
+  // ---------- projets EP et album ----------
+  A.ptype = function (s, t) { if (!REG.proj[t]) return { s: s, err: 'inconnu' }; var n = clone(s); n.ui.ptype = t; return { s: n }; };
+  A.ptk = function (s, id) { if (!s.disco.some(function (x) { return x.id === id; })) return { s: s, err: 'inconnu' }; var n = clone(s), L = n.ui.ptk || []; n.ui.ptk = L.indexOf(id) > -1 ? L.filter(function (x) { return x !== id; }) : L.concat([id]); return { s: n }; };
+  A.prel = function (s) {
+    var t = s.ui.ptype || 'EP', P = REG.proj[t], ids = s.ui.ptk || [];
+    if (ids.length < P.min || ids.length > P.max) return { s: s, err: 'pistes' };
+    if (s.cash < P.cost) return { s: s, err: 'cash' };
+    var n = clone(s), e = spend(n, P.h, P.e); if (e) return { s: s, err: e }; pay(n, -P.cost);
+    var tr = n.disco.filter(function (x) { return ids.indexOf(x.id) > -1; }), q = Math.round(tr.reduce(function (a, x) { return a + x.Q; }, 0) / tr.length);
+    var title = (n.ui.ptitle || '').replace(/\s+/g, ' ').trim().slice(0, 30) || (t === 'EP' ? 'EP n° ' : 'Album n° ') + (n.projects.filter(function (p) { return p.type === t; }).length + 1);
+    var st = Math.round(tr.reduce(function (a, x) { return a + x.L; }, 0) * 0.3 + n.fans * 2), sl = Math.round(n.fans * 0.06 * q / 60 * (t === 'Album' ? 1.3 : 1) + st * 0.004);
+    var gross = sl * REG.salePrice, rev = n.signed ? Math.round(gross * (1 - (n.lcut || REG.labelCut))) : gross, fg = Math.round(sl * 2), rk = sl >= P.entry ? Math.max(1, Math.min(P.top, Math.round(P.top * Math.pow(sl / P.entry, -P.k)))) : 0;
+    pay(n, rev); n.fans += fg; n.pop = clamp(n.pop + Math.min(6, Math.floor(sl / 400)), 0, 100); addXp(n, t === 'Album' ? 150 : 80);
+    n.projects.unshift({ id: 'P' + (n.projects.length + 1), type: t, title: title, tracks: ids.slice(), day: n.day, Q: q, L: st, sales: sl, rev: rev, cut: gross - rev, fans: fg, rank: rk, labelAt: n.signed ? lblName(n) : 'Indépendant' });
+    n.ui.ptk = []; n.ui.ptitle = ''; log(n, t + ' sorti : ' + title + ' · ' + tr.length + ' titres · ' + fmt(sl) + ' ventes · ' + (rk ? '#' + rk + ' au Top ' + P.top : 'non classé'), 'musique'); return { s: n };
+  };
+  // ---------- activités illégales, police, tribunal, prison [PROPOSÉ · 16+] ----------
+  A.mature = function (s, v) { var n = clone(s); n.mature = v === 'on' ? 1 : 0; log(n, 'Contenu mature (16+) ' + (n.mature ? 'activé' : 'désactivé'), 'jeu'); return { s: n }; };
+  A.crime = function (s, id) {
+    var C = REG.crimes[id]; if (!C) return { s: s, err: 'inconnu' }; if (!s.mature) return { s: s, err: 'mature' }; if (s.cas) return { s: s, err: 'affaire' };
+    var n = clone(s), e = spend(n, C.h, C.e); if (e) return { s: s, err: e };
+    n.crimeN = (n.crimeN || 0) + 1; var risk = Math.min(85, C.risk + Math.round((n.heat || 0) / 2)), roll = rng(n, 97 + n.crimeN * 13) * 100;
+    n.heat = Math.min(100, (n.heat || 0) + C.heat);
+    if (roll < risk) {
+      n.cas = { crime: id, n: C.n, ch: C.ch, sev: C.sev, day: n.day, trial: n.day + REG.trialIn, stage: 'garde', lawyer: 'office', bail: C.sev * REG.bailPer, risk: risk };
+      n.hour = REG.dayEnd; log(n, 'Arrêté pendant : ' + C.n + ' (risque ' + risk + ' %) · garde à vue', 'justice'); n.lastCrime = { n: C.n, ok: 0, risk: risk };
+    } else { var g = Math.round(C.lo + (C.hi - C.lo) * rng(n, 41 + n.crimeN)); pay(n, g); n.rep += C.sev >= 3 ? 1 : 0; n.lastCrime = { n: C.n, ok: 1, gain: g, risk: risk }; log(n, C.n + ' : +' + fmt(g) + ' cauris · chaleur ' + n.heat, 'justice'); }
+    return { s: n };
+  };
+  A.bail = function (s) { if (!s.cas || s.cas.stage !== 'garde') return { s: s, err: 'rien' }; if (s.cash < s.cas.bail) return { s: s, err: 'cash' }; var n = clone(s); pay(n, -n.cas.bail); n.cas.stage = 'libre'; log(n, 'Caution payée : ' + fmt(n.cas.bail) + ' · procès le jour ' + n.cas.trial, 'justice'); return { s: n }; };
+  A.detention = function (s) { if (!s.cas || s.cas.stage !== 'garde') return { s: s, err: 'rien' }; var n = clone(s); n.cas.stage = 'detenu'; n.jail = { until: n.cas.trial, days: REG.trialIn, pre: 1 }; log(n, 'Détention provisoire jusqu\'au procès (jour ' + n.cas.trial + ')', 'justice'); return { s: n }; };
+  A.lawyer = function (s, id) { var Lw = REG.lawyers[id]; if (!Lw || !s.cas) return { s: s, err: 'rien' }; if (s.cas.paid === id) return { s: s }; if (s.cash < Lw.cost) return { s: s, err: 'cash' }; var n = clone(s); pay(n, -Lw.cost); n.cas.lawyer = id; n.cas.paid = id; log(n, 'Avocat : ' + Lw.n + (Lw.cost ? ' (−' + fmt(Lw.cost) + ')' : ''), 'justice'); return { s: n }; };
+  A.trial = function (s, plea) {
+    var c = s.cas; if (!c || c.stage === 'garde') return { s: s, err: 'rien' }; if (s.day < c.trial) return { s: s, err: 'proces' };
+    var n = clone(s), cs = n.cas, Lw = REG.lawyers[cs.lawyer], S = REG.sentences[cs.sev], guilty = plea === 'coupable';
+    var pAcq = guilty ? 0 : clamp(Lw.skill - cs.sev * 8 + 10, 0, 70), roll = rng(n, 151 + n.crimeN) * 100, v;
+    if (roll < pAcq) v = { acq: 1, txt: 'Relaxé : les preuves ne suffisent pas', fine: 0, jail: 0 };
+    else { var red = 1 - Lw.skill / 100 - (guilty ? 0.25 : 0), jd = Math.max(0, Math.round(S.jail * red)), fine = Math.round(S.fine * (guilty ? 0.8 : 1));
+      if (S.jail && jd < 2) { jd = 0; fine += 15000; }
+      v = { acq: 0, txt: jd ? 'Coupable : ' + jd + ' jour(s) de prison' + (fine ? ' et ' + fmt(fine) + ' d\'amende' : '') : 'Coupable : ' + fmt(fine) + ' d\'amende' + (S.sursis ? ' et prison avec sursis' : ''), fine: fine, jail: jd }; }
+    if (v.fine) pay(n, -v.fine);
+    if (!v.acq) { n.pop = clamp(n.pop - 5, 0, 100); n.fans = Math.round(n.fans * 0.92); n.casier.push({ ch: cs.ch, day: n.day, v: v.txt }); }
+    else n.pop = clamp(n.pop + 1, 0, 100);
+    if (v.jail) { n.jail = { until: n.day + v.jail, days: v.jail }; if (n.signed) { log(n, lblName(n) + ' rompt ton contrat après la condamnation', 'carriere'); v.txt += ' · ' + lblName(n) + ' rompt ton contrat'; n.signed = 0; n.label = null; n.lperk = null; n.lcut = null; } }
+    n.verdict = { ch: cs.ch, txt: v.txt, acq: v.acq, lawyer: Lw.n, plea: guilty ? 'Coupable' : 'Non coupable', jail: v.jail, fine: v.fine }; n.cas = null; n.heat = Math.max(0, n.heat - 20);
+    log(n, 'Verdict (' + cs.ch + ') : ' + v.txt, 'justice'); return { s: n };
+  };
+  A.jw = function (s) { if (!s.jail) return { s: s, err: 'rien' }; if (s.jw === s.day) return { s: s, err: 'deja' }; var n = clone(s); n.jw = n.day; n.sk.ecr += 2; log(n, 'En cellule : textes écrits (Écriture +2)', 'justice'); return { s: n }; };
+  A.js = function (s) { if (!s.jail) return { s: s, err: 'rien' }; if (s.jsp === s.day) return { s: s, err: 'deja' }; var n = clone(s); n.jsp = n.day; n.sk.cha += 1; n.en = Math.min(enMax(n), n.en + 10); log(n, 'En cellule : sport (Charisme +1)', 'justice'); return { s: n }; };
+  A.preset = function (s, id) { var f = PRE[id]; if (!f) return { s: s, err: 'inconnu' }; var x = f(); if (!x.created) { x.created = 1; x.p.name = 'Djo Kéné'; } if (id === 'debut') { x.ev = 'kzer'; } else { x.evDone.kzer = 'b'; x.dseen.kore = 'Accord à 35 % (préréglage)'; x.kc = x.kc && x.kc.st ? x.kc : { st: 'Accord à 35 %, mix signé', bonus: 12, left: 0, rel: 8 }; x.ms = {}; var dn = { m1: x.disco.length > 0, m2: x.disco.length > 0, m3: !!x.trained, m4: x.fans >= 1000 }; Object.keys(dn).forEach(function (k) { if (dn[k]) x.ms[k] = 1; }); } return { s: x }; };
 
-  function act(s, name, arg) { s = norm(s); var f = A[name]; if (!f) return { s: s, err: 'inconnu' }; var r = f(s, arg); if (!r.err && r.s !== s) { norm(r.s); missions(r.s); } r.s.t = Date.now(); return r; }
+  var JAIL_OK = ['endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk', 'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature'];
+  function act(s, name, arg) { s = norm(s); var f = A[name]; if (!f) return { s: s, err: 'inconnu' }; if (s.jail && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'prison' }; if (s.cas && s.cas.stage === 'garde' && ['bail', 'detention', 'lawyer', 'ctk'].indexOf(name) < 0 && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'garde' }; var r = f(s, arg); if (!r.err && r.s !== s) { norm(r.s); missions(r.s); triggers(r.s); } r.s.t = Date.now(); return r; }
 
   // ---------- vue : toutes les valeurs affichées ----------
   function view(s) {
@@ -551,6 +827,11 @@
       o.lGap = L0.L >= ENTRY ? 'Entré au Top 100 Singles' : 'Non classé · il manque ' + fmt(ENTRY - L0.L) + ' écoutes (seuil ' + fmt(ENTRY) + ')'; o.lPct = clamp(Math.round(1000 * L0.L / ENTRY) / 10, 0, 100);
       o.lClipL = L0.clipL ? '+' + fmt(L0.clipL) + ' écoutes · ' + sg(L0.clipF) + ' fans · viralité ' + L0.vir0 + ' → ' + L0.vir : ''; o.lClipOn = !!L0.clipL; }
     o.nDisco = String(s.disco.length);
+    var PF = REG.platforms, totL = s.disco.reduce(function (a, x) { return a + x.L + (x.clipL || 0); }, 0), clips = s.disco.filter(function (x) { return x.clip && x.clip.st === 'publie'; });
+    o.pfOn = fmt(Math.round(totL * PF.ondea.share)); o.pfCa = fmt(Math.round(totL * PF.cauri.share)); o.pfListeners = fmt(Math.round(totL * REG.listenersRatio)); o.pfFollow = fmt(Math.round(s.fans * 0.6));
+    o.pfKl = fmt(clips.reduce(function (a, x) { return a + Math.round((x.clipL || 0) * PF.klipo.viewsPerClipListen); }, 0)); o.pfClips = String(clips.length); o.pfNoClip = !clips.length; o.pfHasClip = !!clips.length;
+    o.pfRevOn = fmt(Math.round(totL * PF.ondea.share * REG.listenValue)); o.pfRevCa = fmt(Math.round(totL * PF.cauri.share * REG.listenValue)); o.pfNone = !s.disco.length; o.pfAny = !!s.disco.length;
+    for (var d5 = 0; d5 < 5; d5++) { var T5 = s.disco[d5], tl = T5 ? T5.L + (T5.clipL || 0) : 0; o['pd' + d5 + 'On'] = !!T5; o['pd' + d5] = T5 ? T5.title : ''; o['pd' + d5 + 'o'] = fmt(Math.round(tl * PF.ondea.share)); o['pd' + d5 + 'c'] = fmt(Math.round(tl * PF.cauri.share)); o['pd' + d5 + 'k'] = T5 && T5.clip && T5.clip.st === 'publie' ? fmt(Math.round((T5.clipL || 0) * PF.klipo.viewsPerClipListen)) + ' vues' : 'pas de clip'; o['pd' + d5 + 'q'] = T5 ? T5.tier : ''; }
     for (var d = 0; d < 3; d++) { var D = s.disco[d]; o['d' + d + 'On'] = !!D; o['d' + d] = D ? D.title + ' · ' + fmt(D.L) + ' écoutes · ' + D.tier : ''; o['d' + d + 'c'] = D ? ({ aucun: 'Pas de clip', prepare: 'Clip préparé', produit: 'Clip tourné', publie: 'Clip publié' })[D.clip.st] : ''; }
     // clip
     var t = clipSong(s), cs = t ? t.clip.st : 'none'; o.clipT = t ? t.title : 'Aucun titre'; o.clipTSt = t ? (t.st === 'sorti' ? 'Titre sorti' : 'Titre non sorti') : '—';
@@ -630,13 +911,57 @@
     ['kzer', 'kore', 'label'].forEach(function (k) { o['ev_' + k] = s.ev === k; });
     for (var c = 0; c < 3; c++) { var C = E && E.ch[c]; o['ec' + c + 'On'] = !!C; o['ec' + c] = C ? C.n : ''; o['ec' + c + 'c'] = C ? C.c : ''; }
     o.evMore = String(s.evq.length); o.evLastOn = !!s.evLast; o.evLast = s.evLast ? s.evLast.t + ' : ' + s.evLast.ch : ''; o.evLastC = s.evLast ? s.evLast.c : '';
+    var IS = REG.instrus; Object.keys(IS).forEach(function (k) { var I = IS[k]; o['in_' + k] = s.ui.inst === k; o['il_' + k] = s.rank < I.rank || !!(I.rep && s.rep < I.rep); o['ia_' + k] = !o['in_' + k] && !o['il_' + k]; });
+    var cu = s.cur, ci = cu && cu.inst ? IS[cu.inst] : IS[s.ui.inst || 'nuit']; o.instN = ci.n; o.instQ = String(ci.Q); o.instPicked = !!s.ui.inst; o.instNone = !s.ui.inst;
+    o.curTakes = cu && cu.takes ? cu.takes.join(' · ') : '—'; o.curVoix = cu && cu.voix != null ? String(cu.voix) : '—'; o.curProd = cu && cu.prod != null ? String(cu.prod) : '—';
+    o.btq = !!s.btq; o.noBtq = !s.btq; o.btOn = !!s.bt; o.btWin = !!(s.bt && s.bt.win); o.btLose = !!(s.bt && !s.bt.win); o.btW = s.bt ? s.bt.w + ' / 3' : '';
+    var dl = s.dlg, DD = dl ? DLG[dl.id] : null, DN = dl && !dl.done ? DD.nodes[dl.node] : null;
+    o.dlOn = !!dl; o.dlOff = !dl; o.dlLive = !!DN; o.dlDone = !!(dl && dl.done); o.dlT = DD ? DD.t : ''; o.dlRef = DD ? DD.ref : ''; o.dlRole = DD ? DD.role : ''; o.dlWho = DD ? (CASTN[DD.who] || DD.who) : ''; o.dlQ = DN ? DN.q : '';
+    o.dlEnd = dl && dl.done ? dl.end : ''; o.dlEndC = dl && dl.done ? dl.c : ''; o.dlPath = dl ? dl.path.join(' → ') : ''; o.dlDemo = !!(dl && dl.demo); o.dlMore = String(s.dq.length);
+    o.dlStep = DN ? String(Object.keys(DD.nodes).indexOf(dl.node) + 1) : ''; o.dlSteps = DD ? String(Object.keys(DD.nodes).length) : '';
+    for (var i9 = 0; i9 < 3; i9++) { var C9 = DN && DN.ch[i9]; o['dc' + i9 + 'On'] = !!C9; o['dc' + i9] = C9 ? C9.n : ''; o['dc' + i9 + 'c'] = C9 ? C9.c : ''; ['k', 'e', 'i', 'r'].forEach(function (kk) { o['dc' + i9 + kk] = !!(C9 && (C9.k || 'k') === kk); }); }
+    Object.keys(DLG).forEach(function (id) { Object.keys(DLG[id].nodes).forEach(function (nd) { o['dn_' + id + '_' + nd] = !!(dl && dl.id === id && (dl.done ? false : dl.node === nd)); }); o['dd_' + id] = !!(dl && dl.id === id && dl.done);
+      o['ds_' + id] = !!s.dseen[id]; o['dw_' + id] = !s.dseen[id] && (s.dq.some(function (x) { return x.id === id; }) || !!(dl && dl.id === id && !dl.done)); o['dl_' + id] = !o['ds_' + id] && !o['dw_' + id]; o['dr_' + id] = s.dseen[id] || ''; });
+    Object.keys(CASTN).forEach(function (k) { o['rel_' + k] = String(s.rel[k] || 0); });
+    o.lblN = s.signed ? ((LBL[s.label] && LBL[s.label].n) || 'Bakoma Sound Records') : 'Aucun'; o.lblPerk = s.signed ? (PERK[s.lperk] || '—') : '—';
+    ['BSR'].concat(Object.keys(LBL)).forEach(function (cd) { var id = cd === 'BSR' ? 'label' : 'lb_' + cd, mine = s.signed && (s.label || 'BSR') === cd;
+      o['lbS_' + cd] = !!mine; o['lbW_' + cd] = !mine && !!(s.dq.some(function (x) { return x.id === id; }) || (s.dlg && s.dlg.id === id && !s.dlg.done)); o['lbD_' + cd] = !mine && !!s.dseen[id] && !o['lbW_' + cd]; o['lbL_' + cd] = !mine && !o['lbW_' + cd] && !o['lbD_' + cd] && !s.signed; o['lbX_' + cd] = !mine && s.signed && !o['lbD_' + cd]; });
+    // catalogue
+    var CT = s.disco;
+    for (var q8 = 0; q8 < 8; q8++) { var T8 = CT[q8], wk = T8 ? Math.floor((s.day - T8.day) / 7) : 0; o['ct' + q8 + 'On'] = !!T8; o['ct' + q8] = T8 ? T8.title : ''; o['ct' + q8 + 'id'] = T8 ? T8.id : '';
+      o['ct' + q8 + 'm'] = T8 ? 'J' + T8.day + ' · ' + (T8.labelAt || 'Indépendant') + ' · ' + T8.tier : ''; o['ct' + q8 + 'L'] = T8 ? fmt(Math.round(T8.L * (1 + Math.min(wk, 12) * 0.35)) + (T8.clipL || 0)) : ''; o['ct' + q8 + 'S'] = T8 ? fmt(T8.sales || Math.round(T8.L * REG.singleSales)) : '';
+      o['pk' + q8 + 'On'] = !!T8; o['pk' + q8] = T8 ? T8.title + ' · qualité ' + T8.Q : ''; o['pk' + q8 + 'sel'] = !!(T8 && (s.ui.ptk || []).indexOf(T8.id) > -1); o['pk' + q8 + 'un'] = !!T8 && !o['pk' + q8 + 'sel']; }
+    o.ctMore = s.disco.length > 8 ? '+' + (s.disco.length - 8) + ' autres titres' : ''; o.ctNone = !s.disco.length; o.ctAny = !!s.disco.length;
+    var K8 = s.disco.filter(function (x) { return x.id === s.ui.ctk; })[0] || s.disco[0], kw = K8 ? Math.floor((s.day - K8.day) / 7) : 0;
+    o.ckOn = !!K8; o.ckT = K8 ? K8.title : ''; o.ckDate = K8 ? 'Jour ' + K8.day + ' · année ' + (Math.floor((K8.day - 1) / REG.daysPerYear) + 1) : ''; o.ckLab = K8 ? (K8.labelAt || 'Indépendant') : ''; o.ckAut = K8 ? (K8.auteur || s.p.name) : '';
+    o.ckProd = K8 ? (K8.prodBy || 'Studio de quartier') : ''; o.ckFeat = K8 && K8.feats.length ? K8.feats.map(function (f) { return REG.feats[f].n; }).join(', ') : 'Aucun'; o.ckClip = K8 && K8.clip && K8.clip.st === 'publie' ? REG.directors[K8.clip.dir] ? REG.directors[K8.clip.dir].n : 'Réalisé' : 'Pas de clip';
+    o.ckL7 = K8 ? fmt(K8.L) : ''; o.ckLT = K8 ? fmt(Math.round(K8.L * (1 + Math.min(kw, 12) * 0.35)) + (K8.clipL || 0)) : ''; o.ckS = K8 ? fmt(K8.sales || Math.round(K8.L * REG.singleSales)) : ''; o.ckQ = K8 ? String(K8.Q) : ''; o.ckTier = K8 ? K8.tier : ''; o.ckTheme = K8 ? (REG.themes[K8.theme] ? REG.themes[K8.theme].n : '') + ' · ' + (REG.ambs[K8.amb] ? REG.ambs[K8.amb].n : '') : '';
+    o.ckRev = K8 ? fmt(K8.rev) : ''; o.ckCut = K8 && K8.cut ? fmt(K8.cut) : '0'; o.ckRank = K8 ? (K8.L >= ENTRY ? '#' + Math.max(8, Math.min(100, Math.round(7 * Math.pow(K8.L / 8e6, -1 / 1.3)))) : 'Non classé') : '';
+    o.ckIn = K8 ? s.projects.filter(function (p) { return p.tracks.indexOf(K8.id) > -1; }).map(function (p) { return p.type + ' « ' + p.title + ' »'; }).join(', ') || 'Aucun projet' : '';
+    // projets
+    var PT = s.ui.ptype || 'EP', PP = REG.proj[PT], np = (s.ui.ptk || []).length; o.ptEP = PT === 'EP'; o.ptAl = PT === 'Album'; o.ptN = String(np); o.ptMin = String(PP.min); o.ptMax = String(PP.max); o.ptCost = fmt(PP.cost); o.ptOk = np >= PP.min && np <= PP.max; o.ptKo = !o.ptOk;
+    o.ptNeed = np < PP.min ? 'Encore ' + (PP.min - np) + ' titre(s) à choisir' : np > PP.max ? 'Trop de titres : ' + PP.max + ' au maximum' : 'Prêt à sortir'; o.ptLock = s.disco.length < PP.min; o.ptHas = !o.ptLock;
+    var P0 = s.projects[0]; o.pjOn = !!P0; o.pjOff = !P0; o.pjT = P0 ? P0.title : ''; o.pjType = P0 ? P0.type : ''; o.pjN = P0 ? String(P0.tracks.length) : ''; o.pjS = P0 ? fmt(P0.sales) : ''; o.pjL = P0 ? fmt(P0.L) : ''; o.pjRev = P0 ? fmt(P0.rev) : ''; o.pjCut = P0 && P0.cut ? fmt(P0.cut) : '0'; o.pjFans = P0 ? '+' + fmt(P0.fans) : '';
+    o.pjRank = P0 ? (P0.rank ? '#' + P0.rank + ' au Top ' + REG.proj[P0.type].top + ' ' + (P0.type === 'EP' ? 'EPs' : 'Albums') : 'Non classé (entrée à ' + fmt(REG.proj[P0.type].entry) + ' ventes)') : ''; o.pjQ = P0 ? String(P0.Q) : ''; o.pjLab = P0 ? P0.labelAt : '';
+    var bEP = s.projects.filter(function (p) { return p.type === 'EP'; }).sort(function (a, b) { return b.sales - a.sales; })[0], bAl = s.projects.filter(function (p) { return p.type === 'Album'; }).sort(function (a, b) { return b.sales - a.sales; })[0];
+    o.epRank = bEP ? (bEP.rank ? '#' + bEP.rank : 'Non classé') : 'Aucun EP'; o.epT = bEP ? bEP.title + ' · ' + fmt(bEP.sales) + ' ventes' : 'Crée un EP de 3 à 7 titres'; o.alRank = bAl ? (bAl.rank ? '#' + bAl.rank : 'Non classé') : 'Aucun album'; o.alT = bAl ? bAl.title + ' · ' + fmt(bAl.sales) + ' ventes' : 'Crée un album de 8 titres ou plus'; o.nProj = String(s.projects.length);
+    // justice
+    var cs = s.cas; o.heat = String(s.heat || 0); o.heatW = Math.min(100, s.heat || 0); o.casOn = !!cs; o.casOff = !cs; o.casGarde = !!(cs && cs.stage === 'garde'); o.casLibre = !!(cs && cs.stage === 'libre'); o.casDet = !!(cs && cs.stage === 'detenu');
+    o.casCh = cs ? cs.ch : ''; o.casN = cs ? cs.n : ''; o.casTrial = cs ? String(cs.trial) : ''; o.casBail = cs ? fmt(cs.bail) : ''; o.casReady = !!(cs && cs.stage !== 'garde' && s.day >= cs.trial); o.casWait = !!(cs && cs.stage !== 'garde' && s.day < cs.trial); o.casDays = cs ? String(Math.max(0, cs.trial - s.day)) : '';
+    o.casLaw = cs ? REG.lawyers[cs.lawyer].n : ''; Object.keys(REG.lawyers).forEach(function (k) { o['lw_' + k] = !!(cs && cs.lawyer === k); });
+    Object.keys(REG.crimes).forEach(function (k) { o['cr_' + k] = String(Math.min(85, REG.crimes[k].risk + Math.round((s.heat || 0) / 2))) + ' %'; });
+    var vd = s.verdict; o.vdOn = !!vd; o.vdOff = !vd; o.vdTxt = vd ? vd.txt : ''; o.vdCh = vd ? vd.ch : ''; o.vdLaw = vd ? vd.lawyer : ''; o.vdPlea = vd ? vd.plea : ''; o.vdAcq = !!(vd && vd.acq); o.vdGuilty = !!(vd && !vd.acq);
+    o.jailOn = !!s.jail; o.jailOff = !s.jail; o.jailLeft = s.jail ? String(Math.max(0, s.jail.until - s.day)) : '0'; o.jailPre = !!(s.jail && s.jail.pre); o.casier = s.casier.length ? s.casier.map(function (c) { return 'J' + c.day + ' · ' + c.ch; }).join(' · ') : 'Vierge'; o.nCasier = String(s.casier.length);
+    var lc = s.lastCrime; o.lcOn = !!lc; o.lcTxt = lc ? (lc.ok ? lc.n + ' : +' + fmt(lc.gain) + ' cauris (risque ' + lc.risk + ' %)' : lc.n + ' : arrêté (risque ' + lc.risk + ' %)') : ''; o.lcOk = !!(lc && lc.ok); o.lcKo = !!(lc && !lc.ok);
+    o.matOn = !!s.mature; o.matOff = !s.mature; o.omWait = s.omDay === s.day; o.omReady = s.omDay !== s.day; o.omK = String(Math.round(100 * Math.max(0.3, 1 - 0.15 * (s.omHist || []).filter(function (d) { return s.day - d < 7; }).length))) + ' %';
+    o.mgrOn = !!s.mgr; o.mgrOff = !s.mgr; o.mgrTot = fmt(s.mgrTot || 0); o.lcutP = s.signed ? Math.round(100 * (s.lcut || REG.labelCut)) + ' %' : '—'; o.duoP = s.duo ? s.duo.share + ' %' : ''; o.duoOn = !!s.duo; o.hypeOn = !!(s.hype && s.day <= s.hype); o.dissOn = !!s.diss;
     o.koreSt = s.kc && s.kc.st ? s.kc.st + (s.kc.left > 0 ? ' · +' + s.kc.bonus + ' de production sur ' + s.kc.left + ' titre(s)' : '') : 'Aucun accord';
     // missions
     var mn = REG.missions.filter(function (m) { return !s.ms[m.id]; })[0]; o.msOn = !!mn; o.msAll = !mn; o.msT = mn ? mn.t : 'Toutes les missions de départ sont faites'; o.msR = mn ? '+' + fmt(mn.cash) + ' cauris · +' + mn.xp + ' XP' : '';
     o.msN = String(REG.missions.filter(function (m) { return s.ms[m.id]; }).length); o.msTot = String(REG.missions.length);
     REG.missions.forEach(function (m) { o['ms_' + m.id] = !!s.ms[m.id]; o['mt_' + m.id] = !s.ms[m.id]; });
     // journal
-    var CAT = { musique: 'Studio', scene: 'Scène', eco: 'Argent', perso: 'Vie perso', carriere: 'Carrière', mission: 'Mission', evenement: 'Événement', jeu: 'Jeu' };
+    var CAT = { musique: 'Studio', scene: 'Scène', eco: 'Argent', perso: 'Vie perso', carriere: 'Carrière', mission: 'Mission', evenement: 'Événement', justice: 'Justice', jeu: 'Jeu' };
     for (var j3 = 0; j3 < 12; j3++) { var Lg = s.log[j3]; o['jl' + j3 + 'On'] = !!Lg; o['jl' + j3] = Lg ? Lg.t : ''; o['jd' + j3] = Lg ? 'J' + Lg.d + ' · ' + (CAT[Lg.c] || 'Jeu') : ''; }
     o.noLog = !s.log.length;
     // scène : billetterie, délais
@@ -658,7 +983,7 @@
     ip.i = 0.25 * ip.f + 0.15 * ip.g + 0.30 * ip.c + 0.20 * ip.s + 0.10 * ip.n; return ip;
   }
   function csq(x) { var p = []; if (x.g) p.push('relation ' + sg(x.g)); if (x.l) p.push('lien enfant ' + sg(x.l)); if (x.cash) p.push(sg(x.cash) + ' cauris'); if (x.e) p.push('énergie ' + sg(x.e)); if (x.h) p.push(x.h + ' h'); return p.join(' · '); }
-  return { EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
+  return { LBL: LBL, PERK: PERK, DLG: DLG, DLG_ORDER: DLG_ORDER, CASTN: CASTN, EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
 });
 /* RAP EMPIRE v21 — liaison DOM de la zone de consolidation. Amélioration progressive : sans stockage ni script, chaque écran affiche les valeurs de la démo canonique. */
 (function () {
@@ -682,7 +1007,7 @@
       var t = document.createElement('div'); t.className = 'toast e top'; t.setAttribute('role', 'alert'); t.textContent = msg;
       var h = document.querySelector('.scr'); if (!h) return; h.appendChild(t); setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 2200);
     }
-    var ERR = { cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
+    var ERR = { mature: 'Contenu mature désactivé : active-le dans le Profil (16+)', prison: 'Impossible en prison : écris, fais du sport ou termine la journée', garde: 'En garde à vue : paie la caution ou accepte la détention', affaire: 'Une affaire est en cours : attends le procès', proces: 'Le procès n\'a pas encore eu lieu', pistes: 'Nombre de titres incorrect pour ce projet', cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
     function get(o, p) { return p.split('.').reduce(function (a, k) { return a == null ? a : a[k]; }, o); }
     function render() {
       var SS = S || snap(); var v = RE.view(SS), i, els;
@@ -713,9 +1038,44 @@
       for (var i = 0; i < specs.length && ok; i++) ok = run(specs[i]).ok;
       if (!ok || sel) { e.preventDefault(); e.stopPropagation(); }
     }, true);
+    /* mini-jeu de cabine (04.8, repris de la v20) : 3 prises, le timing fixe la voix */
+    function mini() {
+      var el = document.getElementById('mg'); if (!el) return;
+      var cur = el.querySelector('.mg-cur'), zone = el.querySelector('.mg-zone'), btn = document.getElementById('mg-rec'), msg = document.getElementById('mg-msg'), nxt = document.getElementById('mg-next');
+      var ZC = [0.62, 0.34, 0.72], takes = [], t0 = Date.now(), done = false, p = 0;
+      function zc() { return ZC[takes.length % 3]; }
+      function place() { zone.style.left = (zc() * 100 - 8) + '%'; }
+      place();
+      function loop() { if (done) return; var t = (Date.now() - t0) / 1000 * 0.85; p = Math.abs(((t % 2) + 2) % 2 - 1); cur.style.left = (p * 100) + '%'; requestAnimationFrame(loop); }
+      requestAnimationFrame(loop);
+      function hit(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); } if (done) return;
+        var sc = Math.max(0, Math.round(100 - Math.abs(p - zc()) * 230)); takes.push(sc);
+        var n = takes.length, chip = el.querySelector('.mg-t' + n); if (chip) { chip.textContent = 'Prise ' + n + ' · ' + sc; chip.classList.add('on'); }
+        if (msg) msg.textContent = sc >= 70 ? 'Prise propre' : sc >= 45 ? 'Prise correcte' : 'Prise ratée, mais gardée';
+        if (n >= 3) { done = true; if (!run('record:' + takes.join(',')).ok) { done = false; takes = []; for (var i = 1; i <= 3; i++) { var c2 = el.querySelector('.mg-t' + i); if (c2) { c2.textContent = 'Prise ' + i; c2.classList.remove('on'); } } return; } if (nxt) { nxt.removeAttribute('hidden'); if (msg) msg.textContent = 'Trois prises enregistrées : écoute ton mix.'; } }
+        else { t0 = Date.now(); place(); }
+      }
+      btn.addEventListener('click', hit, true);
+      btn.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') hit(e); }, true);
+    }
+    /* battle (06.3, reprise de la v20) : 3 rounds, la bonne réplique dépend de l'attaque de K-Zer */
+    function seq() {
+      var el = document.getElementById('sq'); if (!el) return; var N = 3, picks = [], wins = 0, nxt = document.getElementById('sq-next');
+      var KZ = ['malin', 'agressif', 'cool'], meter = el.querySelector('.sq-fill'), val = el.querySelector('.sq-val'), steps = el.querySelectorAll('.sq-step'), btns = el.querySelectorAll('[data-pick]');
+      for (var i = 0; i < btns.length; i++) btns[i].addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation(); if (picks.length >= N) return; var pk = this.getAttribute('data-pick'); picks.push(pk);
+        var win = pk === KZ[picks.length - 1]; if (win) wins++;
+        if (meter) meter.style.width = (wins / N * 100) + '%'; if (val) val.textContent = wins + ' / ' + N;
+        var line = el.querySelector('.sq-res' + picks.length); if (line) line.textContent = win ? 'Round gagné' : 'Round perdu';
+        for (var j = 0; j < steps.length; j++) { if (j < picks.length) steps[j].classList.add('on'); }
+        var nn = el.querySelector('.sq-n'); if (nn) nn.textContent = Math.min(N, picks.length + 1);
+        if (picks.length >= N) { if (!run('battle:' + wins).ok) { picks = []; wins = 0; return; } if (nxt) nxt.removeAttribute('hidden'); }
+      });
+    }
     function auto() { var a = document.querySelector('[data-auto]'); if (!a) return; var p = a.getAttribute('data-auto').split('|'); setTimeout(function () { location.href = p[1] + '.dc.html'; }, +p[0]); }
     var inited = false;
-    function ready() { if (!document.querySelector('.scr')) return false; render(); if (!inited) { inited = true; auto(); } return true; }
+    function ready() { if (!document.querySelector('.scr')) return false; render(); if (!inited) { inited = true; mini(); seq(); auto(); } return true; }
     var tries = 0, tm = setInterval(function () { tries++; ready(); if (tries > 30) clearInterval(tm); }, 100);
   } catch (err) { /* le prototype reste lisible sans script */ }
 })();

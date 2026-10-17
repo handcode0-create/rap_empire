@@ -20,7 +20,7 @@
       var t = document.createElement('div'); t.className = 'toast e top'; t.setAttribute('role', 'alert'); t.textContent = msg;
       var h = document.querySelector('.scr'); if (!h) return; h.appendChild(t); setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 2200);
     }
-    var ERR = { cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
+    var ERR = { mature: 'Contenu mature désactivé : active-le dans le Profil (16+)', prison: 'Impossible en prison : écris, fais du sport ou termine la journée', garde: 'En garde à vue : paie la caution ou accepte la détention', affaire: 'Une affaire est en cours : attends le procès', proces: 'Le procès n\'a pas encore eu lieu', pistes: 'Nombre de titres incorrect pour ce projet', cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
     function get(o, p) { return p.split('.').reduce(function (a, k) { return a == null ? a : a[k]; }, o); }
     function render() {
       var SS = S || snap(); var v = RE.view(SS), i, els;
@@ -51,9 +51,44 @@
       for (var i = 0; i < specs.length && ok; i++) ok = run(specs[i]).ok;
       if (!ok || sel) { e.preventDefault(); e.stopPropagation(); }
     }, true);
+    /* mini-jeu de cabine (04.8, repris de la v20) : 3 prises, le timing fixe la voix */
+    function mini() {
+      var el = document.getElementById('mg'); if (!el) return;
+      var cur = el.querySelector('.mg-cur'), zone = el.querySelector('.mg-zone'), btn = document.getElementById('mg-rec'), msg = document.getElementById('mg-msg'), nxt = document.getElementById('mg-next');
+      var ZC = [0.62, 0.34, 0.72], takes = [], t0 = Date.now(), done = false, p = 0;
+      function zc() { return ZC[takes.length % 3]; }
+      function place() { zone.style.left = (zc() * 100 - 8) + '%'; }
+      place();
+      function loop() { if (done) return; var t = (Date.now() - t0) / 1000 * 0.85; p = Math.abs(((t % 2) + 2) % 2 - 1); cur.style.left = (p * 100) + '%'; requestAnimationFrame(loop); }
+      requestAnimationFrame(loop);
+      function hit(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); } if (done) return;
+        var sc = Math.max(0, Math.round(100 - Math.abs(p - zc()) * 230)); takes.push(sc);
+        var n = takes.length, chip = el.querySelector('.mg-t' + n); if (chip) { chip.textContent = 'Prise ' + n + ' · ' + sc; chip.classList.add('on'); }
+        if (msg) msg.textContent = sc >= 70 ? 'Prise propre' : sc >= 45 ? 'Prise correcte' : 'Prise ratée, mais gardée';
+        if (n >= 3) { done = true; if (!run('record:' + takes.join(',')).ok) { done = false; takes = []; for (var i = 1; i <= 3; i++) { var c2 = el.querySelector('.mg-t' + i); if (c2) { c2.textContent = 'Prise ' + i; c2.classList.remove('on'); } } return; } if (nxt) { nxt.removeAttribute('hidden'); if (msg) msg.textContent = 'Trois prises enregistrées : écoute ton mix.'; } }
+        else { t0 = Date.now(); place(); }
+      }
+      btn.addEventListener('click', hit, true);
+      btn.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') hit(e); }, true);
+    }
+    /* battle (06.3, reprise de la v20) : 3 rounds, la bonne réplique dépend de l'attaque de K-Zer */
+    function seq() {
+      var el = document.getElementById('sq'); if (!el) return; var N = 3, picks = [], wins = 0, nxt = document.getElementById('sq-next');
+      var KZ = ['malin', 'agressif', 'cool'], meter = el.querySelector('.sq-fill'), val = el.querySelector('.sq-val'), steps = el.querySelectorAll('.sq-step'), btns = el.querySelectorAll('[data-pick]');
+      for (var i = 0; i < btns.length; i++) btns[i].addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation(); if (picks.length >= N) return; var pk = this.getAttribute('data-pick'); picks.push(pk);
+        var win = pk === KZ[picks.length - 1]; if (win) wins++;
+        if (meter) meter.style.width = (wins / N * 100) + '%'; if (val) val.textContent = wins + ' / ' + N;
+        var line = el.querySelector('.sq-res' + picks.length); if (line) line.textContent = win ? 'Round gagné' : 'Round perdu';
+        for (var j = 0; j < steps.length; j++) { if (j < picks.length) steps[j].classList.add('on'); }
+        var nn = el.querySelector('.sq-n'); if (nn) nn.textContent = Math.min(N, picks.length + 1);
+        if (picks.length >= N) { if (!run('battle:' + wins).ok) { picks = []; wins = 0; return; } if (nxt) nxt.removeAttribute('hidden'); }
+      });
+    }
     function auto() { var a = document.querySelector('[data-auto]'); if (!a) return; var p = a.getAttribute('data-auto').split('|'); setTimeout(function () { location.href = p[1] + '.dc.html'; }, +p[0]); }
     var inited = false;
-    function ready() { if (!document.querySelector('.scr')) return false; render(); if (!inited) { inited = true; auto(); } return true; }
+    function ready() { if (!document.querySelector('.scr')) return false; render(); if (!inited) { inited = true; mini(); seq(); auto(); } return true; }
     var tries = 0, tm = setInterval(function () { tries++; ready(); if (tries > 30) clearInterval(tm); }, 100);
   } catch (err) { /* le prototype reste lisible sans script */ }
 })();

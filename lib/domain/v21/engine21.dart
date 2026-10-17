@@ -2,10 +2,14 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
-import '../rules.dart' as studio_rules show quality;
+import 'dialogues21.dart';
 import 'reg21.dart';
 
-/// Moteur RAP EMPIRE v21. Port fidèle de docs/RAP-EMPIRE-v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
+export 'dialogues21.dart';
+
+/// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
+/// Écarts assumés avec le prototype (extensions déjà présentes dans l'application) : 10 thèmes de la bibliothèque musicale, titres générés,
+/// biens supplémentaires, niveaux de manager M1 à M6, revenus de catalogue quotidiens, rivaux autres que K-Zer. Tests de parité : test/parity21_test.dart.
 /// L'état est un JSON (J), copié à chaque action puis sauvegardé tel quel. Pur : aucune dépendance Flutter, aucune horloge réelle
 /// (le hasard de la journée vient de la graine et du jour, comme dans le prototype). Valeurs provisoires : voir reg21.dart.
 
@@ -86,8 +90,24 @@ J init21() {
   final s = <String, dynamic>{
     'v': 21,
     'created': 0,
-    'battlePending': 0,
+    'btq': null,
+    'bt': null,
     'btl': null,
+    'mature': 0,
+    'projects': <dynamic>[],
+    'heat': 0,
+    'crimeN': 0,
+    'cas': null,
+    'casier': <dynamic>[],
+    'dlg': null,
+    'dq': <dynamic>[],
+    'dseen': <String, dynamic>{},
+    'rel': <String, dynamic>{},
+    'mgr': null,
+    'lcut': null,
+    'duo': null,
+    'hype': 0,
+    'diss': 0,
     'p': {
       'name': '',
       'age': Reg21.startAge,
@@ -133,10 +153,7 @@ J init21() {
     'merch': null,
     'merchDone': <String, dynamic>{},
     'signed': 0,
-    'mg': 0,
-    'mgLevel': null,
-    'jail': 0,
-    'charges': null,
+    'jail': null,
     'rivals': <String, dynamic>{},
     'managerPaid': 0,
     'ap': {'hair': 'hitwist', 'top': 'hoodie', 'skin': '3'},
@@ -190,7 +207,21 @@ J norm21(J s) {
   for (final k in d.keys) {
     s.putIfAbsent(k, () => d[k]);
   }
-  if (_t(s['mg']) && s['mgLevel'] == null) s['mgLevel'] = 'm1';
+  // Anciennes sauvegardes : manager, détention, attente de battle.
+  if (s.containsKey('mg')) {
+    if (_t(s['mg']) && !_t(s['mgr'])) s['mgr'] = s['mgLevel'] == null || s['mgLevel'] == 'm1' ? 'maya' : s['mgLevel'];
+    s.remove('mg');
+    s.remove('mgLevel');
+  }
+  if (s['jail'] is num) {
+    final left = _n(s['jail']);
+    s['jail'] = left > 0 ? {'until': _n(s['day']) + left, 'days': left} : null;
+  }
+  s.remove('charges');
+  if (s.containsKey('battlePending')) {
+    if (_t(s['battlePending']) && s['btq'] == null) s['btq'] = 'kzer';
+    s.remove('battlePending');
+  }
   return s;
 }
 
@@ -203,12 +234,12 @@ void _log(J s, String t, [String cat = 'jeu']) {
 void _pay(J s, num a) => s['cash'] = math.max(0, _n(s['cash']) + a);
 
 num _cachet(J s, num amount, String label) {
-  _pay(s, amount);
-  if (!_t(s['mg'])) return 0;
-  final tier = Reg21.managerTiers[s['mgLevel'] ?? 'm1']!;
-  final commission = jsRound(amount * (tier['rate'] as num));
-  _pay(s, -commission);
+  final tier = managerTier21(s);
+  final commission = tier == null ? 0 : jsRound(amount * (tier['rate'] as num));
+  _pay(s, amount - commission);
+  if (tier == null) return 0;
   s['managerPaid'] = _n(s['managerPaid']) + commission;
+  s['mgrTot'] = _n(s['mgrTot']) + commission;
   _log(s, 'Manager ${tier['n']} : −${fmt21(commission)} cauris (${((tier['rate'] as num) * 100).toStringAsFixed(0)} % de $label)',
       'eco');
   return commission;
@@ -282,14 +313,10 @@ int listensFor21(num q, num fans, int promo) {
   return jsRound(raw / (1 + raw / Reg21.listenCap));
 }
 
-J _platformStreams21(int total) {
-  final spotify = jsRound(total * .5);
-  final apple = jsRound(total * .3);
-  return {
-    'spotify': spotify,
-    'appleMusic': apple,
-    'youtube': total - spotify - apple
-  };
+/// Répartition des écoutes entre les plateformes fictives Ondéa (70 %) et Cauri Music (30 %).
+J _platformStreams21(num total) {
+  final p = platformSplit21(total);
+  return {'ondea': p.ondea, 'cauri': p.cauri};
 }
 
 int virOf21(J song, [int promo = 0]) {
@@ -359,8 +386,10 @@ J? _clipSong(J s) {
 /// Titre visé par le clip : le titre en cours, sinon le dernier sorti.
 J? clipSong21(J s) => _clipSong(s);
 
-int tickets21(J s) => math.min(Reg21.capacity,
-    jsRound(40 + _n(s['fans']) * 0.05 + _n(_m(s['geo'])['bakoma']) * 4));
+int tickets21(J s) => math.min(
+    Reg21.capacity,
+    jsRound((40 + _n(s['fans']) * 0.05 + _n(_m(s['geo'])['bakoma']) * 4) *
+        (s['lperk'] == 'scene' ? 1.2 : 1)));
 
 /// Indice du Top 10 Global (R10) et ses cinq parties. Échelles provisoires de l'étude D-17.
 ({double f, double g, double c, double s, double n, double i}) idxParts21(J s) {
@@ -484,6 +513,107 @@ bool nameOk21(dynamic x) {
 // Actions
 // ---------------------------------------------------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Dialogues, labels, justice : aides (port de engine21.js, mise à jour v21 complète)
+// ---------------------------------------------------------------------------------------------------------------------
+
+dynamic _copy(dynamic v) => v is Map || v is List ? jsonDecode(jsonEncode(v)) : v;
+
+/// Commission du manager : Maya (M1, `mgr == 'maya'`) prend 8 % ; les autres niveaux suivent managerTiers.
+J? managerTier21(J s) {
+  final m = s['mgr'];
+  if (!_t(m)) return null;
+  return Reg21.managerTiers[m == 'maya' ? 'm1' : m];
+}
+
+/// Nom du label signé (Bakoma Sound Records par défaut).
+String lblName21(J n) => lbl21[n['label']]?.n ?? 'Bakoma Sound Records';
+
+/// Ventes cumulées d'un projet ou d'un titre selon les plateformes fictives (aucun revenu en plus des écoutes).
+({int ondea, int cauri}) platformSplit21(num listens) => (
+      ondea: jsRound(listens * (Reg21.platforms['ondea']!['share'] as num)),
+      cauri: jsRound(listens * (Reg21.platforms['cauri']!['share'] as num)),
+    );
+
+void _queueDlg(J n, String id, [num d = 0]) {
+  if (_t(_m(n['dseen'])[id]) && d == 0) return;
+  final cur = n['dlg'];
+  if ((cur != null && _m(cur)['id'] == id) || _l(n['dq']).any((x) => _m(x)['id'] == id)) return;
+  _l(n['dq']).add({'id': id, 'at': _n(n['day']) + d});
+}
+
+/// Déclenche les scènes de dialogue de la carrière puis ouvre la première dont le jour est venu.
+void _triggers(J n) {
+  if (!_t(n['created'])) return;
+  final seen = _m(n['dseen']);
+  for (final id in dlgOrder21) {
+    if (!_t(seen[id]) && dlg21[id]!.cond(n)) _queueDlg(n, id);
+  }
+  if (n['dlg'] == null) {
+    final dq = _l(n['dq']);
+    for (var i = 0; i < dq.length; i++) {
+      if (_n(_m(dq[i])['at']) <= _n(n['day'])) {
+        n['dlg'] = {'id': _m(dq[i])['id'], 'node': 'n1', 'path': <dynamic>[]};
+        dq.removeAt(i);
+        break;
+      }
+    }
+  }
+}
+
+/// Conséquences d'un choix de dialogue. Renvoie un code d'erreur ('cash', 'energie', 'tard') ou null.
+String? _applyEff(J n, J? e) {
+  if (e == null) return null;
+  final cash = e['cash'] as num?;
+  if (_t(cash) && cash! < 0 && _n(n['cash']) < -cash) return 'cash';
+  if (_t(e['h']) || _t(e['en'])) {
+    final er = _spend(n, _n(e['h']), _n(e['en']));
+    if (er != null) return er;
+  }
+  if (_t(cash)) _pay(n, cash!);
+  if (_t(e['cachet'])) _cachet(n, e['cachet'] as num, 'scène');
+  for (final k in const ['fans', 'rep', 'xp', 'shows']) {
+    if (_t(e[k])) {
+      if (k == 'xp') {
+        _addXp(n, e['xp'] as num);
+      } else {
+        n[k] = _n(n[k]) + (e[k] as num);
+      }
+    }
+  }
+  if (_t(e['pop'])) n['pop'] = clamp21(_n(n['pop']) + (e['pop'] as num), 0, 100);
+  if (e['rel'] != null) {
+    final rel = _m(n['rel']);
+    _m(e['rel']).forEach((k, v) => rel[k] = clamp21(_n(rel[k]) + (v as num), -100, 100));
+  }
+  if (e['geo'] != null) _m(e['geo']).forEach((k, v) => _geoAdd(n, k, v as num));
+  if (e['kc'] != null) {
+    final kc = _m(e['kc']);
+    n['kc'] = {'st': kc['st'], 'bonus': kc['bonus'], 'left': kc['left'], 'rel': _n(_m(n['rel'])['kore'])};
+  }
+  if (e['set'] != null) {
+    _m(e['set']).forEach((k, v) {
+      if (k == 'sk.ecr') {
+        _m(n['sk'])['ecr'] = _n(_m(n['sk'])['ecr']) + (v as num);
+      } else {
+        n[k] = _copy(v);
+      }
+    });
+    if (_m(e['set'])['lperk'] == 'prod') {
+      n['kc'] = {'st': 'Label Studio Kôrô Productions', 'bonus': 12, 'left': 3, 'rel': _n(_m(n['rel'])['kore'])};
+    }
+  }
+  if (_t(e['hype'])) n['hype'] = _n(n['day']) + (e['hype'] as num);
+  if (e['q'] != null) _queueDlg(n, _l(e['q'])[0] as String, _l(e['q'])[1] as num);
+  return null;
+}
+
+/// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
+const jailOk21 = {
+  'endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
+  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature'
+};
+
 final Map<String, Action> actions21 = {
   'reset': (s, a) => _ok(init21()),
 
@@ -536,6 +666,12 @@ final Map<String, Action> actions21 = {
       'feats': <dynamic>[],
       'clip': {'st': 'aucun'},
     };
+    if (n['duo'] != null) {
+      final cur = _m(n['cur']);
+      _l(cur['feats']).add('ayana');
+      cur['duo'] = _m(n['duo'])['share'];
+      n['duo'] = null;
+    }
     final sk = _m(n['sk']);
     sk['ecr'] = _n(sk['ecr']) + 1;
     _log(n, 'Texte écrit : $title ($mode)', 'musique');
@@ -681,10 +817,27 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
-  'record': (s, a) {
-    if (s['cur'] == null || _m(s['cur'])['st'] != 'ecrit') {
-      return _no(s, 'pasdetexte');
-    }
+  // Instru choisie (04.3), payée au choix ; utilisée à la prochaine prise de cabine.
+  'pick': (s, id) {
+    final i = Reg21.instrus[id];
+    if (i == null) return _no(s, 'inconnu');
+    final cur = s['cur'];
+    if (cur != null && _m(cur)['st'] == 'enregistre') return _no(s, 'encours');
+    if (_m(s['ui'])['inst'] == id) return _ok(s);
+    if (_n(s['rank']) < (i['rank'] as num)) return _no(s, 'rang');
+    if (i['rep'] != null && _n(s['rep']) < (i['rep'] as num)) return _no(s, 'rep');
+    if (_n(s['cash']) < (i['cost'] as num)) return _no(s, 'cash');
+    final n = clone21(s);
+    if (_n(i['cost']) != 0) _pay(n, -(i['cost'] as num));
+    _m(n['ui'])['inst'] = id;
+    _log(n, 'Instru choisie : ${i['n']}${_n(i['cost']) != 0 ? ' (−${fmt21(i['cost'] as num)})' : ' (gratuite)'}', 'musique');
+    return _ok(n);
+  },
+
+  // Cabine à 3 prises : qualité = 0,35 texte + 0,30 voix + 0,35 production − fatigue + featurings.
+  'record': (s, takes) {
+    final cur0 = s['cur'];
+    if (cur0 == null || _m(cur0)['st'] != 'ecrit') return _no(s, 'pasdetexte');
     final hs = _m(s['own'])['homestudio'] != null;
     final n = clone21(s);
     final e = _spend(n, 2, hs ? 15 : 25);
@@ -693,46 +846,38 @@ final Map<String, Action> actions21 = {
     final kb = _n(kc['left']) > 0 ? _n(kc['bonus']) : 0;
     if (kb != 0) kc['left'] = _n(kc['left']) - 1;
     final cur = _m(n['cur']);
-    final instId = cur['instId'] as String?;
-    final storedTakes = a is List
-        ? a
-        : (cur['takes'] is List ? cur['takes'] as List : const <num>[]);
-    final takes = storedTakes.length == 3
-        ? storedTakes.cast<num>()
-        : const <num>[74, 48, 43];
-    final voiceSkill = math.max(0, (_n(_m(n['sk'])['voix']) - 10) ~/ 3);
-    final voix = instId == null
-        ? 55 + (hs ? 2 : 0)
-        : (takes.reduce((x, y) => x + y) / takes.length).round() + voiceSkill;
-    final prod = instId == null
-        ? 56 + (hs ? 4 : 0) + kb
-        : _n(cur['instQ']) + (hs ? 4 : 0) + kb;
+    // `takes` : liste de prises 0-100 ; à défaut, celles déjà enregistrées sur le titre (ancien parcours), sinon les valeurs par défaut.
+    final src = takes is List && takes.isNotEmpty
+        ? takes
+        : (cur['takes'] is List && (cur['takes'] as List).length == 3 ? cur['takes'] as List : Reg21.takesDefault);
+    final tk = src.take(3).map((x) => clamp21(jsRound(x is num ? x : (num.tryParse('$x') ?? 0)), 0, 100)).toList();
+    final ui = _m(n['ui']);
+    final iid = (ui['inst'] ?? cur['instId'] ?? 'nuit') as String;
+    final inst = Reg21.instrus[iid]!;
+    final voix = jsRound(tk.fold<num>(0, (a, b) => a + b) / tk.length) + (hs ? 2 : 0);
+    final prod = _n(inst['Q']) + (hs ? 4 : 0) + kb;
+    final mal = math.min(20, math.max(0, 40 - _n(s['en'])) / 2);
+    cur['takes'] = tk;
+    cur['inst'] = iid;
+    ui['inst'] = null;
+    cur['prodBy'] = kb != 0
+        ? 'DJ Kôrô (Studio Kôrô)'
+        : inst['who'] == 'Gratuite'
+            ? 'Instru libre « ${inst['n']} »'
+            : '${inst['who']} (« ${inst['n']} »)';
     var fq = 0;
     for (final f in _l(cur['feats'])) {
       fq += Reg21.feats[f]!['q'] as int;
     }
     cur['voix'] = voix;
     cur['prod'] = prod;
-    cur['takes'] = takes;
     cur['Q'] = clamp21(
-        instId == null
-            ? jsRound(0.35 * _n(cur['tx']) +
-                    0.30 * voix +
-                    0.35 * prod -
-                    math.min(20, math.max(0, 40 - _n(s['en'])) / 2)) +
-                fq
-            : studio_rules.quality(_n(cur['tx']), voix, prod, _n(s['en'])) + fq,
-        0,
-        100);
+        jsRound(0.35 * _n(cur['tx']) + 0.30 * voix + 0.35 * prod - mal) + fq, 0, 100);
     cur['st'] = 'enregistre';
     final sk = _m(n['sk']);
     sk['voix'] = _n(sk['voix']) + 1;
     _addXp(n, 30);
-    _log(
-        n,
-        'Enregistré : ${cur['title']} · qualité ${cur['Q']}${kb != 0 ? ' (production Kôrô +$kb)' : ''}',
-        'musique');
-    _queueEv(n, 'kore');
+    _log(n, 'Enregistré : ${cur['title']} · qualité ${cur['Q']}${kb != 0 ? ' (production Kôrô +$kb)' : ''}', 'musique');
     return _ok(n);
   },
 
@@ -781,7 +926,159 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // Sortie d'un single : écoutes, ventes (1,2 % des streams × 30 cauris), part du label déduite, popularité plafonnée à 12 et ralentie près de 100.
   'release': (s, a) {
+    if (s['project'] != null) return actions21['_releaseLegacy']!(s, a);
+    final cur0 = s['cur'];
+    if (cur0 == null || _m(cur0)['st'] != 'enregistre') return _no(s, 'pasenregistre');
+    final promo = _n(_m(s['ui'])['promo']).toInt();
+    final p = promos21[promo];
+    final pc = (s['lperk'] == 'radio' && promo == 2) ? 0 : p['c'] as num;
+    if (_n(s['cash']) < pc) return _no(s, 'cash');
+    final n = clone21(s);
+    final c = _m(n['cur']);
+    if (pc != 0) _pay(n, -pc);
+    c['vir'] = virOf21(c, promo);
+    var L = jsRound(listensFor21(_n(c['Q']), _n(n['fans']), promo) * (0.8 + _n(c['vir']) / 250) * featBoost21(c));
+    if (_t(n['hype']) && _n(n['day']) <= _n(n['hype'])) {
+      L = jsRound(L * 1.2);
+      c['hype'] = 1;
+    }
+    n['hype'] = 0;
+    if (_t(n['diss'])) {
+      L = jsRound(L * 1.1);
+      c['diss'] = 1;
+      n['diss'] = 0;
+    }
+    final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
+    final signed = _t(n['signed']);
+    final gross = jsRound(L * Reg21.listenValue);
+    var rev = signed ? jsRound(gross * (1 - cutRate)) : gross;
+    final fg = (L * 0.07 / (1 + _n(n['fans']) / Reg21.fanSat)).ceil();
+    var pg = (L / 900).floor();
+    if (c['duo'] != null) {
+      final dc = jsRound(rev * _n(c['duo']) / 100);
+      rev -= dc;
+      c['duoCut'] = dc;
+    }
+    final sl = jsRound(L * Reg21.singleSales);
+    final sg0 = sl * Reg21.salePrice;
+    final sr = signed ? jsRound(sg0 * (1 - cutRate)) : sg0;
+    c['salesRev'] = sr;
+    c['cut'] = _n(c['cut']);
+    c['salesCut'] = sg0 - sr;
+    rev += sr;
+    pg = jsRound(math.min(12, pg) * (1 - _n(n['pop']) / 100));
+    _pay(n, rev);
+    n['fans'] = _n(n['fans']) + fg;
+    n['pop'] = clamp21(_n(n['pop']) + pg, 0, 100);
+    _geoAdd(n, 'bakoma', math.min(12, jsRound(L / 1500 * 10) / 10 + 1));
+    if (promo == 2) {
+      _geoAdd(n, 'portambre', 2);
+      _geoAdd(n, 'selene', 2);
+    }
+    c['labelAt'] = signed ? lblName21(n) : 'Indépendant';
+    c['auteur'] = _m(n['p'])['name'];
+    c['sales'] = sl;
+    final perk = n['lperk'];
+    final sk = _m(n['sk']);
+    if (perk == 'export') {
+      _geoAdd(n, 'portambre', 3);
+      _geoAdd(n, 'selene', 3);
+    }
+    if (perk == 'dev') {
+      sk['flow'] = _n(sk['flow']) + 1;
+      sk['voix'] = _n(sk['voix']) + 1;
+    }
+    if (perk == 'ecr') sk['ecr'] = _n(sk['ecr']) + 2;
+    c['st'] = 'sorti';
+    c['day'] = n['day'];
+    c['L'] = L;
+    c['launchL'] = L;
+    c['rev'] = rev;
+    c['streamRev'] = rev - sr;
+    c['cut'] = gross - _n(c['streamRev']) - _n(c['duoCut']) + _n(c['salesCut']);
+    c['fg'] = fg;
+    c['pg'] = pg;
+    c['tier'] = tierOf21(L);
+    c['promo'] = promo;
+    c['label'] = c['labelAt'];
+    c['signed'] = signed ? 1 : 0;
+    c['year'] = 1 + ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
+    c['views'] = _m(c['clip'])['st'] == 'publie' ? jsRound(L * .35) : 0;
+    final split = platformSplit21(L);
+    c['platforms'] = {'ondea': split.ondea, 'cauri': split.cauri};
+    _l(n['disco']).insert(0, c);
+    n['cur'] = null;
+    n['last'] = c['id'];
+    _addXp(n, 40);
+    _log(n, 'Sortie : ${c['title']} · ${fmt21(L)} écoutes · ${c['tier']}', 'musique');
+    return _ok(n);
+  },
+
+  // ---------- catalogue : fiche d'un titre, EP et album (13.3, 13.4, 05-5) ----------
+  'ctk': (s, id) => _setUi(s, 'ctk', id),
+  'ctki': (s, i) {
+    final d = _l(s['disco']), k = int.tryParse('$i') ?? -1;
+    if (k < 0 || k >= d.length) return _no(s, 'inconnu');
+    return _setUi(s, 'ctk', _m(d[k])['id']);
+  },
+  'ptype': (s, t) => Reg21.proj.containsKey(t) ? _setUi(s, 'ptype', t) : _no(s, 'inconnu'),
+  'ptk': (s, id) {
+    if (!_l(s['disco']).any((x) => _m(x)['id'] == id)) return _no(s, 'inconnu');
+    final n = clone21(s), ui = _m(n['ui']);
+    final cur = ((ui['ptk'] as List?) ?? <dynamic>[]).toList();
+    ui['ptk'] = cur.contains(id) ? cur.where((x) => x != id).toList() : [...cur, id];
+    return _ok(n);
+  },
+  'ptki': (s, i) {
+    final d = _l(s['disco']), k = int.tryParse('$i') ?? -1;
+    if (k < 0 || k >= d.length) return _no(s, 'inconnu');
+    return actions21['ptk']!(s, _m(d[k])['id']);
+  },
+  'prel': (s, a) {
+    final ui0 = _m(s['ui']);
+    final t = (ui0['ptype'] ?? 'EP') as String, P = Reg21.proj[t]!;
+    final ids = ((ui0['ptk'] as List?) ?? const []).cast<String>();
+    if (ids.length < (P['min'] as num) || ids.length > (P['max'] as num)) return _no(s, 'pistes');
+    if (_n(s['cash']) < (P['cost'] as num)) return _no(s, 'cash');
+    final n = clone21(s);
+    final e = _spend(n, P['h'] as num, P['e'] as num);
+    if (e != null) return _no(s, e);
+    _pay(n, -(P['cost'] as num));
+    final tr = _l(n['disco']).map(_m).where((x) => ids.contains(x['id'])).toList();
+    final q = jsRound(tr.fold<num>(0, (a, x) => a + _n(x['Q'])) / tr.length);
+    final ui = _m(n['ui']);
+    var title = cleanName21(ui['ptitle']);
+    if (title.length > 30) title = title.substring(0, 30);
+    if (title.isEmpty) {
+      title = '${t == 'EP' ? 'EP n° ' : 'Album n° '}${_l(n['projects']).where((p) => _m(p)['type'] == t).length + 1}';
+    }
+    final fans = _n(n['fans']);
+    final st = jsRound(tr.fold<num>(0, (a, x) => a + _n(x['L'])) * 0.3 + fans * 2);
+    final sl = jsRound(fans * 0.06 * q / 60 * (t == 'Album' ? 1.3 : 1) + st * 0.004);
+    final gross = sl * Reg21.salePrice;
+    final rev = _t(n['signed']) ? jsRound(gross * (1 - (_t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut))) : gross;
+    final fg = jsRound(sl * 2);
+    final top = P['top'] as num, entry = P['entry'] as num, k = P['k'] as num;
+    final rk = sl >= entry ? math.max(1, math.min(top, jsRound(top * math.pow(sl / entry, -k)))) : 0;
+    _pay(n, rev);
+    n['fans'] = fans + fg;
+    n['pop'] = clamp21(_n(n['pop']) + math.min(6, (sl / 400).floor()), 0, 100);
+    _addXp(n, t == 'Album' ? 150 : 80);
+    _l(n['projects']).insert(0, {
+      'id': 'P${_l(n['projects']).length + 1}', 'type': t, 'title': title, 'tracks': List<dynamic>.of(ids), 'day': n['day'],
+      'Q': q, 'L': st, 'sales': sl, 'rev': rev, 'cut': gross - rev, 'fans': fg, 'rank': rk,
+      'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
+    });
+    ui['ptk'] = <dynamic>[];
+    ui['ptitle'] = '';
+    _log(n, '$t sorti : $title · ${tr.length} titres · ${fmt21(sl)} ventes · ${rk != 0 ? '#$rk au Top $top' : 'non classé'}', 'musique');
+    return _ok(n);
+  },
+
+  // Ancien parcours EP/album (action projectStart) : retiré avec l'écran correspondant (groupe catalogue).
+  '_releaseLegacy': (s, a) {
     if (s['project'] != null) {
       final project = _m(s['project']);
       final tracks = _l(project['tracks']).cast<J>();
@@ -978,31 +1275,296 @@ final Map<String, Action> actions21 = {
   },
 
   // ---------- scène ----------
+  // ---------- scène ----------
+  // Open mic : une fois par jour ; les gains diminuent de 15 % par passage sur 7 jours glissants (plancher 30 %).
   'openmic': (s, a) {
+    if (s['omDay'] == s['day']) return _no(s, 'deja');
     final n = clone21(s);
     final e = _spend(n, 1, 15 - (_m(s['own'])['moto'] != null ? 5 : 0));
     if (e != null) return _no(s, e);
+    final hist = (((n['omHist'] as List?) ?? const []).cast<num>()).where((d) => _n(n['day']) - d < Reg21.omWindow).toList();
+    final k = math.max(Reg21.omFloor, 1 - Reg21.omStep * hist.length);
+    hist.add(_n(n['day']));
+    n['omHist'] = hist;
+    n['omDay'] = n['day'];
+    n['omK'] = k;
     final win = _n(s['en']) >= 40;
     n['shows'] = _n(n['shows']) + 1;
     n['omCash'] = 0;
     n['omCut'] = 0;
     if (win) {
-      n['fans'] = _n(n['fans']) + 150;
-      n['rep'] = _n(n['rep']) + 6;
-      final managerCut = _cachet(n, 3000, 'open mic');
-      n['omCash'] = 3000 - managerCut;
+      n['fans'] = _n(n['fans']) + jsRound(Reg21.omFans * k);
+      n['rep'] = _n(n['rep']) + (k >= 0.7 ? 6 : 3);
+      final managerCut = _cachet(n, Reg21.omCash, 'open mic');
+      n['omCash'] = Reg21.omCash - managerCut;
       n['omCut'] = managerCut;
-      _geoAdd(n, 'bakoma', 2);
-      _addXp(n, 60);
+      _geoAdd(n, 'bakoma', 2 * k);
+      _addXp(n, jsRound(60 * k));
     } else {
       n['fans'] = _n(n['fans']) + 12;
       _addXp(n, 10);
     }
-    _log(
-        n,
-        "Open mic de Ndolo : ${win ? 'le public a suivi (+150 fans)' : 'trou de mémoire'}",
-        'scene');
+    _log(n, "Open mic de Ndolo : ${win ? 'le public a suivi (+150 fans)' : 'trou de mémoire'}", 'scene');
     n['om'] = win ? 1 : 0;
+    return _ok(n);
+  },
+
+  // Battle de K-Zer : 3 rounds, victoire à 2 (`wins` = rounds gagnés).
+  'battle': (s, wins) {
+    if (s['btq'] == null) return _no(s, 'rien');
+    final n = clone21(s);
+    final e = _spend(n, 1, 15);
+    if (e != null) return _no(s, e);
+    final w = clamp21(jsRound(wins is num ? wins : (num.tryParse('$wins') ?? 0)), 0, 3).toInt();
+    final win = w >= Reg21.battleWin;
+    num cash = 0, managerCut = 0, fans;
+    if (win) {
+      fans = 150 + (n['lperk'] == 'street' ? 50 : 0);
+      n['fans'] = _n(n['fans']) + fans;
+      n['rep'] = _n(n['rep']) + 6;
+      managerCut = _cachet(n, Reg21.battleFee, 'battle');
+      cash = Reg21.battleFee - managerCut;
+      _geoAdd(n, 'bakoma', 2);
+      _addXp(n, 60);
+    } else {
+      fans = 12;
+      n['fans'] = _n(n['fans']) + 12;
+      _addXp(n, 10);
+    }
+    n['bt'] = {'win': win ? 1 : 0, 'w': w, 'vs': s['btq']};
+    // détail du résultat pour l'écran 21-B2 (extension : le prototype ne le calcule pas)
+    n['btl'] = {
+      'win': win ? 1 : 0, 'score': w, 'fans': fans, 'gross': win ? Reg21.battleFee : 0, 'cash': cash,
+      'managerCut': managerCut, 'rep': win ? 6 : 0, 'xp': win ? 60 : 10,
+    };
+    n['btq'] = null;
+    _log(n, "Battle contre K-Zer d'Mabaya : ${win ? 'victoire ' : 'défaite '}$w / 3${win ? ' (+150 fans, +6 réputation, +3 000)' : ' (+12 fans)'}", 'scene');
+    return _ok(n);
+  },
+
+  // ---------- dialogues (section 16 et 19) ----------
+  'dch': (s, ch) {
+    final d = s['dlg'];
+    if (d == null || _t(_m(d)['done'])) return _no(s, 'rien');
+    final D = dlg21[_m(d)['id']]!, N = D.nodes[_m(d)['node']]!;
+    final C = N.ch.where((x) => x.id == ch).toList();
+    if (C.isEmpty) return _no(s, 'inconnu');
+    final c = C.first;
+    final n = clone21(s);
+    final er = _applyEff(n, c.e);
+    if (er != null) return _no(s, er);
+    final dn = _m(n['dlg']);
+    _l(dn['path']).add(c.n);
+    if (c.go != null) {
+      dn['node'] = c.go;
+      return _ok(n);
+    }
+    dn['done'] = 1;
+    dn['end'] = c.end;
+    dn['c'] = c.c;
+    _m(n['dseen'])[dn['id'] as String] = c.end;
+    _log(n, '${D.t} : ${c.end} (${c.c})', 'evenement');
+    return _ok(n);
+  },
+  'dclose': (s, a) {
+    final d = s['dlg'];
+    if (d == null) return _ok(s);
+    if (!_t(_m(d)['done'])) return _no(s, 'encours');
+    final n = clone21(s);
+    n['dlg'] = null;
+    _triggers(n);
+    return _ok(n);
+  },
+  // Raccourci de démonstration : lance une scène pour la revoir (non porté dans l'interface : voir BRIEF §2).
+  'dstart': (s, id) {
+    if (!dlg21.containsKey(id)) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final cur = n['dlg'];
+    if (cur != null && !_t(_m(cur)['done']) && _m(cur)['id'] != id && !_t(_m(cur)['demo'])) {
+      _l(n['dq']).insert(0, {'id': _m(cur)['id'], 'at': n['day']});
+    }
+    n['dlg'] = {'id': id, 'node': 'n1', 'path': <dynamic>[], 'demo': 1};
+    n['dq'] = _l(n['dq']).where((x) => _m(x)['id'] != id).toList();
+    return _ok(n);
+  },
+
+  // ---------- manager ----------
+  // Rompre le contrat (la signature se fait par le dialogue 19-6 « mgr » ou par hireManager).
+  'mgr': (s, a) {
+    if (!_t(s['mgr'])) return _no(s, 'rien');
+    final n = clone21(s);
+    n['mgr'] = null;
+    _log(n, 'Contrat de ${managerTier21(s)?['n'] ?? 'ta manager'} terminé', 'business');
+    return _ok(n);
+  },
+  'hireManager': (s, id) {
+    if (id is! String || !Reg21.managerTiers.containsKey(id)) return _no(s, 'inconnu');
+    final tier = Reg21.managerTiers[id]!;
+    if (_n(s['rep']) < (tier['rep'] as num) || _n(s['xp']) < (tier['xp'] as num)) return _no(s, 'rang');
+    final n = clone21(s);
+    n['mgr'] = id == 'm1' ? 'maya' : id;
+    _log(n, 'Contrat signé avec ${tier['n']} · ${((tier['rate'] as num) * 100).toStringAsFixed(0)} % de chaque cachet', 'business');
+    return _ok(n);
+  },
+
+  // ---------- label (contrat standard 08-2, sans dialogue) ----------
+  'sign': (s, a) {
+    if (_t(s['signed'])) return _no(s, 'deja');
+    if (_n(s['rep']) < Reg21.labelRep) return _no(s, 'rep');
+    final n = clone21(s);
+    n['signed'] = 1;
+    n['label'] = 'BSR';
+    n['lcut'] = 0.35;
+    n['lperk'] = 'radio';
+    _pay(n, 150000);
+    _log(n, 'Contrat signé : Bakoma Sound Records (avance 150 000)', 'carriere');
+    return _ok(n);
+  },
+
+  // ---------- activités illégales, police, tribunal, prison (contenu mature 16+) ----------
+  'mature': (s, v) {
+    final n = clone21(s);
+    n['mature'] = v == 'on' ? 1 : 0;
+    _log(n, 'Contenu mature (16+) ${_t(n['mature']) ? 'activé' : 'désactivé'}', 'jeu');
+    return _ok(n);
+  },
+  'crime': (s, id) {
+    final C = Reg21.crimes[id];
+    if (C == null) return _no(s, 'inconnu');
+    if (!_t(s['mature'])) return _no(s, 'mature');
+    if (s['cas'] != null) return _no(s, 'affaire');
+    final n = clone21(s);
+    final e = _spend(n, C['h'] as num, C['e'] as num);
+    if (e != null) return _no(s, e);
+    n['crimeN'] = _n(n['crimeN']) + 1;
+    final risk = math.min(85, (C['risk'] as num) + jsRound(_n(n['heat']) / 2));
+    final roll = rng21(n, 97 + _n(n['crimeN']) * 13) * 100;
+    n['heat'] = math.min(100, _n(n['heat']) + (C['heat'] as num));
+    if (roll < risk) {
+      n['cas'] = {
+        'crime': id, 'n': C['n'], 'ch': C['ch'], 'sev': C['sev'], 'day': n['day'], 'trial': _n(n['day']) + Reg21.trialIn,
+        'stage': 'garde', 'lawyer': 'office', 'bail': (C['sev'] as num) * Reg21.bailPer, 'risk': risk,
+      };
+      n['hour'] = Reg21.dayEnd;
+      _log(n, 'Arrêté pendant : ${C['n']} (risque $risk %) · garde à vue', 'justice');
+      n['lastCrime'] = {'n': C['n'], 'ok': 0, 'risk': risk};
+    } else {
+      final g = jsRound((C['lo'] as num) + ((C['hi'] as num) - (C['lo'] as num)) * rng21(n, 41 + _n(n['crimeN'])));
+      _pay(n, g);
+      n['rep'] = _n(n['rep']) + ((C['sev'] as num) >= 3 ? 1 : 0);
+      n['lastCrime'] = {'n': C['n'], 'ok': 1, 'gain': g, 'risk': risk};
+      _log(n, '${C['n']} : +${fmt21(g)} cauris · chaleur ${n['heat']}', 'justice');
+    }
+    return _ok(n);
+  },
+  'bail': (s, a) {
+    final c = s['cas'];
+    if (c == null || _m(c)['stage'] != 'garde') return _no(s, 'rien');
+    if (_n(s['cash']) < _n(_m(c)['bail'])) return _no(s, 'cash');
+    final n = clone21(s), cs = _m(n['cas']);
+    _pay(n, -_n(cs['bail']));
+    cs['stage'] = 'libre';
+    _log(n, 'Caution payée : ${fmt21(_n(cs['bail']))} · procès le jour ${cs['trial']}', 'justice');
+    return _ok(n);
+  },
+  'detention': (s, a) {
+    final c = s['cas'];
+    if (c == null || _m(c)['stage'] != 'garde') return _no(s, 'rien');
+    final n = clone21(s), cs = _m(n['cas']);
+    cs['stage'] = 'detenu';
+    n['jail'] = {'until': cs['trial'], 'days': Reg21.trialIn, 'pre': 1};
+    _log(n, "Détention provisoire jusqu'au procès (jour ${cs['trial']})", 'justice');
+    return _ok(n);
+  },
+  'lawyer': (s, id) {
+    final lw = Reg21.lawyers[id];
+    final c = s['cas'];
+    if (lw == null || c == null) return _no(s, 'rien');
+    if (_m(c)['paid'] == id) return _ok(s);
+    if (_n(s['cash']) < (lw['cost'] as num)) return _no(s, 'cash');
+    final n = clone21(s), cs = _m(n['cas']);
+    _pay(n, -(lw['cost'] as num));
+    cs['lawyer'] = id;
+    cs['paid'] = id;
+    _log(n, 'Avocat : ${lw['n']}${_n(lw['cost']) != 0 ? ' (−${fmt21(lw['cost'] as num)})' : ''}', 'justice');
+    return _ok(n);
+  },
+  'trial': (s, plea) {
+    final c = s['cas'];
+    if (c == null || _m(c)['stage'] == 'garde') return _no(s, 'rien');
+    if (_n(s['day']) < _n(_m(c)['trial'])) return _no(s, 'proces');
+    final n = clone21(s), cs = _m(n['cas']);
+    final lw = Reg21.lawyers[cs['lawyer']]!, S = Reg21.sentences[_n(cs['sev']).toInt()]!;
+    final guilty = plea == 'coupable';
+    final pAcq = guilty ? 0 : clamp21((lw['skill'] as num) - _n(cs['sev']) * 8 + 10, 0, 70);
+    final roll = rng21(n, 151 + _n(n['crimeN'])) * 100;
+    bool acq;
+    String txt;
+    num fine, jail;
+    if (roll < pAcq) {
+      acq = true;
+      txt = 'Relaxé : les preuves ne suffisent pas';
+      fine = 0;
+      jail = 0;
+    } else {
+      acq = false;
+      final red = 1 - (lw['skill'] as num) / 100 - (guilty ? 0.25 : 0);
+      var jd = math.max(0, jsRound((S['jail'] as num) * red));
+      fine = jsRound((S['fine'] as num) * (guilty ? 0.8 : 1));
+      if (_t(S['jail']) && jd < 2) {
+        jd = 0;
+        fine += 15000;
+      }
+      jail = jd;
+      txt = jd != 0
+          ? "Coupable : $jd jour(s) de prison${fine != 0 ? " et ${fmt21(fine)} d'amende" : ''}"
+          : "Coupable : ${fmt21(fine)} d'amende${_t(S['sursis']) ? ' et prison avec sursis' : ''}";
+    }
+    if (fine != 0) _pay(n, -fine);
+    if (!acq) {
+      n['pop'] = clamp21(_n(n['pop']) - 5, 0, 100);
+      n['fans'] = jsRound(_n(n['fans']) * 0.92);
+      _l(n['casier']).add({'ch': cs['ch'], 'day': n['day'], 'v': txt});
+    } else {
+      n['pop'] = clamp21(_n(n['pop']) + 1, 0, 100);
+    }
+    if (jail != 0) {
+      n['jail'] = {'until': _n(n['day']) + jail, 'days': jail};
+      if (_t(n['signed'])) {
+        _log(n, '${lblName21(n)} rompt ton contrat après la condamnation', 'carriere');
+        txt += ' · ${lblName21(n)} rompt ton contrat';
+        n['signed'] = 0;
+        n['label'] = null;
+        n['lperk'] = null;
+        n['lcut'] = null;
+      }
+    }
+    n['verdict'] = {
+      'ch': cs['ch'], 'txt': txt, 'acq': acq ? 1 : 0, 'lawyer': lw['n'], 'plea': guilty ? 'Coupable' : 'Non coupable',
+      'jail': jail, 'fine': fine,
+    };
+    n['cas'] = null;
+    n['heat'] = math.max(0, _n(n['heat']) - 20);
+    _log(n, 'Verdict (${cs['ch']}) : $txt', 'justice');
+    return _ok(n);
+  },
+  'jw': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (s['jw'] == s['day']) return _no(s, 'deja');
+    final n = clone21(s);
+    n['jw'] = n['day'];
+    _m(n['sk'])['ecr'] = _n(_m(n['sk'])['ecr']) + 2;
+    _log(n, 'En cellule : textes écrits (Écriture +2)', 'justice');
+    return _ok(n);
+  },
+  'js': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (s['jsp'] == s['day']) return _no(s, 'deja');
+    final n = clone21(s);
+    n['jsp'] = n['day'];
+    _m(n['sk'])['cha'] = _n(_m(n['sk'])['cha']) + 1;
+    n['en'] = math.min(enMax(n), _n(n['en']) + 10);
+    _log(n, 'En cellule : sport (Charisme +1)', 'justice');
     return _ok(n);
   },
 
@@ -1021,31 +1583,6 @@ final Map<String, Action> actions21 = {
         n,
         "Atelier d'écriture : Écriture +${t['gain']} (−${fmt21(t['cost'] as num)} cauris)",
         'carriere');
-    return _ok(n);
-  },
-
-  // Bascule M1 Maya Tessé, équivalente à A.mgr du game.js v20.
-  'mgr': (s, a) {
-    final n = clone21(s);
-    n['mg'] = _t(s['mg']) ? 0 : 1;
-    n['mgLevel'] = _t(n['mg']) ? 'm1' : null;
-    _log(
-        n,
-        _t(n['mg'])
-            ? 'Manager Maya Tessé recrutée'
-            : 'Contrat de Maya Tessé terminé',
-        'business');
-    return _ok(n);
-  },
-
-  'hireManager': (s, id) {
-    if (id is! String || !Reg21.managerTiers.containsKey(id)) return _no(s, 'inconnu');
-    final tier = Reg21.managerTiers[id]!;
-    if (_n(s['rep']) < (tier['rep'] as num) || _n(s['xp']) < (tier['xp'] as num)) return _no(s, 'rang');
-    final n = clone21(s);
-    n['mg'] = 1;
-    n['mgLevel'] = id;
-    _log(n, 'Contrat signé avec ${tier['n']} · ${((tier['rate'] as num) * 100).toStringAsFixed(0)} % + ${fmt21(tier['fee'] as num)} / semaine', 'business');
     return _ok(n);
   },
 
@@ -1080,68 +1617,6 @@ final Map<String, Action> actions21 = {
     };
     n['artistLast'] = {'id': id, 'choice': choice, 'relation': current['relation'], 'tension': current['tension']};
     _log(n, '$label · relation ${sg21(spec['rel'] as num)}, tension ${sg21(spec['tension'] as num)}', 'scene');
-    return _ok(n);
-  },
-
-  'crime': (s, id) {
-    final job = id is String ? Reg21.crimeJobs[id] : null;
-    if (job == null) return _no(s, 'inconnu');
-    if (_n(s['jail']) > 0) return _no(s, 'prison');
-    final n = clone21(s);
-    final err = _spend(n, job['h'] as num, job['e'] as num);
-    if (err != null) return _no(s, err);
-    final caught = rng21(n, id == 'deal' ? 601 : 602) < (job['risk'] as num);
-    if (caught) {
-      n['charges'] = {'days': job['days'], 'job': job['n']};
-      _log(n, 'Interpellation : ${job['n']} · audience à régler', 'justice');
-    } else {
-      _pay(n, job['cash'] as num);
-      _log(n, '${job['n']} réussi : +${fmt21(job['cash'] as num)} cauris', 'justice');
-    }
-    n['lastCrime'] = {'job': job['n'], 'caught': caught ? 1 : 0};
-    return _ok(n);
-  },
-
-  'trial': (s, lawyer) {
-    if (s['charges'] == null) return _no(s, 'inconnu');
-    const lawyers = {'debutant': (10000, .15), 'confirme': (30000, .35), 'expert': (75000, .60)};
-    if (lawyer is! String || !lawyers.containsKey(lawyer)) return _no(s, 'inconnu');
-    final (fee, defense) = lawyers[lawyer]!;
-    if (_n(s['cash']) < fee) return _no(s, 'cash');
-    final n = clone21(s);
-    _pay(n, -fee);
-    final success = rng21(n, 603) < defense;
-    if (success) {
-      n['charges'] = null;
-      _log(n, 'Audience : relaxé avec avocat $lawyer · −${fmt21(fee)} cauris', 'justice');
-    } else {
-      final days = _n(_m(n['charges'])['days']).toInt();
-      n['jail'] = days;
-      n['charges'] = null;
-      _log(n, 'Audience : condamné à $days jours · avocat $lawyer · −${fmt21(fee)} cauris', 'justice');
-    }
-    n['lastTrial'] = {'success': success ? 1 : 0, 'lawyer': lawyer, 'fee': fee};
-    return _ok(n);
-  },
-
-  'prisonWork': (s, a) {
-    if (_n(s['jail']) <= 0) return _no(s, 'prison');
-    final n = clone21(s);
-    final err = _spend(n, 6, 10);
-    if (err != null) return _no(s, err);
-    _pay(n, 750);
-    _log(n, 'Petit boulot en détention : +750 cauris', 'justice');
-    return _ok(n);
-  },
-
-  'prisonRecord': (s, a) {
-    if (_n(s['jail']) <= 0) return _no(s, 'prison');
-    if (s['cur'] != null) return _no(s, 'encours');
-    final n = clone21(s);
-    final err = _spend(n, 2, 20);
-    if (err != null) return _no(s, err);
-    n['cur'] = {'id': 'CELL${_l(n['disco']).length + 1}', 'title': 'Voix de cellule', 'theme': 'introspection', 'amb': 'sombre', 'mode': 'prison', 'st': 'enregistre', 'Q': 35, 'vir': 8, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}};
-    _log(n, 'Maquette enregistrée en détention · qualité 35', 'musique');
     return _ok(n);
   },
 
@@ -1309,17 +1784,6 @@ final Map<String, Action> actions21 = {
     _pay(n, -(m['cost'] as num));
     n['merch'] = {'id': id, 'left': m['days'], 'tot': 0};
     _log(n, 'Merch lancé : ${m['n']}', 'eco');
-    return _ok(n);
-  },
-
-  'sign': (s, a) {
-    if (_t(s['signed'])) return _no(s, 'deja');
-    if (_n(s['rep']) < Reg21.labelRep) return _no(s, 'rep');
-    final n = clone21(s);
-    n['signed'] = 1;
-    _pay(n, Reg21.labelAdvance);
-    _log(
-        n, 'Contrat signé : Bakoma Sound Records (avance 150 000)', 'carriere');
     return _ok(n);
   },
 
@@ -1528,7 +1992,7 @@ final Map<String, Action> actions21 = {
     final str = '$arg';
     final i = str.indexOf('=');
     final k = str.substring(0, i), v = str.substring(i + 1);
-    if (!['title', 'th', 'am', 'projectTitle'].contains(k)) return _no(s, 'inconnu');
+    if (!['title', 'th', 'am', 'ptitle', 'projectTitle'].contains(k)) return _no(s, 'inconnu');
     final n = clone21(s);
     _m(n['ui'])[k] = v.length > 40 ? v.substring(0, 40) : v;
     return _ok(n);
@@ -1579,7 +2043,9 @@ final Map<String, Action> actions21 = {
     final n = clone21(s);
     if (id == 'kzer') {
       if (ch == 'a') {
-        n['battlePending'] = 1;
+        if (_n(s['en']) < 15) return _no(s, 'energie');
+        if (_n(s['hour']) + 1 > Reg21.dayEnd) return _no(s, 'tard');
+        n['btq'] = 'kzer';
       } else {
         n['pop'] = clamp21(_n(n['pop']) + 2, 0, 100);
       }
@@ -1618,37 +2084,6 @@ final Map<String, Action> actions21 = {
     q.removeWhere((queued) => queued == id);
     n['ev'] = q.isEmpty ? null : q.removeAt(0);
     _log(n, '${e['t']} : ${c.first['n']} (${c.first['c']})', 'evenement');
-    return _ok(n);
-  },
-
-  'battle': (s, score) {
-    if (!_t(s['battlePending'])) return _no(s, 'battle');
-    if (score is! num || score < 0 || score > 3) return _no(s, 'inconnu');
-    final n = clone21(s);
-    final e = _spend(n, 1, 15);
-    if (e != null) return _no(s, e);
-    final win = score >= 2;
-    final fans = win ? 150 : 12;
-    final managerCut = win ? _cachet(n, 3000, 'battle') : 0;
-    n['fans'] = _n(n['fans']) + fans;
-    if (win) {
-      n['rep'] = _n(n['rep']) + 6;
-      _geoAdd(n, 'bakoma', 2);
-      _addXp(n, 60);
-    }
-    n['battlePending'] = 0;
-    n['btl'] = {
-      'win': win ? 1 : 0,
-      'score': score,
-      'fans': fans,
-      'gross': win ? 3000 : 0,
-      'cash': win ? 3000 - managerCut : 0,
-      'managerCut': managerCut,
-      'rep': win ? 6 : 0,
-      'xp': win ? 60 : 0
-    };
-    _log(n, "Battle contre K-Zer : ${win ? 'victoire' : 'défaite'} ($score/3)",
-        'scene');
     return _ok(n);
   },
 
@@ -1713,13 +2148,20 @@ Res _endDay(J s) {
   final n = clone21(s);
   final ev = <String>[];
   final d0 = n['d0'] != null ? _m(n['d0']) : dayStart21(n);
+  n['heat'] = math.max(0, _n(n['heat']) - Reg21.heatDecay);
+  final jl = n['jail'];
+  if (jl != null && _n(n['day']) + 1 >= _n(_m(jl)['until'])) {
+    ev.add('Sortie de prison après ${_m(jl)['days']} jour(s)');
+    _log(n, 'Sortie de prison', 'justice');
+    n['jail'] = null;
+  }
   // revenus passifs
   num inc = 0;
-  if (_n(n['mg']) != 0 && _n(n['day']) % 7 == 0) {
-    final tier = Reg21.managerTiers[n['mgLevel'] ?? 'm1']!;
-    final fee = tier['fee'] as num;
+  final mt = managerTier21(n);
+  if (mt != null && _n(mt['fee']) != 0 && _n(n['day']) % 7 == 0) {
+    final fee = mt['fee'] as num;
     inc -= fee;
-    ev.add('Manager ${tier['n']} : −${fmt21(fee)} cauris (forfait hebdomadaire)');
+    ev.add('Manager ${mt['n']} : −${fmt21(fee)} cauris (forfait hebdomadaire)');
     n['managerPaid'] = _n(n['managerPaid']) + fee;
   }
   var catalogListensTotal = 0;
@@ -1879,10 +2321,6 @@ Res _endDay(J s) {
   // nuit et passage du temps
   final y0 = ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
   n['day'] = _n(n['day']) + 1;
-  if (_n(n['jail']) > 0) {
-    n['jail'] = _n(n['jail']) - 1;
-    ev.add(_n(n['jail']) > 0 ? 'Détention : ${n['jail']} jour(s) restant(s)' : 'Fin de détention : libération');
-  }
   n['hour'] = Reg21.dayStart;
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
@@ -1904,7 +2342,6 @@ Res _endDay(J s) {
       kids.any((k) => kidAge(n, _m(k)) < 1 && _m(k)['garde'] == 'Au foyer');
   n['en'] = enMax(n) - (baby ? Reg21.babyMorning : 0);
   _promote(n);
-  if (_n(n['rep']) >= Reg21.labelRep && !_t(n['signed'])) _queueEv(n, 'label');
   final rel1 = partner(n);
   final famRe = RegExp(
       r'Rupture|Attention|Naissance|Charges du foyer| : (Bébé|Petite enfance|Enfant|Adolescent|Adulte)$');
@@ -2087,6 +2524,9 @@ Res _preset(J s, dynamic id) {
     x['ev'] = 'kzer';
   } else {
     x['evDone'] = {..._m(x['evDone']), 'kzer': 'b'};
+    _m(x['dseen'])['kore'] = 'Accord à 35 % (préréglage)';
+    final kc = _m(x['kc']);
+    if (!_t(kc['st'])) x['kc'] = {'st': 'Accord à 35 %, mix signé', 'bonus': 12, 'left': 0, 'rel': 8};
     x['ms'] = <String, dynamic>{};
     final dn = {
       'm1': _l(x['disco']).isNotEmpty,
@@ -2109,13 +2549,18 @@ Res _preset(J s, dynamic id) {
 /// [now] : date de l'enregistrement en millisecondes (le domaine ne lit pas l'horloge).
 Res act21(J s, String name, [dynamic arg, int now = 0]) {
   final st = norm21(s);
-  if (_n(st['jail']) > 0 && !const {'endDay', 'prisonWork', 'prisonRecord'}.contains(name)) return _no(st, 'prison');
   final f = name == 'preset' ? _preset : actions21[name];
-  if (f == null) return _no(st, 'inconnu');
-  final r = name == 'preset' ? _preset(st, arg) : (f as Action)(st, arg);
+  if (f == null || name.startsWith('_')) return _no(st, 'inconnu');
+  if (_t(st['jail']) && !jailOk21.contains(name)) return _no(st, 'prison');
+  final cas = st['cas'];
+  if (cas != null && _m(cas)['stage'] == 'garde' && !const {'bail', 'detention', 'lawyer', 'ctk'}.contains(name) && !jailOk21.contains(name)) {
+    return _no(st, 'garde');
+  }
+  final r = f(st, arg);
   if (r.err == null && !identical(r.s, st)) {
     norm21(r.s);
     _missions(r.s);
+    _triggers(r.s);
     r.s['t'] = now;
   }
   return r;

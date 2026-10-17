@@ -183,7 +183,8 @@ void main() {
     s = must(s, 'record');
     expect(e0 - (s['en'] as num), 15);
     expect(l(s['disco']).length, 1);
-    expect(m(s['cur'])['prod'], 60);
+    // Sans instru choisie : « Nuit à Ndo » (32, gratuite) + 4 du home studio.
+    expect(m(s['cur'])['prod'], 36);
     expect(run(init21(), 'merch', 'tshirt').err, 'fans');
     s = act21(init21(), 'preset', 'carriere').s;
     s = must(s, 'merch', 'tshirt');
@@ -246,7 +247,7 @@ void main() {
     expect([c['age'], m(c['sk'])['cha'], m(c['sk'])['voix'], m(c['geo'])['tamarel'], c['ev']], [29, 11, 11, 4, 'kzer']);
     expect(act21(c, 'finish').err, 'deja');
     c = act21(c, 'evc', 'a').s;
-    expect([c['ev'], c['rep'], c['battlePending'], m(c['evDone'])['kzer']], [null, 8, 1, 'a']);
+    expect([c['ev'], c['rep'], c['btq'], m(c['evDone'])['kzer']], [null, 8, 'kzer', 'a']);
     expect(m(c['ms'])['m3'], isNull);
     expect(act21(c, 'evc', 'a').err, 'rien');
     c = act21(c, 'battle', 2).s;
@@ -257,17 +258,23 @@ void main() {
     expect(m(c['ui'])['title'], '');
     c = act21(c, 'record').s;
     expect(m(c['ms'])['m1'], isNotNull);
-    expect([c['ev'], c['cash']], ['kore', 33000]);
+    // L'offre de Kôrô est une scène de dialogue (plus un événement) déclenchée par le premier enregistrement.
+    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 33000]);
     final poor = clone21(c)..['cash'] = 100;
-    expect(act21(poor, 'evc', 'a').err, 'cash');
-    c = act21(c, 'evc', 'b').s;
-    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash']], [3, 12, 26000]);
+    c = act21(c, 'dch', 'a').s;
+    expect(act21(poor, 'dch', 'a').s['dlg'], isNotNull);
+    expect(act21(act21(poor, 'dch', 'a').s, 'dch', 'a').err, 'cash');
+    c = act21(c, 'dch', 'b').s;
+    c = act21(c, 'dch', 'a').s;
+    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 26000, 'Accord à 35 %']);
+    c = act21(c, 'dclose').s;
     c = act21(c, 'release').s;
     expect(m(c['ms'])['m2'], isNotNull);
     c = act21(c, 'endDay').s;
     c = act21(c, 'create', ['quartier', 'sombre']).s;
     c = act21(c, 'record').s;
-    expect([m(c['cur'])['prod'], m(c['kc'])['left']], [68, 2]);
+    // Sans instru choisie : « Nuit à Ndo » (32) + 12 de production Kôrô.
+    expect([m(c['cur'])['prod'], m(c['kc'])['left']], [44, 2]);
 
     // concert et tournée
     var pc = act21(init21(), 'preset', 'carriere').s;
@@ -311,9 +318,13 @@ void main() {
     b = act21(b, 'record').s;
     b = act21(b, 'release').s;
     final t = m(l(b['disco']).first);
+    // Écoutes et ventes : la part du label (35 %) est déduite des deux ; `cut` les additionne.
     final gross = jsRound((t['L'] as num) * Reg21.listenValue);
-    expect(t['rev'], gross - jsRound(gross * Reg21.labelCut));
-    expect(t['cut'], jsRound(gross * Reg21.labelCut));
+    final salesGross = (t['sales'] as num) * Reg21.salePrice;
+    expect(t['streamRev'], jsRound(gross * (1 - Reg21.labelCut)));
+    expect(t['salesRev'], jsRound(salesGross * (1 - Reg21.labelCut)));
+    expect(t['rev'], (t['streamRev'] as num) + (t['salesRev'] as num));
+    expect(t['cut'], (gross - (t['streamRev'] as num)) + (salesGross - (t['salesRev'] as num)));
     expect(t['cut'] as num, greaterThan(0));
     var x = act21(init21(), 'preset', 'debut').s;
     for (var d = 0; d < 7; d++) {
@@ -368,25 +379,31 @@ void main() {
     var loss = act21(init21(), 'preset', 'debut').s;
     loss = act21(loss, 'evc', 'a').s;
     loss = act21(loss, 'battle', 1).s;
-    expect([loss['cash'], loss['fans'], loss['rep'], loss['xp'], m(loss['btl'])['win']], [25000, 132, 8, 0, 0]);
+    // Défaite : +12 fans et 10 XP (engine21.js), pas de cachet.
+    expect([loss['cash'], loss['fans'], loss['rep'], loss['xp'], m(loss['btl'])['win']], [25000, 132, 8, 10, 0]);
+    expect([loss['btq'], m(loss['bt'])['w'], m(loss['bt'])['vs']], [null, 1, 'kzer']);
   });
 
-  test('ventes virtuelles R7 calculées à la sortie', () {
+  test('ventes des singles : 1,2 % des écoutes × 30 cauris, ajoutées aux revenus', () {
     var s = act21(init21(), 'create', 'random').s;
     s = act21(s, 'record').s;
+    final cash0 = s['cash'] as num;
     s = act21(s, 'release').s;
     final song = m(l(s['disco']).first);
-    final fans = song['salesFans'] as num;
-    final expected = jsRound(fans * .10 * .12 + fans * .20 * .08 + fans * .40 * .01);
-    expect(song['sales'], expected);
-    expect(song['salesPrice'], isNull);
+    final sales = jsRound((song['L'] as num) * 0.012);
+    expect(song['sales'], sales);
+    expect(song['salesRev'], sales * 30);
+    expect(s['cash'], cash0 + (song['rev'] as num));
+    expect(song['rev'], (song['streamRev'] as num) + sales * 30);
+    expect(song['labelAt'], 'Indépendant');
+    expect(song['auteur'], isA<String>());
   });
 
   test('managers M2 utilisent commission proposée et forfait au septième jour', () {
     final s = init21()..['rep'] = 15..['xp'] = 120;
     var hired = act21(s, 'hireManager', 'm2');
     expect(hired.err, isNull);
-    expect(hired.s['mgLevel'], 'm2');
+    expect(hired.s['mgr'], 'm2');
     hired.s['day'] = 7;
     final commissioned = act21(hired.s, 'concert');
     // Le rang du concert n’est pas requis ici, on vérifie la commission via un cachet open mic.
@@ -398,24 +415,59 @@ void main() {
     expect(commissioned.err, anyOf(isNull, 'rang'));
   });
 
-  test('justice provisoire : procès, détention et actions accessibles en prison', () {
-    var state = init21();
-    Res? crime;
-    for (var seed = 1; seed < 30; seed++) {
-      final candidate = init21()..['seed'] = seed;
-      final result = act21(candidate, 'crime', 'braquage');
-      if (m(result.s['lastCrime'] ?? {'caught': 0})['caught'] == 1) { crime = result; break; }
+  test('justice : contenu mature désactivé par défaut, arrestation, caution, avocat, procès, prison, sortie', () {
+    var base = act21(init21(), 'preset', 'debut').s;
+    expect(base['mature'], 0);
+    expect(act21(base, 'crime', 'braquage').err, 'mature');
+    base = must(base, 'mature', 'on');
+    base['cash'] = 300000;
+    base['heat'] = 80;
+    // Premier jour où le braquage mène à une garde à vue (hasard déterministe : graine et jour).
+    J? caught;
+    for (var d = 1; d < 400 && caught == null; d++) {
+      final r = act21(clone21(base)..['day'] = d, 'crime', 'braquage');
+      if (r.s['cas'] != null) caught = r.s;
     }
-    expect(crime, isNotNull);
-    state = crime!.s;
-    expect(state['charges'], isNotNull);
-    final trial = act21(state, 'trial', 'debutant');
-    expect(trial.err, isNull);
-    expect(trial.s['lastTrial'], isNotNull);
-    if ((trial.s['jail'] as num) > 0) {
-      expect(act21(trial.s, 'job', 'livraison').err, 'prison');
-      expect(act21(trial.s, 'prisonWork').err, isNull);
+    expect(caught, isNotNull);
+    var s = caught!;
+    expect([m(s['cas'])['stage'], s['hour'], m(s['cas'])['bail'], m(s['cas'])['lawyer']], ['garde', 24, 40000, 'office']);
+    expect(run(s, 'job', 'livraison').err, 'garde');
+    // Caution : libre jusqu'au procès, avocat confirmé, puis la peine tombe.
+    final free = must(must(s, 'lawyer', 'conf'), 'bail');
+    expect(m(free['cas'])['stage'], 'libre');
+    expect(run(free, 'trial', 'nc').err, 'proces');
+    free['day'] = (m(free['cas'])['trial'] as num);
+    final judged = must(free, 'trial', 'nc');
+    expect([judged['cas'], m(judged['verdict'])['lawyer']], [null, 'Maître Sandra Lobé']);
+    // Détention provisoire : plus rien d'autre que les écrans de réglage, jusqu'à la sortie.
+    final held = must(s, 'detention');
+    expect(m(held['jail'])['pre'], 1);
+    expect(run(held, 'job', 'livraison').err, 'prison');
+    expect(run(held, 'concert').err, 'prison');
+    final cell = must(must(held, 'jw'), 'js');
+    expect(run(cell, 'jw').err, 'deja');
+    expect(m(cell['sk'])['ecr'], (m(held['sk'])['ecr'] as num) + 2);
+    var out = cell;
+    for (var i = 0; i < 3; i++) {
+      out = must(out, 'endDay');
     }
+    expect(out['jail'], isNull);
+    expect(run(out, 'job', 'livraison').err, isNull);
+  });
+
+  test('justice : un label rompt le contrat après une condamnation à de la prison', () {
+    var s = act21(init21(), 'preset', 'debut').s;
+    s['mature'] = 1;
+    s['signed'] = 1;
+    s['label'] = 'BLG';
+    s['lcut'] = 0.4;
+    s['lperk'] = 'scene';
+    s['cas'] = {'crime': 'braquage', 'n': 'Braquage', 'ch': 'vol à main armée', 'sev': 4, 'day': 1, 'trial': 1, 'stage': 'libre', 'lawyer': 'office', 'bail': 40000};
+    s = must(s, 'trial', 'coupable');
+    expect(s['signed'], 0);
+    expect([s['label'], s['lcut'], s['lperk']], [null, null, null]);
+    expect(m(s['jail'])['days'], greaterThan(0));
+    expect(l(s['casier']).length, 1);
   });
 
   test('battle multi-artistes applique les effets au rival choisi', () {
@@ -439,7 +491,7 @@ void main() {
       {
         'id': 'OLD1', 'title': 'Ancien single', 'day': 1, 'launchL': 10000,
         'L': 10000, 'rev': 0, 'cut': 0, 'signed': 0, 'views': 0,
-        'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 5000, 'apple': 3000, 'youtube': 2000}),
+        'platforms': Map.unmodifiable(<dynamic, dynamic>{'ondea': 7000, 'cauri': 3000}),
         'clip': Map.unmodifiable(<dynamic, dynamic>{'st': 'aucun'}),
       }
     ];
@@ -447,6 +499,6 @@ void main() {
     expect(result.err, isNull);
     expect(result.s['day'], 2);
     expect(m(l(result.s['disco']).single)['L'], greaterThan(10000));
-    expect(m(m(l(result.s['disco']).single)['platforms'])['spotify'], greaterThan(5000));
+    expect(m(m(l(result.s['disco']).single)['platforms'])['ondea'], greaterThan(7000));
   });
 }

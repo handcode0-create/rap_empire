@@ -287,7 +287,7 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
                 '${Reg21.themes[cur['theme']]!['n']} · ${Reg21.ambs[cur['amb']]!['n']}'),
             KeyVal('Note du texte', '${cur['tx']}'),
             if (cur['inst'] != null)
-              KeyVal('Instru', '${cur['inst']} · qualité ${cur['instQ']}'),
+              KeyVal('Instru', '${instName21(cur)} · qualité ${instQ21(cur)}'),
             if (st == 'enregistre')
               KeyVal('Prises', _l(cur['takes'] ?? const []).join(' · ')),
             KeyVal('Qualité (après enregistrement)',
@@ -409,7 +409,7 @@ class Instru21Screen extends ConsumerWidget {
             id: entry.key,
             data: entry.value,
             s: s,
-            selected: cur?['instId'] == entry.key),
+            selected: (cur?['instId'] ?? cur?['inst']) == entry.key),
       ],
       const SizedBox(height: 8),
       const GameHint(
@@ -498,7 +498,7 @@ class Ecriture21Screen extends ConsumerWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(cur['title'] as String, style: V20Text.dm(size: 26)),
           KeyVal('Thème', Reg21.themes[cur['theme']]!['n'] as String),
-          KeyVal('Instru', '${cur['inst']} · qualité ${cur['instQ']}'),
+          KeyVal('Instru', '${instName21(cur)} · qualité ${instQ21(cur)}'),
           KeyVal('Note du texte', '${cur['tx']} / 100'),
         ])),
       const SizedBox(height: 12),
@@ -608,7 +608,7 @@ class _Cabine21ScreenState extends ConsumerState<Cabine21Screen>
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(cur['title'] as String, style: V20Text.nm()),
-          KeyVal('Instru', cur['inst'] as String),
+          KeyVal('Instru', instName21(cur)),
           KeyVal('Coût cabine', '2 h · −$energyCost énergie')
         ])),
       const SizedBox(height: 12),
@@ -670,7 +670,7 @@ class Mix21Screen extends ConsumerWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(cur['title'] as String, style: V20Text.dm(size: 26)),
               KeyVal('Note du texte', '${cur['tx']}'),
-              KeyVal('Instru · production', '${cur['inst']} · ${cur['prod']}'),
+              KeyVal('Instru · production', '${instName21(cur)} · ${cur['prod']}'),
               KeyVal('Voix · moyenne des prises',
                   '${cur['voix']} · ${_l(cur['takes']).join(' / ')}'),
               const Divider(),
@@ -1167,23 +1167,27 @@ class _PlatformStreams extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final platforms = _m(song['platforms'] ?? const {});
-    Widget item(String name, String mark, String key) => Padding(
+    final raw = _m(song['platforms'] ?? const {});
+    // Anciennes sauvegardes : pas de clés Ondéa / Cauri Music, on recalcule la répartition depuis les écoutes.
+    final split = platformSplit21(_n(song['L']));
+    final ondea = raw['ondea'] ?? split.ondea, cauri = raw['cauri'] ?? split.cauri;
+    final clipOn = song['clip'] is Map && (song['clip'] as Map)['st'] == 'publie';
+    final klipo = clipOn ? jsRound(_n(song['clipL']) * (Reg21.platforms['klipo']!['viewsPerClipListen'] as num)) : 0;
+    Widget item(String name, String mark, num value, [String unit = '']) => Padding(
           padding: const EdgeInsets.only(right: 8, top: 4),
           child: Chip(
             avatar: CircleAvatar(
                 child: Text(mark,
                     style: const TextStyle(
                         fontSize: 10, fontWeight: FontWeight.bold))),
-            label:
-                Text('$name ${fmt21(_n(platforms[key]))}', style: V20Text.bs()),
+            label: Text('$name ${fmt21(value)}$unit', style: V20Text.bs()),
             visualDensity: VisualDensity.compact,
           ),
         );
     return Wrap(children: [
-      item('Spotify', 'S', 'spotify'),
-      item('Apple Music', 'A', 'appleMusic'),
-      item('YouTube', '▶', 'youtube'),
+      item('Ondéa', 'O', ondea as num),
+      item('Cauri Music', 'C', cauri as num),
+      if (clipOn) item('Klipo', '▶', klipo, ' vues'),
     ]);
   }
 }

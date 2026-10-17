@@ -88,3 +88,17 @@ String d1(num x) => (jsRound(x * 10) / 10).toString().replaceAll('.', ',');
 
 /// Nom lisible d'un état de clip.
 String clipLabel(String st) => const {'aucun': 'Pas de clip', 'prepare': 'Clip préparé', 'produit': 'Clip tourné', 'publie': 'Clip publié'}[st] ?? st;
+
+/// Jours de détention restants (0 hors prison).
+int jailDaysLeft(J s) {
+  final j = s['jail'];
+  return j == null ? 0 : math.max(0, _n(_m(j)['until']).toInt() - _n(s['day']).toInt());
+}
+
+/// Nom de l'instru d'un titre en cours : `inst` est un identifiant (Reg21.instrus) ; l'ancien parcours y stockait le nom.
+String instName21(J cur) {
+  final i = Reg21.instrus[cur['instId'] ?? cur['inst']];
+  return i != null ? i['n'] as String : '${cur['inst'] ?? '—'}';
+}
+
+num instQ21(J cur) => (Reg21.instrus[cur['instId'] ?? cur['inst']]?['Q'] ?? cur['instQ'] ?? 0) as num;

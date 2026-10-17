@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +52,8 @@ class SceneScreen21 extends ConsumerWidget {
         (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
     final aud = tourAudience(s);
     final tk = tickets21(s);
-    final hasManager = _n(s['mg']) != 0;
+    final mgrTier = managerTier21(s);
+    final hasManager = mgrTier != null;
     final fee = (Reg21.tour['fee'] as num) +
         jsRound((Reg21.tour['feeGeo'] as num) *
             (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
@@ -84,11 +86,11 @@ class SceneScreen21 extends ConsumerWidget {
       ]),
       const SizedBox(height: 12),
       row('Open mic de Ndolo',
-          '1 h · −${15 - moto} énergie · +150 fans, +${hasManager ? '${fmt21(3000 - jsRound(3000 * (Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num)))} net (manager)' : '3 000'}, Bakoma +2 si énergie ≥ 40',
+          '1 h · −${15 - moto} énergie · +150 fans, +${hasManager ? '${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net (manager)' : '3 000'}, Bakoma +2 si énergie ≥ 40',
           tag: const GameTag('Ouvert', style: GameTagStyle.ok),
           onTap: () => doAct(context, ref, 'openmic', null,
               () => context.go('/scene/resultat'))),
-      if (_n(s['battlePending']) != 0)
+      if (s['btq'] != null)
         row("Battle contre K-Zer",
             'Reprendre · 1 h · −15 énergie · issue selon tes réponses',
             tag: const GameTag('En cours', style: GameTagStyle.ok),
@@ -388,17 +390,17 @@ class BusinessScreen21 extends ConsumerWidget {
       const SizedBox(height: 8),
       ActionRow(
           title: 'Équipe et manager',
-          subtitle: _n(s['mg']) != 0
-              ? '${Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['n']} actif · ${((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num) * 100).round()} % des cachets'
+          subtitle: managerTier21(s) != null
+              ? '${managerTier21(s)!['n']} actif · ${((managerTier21(s)!['rate'] as num) * 100).round()} % des cachets'
               : 'Aucun manager · optionnel',
           trailing: ActionRow.arrow(),
           onTap: () => context.go('/business/manager')),
       const SizedBox(height: 8),
       ActionRow(
           title: 'Justice et détention',
-          subtitle: _n(s['jail']) > 0
-              ? 'Détention · ${s['jail']} jour(s) restant(s)'
-              : s['charges'] != null ? 'Audience en attente' : 'Activités à risque et avocat',
+          subtitle: s['jail'] != null
+              ? 'Détention · ${jailDaysLeft(s)} jour(s) restant(s)'
+              : s['cas'] != null ? 'Affaire en cours' : 'Casier, avocat, procès',
           trailing: ActionRow.arrow(),
           onTap: () => context.go('/business/justice')),
     ]);
@@ -790,7 +792,9 @@ class Manager21Screen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
-    final active = _n(s['mg']) != 0;
+    final tierKey = s['mgr'] == 'maya' ? 'm1' : s['mgr'] as String?;
+    final tier = Reg21.managerTiers[tierKey ?? 'm1']!;
+    final active = tierKey != null;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Mon manager', onBack: () => context.go('/business')),
       const SizedBox(height: 12),
@@ -804,8 +808,8 @@ class Manager21Screen extends ConsumerWidget {
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['n'] as String).toUpperCase(), style: V20Text.lab(color: V20.accText)),
-          Text('Niveau ${(s['mgLevel'] ?? 'm1').toString().toUpperCase()}', style: V20Text.nm()),
+          Text((tier['n'] as String).toUpperCase(), style: V20Text.lab(color: V20.accText)),
+          Text('Niveau ${(tierKey ?? 'm1').toUpperCase()}', style: V20Text.nm()),
           Text('Réseau local · conseils simples · calendrier de base',
               style: V20Text.bs()),
         ])),
@@ -815,8 +819,8 @@ class Manager21Screen extends ConsumerWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('CONTRAT', style: V20Text.lab()),
-        KeyVal('Commission', '${((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num) * 100).round()} % des cachets'),
-        KeyVal('Fixe hebdomadaire', '${fmt21(Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['fee'] as num)} cauris'),
+        KeyVal('Commission', '${((tier['rate'] as num) * 100).round()} % des cachets'),
+        KeyVal('Fixe hebdomadaire', tier['fee'] == 0 ? 'Aucun fixe' : '${fmt21(tier['fee'] as num)} cauris'),
         KeyVal('Commissions versées', '${fmt21(_n(s['managerPaid']))} cauris'),
         const SizedBox(height: 6),
         Text(
@@ -828,8 +832,8 @@ class Manager21Screen extends ConsumerWidget {
         const SizedBox(height: 8),
         ActionRow(
           title: '${tier.key.toUpperCase()} · ${tier.value['n']}',
-          subtitle: '${((tier.value['rate'] as num) * 100).round()} % des cachets · ${fmt21(tier.value['fee'] as num)}/semaine · réputation ${tier.value['rep']} · ${tier.value['xp']} XP requis',
-          trailing: s['mgLevel'] == tier.key ? const GameTag('Actif', style: GameTagStyle.ok) : ActionRow.arrow(),
+          subtitle: '${((tier.value['rate'] as num) * 100).round()} % des cachets · ${tier.value['fee'] == 0 ? 'sans fixe' : '${fmt21(tier.value['fee'] as num)}/semaine'} · réputation ${tier.value['rep']} · ${tier.value['xp']} XP requis',
+          trailing: tierKey == tier.key ? const GameTag('Actif', style: GameTagStyle.ok) : ActionRow.arrow(),
           disabled: _n(s['rep']) < (tier.value['rep'] as num) || _n(s['xp']) < (tier.value['xp'] as num),
           onTap: () => doAct(context, ref, 'hireManager', tier.key, null, 'Contrat signé avec ${tier.value['n']}'),
         ),
@@ -846,23 +850,37 @@ class Justice21Screen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
+    final cas = s['cas'] as J?;
+    final mature = _n(s['mature']) != 0;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Justice et détention', onBack: () => context.go('/business')),
       const SizedBox(height: 12),
-      GameHint(icon: 'info', text: _n(s['jail']) > 0
-          ? 'Détention : ${s['jail']} jour(s). Seules les actions en prison et la fin de journée sont accessibles.'
-          : s['charges'] != null ? 'Audience en attente · choisis un avocat avant le procès.' : 'Règles provisoires autorisées : les risques et peines sont affichés avant chaque action.'),
-      if (_n(s['jail']) > 0) ...[
-        ActionRow(title: 'Petit boulot en prison', subtitle: '6 h · −10 énergie · +750 cauris', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'prisonWork', null, null, 'Boulot effectué')),
-        ActionRow(title: 'Enregistrer une maquette', subtitle: '2 h · −20 énergie · qualité 35', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'prisonRecord', null, null, 'Maquette enregistrée')),
-      ] else if (s['charges'] != null) ...[
-        for (final lawyer in const {'debutant': (10000, '15 % de relaxe'), 'confirme': (30000, '35 % de relaxe'), 'expert': (75000, '60 % de relaxe')}.entries)
-          ActionRow(title: 'Avocat ${lawyer.key}', subtitle: '${fmt21(lawyer.value.$1)} cauris · ${lawyer.value.$2}', trailing: ActionRow.arrow(), disabled: _n(s['cash']) < lawyer.value.$1, onTap: () => doAct(context, ref, 'trial', lawyer.key, null, 'Audience jugée')),
-      ] else ...[
-        for (final job in Reg21.crimeJobs.entries)
-          ActionRow(title: job.value['n'] as String, subtitle: '${job.value['h']} h · −${job.value['e']} énergie · risque ${((job.value['risk'] as num) * 100).round()} % · peine possible ${job.value['days']} j · gain ${fmt21(job.value['cash'] as num)}', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'crime', job.key, null, 'Action terminée')),
+      GameHint(icon: 'info', text: s['jail'] != null
+          ? "Détention : ${jailDaysLeft(s)} jour(s). Seuls l'écriture, le sport, le procès et la fin de journée sont accessibles."
+          : cas != null ? 'Affaire en cours : ${cas['n']} · procès au jour ${cas['trial']}.'
+          : mature ? 'Chaleur ${s['heat']} / 100. Les risques et les peines sont affichés avant chaque action.'
+          : 'Contenu mature (16+) désactivé : active-le dans le profil pour débloquer cet écran.'),
+      if (s['jail'] != null) ...[
+        ActionRow(title: 'Écrire en cellule', subtitle: 'Écriture +2 · une fois par jour', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'jw', null, null, 'Textes écrits')),
+        ActionRow(title: 'Faire du sport', subtitle: 'Charisme +1, énergie +10 · une fois par jour', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'js', null, null, 'Séance faite')),
       ],
-      const GameHint(icon: 'info', text: 'Une arrestation mène à une audience. Le résultat est déterministe selon la sauvegarde. Les honoraires d’avocat ne sont pas remboursés.'),
+      if (cas != null) ...[
+        if (cas['stage'] == 'garde') ...[
+          ActionRow(title: 'Payer la caution', subtitle: "${fmt21(_n(cas['bail']))} cauris · libre jusqu'au procès", trailing: ActionRow.arrow(), disabled: _n(s['cash']) < _n(cas['bail']), onTap: () => doAct(context, ref, 'bail', null, null, 'Caution payée')),
+          ActionRow(title: 'Rester en détention', subtitle: "Détention provisoire jusqu'au procès", trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'detention', null, null, 'Détention provisoire')),
+        ],
+        for (final lw in Reg21.lawyers.entries)
+          ActionRow(title: lw.value['n'] as String, subtitle: "${lw.value['role']} · ${lw.value['cost'] == 0 ? 'gratuit' : '${fmt21(lw.value['cost'] as num)} cauris'}", trailing: cas['lawyer'] == lw.key ? const GameTag('Choisi', style: GameTagStyle.ok) : ActionRow.arrow(), disabled: _n(s['cash']) < (lw.value['cost'] as num), onTap: () => doAct(context, ref, 'lawyer', lw.key, null, 'Avocat choisi')),
+        if (cas['stage'] != 'garde') ...[
+          ActionRow(title: 'Plaider non coupable', subtitle: _n(s['day']) >= _n(cas['trial']) ? 'Le tribunal est prêt' : 'Procès au jour ${cas['trial']}', trailing: ActionRow.arrow(), disabled: _n(s['day']) < _n(cas['trial']), onTap: () => doAct(context, ref, 'trial', 'nc', null, 'Procès jugé')),
+          ActionRow(title: 'Plaider coupable', subtitle: "Peine réduite d'un quart", trailing: ActionRow.arrow(), disabled: _n(s['day']) < _n(cas['trial']), onTap: () => doAct(context, ref, 'trial', 'coupable', null, 'Procès jugé')),
+        ],
+      ],
+      if (s['jail'] == null && cas == null) ...[
+        for (final job in Reg21.crimes.entries)
+          ActionRow(title: job.value['n'] as String, subtitle: '${job.value['h']} h · −${job.value['e']} énergie · risque ${math.min(85, (job.value['risk'] as num) + jsRound(_n(s['heat']) / 2))} % · ${fmt21(job.value['lo'] as num)} à ${fmt21(job.value['hi'] as num)} cauris', trailing: ActionRow.arrow(), disabled: !mature, onTap: () => doAct(context, ref, 'crime', job.key, null, 'Action terminée')),
+      ],
+      if (s['verdict'] != null) GameHint(icon: 'info', text: 'Dernier verdict : ${(s['verdict'] as J)['txt']}'),
     ]);
   }
 }
@@ -936,7 +954,7 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
       ],
       const Conseq21(ConsequenceKind.certain, 'Battle : 1 h · −15 énergie'),
       Conseq21(ConsequenceKind.estimated,
-          'Victoire à 2 bonnes réponses ou plus : +${_n(s?['mg']) != 0 ? '2 760 net après manager' : '3 000'} cauris, +150 fans, +6 réputation, +60 XP. Défaite : +12 fans.'),
+          'Victoire à 2 bonnes réponses ou plus : +${s != null && managerTier21(s) != null ? '${fmt21(3000 - jsRound(3000 * (managerTier21(s)!['rate'] as num)))} net après manager' : '3 000'} cauris, +150 fans, +6 réputation, +60 XP. Défaite : +12 fans.'),
       if (moto)
         const GameHint(
             icon: 'info',

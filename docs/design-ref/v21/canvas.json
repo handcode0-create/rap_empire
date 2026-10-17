@@ -3,7 +3,7 @@
   "attachments": {},
   "boards": {
     "21-00-Consolidation.dc.html": {
-      "h": 2341,
+      "h": 2842,
       "title": "21.00 Nouveautés intégrées dans la v21",
       "w": 1600,
       "x": 0,
@@ -143,12 +143,60 @@
       "x": 3290,
       "y": 9519
     },
+    "21-A0-Catalogue.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.A0 Catalogue des sons",
+      "w": 390,
+      "x": 0,
+      "y": 13895
+    },
+    "21-A0b-Titre.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.A0b Fiche d'un titre : streams, ventes, date, label, crédits",
+      "w": 390,
+      "x": 470,
+      "y": 13895
+    },
+    "21-A1-Projet.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.A1 Créer un EP ou un album (05-5 rendu jouable)",
+      "w": 390,
+      "x": 940,
+      "y": 13895
+    },
+    "21-A2-Projet-sorti.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.A2 Résultats d'un EP ou d'un album",
+      "w": 390,
+      "x": 1410,
+      "y": 13895
+    },
+    "21-B1-Battle.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.B1 Battle contre K-Zer (06-3 réintégré)",
+      "w": 390,
+      "x": 1410,
+      "y": 6237
+    },
+    "21-B2-Battle-resultat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.B2 Résultat de battle (06-5 réintégré)",
+      "w": 390,
+      "x": 1880,
+      "y": 6237
+    },
     "21-C1-Popularite.dc.html": {
       "h": 844,
       "is_interactive": true,
       "title": "21.C1 Popularité par ville et par continent",
       "w": 390,
-      "x": 1880,
+      "x": 2820,
       "y": 6237
     },
     "21-C2-Scene.dc.html": {
@@ -164,8 +212,40 @@
       "is_interactive": true,
       "title": "21.C3 Résultats de concert (07-3 complété)",
       "w": 390,
-      "x": 1410,
+      "x": 2350,
       "y": 6237
+    },
+    "21-D1-Plateformes.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.D1 Plateformes de diffusion (fictives)",
+      "w": 390,
+      "x": 0,
+      "y": 11707
+    },
+    "21-D2-Ondea.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.D2 Ondéa · page artiste",
+      "w": 390,
+      "x": 470,
+      "y": 11707
+    },
+    "21-D3-Klipo.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.D3 Klipo · chaîne de l'artiste",
+      "w": 390,
+      "x": 940,
+      "y": 11707
+    },
+    "21-D4-Cauri-Music.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.D4 Cauri Music · écoute premium",
+      "w": 390,
+      "x": 1410,
+      "y": 11707
     },
     "21-E1-Business.dc.html": {
       "h": 844,
@@ -215,6 +295,14 @@
       "x": 940,
       "y": 4049
     },
+    "21-K1-Personnages.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.K1 Galerie des personnages",
+      "w": 390,
+      "x": 2350,
+      "y": 11707
+    },
     "21-L1-Labels-merch.dc.html": {
       "h": 844,
       "is_interactive": true,
@@ -222,6 +310,14 @@
       "w": 390,
       "x": 2350,
       "y": 7331
+    },
+    "21-L2-Labels.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.L2 Les 10 labels et leurs logos",
+      "w": 390,
+      "x": 1880,
+      "y": 11707
     },
     "21-M1-Creation.dc.html": {
       "h": 844,
@@ -236,7 +332,7 @@
       "is_interactive": true,
       "title": "21.M2 Featurings à plusieurs (08-3 complété)",
       "w": 390,
-      "x": 470,
+      "x": 1880,
       "y": 5143
     },
     "21-M3-Sortie.dc.html": {
@@ -244,7 +340,7 @@
       "is_interactive": true,
       "title": "21.M3 Préparer la sortie (05-1 complété)",
       "w": 390,
-      "x": 940,
+      "x": 2350,
       "y": 5143
     },
     "21-M3b-Resultats.dc.html": {
@@ -252,7 +348,7 @@
       "is_interactive": true,
       "title": "21.M3b Résultats de sortie (05-4 complété)",
       "w": 390,
-      "x": 1410,
+      "x": 2820,
       "y": 5143
     },
     "21-M4-Clip.dc.html": {
@@ -260,7 +356,7 @@
       "is_interactive": true,
       "title": "21.M4 Clip : préparer, tourner, publier",
       "w": 390,
-      "x": 1880,
+      "x": 3290,
       "y": 5143
     },
     "21-M5-Clip-publie.dc.html": {
@@ -268,7 +364,31 @@
       "is_interactive": true,
       "title": "21.M5 Résultats du clip",
       "w": 390,
-      "x": 2350,
+      "x": 3760,
+      "y": 5143
+    },
+    "21-M6-Instru.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M6 Choix de l'instru (04-3 réintégré)",
+      "w": 390,
+      "x": 470,
+      "y": 5143
+    },
+    "21-M7-Cabine.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M7 Cabine et mini-jeu (04-7 / 04-8 réintégrés)",
+      "w": 390,
+      "x": 940,
+      "y": 5143
+    },
+    "21-M8-Mix.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.M8 Mix et note (04-9 réintégré)",
+      "w": 390,
+      "x": 1410,
       "y": 5143
     },
     "21-P1-Profil.dc.html": {
@@ -398,6 +518,62 @@
       "w": 390,
       "x": 470,
       "y": 4049
+    },
+    "21-X0-Scenes.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.X0 Scènes narratives et conditions",
+      "w": 390,
+      "x": 0,
+      "y": 12801
+    },
+    "21-X1-Dialogue.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.X1 Dialogue interactif (16-A à 16-G, 19-6, 19-8)",
+      "w": 390,
+      "x": 470,
+      "y": 12801
+    },
+    "21-Z1-Illegal.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Z1 Activités illégales (petits boulots à risque)",
+      "w": 390,
+      "x": 0,
+      "y": 14989
+    },
+    "21-Z2-Garde-a-vue.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Z2 Arrestation et garde à vue",
+      "w": 390,
+      "x": 470,
+      "y": 14989
+    },
+    "21-Z3-Avocat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Z3 Choisir un avocat",
+      "w": 390,
+      "x": 940,
+      "y": 14989
+    },
+    "21-Z4-Tribunal.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Z4 Procès au tribunal",
+      "w": 390,
+      "x": 1410,
+      "y": 14989
+    },
+    "21-Z5-Prison.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "21.Z5 Prison",
+      "w": 390,
+      "x": 1880,
+      "y": 14989
     }
   },
   "createdOnFiles": {
@@ -431,12 +607,12 @@
       "text": "21.S — NOUVEAU · Démarrage : splash, univers, création de l’artiste (blaze, âge, origine, styles, look, objectif)",
       "w": 240,
       "x": 0,
-      "y": 2775
+      "y": 2865
     },
     "t2": {
       "kind": "title1",
       "maxW": 3800,
-      "text": "21.M — Studio et sortie complétés (04-5, 08-3, 05-1, 05-4), clips nouveaux (D-G03, D-G04, D-G09)",
+      "text": "21.M — Studio : création, instru, cabine avec mini-jeu, mix (04-3 à 04-9 réintégrés), featurings, sortie, résultats, clips",
       "w": 240,
       "x": 0,
       "y": 5053
@@ -444,7 +620,7 @@
     "t3": {
       "kind": "title1",
       "maxW": 3800,
-      "text": "21.R / 21.C — Rang et classements reliés aux données (10-4, 13-1 complétés), scène et résultats de concert (06-1, 07-3 complétés), popularité géographique",
+      "text": "21.R / 21.C — Rang et classements reliés aux données (10-4, 13-1 complétés), scène, battle (06-3 réintégrée) et résultats de concert (06-1, 07-3 complétés), popularité géographique",
       "w": 240,
       "x": 0,
       "y": 6147
@@ -463,7 +639,7 @@
       "text": "21.01 à 21.07 — NOUVEAU · Relations amoureuses, reliées au QG et à la fin de journée (D-G07)",
       "w": 240,
       "x": 0,
-      "y": 8245
+      "y": 8335
     },
     "t6": {
       "kind": "title1",
@@ -471,7 +647,7 @@
       "text": "21.08 à 21.14 — NOUVEAU · Mariage, séparation, famille (D-G07)",
       "w": 240,
       "x": 0,
-      "y": 9429
+      "y": 9300
     },
     "t7": {
       "kind": "title1",
@@ -480,6 +656,38 @@
       "w": 240,
       "x": 0,
       "y": 10523
+    },
+    "t8": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.D / 21.K — NOUVEAU · À valider : plateformes fictives (Ondéa, Klipo, Cauri Music), logos des 10 labels, galerie des personnages",
+      "w": 240,
+      "x": 0,
+      "y": 11490
+    },
+    "t9": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.X — NOUVEAU · Scènes narratives et dialogues interactifs, déclenchés par la carrière (16-A à 16-G, 19-6, 19-8)",
+      "w": 240,
+      "x": 0,
+      "y": 12597
+    },
+    "ta": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.A — NOUVEAU · Catalogue des sons (streams, ventes, date, label, crédits), création d’EP et d’album (05-5 rendu jouable)",
+      "w": 240,
+      "x": 47,
+      "y": 13738
+    },
+    "tz": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.Z — NOUVEAU · 16+ · À valider : activités illégales, garde à vue, avocat, tribunal, prison",
+      "w": 240,
+      "x": 0,
+      "y": 14899
     }
   },
   "order": [
@@ -501,6 +709,9 @@
     "21-Q4-Annee.dc.html",
     "21-Q0-Demarrer.dc.html",
     "21-M1-Creation.dc.html",
+    "21-M6-Instru.dc.html",
+    "21-M7-Cabine.dc.html",
+    "21-M8-Mix.dc.html",
     "21-M2-Featurings.dc.html",
     "21-M3-Sortie.dc.html",
     "21-M3b-Resultats.dc.html",
@@ -509,6 +720,8 @@
     "21-R1-Rang.dc.html",
     "21-R2-Classements.dc.html",
     "21-C2-Scene.dc.html",
+    "21-B1-Battle.dc.html",
+    "21-B2-Battle-resultat.dc.html",
     "21-C3-Concert.dc.html",
     "21-C1-Popularite.dc.html",
     "21-E1-Business.dc.html",
@@ -532,7 +745,24 @@
     "21-12-Parent-enfant.dc.html",
     "21-13-Evenements.dc.html",
     "21-14-Bilan-familial.dc.html",
-    "21-P1-Profil.dc.html"
+    "21-P1-Profil.dc.html",
+    "21-D1-Plateformes.dc.html",
+    "21-D2-Ondea.dc.html",
+    "21-D3-Klipo.dc.html",
+    "21-D4-Cauri-Music.dc.html",
+    "21-L2-Labels.dc.html",
+    "21-K1-Personnages.dc.html",
+    "21-X0-Scenes.dc.html",
+    "21-X1-Dialogue.dc.html",
+    "21-A0-Catalogue.dc.html",
+    "21-A0b-Titre.dc.html",
+    "21-A1-Projet.dc.html",
+    "21-A2-Projet-sorti.dc.html",
+    "21-Z1-Illegal.dc.html",
+    "21-Z2-Garde-a-vue.dc.html",
+    "21-Z3-Avocat.dc.html",
+    "21-Z4-Tribunal.dc.html",
+    "21-Z5-Prison.dc.html"
   ],
   "pages": [],
   "title": "RAP EMPIRE — Consolidation globale des améliorations (v21)"

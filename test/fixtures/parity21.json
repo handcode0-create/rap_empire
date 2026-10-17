@@ -1,0 +1,10294 @@
+{
+ "generated": "node tool/gen_parity21.js",
+ "scenarios": [
+  {
+   "name": "rang N4 par l’atelier (seuil 3 200 XP, popularité 20, 1 concert)",
+   "start": "carriere",
+   "patch": {
+    "xp": 3190,
+    "pop": 20,
+    "shows": 1
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "sk.ecr",
+    "trained",
+    "ms.m3"
+   ],
+   "steps": [
+    {
+     "a": "atelier",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 314000,
+      "fans": 2400,
+      "pop": 20,
+      "rep": 31,
+      "xp": 3210,
+      "rank": 4,
+      "en": 80,
+      "hour": 10,
+      "day": 30,
+      "sk.ecr": 19,
+      "trained": 2,
+      "ms.m3": 1
+     }
+    },
+    {
+     "a": "atelier",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 308000,
+      "fans": 2400,
+      "pop": 20,
+      "rep": 31,
+      "xp": 3230,
+      "rank": 4,
+      "en": 60,
+      "hour": 12,
+      "day": 30,
+      "sk.ecr": 24,
+      "trained": 3,
+      "ms.m3": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "rang N3 : seuil 1 500 XP et 1 single",
+   "start": "debut",
+   "patch": {
+    "xp": 1490,
+    "rank": 2,
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day"
+   ],
+   "steps": [
+    {
+     "a": "atelier",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 38000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 1700,
+      "rank": 3,
+      "en": 80,
+      "hour": 10,
+      "day": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "mission 3 : atelier d’écriture",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "sk.ecr",
+    "trained",
+    "ms.m3"
+   ],
+   "steps": [
+    {
+     "a": "atelier",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 23000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 80,
+      "rank": 1,
+      "en": 80,
+      "hour": 10,
+      "day": 1,
+      "sk.ecr": 19,
+      "trained": 1,
+      "ms.m3": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "atelier : refusé sans cash ni heures",
+   "start": "debut",
+   "patch": {
+    "cash": 1000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day"
+   ],
+   "steps": [
+    {
+     "a": "atelier",
+     "g": null,
+     "err": "cash",
+     "out": {
+      "cash": 1000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "création : pays d’origine, styles, âge",
+   "start": "init",
+   "patch": {},
+   "watch": [
+    "p.name",
+    "p.origin",
+    "p.main",
+    "p.second",
+    "p.age",
+    "age",
+    "created",
+    "ev",
+    "geo",
+    "sk",
+    "en"
+   ],
+   "steps": [
+    {
+     "a": "finish",
+     "g": null,
+     "err": "nom",
+     "out": {
+      "p.name": "",
+      "p.origin": "bakoma",
+      "p.main": "drill",
+      "p.second": null,
+      "p.age": 19,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "name=Djo",
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "bakoma",
+      "p.main": "drill",
+      "p.second": null,
+      "p.age": 19,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "origin=portambre",
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "drill",
+      "p.second": null,
+      "p.age": 19,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "main=trap",
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": null,
+      "p.age": 19,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "second=coupe",
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": "coupe",
+      "p.age": 19,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "age=22",
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": "coupe",
+      "p.age": 22,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "setp",
+     "g": "origin=lune",
+     "err": "inconnu",
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": "coupe",
+      "p.age": 22,
+      "age": 19,
+      "created": 0,
+      "ev": null,
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "finish",
+     "g": null,
+     "err": null,
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": "coupe",
+      "p.age": 22,
+      "age": 22,
+      "created": 1,
+      "ev": "kzer",
+      "geo": {
+       "bakoma": 4,
+       "portambre": 4,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 13,
+       "cha": 9
+      },
+      "en": 100
+     }
+    },
+    {
+     "a": "finish",
+     "g": null,
+     "err": "deja",
+     "out": {
+      "p.name": "Djo",
+      "p.origin": "portambre",
+      "p.main": "trap",
+      "p.second": "coupe",
+      "p.age": 22,
+      "age": 22,
+      "created": 1,
+      "ev": "kzer",
+      "geo": {
+       "bakoma": 4,
+       "portambre": 4,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 13,
+       "cha": 9
+      },
+      "en": 100
+     }
+    }
+   ]
+  },
+  {
+   "name": "instru : rang, réputation, cash",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "ui.inst"
+   ],
+   "steps": [
+    {
+     "a": "pick",
+     "g": "pont",
+     "err": "rang",
+     "out": {
+      "cash": 25000,
+      "ui.inst": null
+     }
+    },
+    {
+     "a": "pick",
+     "g": "lagune",
+     "err": "rep",
+     "out": {
+      "cash": 25000,
+      "ui.inst": null
+     }
+    },
+    {
+     "a": "pick",
+     "g": "gbaka",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "ui.inst": "gbaka"
+     }
+    },
+    {
+     "a": "pick",
+     "g": "gbaka",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "ui.inst": "gbaka"
+     }
+    },
+    {
+     "a": "pick",
+     "g": "nuit",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "ui.inst": "nuit"
+     }
+    },
+    {
+     "a": "pick",
+     "g": "inconnue",
+     "err": "inconnu",
+     "out": {
+      "cash": 17000,
+      "ui.inst": "nuit"
+     }
+    }
+   ]
+  },
+  {
+   "name": "instru : Lagune d’Ambre à réputation 30",
+   "start": "debut",
+   "patch": {
+    "rep": 30,
+    "cash": 100000
+   },
+   "watch": [
+    "cash",
+    "ui.inst"
+   ],
+   "steps": [
+    {
+     "a": "pick",
+     "g": "lagune",
+     "err": null,
+     "out": {
+      "cash": 60000,
+      "ui.inst": "lagune"
+     }
+    }
+   ]
+  },
+  {
+   "name": "titre complet : texte, instru, cabine, sortie",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cur.st",
+    "cur.tx",
+    "cur.Q",
+    "cur.voix",
+    "cur.prod",
+    "cur.prodBy",
+    "cur.takes",
+    "cur.inst",
+    "ui.inst",
+    "sk.voix",
+    "sk.ecr",
+    "disco.0.L",
+    "disco.0.Q",
+    "disco.0.rev",
+    "disco.0.sales",
+    "disco.0.tier",
+    "disco.0.cut",
+    "disco.0.labelAt",
+    "disco.0.auteur",
+    "disco.0.salesRev",
+    "disco.0.streamRev",
+    "disco.0.fg",
+    "disco.0.pg",
+    "disco.0.vir",
+    "disco.0.st",
+    "disco.0.day",
+    "ms",
+    "geo"
+   ],
+   "steps": [
+    {
+     "a": "record",
+     "g": null,
+     "err": "pasdetexte",
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "cur.st": null,
+      "cur.tx": null,
+      "cur.Q": null,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.takes": null,
+      "cur.inst": null,
+      "ui.inst": null,
+      "sk.voix": 10,
+      "sk.ecr": 14,
+      "disco.0.L": null,
+      "disco.0.Q": null,
+      "disco.0.rev": null,
+      "disco.0.sales": null,
+      "disco.0.tier": null,
+      "disco.0.cut": null,
+      "disco.0.labelAt": null,
+      "disco.0.auteur": null,
+      "disco.0.salesRev": null,
+      "disco.0.streamRev": null,
+      "disco.0.fg": null,
+      "disco.0.pg": null,
+      "disco.0.vir": null,
+      "disco.0.st": null,
+      "disco.0.day": null,
+      "ms": {},
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 1,
+      "cur.st": "ecrit",
+      "cur.tx": 72,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.takes": null,
+      "cur.inst": null,
+      "ui.inst": null,
+      "sk.voix": 10,
+      "sk.ecr": 15,
+      "disco.0.L": null,
+      "disco.0.Q": null,
+      "disco.0.rev": null,
+      "disco.0.sales": null,
+      "disco.0.tier": null,
+      "disco.0.cut": null,
+      "disco.0.labelAt": null,
+      "disco.0.auteur": null,
+      "disco.0.salesRev": null,
+      "disco.0.streamRev": null,
+      "disco.0.fg": null,
+      "disco.0.pg": null,
+      "disco.0.vir": null,
+      "disco.0.st": null,
+      "disco.0.day": null,
+      "ms": {},
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "pick",
+     "g": "gbaka",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 1,
+      "cur.st": "ecrit",
+      "cur.tx": 72,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.takes": null,
+      "cur.inst": null,
+      "ui.inst": "gbaka",
+      "sk.voix": 10,
+      "sk.ecr": 15,
+      "disco.0.L": null,
+      "disco.0.Q": null,
+      "disco.0.rev": null,
+      "disco.0.sales": null,
+      "disco.0.tier": null,
+      "disco.0.cut": null,
+      "disco.0.labelAt": null,
+      "disco.0.auteur": null,
+      "disco.0.salesRev": null,
+      "disco.0.streamRev": null,
+      "disco.0.fg": null,
+      "disco.0.pg": null,
+      "disco.0.vir": null,
+      "disco.0.st": null,
+      "disco.0.day": null,
+      "ms": {},
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      80,
+      70,
+      60
+     ],
+     "err": null,
+     "out": {
+      "cash": 22000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 80,
+      "rank": 1,
+      "en": 55,
+      "hour": 11,
+      "day": 1,
+      "cur.st": "enregistre",
+      "cur.tx": 72,
+      "cur.Q": 66,
+      "cur.voix": 70,
+      "cur.prod": 56,
+      "cur.prodBy": "DJ Kôrô (« Gbaka de 6h »)",
+      "cur.takes": [
+       80,
+       70,
+       60
+      ],
+      "cur.inst": "gbaka",
+      "ui.inst": null,
+      "sk.voix": 11,
+      "sk.ecr": 15,
+      "disco.0.L": null,
+      "disco.0.Q": null,
+      "disco.0.rev": null,
+      "disco.0.sales": null,
+      "disco.0.tier": null,
+      "disco.0.cut": null,
+      "disco.0.labelAt": null,
+      "disco.0.auteur": null,
+      "disco.0.salesRev": null,
+      "disco.0.streamRev": null,
+      "disco.0.fg": null,
+      "disco.0.pg": null,
+      "disco.0.vir": null,
+      "disco.0.st": null,
+      "disco.0.day": null,
+      "ms": {
+       "m1": 1
+      },
+      "geo": {
+       "bakoma": 4,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 34004,
+      "fans": 489,
+      "pop": 8,
+      "rep": 8,
+      "xp": 200,
+      "rank": 2,
+      "en": 55,
+      "hour": 11,
+      "day": 1,
+      "cur.st": null,
+      "cur.tx": null,
+      "cur.Q": null,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.takes": null,
+      "cur.inst": null,
+      "ui.inst": null,
+      "sk.voix": 11,
+      "sk.ecr": 15,
+      "disco.0.L": 5393,
+      "disco.0.Q": 66,
+      "disco.0.rev": 2004,
+      "disco.0.sales": 65,
+      "disco.0.tier": "Discret",
+      "disco.0.cut": 0,
+      "disco.0.labelAt": "Indépendant",
+      "disco.0.auteur": "Djo Kéné",
+      "disco.0.salesRev": 1950,
+      "disco.0.streamRev": 54,
+      "disco.0.fg": 369,
+      "disco.0.pg": 5,
+      "disco.0.vir": 30,
+      "disco.0.st": "sorti",
+      "disco.0.day": 1,
+      "ms": {
+       "m1": 1,
+       "m2": 1
+      },
+      "geo": {
+       "bakoma": 8.6,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": "pasenregistre",
+     "out": {
+      "cash": 34004,
+      "fans": 489,
+      "pop": 8,
+      "rep": 8,
+      "xp": 200,
+      "rank": 2,
+      "en": 55,
+      "hour": 11,
+      "day": 1,
+      "cur.st": null,
+      "cur.tx": null,
+      "cur.Q": null,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.takes": null,
+      "cur.inst": null,
+      "ui.inst": null,
+      "sk.voix": 11,
+      "sk.ecr": 15,
+      "disco.0.L": 5393,
+      "disco.0.Q": 66,
+      "disco.0.rev": 2004,
+      "disco.0.sales": 65,
+      "disco.0.tier": "Discret",
+      "disco.0.cut": 0,
+      "disco.0.labelAt": "Indépendant",
+      "disco.0.auteur": "Djo Kéné",
+      "disco.0.salesRev": 1950,
+      "disco.0.streamRev": 54,
+      "disco.0.fg": 369,
+      "disco.0.pg": 5,
+      "disco.0.vir": 30,
+      "disco.0.st": "sorti",
+      "disco.0.day": 1,
+      "ms": {
+       "m1": 1,
+       "m2": 1
+      },
+      "geo": {
+       "bakoma": 8.6,
+       "portambre": 0,
+       "selene": 0,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "cabine : prises par défaut, fatigue et featuring",
+   "start": "debut",
+   "patch": {
+    "en": 20
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cur.Q",
+    "cur.voix",
+    "cur.prod",
+    "cur.takes",
+    "cur.feats"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "ambition",
+      "fiere"
+     ],
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 0,
+      "hour": 9,
+      "day": 1,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.takes": null,
+      "cur.feats": []
+     }
+    },
+    {
+     "a": "feat",
+     "g": "nadia",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 0,
+      "hour": 9,
+      "day": 1,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.takes": null,
+      "cur.feats": [
+       "nadia"
+      ]
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": "energie",
+     "out": {
+      "cash": 17000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 0,
+      "hour": 9,
+      "day": 1,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null,
+      "cur.takes": null,
+      "cur.feats": [
+       "nadia"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "cabine : prises bornées 0-100",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cur.takes",
+    "cur.voix",
+    "cur.Q"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "amour",
+      "legere"
+     ],
+     "err": null,
+     "out": {
+      "cur.takes": null,
+      "cur.voix": null,
+      "cur.Q": 0
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      150,
+      -20,
+      50
+     ],
+     "err": null,
+     "out": {
+      "cur.takes": [
+       100,
+       0,
+       50
+      ],
+      "cur.voix": 50,
+      "cur.Q": 50
+     }
+    }
+   ]
+  },
+  {
+   "name": "home studio : −10 énergie, +2 voix, +4 production",
+   "start": "debut",
+   "patch": {
+    "own": {
+     "homestudio": {
+      "since": 1
+     }
+    }
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cur.Q",
+    "cur.voix",
+    "cur.prod"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 1,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null
+     }
+    },
+    {
+     "a": "pick",
+     "g": "gbaka",
+     "err": null,
+     "out": {
+      "cash": 17000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 1,
+      "cur.Q": 0,
+      "cur.voix": null,
+      "cur.prod": null
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      60,
+      60,
+      60
+     ],
+     "err": null,
+     "out": {
+      "cash": 22000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 80,
+      "rank": 1,
+      "en": 65,
+      "hour": 11,
+      "day": 1,
+      "cur.Q": 65,
+      "cur.voix": 62,
+      "cur.prod": 60
+     }
+    }
+   ]
+  },
+  {
+   "name": "sortie avec promo radio et part du label",
+   "start": "carriere",
+   "patch": {
+    "signed": 1,
+    "label": "BSR",
+    "lcut": 0.35,
+    "lperk": "radio",
+    "cash": 500000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "disco.0.L",
+    "disco.0.rev",
+    "disco.0.sales",
+    "disco.0.cut",
+    "disco.0.salesRev",
+    "disco.0.salesCut",
+    "disco.0.labelAt",
+    "geo"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "galere",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 500000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.rev": 54,
+      "disco.0.sales": null,
+      "disco.0.cut": null,
+      "disco.0.salesRev": null,
+      "disco.0.salesCut": null,
+      "disco.0.labelAt": null,
+      "geo": {
+       "bakoma": 14,
+       "portambre": 4,
+       "selene": 3,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      70,
+      70,
+      70
+     ],
+     "err": null,
+     "out": {
+      "cash": 500000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3130,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.rev": 54,
+      "disco.0.sales": null,
+      "disco.0.cut": null,
+      "disco.0.salesRev": null,
+      "disco.0.salesCut": null,
+      "disco.0.labelAt": null,
+      "geo": {
+       "bakoma": 14,
+       "portambre": 4,
+       "selene": 3,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "promo",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 500000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3130,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.rev": 54,
+      "disco.0.sales": null,
+      "disco.0.cut": null,
+      "disco.0.salesRev": null,
+      "disco.0.salesCut": null,
+      "disco.0.labelAt": null,
+      "geo": {
+       "bakoma": 14,
+       "portambre": 4,
+       "selene": 3,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 509481,
+      "fans": 4267,
+      "pop": 28,
+      "rep": 31,
+      "xp": 3170,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 39454,
+      "disco.0.rev": 9481,
+      "disco.0.sales": 473,
+      "disco.0.cut": 5104,
+      "disco.0.salesRev": 9224,
+      "disco.0.salesCut": 4966,
+      "disco.0.labelAt": "Bakoma Sound Records",
+      "geo": {
+       "bakoma": 26,
+       "portambre": 6,
+       "selene": 5,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "sortie : cash insuffisant pour la promo",
+   "start": "debut",
+   "patch": {
+    "cash": 1000
+   },
+   "watch": [
+    "cash",
+    "cur.st",
+    "disco"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 1000,
+      "cur.st": "ecrit",
+      "disco": []
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 6000,
+      "cur.st": "enregistre",
+      "disco": []
+     }
+    },
+    {
+     "a": "promo",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 6000,
+      "cur.st": "enregistre",
+      "disco": []
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": "cash",
+     "out": {
+      "cash": 6000,
+      "cur.st": "enregistre",
+      "disco": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "sortie : popularité plafonnée à 12 et ralentie près de 100",
+   "start": "carriere",
+   "patch": {
+    "pop": 90,
+    "fans": 500000,
+    "cash": 800000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "disco.0.L",
+    "disco.0.pg",
+    "disco.0.fg",
+    "disco.0.rev",
+    "disco.0.sales"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "ambition",
+      "fiere"
+     ],
+     "err": null,
+     "out": {
+      "cash": 800000,
+      "fans": 500000,
+      "pop": 90,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.pg": 6,
+      "disco.0.fg": 371,
+      "disco.0.rev": 54,
+      "disco.0.sales": null
+     }
+    },
+    {
+     "a": "pick",
+     "g": "pont",
+     "err": null,
+     "out": {
+      "cash": 785000,
+      "fans": 500000,
+      "pop": 90,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.pg": 6,
+      "disco.0.fg": 371,
+      "disco.0.rev": 54,
+      "disco.0.sales": null
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      95,
+      95,
+      95
+     ],
+     "err": null,
+     "out": {
+      "cash": 785000,
+      "fans": 500000,
+      "pop": 90,
+      "rep": 31,
+      "xp": 3130,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.pg": 6,
+      "disco.0.fg": 371,
+      "disco.0.rev": 54,
+      "disco.0.sales": null
+     }
+    },
+    {
+     "a": "promo",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 785000,
+      "fans": 500000,
+      "pop": 90,
+      "rep": 31,
+      "xp": 3130,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 5418,
+      "disco.0.pg": 6,
+      "disco.0.fg": 371,
+      "disco.0.rev": 54,
+      "disco.0.sales": null
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 2606495,
+      "fans": 503441,
+      "pop": 91,
+      "rep": 31,
+      "xp": 3170,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "disco.0.L": 4963511,
+      "disco.0.pg": 1,
+      "disco.0.fg": 3441,
+      "disco.0.rev": 1836495,
+      "disco.0.sales": 59562
+     }
+    }
+   ]
+  },
+  {
+   "name": "sortie en duo : part de la chanteuse",
+   "start": "debut",
+   "patch": {
+    "duo": {
+     "share": 50
+    }
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cur.feats",
+    "cur.duo",
+    "duo",
+    "disco.0.duoCut",
+    "disco.0.rev",
+    "disco.0.L"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 1,
+      "cur.feats": [
+       "ayana"
+      ],
+      "cur.duo": 50,
+      "duo": null,
+      "disco.0.duoCut": null,
+      "disco.0.rev": null,
+      "disco.0.L": null
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 30000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 80,
+      "rank": 1,
+      "en": 55,
+      "hour": 11,
+      "day": 1,
+      "cur.feats": [
+       "ayana"
+      ],
+      "cur.duo": 50,
+      "duo": null,
+      "disco.0.duoCut": null,
+      "disco.0.rev": null,
+      "disco.0.L": null
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 41946,
+      "fans": 483,
+      "pop": 8,
+      "rep": 8,
+      "xp": 200,
+      "rank": 2,
+      "en": 55,
+      "hour": 11,
+      "day": 1,
+      "cur.feats": null,
+      "cur.duo": null,
+      "duo": null,
+      "disco.0.duoCut": 27,
+      "disco.0.rev": 1946,
+      "disco.0.L": 5302
+     }
+    }
+   ]
+  },
+  {
+   "name": "sortie : bonus de rebond (hype) et réponse au rival (diss)",
+   "start": "debut",
+   "patch": {
+    "hype": 9,
+    "diss": 1,
+    "day": 5
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "hype",
+    "diss",
+    "disco.0.L",
+    "disco.0.hype",
+    "disco.0.diss"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 9,
+      "day": 5,
+      "hype": 9,
+      "diss": 1,
+      "disco.0.L": null,
+      "disco.0.hype": null,
+      "disco.0.diss": null
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 30000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 80,
+      "rank": 1,
+      "en": 55,
+      "hour": 11,
+      "day": 5,
+      "hype": 9,
+      "diss": 1,
+      "disco.0.L": null,
+      "disco.0.hype": null,
+      "disco.0.diss": null
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 42127,
+      "fans": 511,
+      "pop": 9,
+      "rep": 8,
+      "xp": 200,
+      "rank": 2,
+      "en": 55,
+      "hour": 11,
+      "day": 5,
+      "hype": 0,
+      "diss": 0,
+      "disco.0.L": 5717,
+      "disco.0.hype": 1,
+      "disco.0.diss": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "avantages de label à la sortie (export, dev, ecr)",
+   "start": "carriere",
+   "patch": {
+    "signed": 1,
+    "label": "RCD",
+    "lcut": 0.3,
+    "lperk": "export"
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "geo",
+    "sk"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 320000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "geo": {
+       "bakoma": 14,
+       "portambre": 4,
+       "selene": 3,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 15,
+       "voix": 10,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 320000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3130,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 14,
+       "portambre": 4,
+       "selene": 3,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 15,
+       "voix": 11,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 322827,
+      "fans": 2916,
+      "pop": 28,
+      "rep": 31,
+      "xp": 3170,
+      "rank": 3,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 22.3,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 15,
+       "voix": 11,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "lperk": "dev",
+      "en": 100,
+      "hour": 8
+     },
+     "err": null,
+     "out": {
+      "cash": 322827,
+      "fans": 2916,
+      "pop": 28,
+      "rep": 31,
+      "xp": 3170,
+      "rank": 3,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "geo": {
+       "bakoma": 22.3,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 15,
+       "voix": 11,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 322827,
+      "fans": 2916,
+      "pop": 28,
+      "rep": 31,
+      "xp": 3170,
+      "rank": 3,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "geo": {
+       "bakoma": 22.3,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 11,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 322827,
+      "fans": 2916,
+      "pop": 28,
+      "rep": 31,
+      "xp": 3200,
+      "rank": 4,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 22.3,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 12,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 326043,
+      "fans": 3465,
+      "pop": 37,
+      "rep": 31,
+      "xp": 3240,
+      "rank": 4,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 31.6,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 18,
+       "ecr": 16,
+       "voix": 13,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "lperk": "ecr",
+      "en": 100,
+      "hour": 8
+     },
+     "err": null,
+     "out": {
+      "cash": 326043,
+      "fans": 3465,
+      "pop": 37,
+      "rep": 31,
+      "xp": 3240,
+      "rank": 4,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "geo": {
+       "bakoma": 31.6,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 18,
+       "ecr": 16,
+       "voix": 13,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cash": 326043,
+      "fans": 3465,
+      "pop": 37,
+      "rep": 31,
+      "xp": 3240,
+      "rank": 4,
+      "en": 80,
+      "hour": 9,
+      "day": 30,
+      "geo": {
+       "bakoma": 31.6,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 18,
+       "ecr": 17,
+       "voix": 13,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 326043,
+      "fans": 3465,
+      "pop": 37,
+      "rep": 31,
+      "xp": 3270,
+      "rank": 4,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 31.6,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 18,
+       "ecr": 17,
+       "voix": 14,
+       "cha": 12
+      }
+     }
+    },
+    {
+     "a": "release",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 329669,
+      "fans": 4043,
+      "pop": 45,
+      "rep": 31,
+      "xp": 3310,
+      "rank": 4,
+      "en": 55,
+      "hour": 11,
+      "day": 30,
+      "geo": {
+       "bakoma": 41.9,
+       "portambre": 7,
+       "selene": 6,
+       "tamarel": 0,
+       "korvane": 0,
+       "aldera": 0
+      },
+      "sk": {
+       "flow": 18,
+       "ecr": 19,
+       "voix": 14,
+       "cha": 12
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "EP de 3 titres",
+   "start": "star",
+   "patch": {
+    "disco": [
+     {
+      "id": "T3",
+      "title": "T3",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 70,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 90000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 40000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 50,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 12000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "ui": {
+     "promo": 0,
+     "feat": null
+    }
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "projects",
+    "ui.ptk",
+    "ui.ptype"
+   ],
+   "steps": [
+    {
+     "a": "prel",
+     "g": null,
+     "err": "pistes",
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": null,
+      "ui.ptype": null
+     }
+    },
+    {
+     "a": "ptype",
+     "g": "EP",
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": null,
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T3"
+      ],
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 1,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T3",
+       "T2"
+      ],
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": "pistes",
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T3",
+       "T2"
+      ],
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T3",
+       "T2",
+       "T1"
+      ],
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1420310,
+      "fans": 17154,
+      "pop": 43,
+      "rep": 31,
+      "xp": 6280,
+      "rank": 5,
+      "en": 80,
+      "hour": 12,
+      "day": 30,
+      "projects": [
+       {
+        "id": "P1",
+        "type": "EP",
+        "title": "EP n° 1",
+        "tracks": [
+         "T3",
+         "T2",
+         "T1"
+        ],
+        "day": 30,
+        "Q": 60,
+        "L": 72200,
+        "sales": 1177,
+        "rev": 35310,
+        "cut": 0,
+        "fans": 2354,
+        "rank": 0,
+        "labelAt": "Indépendant"
+       }
+      ],
+      "ui.ptk": [],
+      "ui.ptype": "EP"
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": "pistes",
+     "out": {
+      "cash": 1420310,
+      "fans": 17154,
+      "pop": 43,
+      "rep": 31,
+      "xp": 6280,
+      "rank": 5,
+      "en": 80,
+      "hour": 12,
+      "day": 30,
+      "projects": [
+       {
+        "id": "P1",
+        "type": "EP",
+        "title": "EP n° 1",
+        "tracks": [
+         "T3",
+         "T2",
+         "T1"
+        ],
+        "day": 30,
+        "Q": 60,
+        "L": 72200,
+        "sales": 1177,
+        "rev": 35310,
+        "cut": 0,
+        "fans": 2354,
+        "rank": 0,
+        "labelAt": "Indépendant"
+       }
+      ],
+      "ui.ptk": [],
+      "ui.ptype": "EP"
+     }
+    }
+   ]
+  },
+  {
+   "name": "EP : cash insuffisant",
+   "start": "star",
+   "patch": {
+    "disco": [
+     {
+      "id": "T3",
+      "title": "T3",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 70,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 90000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 40000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 50,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 12000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "cash": 5000
+   },
+   "watch": [
+    "cash",
+    "projects"
+   ],
+   "steps": [
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "cash": 5000,
+      "projects": []
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 1,
+     "err": null,
+     "out": {
+      "cash": 5000,
+      "projects": []
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 5000,
+      "projects": []
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": "cash",
+     "out": {
+      "cash": 5000,
+      "projects": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "album refusé sous 8 titres, accepté à 8",
+   "start": "star",
+   "patch": {
+    "disco": [
+     {
+      "id": "T8",
+      "title": "T8",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 55,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 20000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T7",
+      "title": "T7",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 58,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 29000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T6",
+      "title": "T6",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 61,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 38000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T5",
+      "title": "T5",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 64,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 47000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T4",
+      "title": "T4",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 67,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 56000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T3",
+      "title": "T3",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 70,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 65000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 73,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 74000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 76,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 83000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "projects",
+    "ui.ptk",
+    "ui.ptype"
+   ],
+   "steps": [
+    {
+     "a": "ptype",
+     "g": "Album",
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": null,
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 1,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": "pistes",
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 3,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6",
+       "T5"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 4,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6",
+       "T5",
+       "T4"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 5,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6",
+       "T5",
+       "T4",
+       "T3"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 6,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6",
+       "T5",
+       "T4",
+       "T3",
+       "T2"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 7,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": [],
+      "ui.ptk": [
+       "T8",
+       "T7",
+       "T6",
+       "T5",
+       "T4",
+       "T3",
+       "T2",
+       "T1"
+      ],
+      "ui.ptype": "Album"
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1416490,
+      "fans": 18566,
+      "pop": 45,
+      "rep": 31,
+      "xp": 6350,
+      "rank": 5,
+      "en": 70,
+      "hour": 14,
+      "day": 30,
+      "projects": [
+       {
+        "id": "P1",
+        "type": "Album",
+        "title": "Album n° 1",
+        "tracks": [
+         "T8",
+         "T7",
+         "T6",
+         "T5",
+         "T4",
+         "T3",
+         "T2",
+         "T1"
+        ],
+        "day": 30,
+        "Q": 66,
+        "L": 153200,
+        "sales": 1883,
+        "rev": 56490,
+        "cut": 0,
+        "fans": 3766,
+        "rank": 0,
+        "labelAt": "Indépendant"
+       }
+      ],
+      "ui.ptk": [],
+      "ui.ptype": "Album"
+     }
+    }
+   ]
+  },
+  {
+   "name": "EP signé en label : part déduite, classement Top 50",
+   "start": "star",
+   "patch": {
+    "disco": [
+     {
+      "id": "T3",
+      "title": "T3",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 70,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 90000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 40000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 50,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 12000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "signed": 1,
+    "label": "AUB",
+    "lcut": 0.2,
+    "lperk": "dev",
+    "fans": 60000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "projects"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "ptitle=Nuits de Ndolo",
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 60000,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": []
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 60000,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": []
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 1,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 60000,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": []
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 60000,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "projects": []
+     }
+    },
+    {
+     "a": "prel",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1487000,
+      "fans": 68500,
+      "pop": 47,
+      "rep": 31,
+      "xp": 6280,
+      "rank": 5,
+      "en": 80,
+      "hour": 12,
+      "day": 30,
+      "projects": [
+       {
+        "id": "P1",
+        "type": "EP",
+        "title": "Nuits de Ndolo",
+        "tracks": [
+         "T3",
+         "T2",
+         "T1"
+        ],
+        "day": 30,
+        "Q": 60,
+        "L": 162600,
+        "sales": 4250,
+        "rev": 102000,
+        "cut": 25500,
+        "fans": 8500,
+        "rank": 0,
+        "labelAt": "Aube Nouvelle"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "EP : décocher un titre",
+   "start": "star",
+   "patch": {
+    "disco": [
+     {
+      "id": "T3",
+      "title": "T3",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 70,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 90000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 40000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 50,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 12000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "ui.ptk"
+   ],
+   "steps": [
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "ui.ptk": [
+       "T3"
+      ]
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 1,
+     "err": null,
+     "out": {
+      "ui.ptk": [
+       "T3",
+       "T2"
+      ]
+     }
+    },
+    {
+     "a": "ptki",
+     "g": 0,
+     "err": null,
+     "out": {
+      "ui.ptk": [
+       "T2"
+      ]
+     }
+    },
+    {
+     "a": "ptk",
+     "g": "T9",
+     "err": "inconnu",
+     "out": {
+      "ui.ptk": [
+       "T2"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "open mic : gains décroissants sur 7 jours",
+   "start": "debut",
+   "patch": {
+    "fans": 0
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "omK",
+    "omHist",
+    "omDay",
+    "om",
+    "shows",
+    "geo.bakoma"
+   ],
+   "steps": [
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 28000,
+      "fans": 150,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "omK": 1,
+      "omHist": [
+       1
+      ],
+      "omDay": 1,
+      "om": 1,
+      "shows": 1,
+      "geo.bakoma": 6
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": "deja",
+     "out": {
+      "cash": 28000,
+      "fans": 150,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "omK": 1,
+      "omHist": [
+       1
+      ],
+      "omDay": 1,
+      "om": 1,
+      "shows": 1,
+      "geo.bakoma": 6
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 2,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 28000,
+      "fans": 150,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 2,
+      "omK": 1,
+      "omHist": [
+       1
+      ],
+      "omDay": 1,
+      "om": 1,
+      "shows": 1,
+      "geo.bakoma": 6
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 31000,
+      "fans": 278,
+      "pop": 3,
+      "rep": 20,
+      "xp": 111,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 2,
+      "omK": 0.85,
+      "omHist": [
+       1,
+       2
+      ],
+      "omDay": 2,
+      "om": 1,
+      "shows": 2,
+      "geo.bakoma": 7.7
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 3,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 31000,
+      "fans": 278,
+      "pop": 3,
+      "rep": 20,
+      "xp": 111,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 3,
+      "omK": 0.85,
+      "omHist": [
+       1,
+       2
+      ],
+      "omDay": 2,
+      "om": 1,
+      "shows": 2,
+      "geo.bakoma": 7.7
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 34000,
+      "fans": 383,
+      "pop": 3,
+      "rep": 26,
+      "xp": 153,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 3,
+      "omK": 0.7,
+      "omHist": [
+       1,
+       2,
+       3
+      ],
+      "omDay": 3,
+      "om": 1,
+      "shows": 3,
+      "geo.bakoma": 9.1
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 4,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 34000,
+      "fans": 383,
+      "pop": 3,
+      "rep": 26,
+      "xp": 153,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 4,
+      "omK": 0.7,
+      "omHist": [
+       1,
+       2,
+       3
+      ],
+      "omDay": 3,
+      "om": 1,
+      "shows": 3,
+      "geo.bakoma": 9.1
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 37000,
+      "fans": 466,
+      "pop": 3,
+      "rep": 29,
+      "xp": 186,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 4,
+      "omK": 0.55,
+      "omHist": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "omDay": 4,
+      "om": 1,
+      "shows": 4,
+      "geo.bakoma": 10.2
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 5,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 37000,
+      "fans": 466,
+      "pop": 3,
+      "rep": 29,
+      "xp": 186,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 5,
+      "omK": 0.55,
+      "omHist": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "omDay": 4,
+      "om": 1,
+      "shows": 4,
+      "geo.bakoma": 10.2
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 526,
+      "pop": 3,
+      "rep": 32,
+      "xp": 210,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 5,
+      "omK": 0.4,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ],
+      "omDay": 5,
+      "om": 1,
+      "shows": 5,
+      "geo.bakoma": 11
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 6,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 526,
+      "pop": 3,
+      "rep": 32,
+      "xp": 210,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 6,
+      "omK": 0.4,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ],
+      "omDay": 5,
+      "om": 1,
+      "shows": 5,
+      "geo.bakoma": 11
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 43000,
+      "fans": 571,
+      "pop": 3,
+      "rep": 35,
+      "xp": 228,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 6,
+      "omK": 0.3,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "omDay": 6,
+      "om": 1,
+      "shows": 6,
+      "geo.bakoma": 11.6
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 7,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 43000,
+      "fans": 571,
+      "pop": 3,
+      "rep": 35,
+      "xp": 228,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 7,
+      "omK": 0.3,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "omDay": 6,
+      "om": 1,
+      "shows": 6,
+      "geo.bakoma": 11.6
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 46000,
+      "fans": 616,
+      "pop": 3,
+      "rep": 38,
+      "xp": 246,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 7,
+      "omK": 0.3,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "omDay": 7,
+      "om": 1,
+      "shows": 7,
+      "geo.bakoma": 12.2
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 12,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 46000,
+      "fans": 616,
+      "pop": 3,
+      "rep": 38,
+      "xp": 246,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 12,
+      "omK": 0.3,
+      "omHist": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "omDay": 7,
+      "om": 1,
+      "shows": 7,
+      "geo.bakoma": 12.2
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 49000,
+      "fans": 721,
+      "pop": 3,
+      "rep": 44,
+      "xp": 288,
+      "rank": 2,
+      "en": 85,
+      "hour": 9,
+      "day": 12,
+      "omK": 0.7,
+      "omHist": [
+       6,
+       7,
+       12
+      ],
+      "omDay": 12,
+      "om": 1,
+      "shows": 8,
+      "geo.bakoma": 13.6
+     }
+    }
+   ]
+  },
+  {
+   "name": "open mic : trou de mémoire sous 40 d’énergie",
+   "start": "debut",
+   "patch": {
+    "en": 30
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "om",
+    "omK",
+    "shows"
+   ],
+   "steps": [
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 132,
+      "pop": 3,
+      "rep": 8,
+      "xp": 10,
+      "rank": 1,
+      "en": 15,
+      "hour": 9,
+      "day": 1,
+      "om": 0,
+      "omK": 1,
+      "shows": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "open mic avec manager : 8 % de commission",
+   "start": "debut",
+   "patch": {
+    "mgr": "maya",
+    "fans": 0
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "mgrTot",
+    "om"
+   ],
+   "steps": [
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 27760,
+      "fans": 150,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "mgrTot": 240,
+      "om": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "concert : billetterie et délai de 7 jours",
+   "start": "carriere",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cc.g",
+    "cc.tk",
+    "cc.cash",
+    "cc.fans",
+    "cc.rep",
+    "lastConcert",
+    "shows",
+    "geo.bakoma"
+   ],
+   "steps": [
+    {
+     "a": "concert",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 337280,
+      "fans": 2746,
+      "pop": 19,
+      "rep": 41,
+      "xp": 3190,
+      "rank": 3,
+      "en": 65,
+      "hour": 12,
+      "day": 30,
+      "cc.g": "A",
+      "cc.tk": 216,
+      "cc.cash": 17280,
+      "cc.fans": 346,
+      "cc.rep": 10,
+      "lastConcert": 30,
+      "shows": 2,
+      "geo.bakoma": 18
+     }
+    },
+    {
+     "a": "concert",
+     "g": null,
+     "err": "delai",
+     "out": {
+      "cash": 337280,
+      "fans": 2746,
+      "pop": 19,
+      "rep": 41,
+      "xp": 3190,
+      "rank": 3,
+      "en": 65,
+      "hour": 12,
+      "day": 30,
+      "cc.g": "A",
+      "cc.tk": 216,
+      "cc.cash": 17280,
+      "cc.fans": 346,
+      "cc.rep": 10,
+      "lastConcert": 30,
+      "shows": 2,
+      "geo.bakoma": 18
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 38,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 337280,
+      "fans": 2746,
+      "pop": 19,
+      "rep": 41,
+      "xp": 3190,
+      "rank": 3,
+      "en": 100,
+      "hour": 8,
+      "day": 38,
+      "cc.g": "A",
+      "cc.tk": 216,
+      "cc.cash": 17280,
+      "cc.fans": 346,
+      "cc.rep": 10,
+      "lastConcert": 30,
+      "shows": 2,
+      "geo.bakoma": 18
+     }
+    },
+    {
+     "a": "concert",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 357200,
+      "fans": 3144,
+      "pop": 20,
+      "rep": 51,
+      "xp": 3280,
+      "rank": 4,
+      "en": 65,
+      "hour": 12,
+      "day": 38,
+      "cc.g": "A",
+      "cc.tk": 249,
+      "cc.cash": 19920,
+      "cc.fans": 398,
+      "cc.rep": 10,
+      "lastConcert": 38,
+      "shows": 3,
+      "geo.bakoma": 22
+     }
+    }
+   ]
+  },
+  {
+   "name": "concert : label scène +20 % de billets, manager",
+   "start": "carriere",
+   "patch": {
+    "lperk": "scene",
+    "signed": 1,
+    "mgr": "maya"
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cc.tk",
+    "cc.fans",
+    "cc.rep",
+    "cc.g",
+    "mgrTot"
+   ],
+   "steps": [
+    {
+     "a": "concert",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 339062,
+      "fans": 2814,
+      "pop": 19,
+      "rep": 41,
+      "xp": 3190,
+      "rank": 3,
+      "en": 65,
+      "hour": 12,
+      "day": 30,
+      "cc.tk": 259,
+      "cc.fans": 414,
+      "cc.rep": 10,
+      "cc.g": "A",
+      "mgrTot": 1658
+     }
+    }
+   ]
+  },
+  {
+   "name": "concert refusé avant le rang N3",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day"
+   ],
+   "steps": [
+    {
+     "a": "concert",
+     "g": null,
+     "err": "rang",
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "tournée : audience, délai de 28 jours",
+   "start": "star",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cc.cash",
+    "cc.fans",
+    "cc.rep",
+    "lastTour",
+    "shows",
+    "geo"
+   ],
+   "steps": [
+    {
+     "a": "tour",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1492500,
+      "fans": 15400,
+      "pop": 43,
+      "rep": 35,
+      "xp": 6320,
+      "rank": 5,
+      "en": 55,
+      "hour": 18,
+      "day": 30,
+      "cc.cash": 92500,
+      "cc.fans": 600,
+      "cc.rep": 4,
+      "lastTour": 30,
+      "shows": 8,
+      "geo": {
+       "bakoma": 46,
+       "portambre": 30,
+       "selene": 27,
+       "tamarel": 3,
+       "korvane": 0,
+       "aldera": 1
+      }
+     }
+    },
+    {
+     "a": "tour",
+     "g": null,
+     "err": "delai",
+     "out": {
+      "cash": 1492500,
+      "fans": 15400,
+      "pop": 43,
+      "rep": 35,
+      "xp": 6320,
+      "rank": 5,
+      "en": 55,
+      "hour": 18,
+      "day": 30,
+      "cc.cash": 92500,
+      "cc.fans": 600,
+      "cc.rep": 4,
+      "lastTour": 30,
+      "shows": 8,
+      "geo": {
+       "bakoma": 46,
+       "portambre": 30,
+       "selene": 27,
+       "tamarel": 3,
+       "korvane": 0,
+       "aldera": 1
+      }
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 70,
+      "hour": 8,
+      "en": 100
+     },
+     "err": null,
+     "out": {
+      "cash": 1492500,
+      "fans": 15400,
+      "pop": 43,
+      "rep": 35,
+      "xp": 6320,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 70,
+      "cc.cash": 92500,
+      "cc.fans": 600,
+      "cc.rep": 4,
+      "lastTour": 30,
+      "shows": 8,
+      "geo": {
+       "bakoma": 46,
+       "portambre": 30,
+       "selene": 27,
+       "tamarel": 3,
+       "korvane": 0,
+       "aldera": 1
+      }
+     }
+    },
+    {
+     "a": "tour",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1625000,
+      "fans": 16000,
+      "pop": 45,
+      "rep": 39,
+      "xp": 6440,
+      "rank": 5,
+      "en": 55,
+      "hour": 18,
+      "day": 70,
+      "cc.cash": 132500,
+      "cc.fans": 600,
+      "cc.rep": 4,
+      "lastTour": 70,
+      "shows": 10,
+      "geo": {
+       "bakoma": 46,
+       "portambre": 38,
+       "selene": 35,
+       "tamarel": 3,
+       "korvane": 0,
+       "aldera": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "tournée : audience insuffisante",
+   "start": "carriere",
+   "patch": {
+    "rank": 3
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day"
+   ],
+   "steps": [
+    {
+     "a": "tour",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 327500,
+      "fans": 3000,
+      "pop": 20,
+      "rep": 35,
+      "xp": 3220,
+      "rank": 4,
+      "en": 50,
+      "hour": 18,
+      "day": 30
+     }
+    }
+   ]
+  },
+  {
+   "name": "défi de K-Zer : battle gagnée (2 rounds sur 3)",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "btq",
+    "bt",
+    "ev",
+    "evDone.kzer",
+    "geo.bakoma"
+   ],
+   "steps": [
+    {
+     "a": "battle",
+     "g": 3,
+     "err": "rien",
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "btq": null,
+      "bt": null,
+      "ev": "kzer",
+      "evDone.kzer": null,
+      "geo.bakoma": 4
+     }
+    },
+    {
+     "a": "evc",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "btq": "kzer",
+      "bt": null,
+      "ev": null,
+      "evDone.kzer": "a",
+      "geo.bakoma": 4
+     }
+    },
+    {
+     "a": "battle",
+     "g": 2,
+     "err": null,
+     "out": {
+      "cash": 28000,
+      "fans": 270,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "btq": null,
+      "bt": {
+       "win": 1,
+       "w": 2,
+       "vs": "kzer"
+      },
+      "ev": null,
+      "evDone.kzer": "a",
+      "geo.bakoma": 6
+     }
+    },
+    {
+     "a": "battle",
+     "g": 3,
+     "err": "rien",
+     "out": {
+      "cash": 28000,
+      "fans": 270,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "btq": null,
+      "bt": {
+       "win": 1,
+       "w": 2,
+       "vs": "kzer"
+      },
+      "ev": null,
+      "evDone.kzer": "a",
+      "geo.bakoma": 6
+     }
+    }
+   ]
+  },
+  {
+   "name": "défi de K-Zer : battle perdue",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "btq",
+    "bt",
+    "ev"
+   ],
+   "steps": [
+    {
+     "a": "evc",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "btq": "kzer",
+      "bt": null,
+      "ev": null
+     }
+    },
+    {
+     "a": "battle",
+     "g": 1,
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 132,
+      "pop": 3,
+      "rep": 8,
+      "xp": 10,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "btq": null,
+      "bt": {
+       "win": 0,
+       "w": 1,
+       "vs": "kzer"
+      },
+      "ev": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "défi de K-Zer : ignoré",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "btq",
+    "bt",
+    "ev",
+    "evDone.kzer"
+   ],
+   "steps": [
+    {
+     "a": "evc",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 5,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "btq": null,
+      "bt": null,
+      "ev": null,
+      "evDone.kzer": "b"
+     }
+    }
+   ]
+  },
+  {
+   "name": "défi de K-Zer : refus faute d’énergie",
+   "start": "debut",
+   "patch": {
+    "en": 10
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "btq",
+    "ev"
+   ],
+   "steps": [
+    {
+     "a": "evc",
+     "g": "a",
+     "err": "energie",
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 10,
+      "hour": 8,
+      "day": 1,
+      "btq": null,
+      "ev": "kzer"
+     }
+    }
+   ]
+  },
+  {
+   "name": "battle gagnée avec label « street » et manager",
+   "start": "debut",
+   "patch": {
+    "lperk": "street",
+    "signed": 1,
+    "mgr": "maya"
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "bt",
+    "mgrTot"
+   ],
+   "steps": [
+    {
+     "a": "evc",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "bt": null,
+      "mgrTot": null
+     }
+    },
+    {
+     "a": "battle",
+     "g": 3,
+     "err": null,
+     "out": {
+      "cash": 27760,
+      "fans": 320,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 1,
+      "bt": {
+       "win": 1,
+       "w": 3,
+       "vs": "kzer"
+      },
+      "mgrTot": 240
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : négociation à 35 %, mix signé",
+   "start": "debut",
+   "patch": {
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dlg",
+    "dq",
+    "dseen",
+    "kc",
+    "rel"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "dq": [],
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n3",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier"
+       ]
+      },
+      "dq": [],
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 33000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n3",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier",
+        "35 %, mix signé"
+       ],
+       "done": 1,
+       "end": "Accord à 35 %",
+       "c": "−7 000 cauris · production +12 sur 3 titres · relation +8"
+      },
+      "dq": [],
+      "dseen": {
+       "kore": "Accord à 35 %"
+      },
+      "kc": {
+       "st": "Accord à 35 %, mix signé",
+       "bonus": 12,
+       "left": 3,
+       "rel": 8
+      },
+      "rel": {
+       "kore": 8
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": "rien",
+     "out": {
+      "cash": 33000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n3",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier",
+        "35 %, mix signé"
+       ],
+       "done": 1,
+       "end": "Accord à 35 %",
+       "c": "−7 000 cauris · production +12 sur 3 titres · relation +8"
+      },
+      "dq": [],
+      "dseen": {
+       "kore": "Accord à 35 %"
+      },
+      "kc": {
+       "st": "Accord à 35 %, mix signé",
+       "bonus": 12,
+       "left": 3,
+       "rel": 8
+      },
+      "rel": {
+       "kore": 8
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 33000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": null,
+      "dq": [],
+      "dseen": {
+       "kore": "Accord à 35 %"
+      },
+      "kc": {
+       "st": "Accord à 35 %, mix signé",
+       "bonus": 12,
+       "left": 3,
+       "rel": 8
+      },
+      "rel": {
+       "kore": 8
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : déclenché après le premier enregistrement",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "dlg",
+    "dq",
+    "dseen"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "dlg": null,
+      "dq": [],
+      "dseen": {}
+     }
+    },
+    {
+     "a": "record",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "dseen": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "zz",
+     "err": "inconnu",
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "dseen": {}
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : bonus de production sur 3 titres",
+   "start": "debut",
+   "patch": {
+    "kc": {
+     "st": "Accord à 35 %, mix signé",
+     "bonus": 12,
+     "left": 3,
+     "rel": 8
+    },
+    "dseen": {
+     "kore": "x"
+    }
+   },
+   "watch": [
+    "cur.prod",
+    "cur.prodBy",
+    "cur.Q",
+    "kc.left",
+    "dlg"
+   ],
+   "steps": [
+    {
+     "a": "create",
+     "g": [
+      "quartier",
+      "sombre"
+     ],
+     "err": null,
+     "out": {
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.Q": 0,
+      "kc.left": 3,
+      "dlg": null
+     }
+    },
+    {
+     "a": "pick",
+     "g": "gbaka",
+     "err": null,
+     "out": {
+      "cur.prod": null,
+      "cur.prodBy": null,
+      "cur.Q": 0,
+      "kc.left": 3,
+      "dlg": null
+     }
+    },
+    {
+     "a": "record",
+     "g": [
+      70,
+      70,
+      70
+     ],
+     "err": null,
+     "out": {
+      "cur.prod": 68,
+      "cur.prodBy": "DJ Kôrô (Studio Kôrô)",
+      "cur.Q": 70,
+      "kc.left": 2,
+      "dlg": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : refus puis retour 21 jours plus tard",
+   "start": "debut",
+   "patch": {
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dlg",
+    "dq",
+    "dseen",
+    "rel"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "dseen": {},
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "dq": [],
+      "dseen": {},
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "c",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain",
+        "Refuser"
+       ],
+       "done": 1,
+       "end": "Refus",
+       "c": "relation −10 · il reviendra dans 3 semaines, plus cher"
+      },
+      "dq": [
+       {
+        "id": "kore2",
+        "at": 22
+       }
+      ],
+      "dseen": {
+       "kore": "Refus"
+      },
+      "rel": {
+       "kore": -10
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": null,
+      "dq": [
+       {
+        "id": "kore2",
+        "at": 22
+       }
+      ],
+      "dseen": {
+       "kore": "Refus"
+      },
+      "rel": {
+       "kore": -10
+      }
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 25
+     },
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 25,
+      "dlg": null,
+      "dq": [
+       {
+        "id": "kore2",
+        "at": 22
+       }
+      ],
+      "dseen": {
+       "kore": "Refus"
+      },
+      "rel": {
+       "kore": -10
+      }
+     }
+    },
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 25,
+      "dlg": {
+       "id": "kore2",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "mgr",
+        "at": 25
+       }
+      ],
+      "dseen": {
+       "kore": "Refus"
+      },
+      "rel": {
+       "kore": -10
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 31000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 25,
+      "dlg": {
+       "id": "kore2",
+       "node": "n1",
+       "path": [
+        "Accepter à 45 %"
+       ],
+       "done": 1,
+       "end": "Accord à 45 %",
+       "c": "−9 000 cauris · production +12 sur 3 titres · relation +5"
+      },
+      "dq": [
+       {
+        "id": "mgr",
+        "at": 25
+       }
+      ],
+      "dseen": {
+       "kore": "Refus",
+       "kore2": "Accord à 45 %"
+      },
+      "rel": {
+       "kore": -5
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 31000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 25,
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "dseen": {
+       "kore": "Refus",
+       "kore2": "Accord à 45 %"
+      },
+      "rel": {
+       "kore": -5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : négociation tendue à 30 %",
+   "start": "debut",
+   "patch": {
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ]
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dlg",
+    "dseen",
+    "kc",
+    "rel"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n3",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier"
+       ]
+      },
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n4",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier",
+        "Tenter 30 %"
+       ]
+      },
+      "dseen": {},
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {
+       "kore": -5
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n4",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier",
+        "Tenter 30 %",
+        "Refuser"
+       ],
+       "done": 1,
+       "end": "Refus",
+       "c": "relation −10 · il reviendra dans 3 semaines, plus cher"
+      },
+      "dseen": {
+       "kore": "Refus"
+      },
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {
+       "kore": -15
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": "rien",
+     "out": {
+      "cash": 40000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 130,
+      "rank": 2,
+      "en": 95,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "kore",
+       "node": "n4",
+       "path": [
+        "Rejouer le refrain",
+        "Négocier",
+        "Tenter 30 %",
+        "Refuser"
+       ],
+       "done": 1,
+       "end": "Refus",
+       "c": "relation −10 · il reviendra dans 3 semaines, plus cher"
+      },
+      "dseen": {
+       "kore": "Refus"
+      },
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      },
+      "rel": {
+       "kore": -15
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : énergie insuffisante pour négocier",
+   "start": "debut",
+   "patch": {
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "en": 3
+   },
+   "watch": [
+    "dlg",
+    "en"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "en": 3
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "en": 3
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": "energie",
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "en": 3
+     }
+    }
+   ]
+  },
+  {
+   "name": "Kôrô : cash insuffisant pour accepter",
+   "start": "debut",
+   "patch": {
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "cash": 100
+   },
+   "watch": [
+    "dlg",
+    "cash",
+    "kc"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=quartier",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n1",
+       "path": []
+      },
+      "cash": 15100,
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain"
+       ]
+      },
+      "cash": 15100,
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "kore",
+       "node": "n2",
+       "path": [
+        "Rejouer le refrain",
+        "Accepter à 40 %"
+       ],
+       "done": 1,
+       "end": "Accord à 40 %",
+       "c": "−8 000 cauris · production +12 sur 3 titres · relation +15"
+      },
+      "cash": 7100,
+      "kc": {
+       "st": "Accord à 40 %",
+       "bonus": 12,
+       "left": 3,
+       "rel": 15
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "manager Maya : engagement à 8 %",
+   "start": "debut",
+   "patch": {
+    "day": 3
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "mgr",
+    "dlg",
+    "rel",
+    "dseen",
+    "mgrTot"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 3,
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "rel": {},
+      "dseen": {},
+      "mgrTot": null
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 3,
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre"
+       ]
+      },
+      "rel": {},
+      "dseen": {},
+      "mgrTot": null
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 3,
+      "mgr": "maya",
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre",
+        "Engager Maya"
+       ],
+       "done": 1,
+       "end": "Maya Tessé engagée (M1)",
+       "c": "8 % de chaque cachet · ouvre les invitations et ses conseils"
+      },
+      "rel": {
+       "nadia": 10
+      },
+      "dseen": {
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "mgrTot": null
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 3,
+      "mgr": "maya",
+      "dlg": null,
+      "rel": {
+       "nadia": 10
+      },
+      "dseen": {
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "mgrTot": null
+     }
+    },
+    {
+     "a": "openmic",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 27760,
+      "fans": 270,
+      "pop": 3,
+      "rep": 14,
+      "xp": 60,
+      "rank": 1,
+      "en": 85,
+      "hour": 9,
+      "day": 3,
+      "mgr": "maya",
+      "dlg": null,
+      "rel": {
+       "nadia": 10
+      },
+      "dseen": {
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "mgrTot": 240
+     }
+    }
+   ]
+  },
+  {
+   "name": "manager Maya : négociation à 6 % puis refus",
+   "start": "debut",
+   "patch": {
+    "day": 3
+   },
+   "watch": [
+    "mgr",
+    "dlg",
+    "rel",
+    "dseen"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "rel": {},
+      "dseen": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre"
+       ]
+      },
+      "rel": {},
+      "dseen": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n3",
+       "path": [
+        "Écouter son offre",
+        "Demander 6 %"
+       ]
+      },
+      "rel": {},
+      "dseen": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n3",
+       "path": [
+        "Écouter son offre",
+        "Demander 6 %",
+        "Refuser"
+       ],
+       "done": 1,
+       "end": "Refus",
+       "c": "aucun manager pour l'instant"
+      },
+      "rel": {
+       "nadia": -5
+      },
+      "dseen": {
+       "mgr": "Refus"
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": null,
+      "rel": {
+       "nadia": -5
+      },
+      "dseen": {
+       "mgr": "Refus"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "manager : rendez-vous écourté",
+   "start": "debut",
+   "patch": {
+    "day": 3
+   },
+   "watch": [
+    "mgr",
+    "dlg",
+    "rel",
+    "dseen"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "rel": {},
+      "dseen": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "mgr": null,
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": [
+        "Pas maintenant"
+       ],
+       "done": 1,
+       "end": "Rendez-vous écourté",
+       "c": "aucun manager · elle te laisse son numéro"
+      },
+      "rel": {
+       "nadia": -2
+      },
+      "dseen": {
+       "mgr": "Rendez-vous écourté"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "contrat de label Bakoma Sound Records",
+   "start": "debut",
+   "patch": {
+    "rep": 30,
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dlg",
+    "dq",
+    "dseen",
+    "signed",
+    "label",
+    "lcut",
+    "lperk"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 85000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (30 %)",
+       "c": "+60 000 cauris · 30 % des écoutes · 12 mois · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Signé chez Vague Argentée (30 %)"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.3,
+      "lperk": "none"
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": "rien",
+     "out": {
+      "cash": 85000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (30 %)",
+       "c": "+60 000 cauris · 30 % des écoutes · 12 mois · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Signé chez Vague Argentée (30 %)"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.3,
+      "lperk": "none"
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": "rien",
+     "out": {
+      "cash": 85000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (30 %)",
+       "c": "+60 000 cauris · 30 % des écoutes · 12 mois · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Signé chez Vague Argentée (30 %)"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.3,
+      "lperk": "none"
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 85000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_BLG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Signé chez Vague Argentée (30 %)"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.3,
+      "lperk": "none"
+     }
+    }
+   ]
+  },
+  {
+   "name": "contrat de label : contre-offre à 40 %",
+   "start": "debut",
+   "patch": {
+    "rep": 30,
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dlg",
+    "dseen",
+    "signed",
+    "label",
+    "lcut",
+    "lperk"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "cash": 25000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n2",
+       "path": [
+        "Négocier"
+       ]
+      },
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "cash": 100000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 30,
+      "xp": 0,
+      "rank": 1,
+      "en": 100,
+      "hour": 8,
+      "day": 1,
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n2",
+       "path": [
+        "Négocier",
+        "75 000 et 35 %"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (35 %)",
+       "c": "+75 000 cauris · 35 % des écoutes · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Signé chez Vague Argentée (35 %)"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.35,
+      "lperk": "none"
+     }
+    }
+   ]
+  },
+  {
+   "name": "contrat de label : réfléchir 7 jours",
+   "start": "debut",
+   "patch": {
+    "rep": 30,
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "dq",
+    "dseen",
+    "signed"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "signed": 0
+     }
+    },
+    {
+     "a": "dch",
+     "g": "c",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": [
+        "Décliner"
+       ],
+       "done": 1,
+       "end": "Offre déclinée",
+       "c": "tu restes libre · les autres labels peuvent encore appeler"
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Offre déclinée"
+      },
+      "signed": 0
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_BLG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Offre déclinée"
+      },
+      "signed": 0
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 9
+     },
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_BLG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Offre déclinée"
+      },
+      "signed": 0
+     }
+    },
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_BLG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "label",
+        "at": 1
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_VAG": "Offre déclinée"
+      },
+      "signed": 0
+     }
+    }
+   ]
+  },
+  {
+   "name": "carrière : file de dialogues et offres de labels dans l’ordre",
+   "start": "carriere",
+   "patch": {},
+   "watch": [
+    "dlg",
+    "dq",
+    "dseen",
+    "signed",
+    "label",
+    "lcut",
+    "lperk",
+    "cash",
+    "rel"
+   ],
+   "steps": [
+    {
+     "a": "dch",
+     "g": "c",
+     "err": "inconnu",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {}
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": "encours",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": [
+        "Pas maintenant"
+       ],
+       "done": 1,
+       "end": "Rendez-vous écourté",
+       "c": "aucun manager · elle te laisse son numéro"
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {
+       "nadia": -2
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": "rien",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": [
+        "Pas maintenant"
+       ],
+       "done": 1,
+       "end": "Rendez-vous écourté",
+       "c": "aucun manager · elle te laisse son numéro"
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {
+       "nadia": -2
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {
+       "nadia": -2
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "c",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n1",
+       "path": [
+        "Décliner"
+       ],
+       "done": 1,
+       "end": "Offre déclinée",
+       "c": "tu restes libre · les autres labels peuvent encore appeler"
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté",
+       "lb_AUB": "Offre déclinée"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {
+       "nadia": -2,
+       "awa": -3
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_NUG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté",
+       "lb_AUB": "Offre déclinée"
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 320000,
+      "rel": {
+       "nadia": -2,
+       "awa": -3
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_NUG",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Ndolo Underground (15 %)",
+       "c": "+15 000 cauris · 15 % des écoutes · 3 mois · +50 fans par battle gagnée"
+      },
+      "dq": [
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté",
+       "lb_AUB": "Offre déclinée",
+       "lb_NUG": "Signé chez Ndolo Underground (15 %)"
+      },
+      "signed": 1,
+      "label": "NUG",
+      "lcut": 0.15,
+      "lperk": "street",
+      "cash": 335000,
+      "rel": {
+       "nadia": -2,
+       "awa": -3,
+       "bakary": 8
+      }
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "Accord à 35 % (préréglage)",
+       "mgr": "Rendez-vous écourté",
+       "lb_AUB": "Offre déclinée",
+       "lb_NUG": "Signé chez Ndolo Underground (15 %)"
+      },
+      "signed": 1,
+      "label": "NUG",
+      "lcut": 0.15,
+      "lperk": "street",
+      "cash": 335000,
+      "rel": {
+       "nadia": -2,
+       "awa": -3,
+       "bakary": 8
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "rival, duo, succès, festival, crise dans l’ordre",
+   "start": "star",
+   "patch": {
+    "mgr": "maya",
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    },
+    "bt": {
+     "win": 1,
+     "w": 3,
+     "vs": "kzer"
+    },
+    "rep": 5
+   },
+   "watch": [
+    "dlg",
+    "dq",
+    "dseen",
+    "duo",
+    "diss",
+    "hype",
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "rel",
+    "hour",
+    "en",
+    "shows",
+    "geo.portambre",
+    "xp"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {},
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dch",
+     "g": "c",
+     "err": "inconnu",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {},
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": "encours",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {},
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre"
+       ]
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {},
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": "encours",
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre"
+       ]
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {},
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "mgr",
+       "node": "n2",
+       "path": [
+        "Écouter son offre",
+        "Engager Maya"
+       ],
+       "done": 1,
+       "end": "Maya Tessé engagée (M1)",
+       "c": "8 % de chaque cachet · ouvre les invitations et ses conseils"
+      },
+      "dq": [
+       {
+        "id": "lb_AUB",
+        "at": 30
+       },
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n2",
+       "path": [
+        "Négocier"
+       ]
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": "encours",
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n2",
+       "path": [
+        "Négocier"
+       ]
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n2",
+       "path": [
+        "Négocier",
+        "15 % sur 18 mois"
+       ],
+       "done": 1,
+       "end": "Signé chez Aube Nouvelle (15 %)",
+       "c": "+30 000 cauris · 15 % des écoutes · Flow et Voix +1 à chaque sortie"
+      },
+      "dq": [
+       {
+        "id": "lb_NUG",
+        "at": 30
+       },
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)",
+       "lb_AUB": "Signé chez Aube Nouvelle (15 %)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1430000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10,
+       "awa": 6
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    },
+    {
+     "a": "dclose",
+     "g": null,
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_NUG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_SIC",
+        "at": 30
+       },
+       {
+        "id": "lb_VAG",
+        "at": 30
+       },
+       {
+        "id": "lb_BLG",
+        "at": 30
+       },
+       {
+        "id": "lb_AMG",
+        "at": 30
+       },
+       {
+        "id": "label",
+        "at": 30
+       },
+       {
+        "id": "rival",
+        "at": 30
+       },
+       {
+        "id": "collab",
+        "at": 30
+       },
+       {
+        "id": "festival",
+        "at": 30
+       },
+       {
+        "id": "crisis",
+        "at": 30
+       }
+      ],
+      "dseen": {
+       "kore": "x",
+       "mgr": "Maya Tessé engagée (M1)",
+       "lb_AUB": "Signé chez Aube Nouvelle (15 %)"
+      },
+      "duo": null,
+      "diss": 0,
+      "hype": 0,
+      "cash": 1430000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 5,
+      "rel": {
+       "nadia": 10,
+       "awa": 6
+      },
+      "hour": 8,
+      "en": 100,
+      "shows": 6,
+      "geo.portambre": 22,
+      "xp": 6200
+     }
+    }
+   ]
+  },
+  {
+   "name": "offre Aube Nouvelle : conditions et contre-offre 15 %",
+   "start": "debut",
+   "patch": {
+    "rep": 12,
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "dq",
+    "signed",
+    "label",
+    "lcut",
+    "lperk",
+    "cash",
+    "rel",
+    "dseen"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [],
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 40000,
+      "rel": {},
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n2",
+       "path": [
+        "Négocier"
+       ]
+      },
+      "dq": [],
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 40000,
+      "rel": {},
+      "dseen": {
+       "kore": "x",
+       "mgr": "x"
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_AUB",
+       "node": "n2",
+       "path": [
+        "Négocier",
+        "15 % sur 18 mois"
+       ],
+       "done": 1,
+       "end": "Signé chez Aube Nouvelle (15 %)",
+       "c": "+30 000 cauris · 15 % des écoutes · Flow et Voix +1 à chaque sortie"
+      },
+      "dq": [],
+      "signed": 1,
+      "label": "AUB",
+      "lcut": 0.15,
+      "lperk": "dev",
+      "cash": 70000,
+      "rel": {
+       "awa": 6
+      },
+      "dseen": {
+       "kore": "x",
+       "mgr": "x",
+       "lb_AUB": "Signé chez Aube Nouvelle (15 %)"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "offre Vague Argentée : label en difficulté, 75 000 à 35 %",
+   "start": "debut",
+   "patch": {
+    "rep": 18,
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "signed",
+    "label",
+    "lcut",
+    "lperk",
+    "cash",
+    "rel"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 25000,
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "b",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n2",
+       "path": [
+        "Négocier"
+       ]
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 25000,
+      "rel": {}
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n2",
+       "path": [
+        "Négocier",
+        "75 000 et 35 %"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (35 %)",
+       "c": "+75 000 cauris · 35 % des écoutes · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.35,
+      "lperk": "none",
+      "cash": 100000,
+      "rel": {
+       "marius": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "offre Studio Kôrô Productions : bonus de production",
+   "start": "debut",
+   "patch": {
+    "rel": {
+     "kore": 8
+    },
+    "disco": [
+     {
+      "id": "T1",
+      "title": "T1",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     },
+     {
+      "id": "T2",
+      "title": "T2",
+      "theme": "quartier",
+      "amb": "sombre",
+      "mode": "manuel",
+      "tx": 72,
+      "st": "sorti",
+      "Q": 60,
+      "feats": [],
+      "clip": {
+       "st": "aucun"
+      },
+      "L": 5000,
+      "rev": 0,
+      "fg": 0,
+      "pg": 0,
+      "tier": "Discret",
+      "promo": 0,
+      "vir": 30,
+      "day": 3
+     }
+    ],
+    "dseen": {
+     "kore": "x",
+     "mgr": "x",
+     "rival": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "signed",
+    "label",
+    "lcut",
+    "lperk",
+    "cash",
+    "rel",
+    "kc"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_SKP",
+       "node": "n1",
+       "path": []
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 40000,
+      "rel": {
+       "kore": 8
+      },
+      "kc": {
+       "left": 0,
+       "bonus": 0,
+       "rel": 0,
+       "st": ""
+      }
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_SKP",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Studio Kôrô Productions (35 %)",
+       "c": "+20 000 cauris · 35 % des écoutes · par projet · production Kôrô +12 sur 3 nouveaux titres"
+      },
+      "signed": 1,
+      "label": "SKP",
+      "lcut": 0.35,
+      "lperk": "prod",
+      "cash": 60000,
+      "rel": {
+       "kore": 16
+      },
+      "kc": {
+       "st": "Label Studio Kôrô Productions",
+       "bonus": 12,
+       "left": 3,
+       "rel": 16
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "offre Black Lagune : drill, réputation 20",
+   "start": "debut",
+   "patch": {
+    "rep": 20,
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "signed",
+    "label",
+    "lcut",
+    "lperk",
+    "cash"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": []
+      },
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null,
+      "cash": 25000
+     }
+    },
+    {
+     "a": "dch",
+     "g": "a",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_VAG",
+       "node": "n1",
+       "path": [
+        "Signer"
+       ],
+       "done": 1,
+       "end": "Signé chez Vague Argentée (30 %)",
+       "c": "+60 000 cauris · 30 % des écoutes · 12 mois · aucun soutien garanti · Risque : label en difficulté, soutien incertain"
+      },
+      "signed": 1,
+      "label": "VAG",
+      "lcut": 0.3,
+      "lperk": "none",
+      "cash": 85000
+     }
+    }
+   ]
+  },
+  {
+   "name": "offre Sélène Indie Collective, Lyrik, Ambre, Rythme Cardinal, Ndolo Underground",
+   "start": "debut",
+   "patch": {
+    "rep": 40,
+    "shows": 2,
+    "pop": 30,
+    "sk": {
+     "flow": 17,
+     "ecr": 25,
+     "voix": 10,
+     "cha": 8
+    },
+    "geo": {
+     "bakoma": 10,
+     "portambre": 8,
+     "selene": 7,
+     "tamarel": 0,
+     "korvane": 0,
+     "aldera": 0
+    },
+    "p": {
+     "name": "Djo",
+     "age": 19,
+     "origin": "bakoma",
+     "main": "coupe",
+     "second": null,
+     "goal": "quartier"
+    },
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "dq",
+    "signed",
+    "label",
+    "lcut",
+    "lperk"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": {
+       "id": "lb_NUG",
+       "node": "n1",
+       "path": []
+      },
+      "dq": [
+       {
+        "id": "lb_SIC",
+        "at": 1
+       },
+       {
+        "id": "lb_VAG",
+        "at": 1
+       },
+       {
+        "id": "lb_LYR",
+        "at": 1
+       },
+       {
+        "id": "lb_AMG",
+        "at": 1
+       },
+       {
+        "id": "label",
+        "at": 1
+       },
+       {
+        "id": "lb_RCD",
+        "at": 1
+       },
+       {
+        "id": "collab",
+        "at": 1
+       }
+      ],
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "un seul contrat à la fois",
+   "start": "debut",
+   "patch": {
+    "rep": 30,
+    "signed": 1,
+    "label": "AUB",
+    "lcut": 0.2,
+    "lperk": "dev",
+    "dseen": {
+     "kore": "x",
+     "mgr": "x"
+    }
+   },
+   "watch": [
+    "dlg",
+    "dq",
+    "signed",
+    "label"
+   ],
+   "steps": [
+    {
+     "a": "setui",
+     "g": "th=amour",
+     "err": null,
+     "out": {
+      "dlg": null,
+      "dq": [],
+      "signed": 1,
+      "label": "AUB"
+     }
+    }
+   ]
+  },
+  {
+   "name": "activités illégales verrouillées sans contenu mature",
+   "start": "debut",
+   "patch": {},
+   "watch": [
+    "cas",
+    "mature",
+    "heat",
+    "cash",
+    "hour"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "recel",
+     "err": "mature",
+     "out": {
+      "cas": null,
+      "mature": 0,
+      "heat": 0,
+      "cash": 25000,
+      "hour": 8
+     }
+    },
+    {
+     "a": "mature",
+     "g": "on",
+     "err": null,
+     "out": {
+      "cas": null,
+      "mature": 1,
+      "heat": 0,
+      "cash": 25000,
+      "hour": 8
+     }
+    },
+    {
+     "a": "crime",
+     "g": "inconnu",
+     "err": "inconnu",
+     "out": {
+      "cas": null,
+      "mature": 1,
+      "heat": 0,
+      "cash": 25000,
+      "hour": 8
+     }
+    }
+   ]
+  },
+  {
+   "name": "crime réussi : gain et chaleur",
+   "start": "debut",
+   "patch": {
+    "mature": 1,
+    "day": 2
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "heat",
+    "crimeN",
+    "lastCrime",
+    "cas"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "recel",
+     "err": null,
+     "out": {
+      "cash": 33638,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 90,
+      "hour": 10,
+      "day": 2,
+      "heat": 5,
+      "crimeN": 1,
+      "lastCrime": {
+       "n": "Recel de marchandises",
+       "ok": 1,
+       "gain": 8638,
+       "risk": 8
+      },
+      "cas": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "arrestation, caution, avocat, procès, acquittement ou peine",
+   "start": "debut",
+   "patch": {
+    "mature": 1,
+    "day": 1,
+    "heat": 80,
+    "cash": 300000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "heat",
+    "cas",
+    "lastCrime",
+    "jail",
+    "verdict",
+    "casier",
+    "pop",
+    "fans"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "braquage",
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "crime",
+     "g": "recel",
+     "err": "garde",
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "job",
+     "g": "livraison",
+     "err": "garde",
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "lawyer",
+     "g": "conf",
+     "err": null,
+     "out": {
+      "cash": 275000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "conf",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "conf"
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "bail",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 235000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "conf",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "conf"
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "trial",
+     "g": "nc",
+     "err": "proces",
+     "out": {
+      "cash": 235000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "conf",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "conf"
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 4
+     },
+     "err": null,
+     "out": {
+      "cash": 235000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "conf",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "conf"
+      },
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "trial",
+     "g": "nc",
+     "err": null,
+     "out": {
+      "cash": 235000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": {
+       "until": 19,
+       "days": 15
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 15 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Sandra Lobé",
+       "plea": "Non coupable",
+       "jail": 15,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 15 jour(s) de prison"
+       }
+      ]
+     }
+    },
+    {
+     "a": "lawyer",
+     "g": "conf",
+     "err": "rien",
+     "out": {
+      "cash": 235000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "lastCrime": {
+       "n": "Braquage",
+       "ok": 0,
+       "risk": 75
+      },
+      "jail": {
+       "until": 19,
+       "days": 15
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 15 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Sandra Lobé",
+       "plea": "Non coupable",
+       "jail": 15,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 15 jour(s) de prison"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "garde à vue : détention provisoire, prison, sortie",
+   "start": "debut",
+   "patch": {
+    "mature": 1,
+    "day": 1,
+    "heat": 80,
+    "cash": 300000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "heat",
+    "cas",
+    "jail",
+    "verdict",
+    "casier",
+    "jw",
+    "jsp",
+    "sk"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "braquage",
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": [],
+      "jw": null,
+      "jsp": null,
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      }
+     }
+    },
+    {
+     "a": "detention",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": null,
+      "jsp": null,
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      }
+     }
+    },
+    {
+     "a": "job",
+     "g": "livraison",
+     "err": "prison",
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": null,
+      "jsp": null,
+      "sk": {
+       "flow": 17,
+       "ecr": 14,
+       "voix": 10,
+       "cha": 8
+      }
+     }
+    },
+    {
+     "a": "jw",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": 1,
+      "jsp": null,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 8
+      }
+     }
+    },
+    {
+     "a": "jw",
+     "g": null,
+     "err": "deja",
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": 1,
+      "jsp": null,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 8
+      }
+     }
+    },
+    {
+     "a": "js",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 70,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": 1,
+      "jsp": 1,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 9
+      }
+     }
+    },
+    {
+     "a": "js",
+     "g": null,
+     "err": "deja",
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 70,
+      "hour": 24,
+      "day": 1,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": 1,
+      "jsp": 1,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 9
+      }
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 4
+     },
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 70,
+      "hour": 24,
+      "day": 4,
+      "heat": 100,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "detenu",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": {
+       "until": 4,
+       "days": 3,
+       "pre": 1
+      },
+      "verdict": null,
+      "casier": [],
+      "jw": 1,
+      "jsp": 1,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 9
+      }
+     }
+    },
+    {
+     "a": "trial",
+     "g": "coupable",
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 70,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "jail": {
+       "until": 18,
+       "days": 14
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 14 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Yao Fofié",
+       "plea": "Coupable",
+       "jail": 14,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 14 jour(s) de prison"
+       }
+      ],
+      "jw": 1,
+      "jsp": 1,
+      "sk": {
+       "flow": 17,
+       "ecr": 16,
+       "voix": 10,
+       "cha": 9
+      }
+     }
+    },
+    {
+     "a": "jw",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 70,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "jail": {
+       "until": 18,
+       "days": 14
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 14 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Yao Fofié",
+       "plea": "Coupable",
+       "jail": 14,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 14 jour(s) de prison"
+       }
+      ],
+      "jw": 4,
+      "jsp": 1,
+      "sk": {
+       "flow": 17,
+       "ecr": 18,
+       "voix": 10,
+       "cha": 9
+      }
+     }
+    },
+    {
+     "a": "js",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "jail": {
+       "until": 18,
+       "days": 14
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 14 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Yao Fofié",
+       "plea": "Coupable",
+       "jail": 14,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 14 jour(s) de prison"
+       }
+      ],
+      "jw": 4,
+      "jsp": 4,
+      "sk": {
+       "flow": 17,
+       "ecr": 18,
+       "voix": 10,
+       "cha": 10
+      }
+     }
+    },
+    {
+     "a": "concert",
+     "g": null,
+     "err": "prison",
+     "out": {
+      "cash": 300000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 80,
+      "hour": 24,
+      "day": 4,
+      "heat": 80,
+      "cas": null,
+      "jail": {
+       "until": 18,
+       "days": 14
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 14 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Yao Fofié",
+       "plea": "Coupable",
+       "jail": 14,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 14 jour(s) de prison"
+       }
+      ],
+      "jw": 4,
+      "jsp": 4,
+      "sk": {
+       "flow": 17,
+       "ecr": 18,
+       "voix": 10,
+       "cha": 10
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "procès : plaider coupable, prison, le label rompt le contrat",
+   "start": "debut",
+   "patch": {
+    "mature": 1,
+    "day": 1,
+    "heat": 80,
+    "cash": 300000,
+    "signed": 1,
+    "label": "BLG",
+    "lcut": 0.4,
+    "lperk": "scene"
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cas",
+    "jail",
+    "verdict",
+    "casier",
+    "signed",
+    "label",
+    "lcut",
+    "lperk"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "braquage",
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": [],
+      "signed": 1,
+      "label": "BLG",
+      "lcut": 0.4,
+      "lperk": "scene"
+     }
+    },
+    {
+     "a": "lawyer",
+     "g": "tenor",
+     "err": null,
+     "out": {
+      "cash": 210000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "tenor",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "tenor"
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": [],
+      "signed": 1,
+      "label": "BLG",
+      "lcut": 0.4,
+      "lperk": "scene"
+     }
+    },
+    {
+     "a": "bail",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 170000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "tenor",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "tenor"
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": [],
+      "signed": 1,
+      "label": "BLG",
+      "lcut": 0.4,
+      "lperk": "scene"
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 4
+     },
+     "err": null,
+     "out": {
+      "cash": 170000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "tenor",
+       "bail": 40000,
+       "risk": 75,
+       "paid": "tenor"
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": [],
+      "signed": 1,
+      "label": "BLG",
+      "lcut": 0.4,
+      "lperk": "scene"
+     }
+    },
+    {
+     "a": "trial",
+     "g": "coupable",
+     "err": null,
+     "out": {
+      "cash": 170000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "cas": null,
+      "jail": {
+       "until": 9,
+       "days": 5
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 5 jour(s) de prison · Black Lagune rompt ton contrat",
+       "acq": 0,
+       "lawyer": "Maître Ébène Kouamé",
+       "plea": "Coupable",
+       "jail": 5,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 5 jour(s) de prison"
+       }
+      ],
+      "signed": 0,
+      "label": null,
+      "lcut": null,
+      "lperk": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "procès : non coupable avec avocat de commis d’office",
+   "start": "debut",
+   "patch": {
+    "mature": 1,
+    "day": 1,
+    "heat": 80,
+    "cash": 300000
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "cas",
+    "jail",
+    "verdict",
+    "casier"
+   ],
+   "steps": [
+    {
+     "a": "crime",
+     "g": "braquage",
+     "err": null,
+     "out": {
+      "cash": 300000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "garde",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "bail",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 260000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 1,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "@patch",
+     "g": {
+      "day": 4
+     },
+     "err": null,
+     "out": {
+      "cash": 260000,
+      "fans": 120,
+      "pop": 3,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "cas": {
+       "crime": "braquage",
+       "n": "Braquage",
+       "ch": "vol à main armée",
+       "sev": 4,
+       "day": 1,
+       "trial": 4,
+       "stage": "libre",
+       "lawyer": "office",
+       "bail": 40000,
+       "risk": 75
+      },
+      "jail": null,
+      "verdict": null,
+      "casier": []
+     }
+    },
+    {
+     "a": "trial",
+     "g": "nc",
+     "err": null,
+     "out": {
+      "cash": 260000,
+      "fans": 110,
+      "pop": 0,
+      "rep": 8,
+      "xp": 0,
+      "rank": 1,
+      "en": 60,
+      "hour": 24,
+      "day": 4,
+      "cas": null,
+      "jail": {
+       "until": 23,
+       "days": 19
+      },
+      "verdict": {
+       "ch": "vol à main armée",
+       "txt": "Coupable : 19 jour(s) de prison",
+       "acq": 0,
+       "lawyer": "Maître Yao Fofié",
+       "plea": "Non coupable",
+       "jail": 19,
+       "fine": 0
+      },
+      "casier": [
+       {
+        "ch": "vol à main armée",
+        "day": 4,
+        "v": "Coupable : 19 jour(s) de prison"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "détenu : fin de journée et sortie de prison",
+   "start": "debut",
+   "patch": {
+    "jail": {
+     "until": 6,
+     "days": 5
+    },
+    "day": 1
+   },
+   "watch": [
+    "jail",
+    "day",
+    "heat"
+   ],
+   "steps": [
+    {
+     "a": "job",
+     "g": "livraison",
+     "err": "prison",
+     "out": {
+      "jail": {
+       "until": 6,
+       "days": 5
+      },
+      "day": 1,
+      "heat": 0
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "jail": {
+       "until": 6,
+       "days": 5
+      },
+      "day": 2,
+      "heat": 0
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "jail": {
+       "until": 6,
+       "days": 5
+      },
+      "day": 3,
+      "heat": 0
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "jail": {
+       "until": 6,
+       "days": 5
+      },
+      "day": 4,
+      "heat": 0
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "jail": {
+       "until": 6,
+       "days": 5
+      },
+      "day": 5,
+      "heat": 0
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "jail": null,
+      "day": 6,
+      "heat": 0
+     }
+    }
+   ]
+  },
+  {
+   "name": "chaleur qui retombe",
+   "start": "debut",
+   "patch": {
+    "heat": 10
+   },
+   "watch": [
+    "heat",
+    "day"
+   ],
+   "steps": [
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "heat": 7,
+      "day": 2
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "heat": 4,
+      "day": 3
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "heat": 1,
+      "day": 4
+     }
+    },
+    {
+     "a": "endDay",
+     "g": null,
+     "err": null,
+     "out": {
+      "heat": 0,
+      "day": 5
+     }
+    }
+   ]
+  },
+  {
+   "name": "préréglage carrière",
+   "start": "carriere",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dseen.kore",
+    "kc",
+    "evDone",
+    "ms",
+    "ev",
+    "disco.0.L"
+   ],
+   "steps": [
+    {
+     "a": "@init",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 320000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "dseen.kore": "Accord à 35 % (préréglage)",
+      "kc": {
+       "st": "Accord à 35 %, mix signé",
+       "bonus": 12,
+       "left": 0,
+       "rel": 8
+      },
+      "evDone": {
+       "kzer": "b"
+      },
+      "ms": {
+       "m1": 1,
+       "m2": 1,
+       "m3": 1,
+       "m4": 1
+      },
+      "ev": null,
+      "disco.0.L": 5418
+     }
+    }
+   ]
+  },
+  {
+   "name": "préréglage star",
+   "start": "star",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "dseen.kore",
+    "kc",
+    "evDone",
+    "ms",
+    "ev",
+    "disco.0.L",
+    "own"
+   ],
+   "steps": [
+    {
+     "a": "@init",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 1400000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "dseen.kore": "Accord à 35 % (préréglage)",
+      "kc": {
+       "st": "Accord à 35 %, mix signé",
+       "bonus": 12,
+       "left": 0,
+       "rel": 8
+      },
+      "evDone": {
+       "kzer": "b"
+      },
+      "ms": {
+       "m1": 1,
+       "m2": 1,
+       "m3": 1,
+       "m4": 1
+      },
+      "ev": null,
+      "disco.0.L": 84000,
+      "own": {
+       "moto": {
+        "since": 12
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "label standard (sign)",
+   "start": "carriere",
+   "patch": {
+    "rep": 31
+   },
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "signed",
+    "label",
+    "lcut",
+    "lperk"
+   ],
+   "steps": [
+    {
+     "a": "sign",
+     "g": null,
+     "err": null,
+     "out": {
+      "cash": 470000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "signed": 1,
+      "label": "BSR",
+      "lcut": 0.35,
+      "lperk": "radio"
+     }
+    },
+    {
+     "a": "sign",
+     "g": null,
+     "err": "deja",
+     "out": {
+      "cash": 470000,
+      "fans": 2400,
+      "pop": 18,
+      "rep": 31,
+      "xp": 3100,
+      "rank": 3,
+      "en": 100,
+      "hour": 8,
+      "day": 30,
+      "signed": 1,
+      "label": "BSR",
+      "lcut": 0.35,
+      "lperk": "radio"
+     }
+    }
+   ]
+  },
+  {
+   "name": "job, entreprise, bien : inchangés",
+   "start": "star",
+   "patch": {},
+   "watch": [
+    "cash",
+    "fans",
+    "pop",
+    "rep",
+    "xp",
+    "rank",
+    "en",
+    "hour",
+    "day",
+    "biz",
+    "own"
+   ],
+   "steps": [
+    {
+     "a": "job",
+     "g": "mc",
+     "err": null,
+     "out": {
+      "cash": 1406000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 85,
+      "hour": 11,
+      "day": 30,
+      "biz": {},
+      "own": {
+       "moto": {
+        "since": 12
+       }
+      }
+     }
+    },
+    {
+     "a": "bizBuy",
+     "g": "couplet",
+     "err": null,
+     "out": {
+      "cash": 1156000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 85,
+      "hour": 11,
+      "day": 30,
+      "biz": {
+       "couplet": {
+        "since": 30,
+        "tot": 0
+       }
+      },
+      "own": {
+       "moto": {
+        "since": 12
+       }
+      }
+     }
+    },
+    {
+     "a": "ask",
+     "g": "terrain",
+     "err": null,
+     "out": {
+      "cash": 1156000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 85,
+      "hour": 11,
+      "day": 30,
+      "biz": {
+       "couplet": {
+        "since": 30,
+        "tot": 0
+       }
+      },
+      "own": {
+       "moto": {
+        "since": 12
+       }
+      }
+     }
+    },
+    {
+     "a": "assetBuy",
+     "g": "terrain",
+     "err": null,
+     "out": {
+      "cash": 656000,
+      "fans": 14800,
+      "pop": 41,
+      "rep": 31,
+      "xp": 6200,
+      "rank": 5,
+      "en": 85,
+      "hour": 11,
+      "day": 30,
+      "biz": {
+       "couplet": {
+        "since": 30,
+        "tot": 0
+       }
+      },
+      "own": {
+       "moto": {
+        "since": 12
+       },
+       "terrain": {
+        "since": 30
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

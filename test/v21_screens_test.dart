@@ -82,7 +82,7 @@ void main() {
     await tester.tap(find.text('RÉPONDRE EN FREESTYLE').last);
     await tester.pumpAndSettle();
     expect(repo.current['ev'], isNull);
-    expect(repo.current['battlePending'], 1);
+    expect(repo.current['btq'], 'kzer');
     expect(txt('Battle · K-Zer'), findsOneWidget);
     await tapText(tester, 'Malin');
     await tapText(tester, 'Agressif');

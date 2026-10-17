@@ -290,7 +290,8 @@ class Reg21 {
   // le prix unitaire reste absent, les unités sont suivies sans revenu.
   static const saleSegments = {'fidele': .10, 'passionne': .20, 'occasionnel': .40};
   static const managerTiers = <String, J>{
-    'm1': {'n': 'Maya Tessé', 'rate': .08, 'fee': 800, 'rep': 0, 'xp': 0},
+    // Maya (M1) : 8 % de chaque cachet, « pas de fixe tant que tu débutes » (dialogue 19-6).
+    'm1': {'n': 'Maya Tessé', 'rate': .08, 'fee': 0, 'rep': 0, 'xp': 0},
     'm2': {'n': 'Salif Odjé', 'rate': .10, 'fee': 1500, 'rep': 15, 'xp': 120},
     'm3': {'n': 'Rosine Adjoua', 'rate': .12, 'fee': 4000, 'rep': 25, 'xp': 400},
     'm4': {'n': 'Anselme Bayoko', 'rate': .15, 'fee': 12000, 'rep': 45, 'xp': 1000},
@@ -493,6 +494,65 @@ class Reg21 {
       fanSat = 5000,
       listenCap = 15000000,
       entry = 252200;
+
+  // ---------------------------------------------------------------------------------------------------------------------
+  // Ajouts de la mise à jour v21 complète (BRIEF-v21-complet.md §1) : tout est PROVISOIRE et regroupé ici.
+  // Référence : REG de docs/design-ref/v21/sources/engine21.js.
+  // ---------------------------------------------------------------------------------------------------------------------
+
+  // studio : instrus payées une fois, cabine à 3 prises
+  static const instrus = <String, J>{
+    'nuit': {'n': 'Nuit à Ndo', 'who': 'Gratuite', 'Q': 32, 'cost': 0, 'rank': 1},
+    'gbaka': {'n': 'Gbaka de 6h', 'who': 'DJ Kôrô', 'Q': 56, 'cost': 8000, 'rank': 1},
+    'pont': {'n': 'Pont des Griots', 'who': 'Sanko Beats', 'Q': 68, 'cost': 15000, 'rank': 2},
+    'lagune': {'n': "Lagune d'Ambre", 'who': 'Mister Wôrô', 'Q': 86, 'cost': 40000, 'rank': 1, 'rep': 30},
+  };
+  static const takesDefault = [74, 48, 43];
+  static const qualityWeights = (text: 0.35, voice: 0.30, prod: 0.35);
+
+  // ventes des singles, revenus d'écoute, part du label
+  static const singleSales = 0.012, salePrice = 30;
+
+  // plateformes FICTIVES : répartition des écoutes déjà calculées, aucun revenu en plus
+  static const platforms = <String, J>{
+    'ondea': {'n': 'Ondéa', 'share': 0.7},
+    'cauri': {'n': 'Cauri Music', 'share': 0.3},
+    'klipo': {'n': 'Klipo', 'viewsPerClipListen': 2},
+  };
+  static const listenersRatio = 0.35;
+  static const mgrCut = 0.08;
+
+  // EP et album (13.3, 13.4, 05-5) : `top` = taille du classement, `k` = pente, `entry` = ventes d'entrée
+  static const proj = <String, J>{
+    'EP': {'min': 3, 'max': 7, 'cost': 15000, 'h': 4, 'e': 20, 'entry': 20000, 'top': 50, 'k': 1.285},
+    'Album': {'min': 8, 'max': 20, 'cost': 40000, 'h': 6, 'e': 30, 'entry': 15000, 'top': 200, 'k': 1.095},
+  };
+
+  // activités illégales et justice (contenu mature 16+) : aucune méthode réelle, seulement risques et conséquences
+  static const crimes = <String, J>{
+    'recel': {'n': 'Recel de marchandises', 'h': 2, 'e': 10, 'lo': 5000, 'hi': 12000, 'risk': 8, 'heat': 5, 'ch': 'recel', 'sev': 1},
+    'arnaque': {'n': 'Arnaque en ligne', 'h': 2, 'e': 10, 'lo': 8000, 'hi': 30000, 'risk': 12, 'heat': 10, 'ch': 'escroquerie', 'sev': 2},
+    'revente': {'n': 'Revente de produits illicites', 'h': 3, 'e': 20, 'lo': 12000, 'hi': 20000, 'risk': 18, 'heat': 12, 'ch': 'trafic de stupéfiants', 'sev': 3},
+    'braquage': {'n': 'Braquage', 'h': 4, 'e': 40, 'lo': 40000, 'hi': 90000, 'risk': 35, 'heat': 30, 'ch': 'vol à main armée', 'sev': 4},
+  };
+  static const heatDecay = 3, bailPer = 10000, trialIn = 3;
+  static const lawyers = <String, J>{
+    'office': {'n': 'Maître Yao Fofié', 'who': 'fofie', 'role': "Avocat commis d'office", 'cost': 0, 'skill': 10},
+    'conf': {'n': 'Maître Sandra Lobé', 'who': 'lobe', 'role': 'Avocate pénaliste confirmée', 'cost': 25000, 'skill': 30},
+    'tenor': {'n': 'Maître Ébène Kouamé', 'who': 'kouame', 'role': 'Ténor du barreau de Lumbé', 'cost': 90000, 'skill': 50},
+  };
+  static const sentences = <int, J>{
+    1: {'fine': 15000, 'jail': 0},
+    2: {'fine': 40000, 'jail': 0, 'sursis': 1},
+    3: {'fine': 20000, 'jail': 7},
+    4: {'fine': 0, 'jail': 21},
+  };
+
+  // battle de K-Zer : 3 rounds, victoire à 2
+  static const battleWin = 2, battleFee = 3000;
+
+  // scène : open mic une fois par jour, gains décroissants sur 7 jours glissants
+  static const omWindow = 7, omStep = 0.15, omFloor = 0.3, omFans = 150, omCash = 3000;
 }
 
 /// Candidat(e)s de la vie perso : profils et préférences visibles.
@@ -686,9 +746,9 @@ const evt21 = <String, J>{
     'ch': [
       {
         'id': 'a',
-        'n': 'Répondre en freestyle',
+        'n': 'Accepter la battle',
         'c':
-            'Ouvre la battle · 1 h · −15 énergie · victoire : +3 000 cauris, +150 fans, +6 réputation, +60 XP · défaite : +12 fans'
+            '1 h · −15 énergie · 3 rounds : gagne-en 2 pour +6 réputation, +150 fans, +3 000'
       },
       {'id': 'b', 'n': 'Ignorer', 'c': '+2 popularité · le défi est clos'},
     ],

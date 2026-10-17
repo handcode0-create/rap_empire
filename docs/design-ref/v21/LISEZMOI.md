@@ -5,7 +5,7 @@
 3. La partie est enregistrée dans le navigateur (7 jours). « Nouvelle partie » sur le splash l'efface.
 
 Contenu
-- `21-*.dc.html` : les 50 planches (47 écrans de 390 px, 3 documents).
+- `21-*.dc.html` : les 72 planches (69 écrans de 390 px, 3 documents).
 - `game21.js` : moteur et liaison des écrans, assemblés à partir de `sources/engine21.js` et `sources/binder21.js`.
 - `rap.css`, `v20.css`, `v21.css` : styles ; `canvas.json` : disposition du canevas Claude Design.
 - `sources/test21.js` : tests du moteur (`node sources/test21.js`, depuis le dossier `sources`).
