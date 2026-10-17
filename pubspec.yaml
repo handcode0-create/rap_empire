@@ -24,6 +24,7 @@ flutter:
     - assets/data/
     - assets/characters/
     - assets/scenes/
+    - assets/patrimoine/
   fonts:
     - family: Poppins
       fonts:

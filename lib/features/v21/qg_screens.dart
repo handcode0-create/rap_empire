@@ -423,7 +423,11 @@ class EvenementScreen extends ConsumerWidget {
               Text(c['n'] as String, style: V20Text.nm()),
               Conseq21(ConsequenceKind.certain, c['c'] as String),
               const SizedBox(height: 8),
-              PrimaryButton(label: 'Choisir', style: c['id'] == 'a' ? GameButtonStyle.primary : GameButtonStyle.secondary, onPressed: () => doAct(context, ref, 'evc', c['id'], () => context.go('/'))),
+              PrimaryButton(
+                label: c['id'] == 'a' && s['ev'] == 'kzer' ? 'Répondre en freestyle' : 'Choisir',
+                style: c['id'] == 'a' ? GameButtonStyle.primary : GameButtonStyle.secondary,
+                onPressed: () => doAct(context, ref, 'evc', c['id'], () => context.go(c['id'] == 'a' && s['ev'] == 'kzer' ? '/scene/battle' : '/')),
+              ),
             ]),
           ),
         ],

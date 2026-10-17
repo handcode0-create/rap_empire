@@ -5,11 +5,14 @@ import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/action_row.dart';
+import '../../core/widgets/asset_illustration.dart';
 import '../../core/widgets/back_header.dart';
+import '../../core/widgets/character_view.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
+import '../../core/widgets/label_logo.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
@@ -39,43 +42,99 @@ class SceneScreen21 extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final rank = rankOf(s);
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
+    final car = _m(s['own'])['voiture'] != null ? 5 : 0;
     final day = _n(s['day']);
-    final cWait = (Reg21.concertEvery - (day - _n(s['lastConcert']))).clamp(0, 999).toInt();
-    final tWait = (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
+    final cWait = (Reg21.concertEvery - (day - _n(s['lastConcert'])))
+        .clamp(0, 999)
+        .toInt();
+    final tWait =
+        (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
     final aud = tourAudience(s);
     final tk = tickets21(s);
-    final fee = (Reg21.tour['fee'] as num) + jsRound((Reg21.tour['feeGeo'] as num) * (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
+    final hasManager = _n(s['mg']) != 0;
+    final fee = (Reg21.tour['fee'] as num) +
+        jsRound((Reg21.tour['feeGeo'] as num) *
+            (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
     final cc = s['cc'] as J?;
 
-    Widget row(String title, String sub, {Widget? tag, String? note, VoidCallback? onTap, bool off = false}) => Padding(
+    Widget row(String title, String sub,
+            {Widget? tag,
+            String? note,
+            VoidCallback? onTap,
+            bool off = false}) =>
+        Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: ActionRow(title: title, subtitle: sub, note: note, disabled: off, trailing: tag ?? ActionRow.arrow(disabled: off), onTap: onTap),
+          child: ActionRow(
+              title: title,
+              subtitle: sub,
+              note: note,
+              disabled: off,
+              trailing: tag ?? ActionRow.arrow(disabled: off),
+              onTap: onTap),
         );
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('SCÈNE', style: V20Text.dm()), GameTag('${s['shows']} date(s)')]),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text('SCÈNE', style: V20Text.dm()),
+        GameTag('${s['shows']} date(s)')
+      ]),
       const SizedBox(height: 12),
-      KpiRow(children: [StatKpi(label: 'Fans', value: fmt21(s['fans'] as num)), StatKpi(label: 'Popularité', value: '${s['pop']}')]),
+      KpiRow(children: [
+        StatKpi(label: 'Fans', value: fmt21(s['fans'] as num)),
+        StatKpi(label: 'Popularité', value: '${s['pop']}')
+      ]),
       const SizedBox(height: 12),
-      row('Open mic de Ndolo', '1 h · −${15 - moto} énergie · +150 fans, +3 000, Bakoma +2 si énergie ≥ 40', tag: const GameTag('Ouvert', style: GameTagStyle.ok), onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat'))),
+      row('Open mic de Ndolo',
+          '1 h · −${15 - moto} énergie · +150 fans, +${hasManager ? '${fmt21(3000 - jsRound(3000 * (Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num)))} net (manager)' : '3 000'}, Bakoma +2 si énergie ≥ 40',
+          tag: const GameTag('Ouvert', style: GameTagStyle.ok),
+          onTap: () => doAct(context, ref, 'openmic', null,
+              () => context.go('/scene/resultat'))),
+      if (_n(s['battlePending']) != 0)
+        row("Battle contre K-Zer",
+            'Reprendre · 1 h · −15 énergie · issue selon tes réponses',
+            tag: const GameTag('En cours', style: GameTagStyle.ok),
+            onTap: () => context.go('/scene/battle')),
+      row('Rivalités', 'Défie d’autres artistes en battle · 1 h · −15 énergie',
+          onTap: () => context.go('/scene/rivalites')),
       if (rank < 3)
-        row('Concert au Parvis', 'Débloqué au rang N3', off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
+        row('Concert au Parvis', 'Débloqué au rang N3',
+            off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
       else if (cWait > 0)
-        row('Concert au Parvis', 'Une date par semaine : prochaine possible dans $cWait j', off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
+        row('Concert au Parvis',
+            'Une date par semaine : prochaine possible dans $cWait j',
+            off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
       else
-        row('Concert au Parvis (${Reg21.capacity} places)', '4 h · −${35 - moto} énergie · billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4',
-            tag: const GameTag('Prêt', style: GameTagStyle.ok), onTap: () => doAct(context, ref, 'concert', null, () => context.go('/scene/resultat'))),
+        row('Concert au Parvis (${Reg21.capacity} places)',
+            '4 h · −${35 - moto - car} énergie · billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4',
+            tag: const GameTag('Prêt', style: GameTagStyle.ok),
+            onTap: () => doAct(context, ref, 'concert', null,
+                () => context.go('/scene/resultat'))),
       const Lab21('Tournées'),
       if (rank < 3)
-        row('Tournée régionale (Port-Ambre, Sélène)', 'Débloquée au rang N3', off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
+        row('Tournée régionale (Port-Ambre, Sélène)', 'Débloquée au rang N3',
+            off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
       else if (aud < Reg21.tourAudience)
-        row('Tournée régionale (Port-Ambre, Sélène)', 'Public régional insuffisant : ${aud.toStringAsFixed(1)} / ${Reg21.tourAudience} de notoriété moyenne à Port-Ambre et Sélène. La promo radio y fait monter ta notoriété.',
-            off: true, tag: const GameTag('Public', style: GameTagStyle.outline))
+        row('Tournée régionale (Port-Ambre, Sélène)',
+            'Public régional insuffisant : ${aud.toStringAsFixed(1)} / ${Reg21.tourAudience} de notoriété moyenne à Port-Ambre et Sélène. La promo radio y fait monter ta notoriété.',
+            off: true,
+            tag: const GameTag('Public', style: GameTagStyle.outline))
       else if (tWait > 0)
-        row('Tournée régionale (Port-Ambre, Sélène)', 'Une tournée toutes les 4 semaines : encore $tWait j', off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
+        row('Tournée régionale (Port-Ambre, Sélène)',
+            'Une tournée toutes les 4 semaines : encore $tWait j',
+            off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
       else
-        row('Tournée régionale (Port-Ambre, Sélène)', '10 h · −${50 - moto} énergie · frais ${fmt21(Reg21.tour['cost'] as num)} · cachets ${fmt21(fee)} · +${Reg21.tour['fans']} fans',
-            tag: const GameTag('Prête', style: GameTagStyle.ok), onTap: () => doAct(context, ref, 'tour', null, () => context.go('/scene/resultat'))),
-      row('Date à Tamarel Open Air', rank < Reg21.intlRank ? 'Débloquée au rang N5 · festival de 60 000 places (18.3)' : 'Date internationale : à venir', off: true, tag: const GameTag('N${Reg21.intlRank}', style: GameTagStyle.outline)),
+        row('Tournée régionale (Port-Ambre, Sélène)',
+            '10 h · −${(Reg21.tour['e'] as num) - moto - car} énergie · frais ${fmt21(Reg21.tour['cost'] as num)} · cachets ${fmt21(fee)} · +${Reg21.tour['fans']} fans',
+            tag: const GameTag('Prête', style: GameTagStyle.ok),
+            onTap: () => doAct(context, ref, 'tour', null,
+                () => context.go('/scene/resultat'))),
+      row(
+          'Date à Tamarel Open Air',
+          rank < Reg21.intlRank
+              ? 'Débloquée au rang N5 · festival de 60 000 places (18.3)'
+              : 'Date internationale : à venir',
+          off: true,
+          tag:
+              const GameTag('N${Reg21.intlRank}', style: GameTagStyle.outline)),
       const SizedBox(height: 4),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -84,15 +143,32 @@ class SceneScreen21 extends ConsumerWidget {
           if (cc == null)
             Text('Aucune date aujourd’hui.', style: V20Text.bs())
           else ...[
-            Text(cc['tour'] == 1 ? 'Tournée régionale' : 'Concert au Parvis · note ${cc['g']}', style: V20Text.nm()),
-            Text('${fmt21(cc['fans'] as num)} fans · ${fmt21(cc['cash'] as num)} cauris · réputation +${cc['rep']}', style: V20Text.bs()),
+            Text(
+                cc['tour'] == 1
+                    ? 'Tournée régionale'
+                    : 'Concert au Parvis · note ${cc['g']}',
+                style: V20Text.nm()),
+            Text(
+                '${fmt21(cc['fans'] as num)} fans · ${fmt21(cc['cash'] as num)} cauris nets · réputation +${cc['rep']}',
+                style: V20Text.bs()),
+            if (_n(cc['managerCut']) > 0)
+              Text(
+                  'Retenue manager : −${fmt21(_n(cc['managerCut']))} cauris sur ${fmt21(_n(cc['gross']))}',
+                  style: V20Text.bs()),
           ],
         ]),
       ),
       const SizedBox(height: 8),
-      ActionRow(title: 'Voir la popularité par ville', subtitle: 'Effets des dates sur chaque territoire', trailing: ActionRow.arrow(), onTap: () => context.go('/scene/popularite')),
+      ActionRow(
+          title: 'Voir la popularité par ville',
+          subtitle: 'Effets des dates sur chaque territoire',
+          trailing: ActionRow.arrow(),
+          onTap: () => context.go('/scene/popularite')),
       const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Battle et déroulé du concert : écrans existants 06.3 et 07.1 à 07.3, non refaits. Nouveau : tournée, date internationale et effet de chaque date sur les villes.'),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Battle et déroulé du concert : écrans existants 06.3 et 07.1 à 07.3, non refaits. Nouveau : tournée, date internationale et effet de chaque date sur les villes.'),
     ]);
   }
 }
@@ -110,41 +186,72 @@ class ConcertResultScreen extends ConsumerWidget {
     if (s == null) return const SizedBox();
     final cc = s['cc'] as J?;
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Résultat de la date', onBack: () => context.go('/scene')),
+      BackHeader(
+          title: 'Résultat de la date', onBack: () => context.go('/scene')),
       const SizedBox(height: 12),
       if (cc == null) ...[
-        Text('Aucune date jouée', style: V20Text.nm()),
-        Text('Lance un concert ou une tournée depuis la Scène.', style: V20Text.bm),
+        if (s['om'] != null) ...[
+          Text(_n(s['om']) == 1 ? 'Open mic réussi' : 'Open mic difficile',
+              style: V20Text.nm()),
+          Text(
+              _n(s['om']) == 1
+                  ? '+150 fans · +${fmt21(_n(s['omCash']))} cauris nets · réputation +6 · XP +60'
+                  : '+12 fans · XP +10',
+              style: V20Text.bm),
+          if (_n(s['omCut']) > 0)
+            Text('Retenue manager : −${fmt21(_n(s['omCut']))} cauris',
+                style: V20Text.bs()),
+        ] else ...[
+          Text('Aucune date jouée', style: V20Text.nm()),
+          Text('Lance un concert ou une tournée depuis la Scène.',
+              style: V20Text.bm),
+        ],
       ] else ...[
         GlassCard(
           accent: GlassAccent.magenta,
           halo: false,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : 'LE PARVIS · NDOLO', style: V20Text.lab(color: V20.accText)),
-            Text(cc['tour'] == 1 ? 'Tournée' : 'Note ${cc['g']}', style: V20Text.dm(size: 30)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : 'LE PARVIS · NDOLO',
+                style: V20Text.lab(color: V20.accText)),
+            Text(cc['tour'] == 1 ? 'Tournée' : 'Note ${cc['g']}',
+                style: V20Text.dm(size: 30)),
           ]),
         ),
         const SizedBox(height: 12),
         if (cc['tour'] != 1)
           GlassCard(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('BILLETTERIE', style: V20Text.lab()),
               KeyVal('Billets vendus', '${cc['tk']} / ${Reg21.capacity}'),
               const SizedBox(height: 4),
-              MeterBar(value: (_n(cc['tk']) / Reg21.capacity).clamp(0, 1).toDouble()),
+              MeterBar(
+                  value:
+                      (_n(cc['tk']) / Reg21.capacity).clamp(0, 1).toDouble()),
               const SizedBox(height: 4),
-              Text('${Reg21.ticketPrice} cauris par billet ; note B : 15 % de recette en moins.', style: V20Text.bs()),
+              Text(
+                  '${Reg21.ticketPrice} cauris par billet ; note B : 15 % de recette en moins.',
+                  style: V20Text.bs()),
             ]),
           ),
         const SizedBox(height: 12),
-        KpiRow(children: [StatKpi(label: 'Gain net', value: sg21(_n(cc['cash']))), StatKpi(label: 'Fans', value: sg21(_n(cc['fans']))), StatKpi(label: 'Réputation', value: '+${cc['rep']}')]),
+        KpiRow(children: [
+          StatKpi(label: 'Gain net', value: sg21(_n(cc['cash']))),
+          StatKpi(label: 'Fans', value: sg21(_n(cc['fans']))),
+          StatKpi(label: 'Réputation', value: '+${cc['rep']}')
+        ]),
         const SizedBox(height: 8),
         KeyVal('Cash', fmt21(s['cash'] as num), color: Tk.gold),
       ],
       const SizedBox(height: 16),
-      PrimaryGlowButton(label: 'Retour à la scène', onPressed: () => context.go('/scene')),
+      PrimaryGlowButton(
+          label: 'Retour à la scène', onPressed: () => context.go('/scene')),
       const SizedBox(height: 8),
-      PrimaryButton(label: 'Retour au QG', style: GameButtonStyle.ghost, onPressed: () => context.go('/')),
+      PrimaryButton(
+          label: 'Retour au QG',
+          style: GameButtonStyle.ghost,
+          onPressed: () => context.go('/')),
     ]);
   }
 }
@@ -163,23 +270,31 @@ class PopulariteScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Popularité', onBack: () => context.go('/scene')),
       const SizedBox(height: 12),
-      KpiRow(children: [StatKpi(label: 'Popularité générale', value: '${s['pop']}', big: true), StatKpi(label: 'Fans', value: fmt21(s['fans'] as num), big: true)]),
+      KpiRow(children: [
+        StatKpi(label: 'Popularité générale', value: '${s['pop']}', big: true),
+        StatKpi(label: 'Fans', value: fmt21(s['fans'] as num), big: true)
+      ]),
       const SizedBox(height: 12),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('PAR VILLE · NOTORIÉTÉ 0-100', style: V20Text.lab()),
-          for (final c in Reg21.cities.entries) Gauge21(c.value, geoOf(s, c.key), color: Tk.cy),
+          for (final c in Reg21.cities.entries)
+            Gauge21(c.value, geoOf(s, c.key), color: Tk.cy),
         ]),
       ),
       const SizedBox(height: 12),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('PAR CONTINENT · MOYENNE DES VILLES', style: V20Text.lab()),
-          for (final c in Reg21.conts.entries) Gauge21(c.value['n'] as String, contOf(s, c.key), color: Tk.violet),
+          for (final c in Reg21.conts.entries)
+            Gauge21(c.value['n'] as String, contOf(s, c.key), color: Tk.violet),
         ]),
       ),
       const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Sorties : surtout Bakoma ; promo radio : Port-Ambre et Sélène ; tournée régionale : +8 dans ces deux villes ; dates internationales : rang N5. Les continents regroupent des villes fictives.'),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Sorties : surtout Bakoma ; promo radio : Port-Ambre et Sélène ; tournée régionale : +8 dans ces deux villes ; dates internationales : rang N5. Les continents regroupent des villes fictives.'),
     ]);
   }
 }
@@ -199,15 +314,22 @@ class BusinessScreen21 extends ConsumerWidget {
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
     final cha = _n(_m(s['sk'])['cha']);
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('BUSINESS', style: V20Text.dm()), GameTag('Patrimoine ${_m(s['own']).length}')]),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text('BUSINESS', style: V20Text.dm()),
+        GameTag('Patrimoine ${_m(s['own']).length}')
+      ]),
       const SizedBox(height: 8),
-      const GameHint(icon: 'info', text: 'Matériel et formation : écrans existants 09.1 et 09.3. Nouveau ici : petits boulots, entreprises, patrimoine, merch. Ces activités rapportent des cauris, pas de fans ni de rang.'),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Matériel et formation : écrans existants 09.1 et 09.3. Nouveau ici : petits boulots, entreprises, patrimoine, merch. Ces activités rapportent des cauris, pas de fans ni de rang.'),
       const Lab21('Formation'),
       ActionRow(
         title: "Atelier d'écriture",
         subtitle: '2 h · −20 énergie · Écriture +5 · mission 3',
         trailing: Text('6 000', style: V20Text.nm(color: Tk.gold)),
-        onTap: () => doAct(context, ref, 'atelier', null, null, 'Écriture +5 · Atelier terminé'),
+        onTap: () => doAct(context, ref, 'atelier', null, null,
+            'Écriture +5 · Atelier terminé'),
       ),
       const Lab21('Petits boulots · dès le début'),
       for (final e in Reg21.jobs.entries) ...[
@@ -215,11 +337,16 @@ class BusinessScreen21 extends ConsumerWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: ActionRow(
             title: e.value['n'] as String,
-            subtitle: '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · ${e.value['need']}',
-            note: e.value['cha'] != null && cha < (e.value['cha'] as num) ? 'Charisme ${e.value['cha']} requis (tu as ${cha.toInt()})' : null,
+            subtitle:
+                '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · ${e.value['need']}',
+            note: e.value['cha'] != null && cha < (e.value['cha'] as num)
+                ? 'Charisme ${e.value['cha']} requis (tu as ${cha.toInt()})'
+                : null,
             disabled: e.value['cha'] != null && cha < (e.value['cha'] as num),
-            trailing: Text('+${fmt21(e.value['cash'] as num)}', style: V20Text.nm(color: Tk.gold)),
-            onTap: () => doAct(context, ref, 'job', e.key, () => context.go('/business/boulot')),
+            trailing: Text('+${fmt21(e.value['cash'] as num)}',
+                style: V20Text.nm(color: Tk.gold)),
+            onTap: () => doAct(context, ref, 'job', e.key,
+                () => context.go('/business/boulot')),
           ),
         ),
       ],
@@ -229,18 +356,51 @@ class BusinessScreen21 extends ConsumerWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: ActionRow(
             title: e.value['n'] as String,
-            subtitle: _m(s['biz'])[e.key] != null ? 'En activité · cumul ${fmt21(_n(_m(_m(s['biz'])[e.key])['tot']))} cauris' : '${fmt21(e.value['cost'] as num)} cauris · revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} / jour',
-            note: _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num) ? 'Débloqué au rang N${e.value['rank']}' : null,
-            disabled: _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num),
-            trailing: _m(s['biz'])[e.key] != null ? const GameTag('Actif', style: GameTagStyle.ok) : ActionRow.arrow(),
+            subtitle: _m(s['biz'])[e.key] != null
+                ? 'En activité · cumul ${fmt21(_n(_m(_m(s['biz'])[e.key])['tot']))} cauris'
+                : '${fmt21(e.value['cost'] as num)} cauris · revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} / jour',
+            note: _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num)
+                ? 'Débloqué au rang N${e.value['rank']}'
+                : null,
+            disabled:
+                _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num),
+            trailing: _m(s['biz'])[e.key] != null
+                ? const GameTag('Actif', style: GameTagStyle.ok)
+                : ActionRow.arrow(),
             onTap: () => context.go('/business/entreprises'),
           ),
         ),
       ],
       const Lab21('Patrimoine et merchandising'),
-      ActionRow(title: 'Patrimoine', subtitle: '${_m(s['own']).length} bien(s) · effets', trailing: ActionRow.arrow(), onTap: () => context.go('/business/patrimoine')),
+      ActionRow(
+          title: 'Patrimoine',
+          subtitle: '${_m(s['own']).length} bien(s) · effets',
+          trailing: ActionRow.arrow(),
+          onTap: () => context.go('/business/patrimoine')),
       const SizedBox(height: 8),
-      ActionRow(title: 'Merchandising et label', subtitle: _n(s['fans']) >= 1000 ? 'T-shirts, collection capsule, contrat' : 'Débloqué avec la carrière', trailing: ActionRow.arrow(), onTap: () => context.go('/business/labels')),
+      ActionRow(
+          title: 'Merchandising et label',
+          subtitle: _n(s['fans']) >= 1000
+              ? 'T-shirts, collection capsule, contrat'
+              : 'Débloqué avec la carrière',
+          trailing: ActionRow.arrow(),
+          onTap: () => context.go('/business/labels')),
+      const SizedBox(height: 8),
+      ActionRow(
+          title: 'Équipe et manager',
+          subtitle: _n(s['mg']) != 0
+              ? '${Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['n']} actif · ${((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num) * 100).round()} % des cachets'
+              : 'Aucun manager · optionnel',
+          trailing: ActionRow.arrow(),
+          onTap: () => context.go('/business/manager')),
+      const SizedBox(height: 8),
+      ActionRow(
+          title: 'Justice et détention',
+          subtitle: _n(s['jail']) > 0
+              ? 'Détention · ${s['jail']} jour(s) restant(s)'
+              : s['charges'] != null ? 'Audience en attente' : 'Activités à risque et avocat',
+          trailing: ActionRow.arrow(),
+          onTap: () => context.go('/business/justice')),
     ]);
   }
 }
@@ -258,7 +418,8 @@ class BoulotScreen extends ConsumerWidget {
     if (s == null) return const SizedBox();
     final j = s['lastJob'] as J?;
     return Frame21(children: [
-      BackHeader(title: 'Résultat du boulot', onBack: () => context.go('/business')),
+      BackHeader(
+          title: 'Résultat du boulot', onBack: () => context.go('/business')),
       const SizedBox(height: 12),
       if (j == null) ...[
         Text('Aucun boulot fait aujourd’hui', style: V20Text.nm()),
@@ -267,7 +428,8 @@ class BoulotScreen extends ConsumerWidget {
         GlassCard(
           accent: GlassAccent.magenta,
           halo: false,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('BOULOT TERMINÉ', style: V20Text.lab(color: V20.accText)),
             Text(Reg21.jobs[j['id']]!['n'] as String, style: V20Text.nm()),
             const SizedBox(height: 8),
@@ -275,7 +437,8 @@ class BoulotScreen extends ConsumerWidget {
             KeyVal('Énergie', '−${j['e']}'),
             KeyVal('Durée', '${j['h']} h'),
             KeyVal('Cash', fmt21(s['cash'] as num)),
-            const Conseq21(ConsequenceKind.certain, 'Gain fixe, versé tout de suite. Aucun effet sur les fans ni sur le rang.'),
+            const Conseq21(ConsequenceKind.certain,
+                'Gain fixe, versé tout de suite. Aucun effet sur les fans ni sur le rang.'),
           ]),
         ),
       ],
@@ -288,9 +451,13 @@ class BoulotScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 16),
-      PrimaryGlowButton(label: 'Retour au QG', onPressed: () => context.go('/')),
+      PrimaryGlowButton(
+          label: 'Retour au QG', onPressed: () => context.go('/')),
       const SizedBox(height: 8),
-      PrimaryButton(label: 'Autre activité', style: GameButtonStyle.ghost, onPressed: () => context.go('/business')),
+      PrimaryButton(
+          label: 'Autre activité',
+          style: GameButtonStyle.ghost,
+          onPressed: () => context.go('/business')),
     ]);
   }
 }
@@ -317,25 +484,54 @@ class EntreprisesScreen extends ConsumerWidget {
           final owned = _m(s['biz'])[e.key] != null;
           final locked = !owned && rank < (e.value['rank'] as num);
           return GameCard(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Flexible(child: Text(e.value['n'] as String, style: V20Text.nm())),
-                owned ? const GameTag('En activité', style: GameTagStyle.ok) : (locked ? GameTag('Verrouillé · N${e.value['rank']}', style: GameTagStyle.outline) : const GameTag('Accessible')),
+                Flexible(
+                    child: Text(e.value['n'] as String, style: V20Text.nm())),
+                owned
+                    ? const GameTag('En activité', style: GameTagStyle.ok)
+                    : (locked
+                        ? GameTag('Verrouillé · N${e.value['rank']}',
+                            style: GameTagStyle.outline)
+                        : const GameTag('Accessible')),
               ]),
-              KeyVal('Investissement', '${fmt21(e.value['cost'] as num)} cauris'),
-              Conseq21(ConsequenceKind.estimated, 'Revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} cauris par jour, selon la journée : jamais garanti.'),
-              if (owned) KeyVal('Revenus cumulés', '${fmt21(_n(_m(_m(s['biz'])[e.key])['tot']))} cauris'),
-              if (locked) Text('Pourquoi verrouillé : rang N${e.value['rank']} requis (tu es N$rank).', style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w600, color: V20.hintGoldText)),
+              KeyVal(
+                  'Investissement', '${fmt21(e.value['cost'] as num)} cauris'),
+              Conseq21(ConsequenceKind.estimated,
+                  'Revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} cauris par jour, selon la journée : jamais garanti.'),
+              if (owned)
+                KeyVal('Revenus cumulés',
+                    '${fmt21(_n(_m(_m(s['biz'])[e.key])['tot']))} cauris'),
+              if (locked)
+                Text(
+                    'Pourquoi verrouillé : rang N${e.value['rank']} requis (tu es N$rank).',
+                    style: V20Text.poppins(
+                        size: 11,
+                        line: 14,
+                        weight: FontWeight.w600,
+                        color: V20.hintGoldText)),
               if (!owned) ...[
                 const SizedBox(height: 8),
-                PrimaryButton(label: 'Investir', sublabel: '−${fmt21(e.value['cost'] as num)} cauris', compact: true, style: locked ? GameButtonStyle.disabled : GameButtonStyle.secondary, onPressed: () => doAct(context, ref, 'bizBuy', e.key, null, '${e.value['n']} : investissement fait')),
+                PrimaryButton(
+                    label: 'Investir',
+                    sublabel: '−${fmt21(e.value['cost'] as num)} cauris',
+                    compact: true,
+                    style: locked
+                        ? GameButtonStyle.disabled
+                        : GameButtonStyle.secondary,
+                    onPressed: () => doAct(context, ref, 'bizBuy', e.key, null,
+                        '${e.value['n']} : investissement fait')),
               ],
             ]),
           );
         }),
       ],
       const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Revenus versés à la fin de chaque journée et listés dans le bilan.'),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Revenus versés à la fin de chaque journée et listés dans le bilan.'),
     ]);
   }
 }
@@ -351,13 +547,21 @@ class PatrimoineScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
-    final total = _m(s['own']).keys.fold<num>(0, (a, k) => a + (Reg21.assets[k]!['cost'] as num)) + _m(s['biz']).keys.fold<num>(0, (a, k) => a + (Reg21.biz[k]!['cost'] as num));
+    final total = _m(s['own'])
+            .keys
+            .fold<num>(0, (a, k) => a + (Reg21.assets[k]!['cost'] as num)) +
+        _m(s['biz'])
+            .keys
+            .fold<num>(0, (a, k) => a + (Reg21.biz[k]!['cost'] as num));
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Patrimoine', onBack: () => context.go('/business')),
       const SizedBox(height: 8),
       KeyVal('Valeur du patrimoine', '${fmt21(total)} cauris', color: Tk.gold),
       const SizedBox(height: 8),
-      const GameHint(icon: 'info', text: 'Chaque bien a un effet propre sur le jeu : énergie, coût d’une activité, qualité ou revenu. Aucun n’est décoratif.'),
+      const GameHint(
+          icon: 'info',
+          text:
+              'Chaque bien a un effet propre sur le jeu : énergie, coût d’une activité, qualité ou revenu. Aucun n’est décoratif.'),
       for (final e in Reg21.assets.entries) ...[
         const SizedBox(height: 12),
         GameCard(
@@ -369,13 +573,25 @@ class PatrimoineScreen extends ConsumerWidget {
                   if (context.mounted) context.go('/business/achat');
                 },
           child: Row(children: [
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(e.value['n'] as String, style: V20Text.nm()), Text(e.value['eff'] as String, style: V20Text.bs())])),
-            _m(s['own'])[e.key] != null ? const GameTag('Possédé', style: GameTagStyle.ok) : Text(fmt21(e.value['cost'] as num), style: V20Text.nm(color: Tk.gold)),
+            AssetIllustration(e.key, size: 56),
+            const SizedBox(width: 12),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(e.value['n'] as String, style: V20Text.nm()),
+                  Text(e.value['eff'] as String, style: V20Text.bs())
+                ])),
+            _m(s['own'])[e.key] != null
+                ? const GameTag('Possédé', style: GameTagStyle.ok)
+                : Text(fmt21(e.value['cost'] as num),
+                    style: V20Text.nm(color: Tk.gold)),
           ]),
         ),
       ],
       const SizedBox(height: 12),
-      const Conseq21(ConsequenceKind.certain, 'Achat définitif. L’appartement coûte 2 000 cauris d’entretien par jour.'),
+      const Conseq21(ConsequenceKind.certain,
+          'Achat définitif. Appartement : 2 000 cauris/jour d’entretien ; maison : 3 500. Terrain et bateau : loyers journaliers estimés.'),
     ]);
   }
 }
@@ -390,29 +606,40 @@ class AchatScreen extends ConsumerWidget {
     final id = _m(s['ui'])['buy'] as String?;
     final a = id == null ? null : Reg21.assets[id];
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Confirmation d’achat', onBack: () => context.go('/business/patrimoine')),
+      BackHeader(
+          title: 'Confirmation d’achat',
+          onBack: () => context.go('/business/patrimoine')),
       const SizedBox(height: 12),
       if (a == null)
         Text('Aucun bien sélectionné', style: V20Text.nm())
       else ...[
-        Text('ACHETER ${(a['n'] as String).toUpperCase()} ?', style: V20Text.dm(size: 26)),
+        Text('ACHETER ${(a['n'] as String).toUpperCase()} ?',
+            style: V20Text.dm(size: 26)),
         const SizedBox(height: 12),
         Conseq21(ConsequenceKind.certain, a['eff'] as String),
         const SizedBox(height: 8),
         GlassCard(
           child: Column(children: [
             KeyVal('Prix', '${fmt21(a['cost'] as num)} cauris', color: Tk.gold),
-            KeyVal('Cash après achat', '${fmt21(_n(s['cash']) - (a['cost'] as num))} cauris'),
+            KeyVal('Cash après achat',
+                '${fmt21(_n(s['cash']) - (a['cost'] as num))} cauris'),
           ]),
         ),
         const SizedBox(height: 16),
         if (_n(s['cash']) >= (a['cost'] as num))
-          PrimaryGlowButton(label: 'Acheter', sublabel: 'Achat définitif', onPressed: () => doAct(context, ref, 'assetBuy', null, () => context.go('/business/patrimoine'), '${a['n']} acquis'))
+          PrimaryGlowButton(
+              label: 'Acheter',
+              sublabel: 'Achat définitif',
+              onPressed: () => doAct(context, ref, 'assetBuy', null,
+                  () => context.go('/business/patrimoine'), '${a['n']} acquis'))
         else
           const GameHint(icon: 'info', warn: true, text: 'Cash insuffisant'),
       ],
       const SizedBox(height: 8),
-      PrimaryButton(label: 'Annuler', style: GameButtonStyle.ghost, onPressed: () => context.go('/business/patrimoine')),
+      PrimaryButton(
+          label: 'Annuler',
+          style: GameButtonStyle.ghost,
+          onPressed: () => context.go('/business/patrimoine')),
     ]);
   }
 }
@@ -437,24 +664,56 @@ class LabelsScreen extends ConsumerWidget {
           final m = e.value;
           final running = s['merch'] != null && _m(s['merch'])['id'] == e.key;
           final done = _m(s['merchDone'])[e.key];
-          final ok = _n(s['fans']) >= (m['fans'] as num) && (m['singles'] == null || (s['disco'] as List).length >= (m['singles'] as num)) && (m['rank'] == null || rankOf(s) >= (m['rank'] as num));
+          final ok = _n(s['fans']) >= (m['fans'] as num) &&
+              (m['singles'] == null ||
+                  (s['disco'] as List).length >= (m['singles'] as num)) &&
+              (m['rank'] == null || rankOf(s) >= (m['rank'] as num));
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: GameCard(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Flexible(child: Text(m['n'] as String, style: V20Text.nm())),
-                  running ? const GameTag('En vente', style: GameTagStyle.ok) : (done != null ? const GameTag('Écoulé') : (ok ? const GameTag('Accessible') : const GameTag('Verrouillé', style: GameTagStyle.outline))),
-                ]),
-                Text('Condition : ${m['cl']} · stock ${fmt21(m['cost'] as num)} cauris · ${m['days']} jours', style: V20Text.bs()),
-                Conseq21(ConsequenceKind.estimated, 'Ventes estimées : ${m['perFan'].toString().replaceAll('.', ',')} cauris par fan et par jour'),
-                if (running) ...[KeyVal('Jours restants', '${_m(s['merch'])['left']}'), KeyVal('Ventes cumulées', fmt21(_n(_m(s['merch'])['tot'])))],
-                if (done != null) KeyVal('Total vendu', fmt21(_n(done))),
-                if (!running) ...[
-                  const SizedBox(height: 8),
-                  PrimaryButton(label: 'Lancer', sublabel: '−${fmt21(m['cost'] as num)} cauris', compact: true, style: ok && s['merch'] == null ? GameButtonStyle.secondary : GameButtonStyle.disabled, onPressed: () => doAct(context, ref, 'merch', e.key, null, '${m['n']} lancé')),
-                ],
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                              child:
+                                  Text(m['n'] as String, style: V20Text.nm())),
+                          running
+                              ? const GameTag('En vente',
+                                  style: GameTagStyle.ok)
+                              : (done != null
+                                  ? const GameTag('Écoulé')
+                                  : (ok
+                                      ? const GameTag('Accessible')
+                                      : const GameTag('Verrouillé',
+                                          style: GameTagStyle.outline))),
+                        ]),
+                    Text(
+                        'Condition : ${m['cl']} · stock ${fmt21(m['cost'] as num)} cauris · ${m['days']} jours',
+                        style: V20Text.bs()),
+                    Conseq21(ConsequenceKind.estimated,
+                        'Ventes estimées : ${m['perFan'].toString().replaceAll('.', ',')} cauris par fan et par jour'),
+                    if (running) ...[
+                      KeyVal('Jours restants', '${_m(s['merch'])['left']}'),
+                      KeyVal(
+                          'Ventes cumulées', fmt21(_n(_m(s['merch'])['tot'])))
+                    ],
+                    if (done != null) KeyVal('Total vendu', fmt21(_n(done))),
+                    if (!running) ...[
+                      const SizedBox(height: 8),
+                      PrimaryButton(
+                          label: 'Lancer',
+                          sublabel: '−${fmt21(m['cost'] as num)} cauris',
+                          compact: true,
+                          style: ok && s['merch'] == null
+                              ? GameButtonStyle.secondary
+                              : GameButtonStyle.disabled,
+                          onPressed: () => doAct(context, ref, 'merch', e.key,
+                              null, '${m['n']} lancé')),
+                    ],
+                  ]),
             ),
           );
         }),
@@ -463,32 +722,339 @@ class LabelsScreen extends ConsumerWidget {
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Flexible(child: Text('Bakoma Sound Records', style: V20Text.nm())),
-            s['signed'] == 1 ? const GameTag('Signé', style: GameTagStyle.ok) : (rep >= Reg21.labelRep ? const GameTag('Offre') : const GameTag('Rép. ${Reg21.labelRep}', style: GameTagStyle.outline)),
+            Expanded(
+                child: Row(children: [
+              const LabelLogo(size: 40),
+              const SizedBox(width: 10),
+              Flexible(
+                  child: Text('Bakoma Sound Records', style: V20Text.nm())),
+            ])),
+            s['signed'] == 1
+                ? const GameTag('Signé', style: GameTagStyle.ok)
+                : (rep >= Reg21.labelRep
+                    ? const GameTag('Offre')
+                    : const GameTag('Rép. ${Reg21.labelRep}',
+                        style: GameTagStyle.outline)),
           ]),
-          Text('Avance ${fmt21(Reg21.labelAdvance)} · 35 % sur les écoutes · 6 mois · 2 sons par trimestre (08.2)', style: V20Text.bs()),
+          Text(
+              'Avance ${fmt21(Reg21.labelAdvance)} · 35 % sur les écoutes · 6 mois · 2 sons par trimestre (08.2)',
+              style: V20Text.bs()),
           const SizedBox(height: 8),
           if (s['signed'] != 1)
             PrimaryButton(
               label: 'Signer le contrat',
               sublabel: '+${fmt21(Reg21.labelAdvance)} cauris d’avance',
               compact: true,
-              style: rep >= Reg21.labelRep ? GameButtonStyle.secondary : GameButtonStyle.disabled,
-              onPressed: () => doAct(context, ref, 'sign', null, null, 'Contrat signé'),
+              style: rep >= Reg21.labelRep
+                  ? GameButtonStyle.secondary
+                  : GameButtonStyle.disabled,
+              onPressed: () =>
+                  doAct(context, ref, 'sign', null, null, 'Contrat signé'),
             ),
-          if (rep < Reg21.labelRep) Padding(padding: const EdgeInsets.only(top: 4), child: Text('Encore ${(Reg21.labelRep - rep).toInt()} points de réputation.', style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w600, color: V20.hintGoldText))),
+          if (rep < Reg21.labelRep)
+            Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                    'Encore ${(Reg21.labelRep - rep).toInt()} points de réputation.',
+                    style: V20Text.poppins(
+                        size: 11,
+                        line: 14,
+                        weight: FontWeight.w600,
+                        color: V20.hintGoldText))),
         ]),
       ),
       const SizedBox(height: 12),
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Flexible(child: Text('Créer ton label', style: V20Text.nm())), const GameTag('Verrouillé', style: GameTagStyle.outline)]),
-          KeyVal('Réputation ${Reg21.ownLabelRep}', rep >= Reg21.ownLabelRep ? '✓' : '—'),
-          KeyVal('Capital ${fmt21(Reg21.ownLabelCash)} cauris', _n(s['cash']) >= Reg21.ownLabelCash ? '✓' : '—'),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Flexible(child: Text('Créer ton label', style: V20Text.nm())),
+            const GameTag('Verrouillé', style: GameTagStyle.outline)
+          ]),
+          KeyVal('Réputation ${Reg21.ownLabelRep}',
+              rep >= Reg21.ownLabelRep ? '✓' : '—'),
+          KeyVal('Capital ${fmt21(Reg21.ownLabelCash)} cauris',
+              _n(s['cash']) >= Reg21.ownLabelCash ? '✓' : '—'),
           const KeyVal('Manager M3 ou plus', 'non modélisé ici', bold: false),
           Text('Validé (D-05), seuils provisoires.', style: V20Text.bs()),
         ]),
       ),
+    ]);
+  }
+}
+
+/// Port du système de management actuellement implémenté dans le moteur v20.
+class Manager21Screen extends ConsumerWidget {
+  const Manager21Screen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const SizedBox();
+    final active = _n(s['mg']) != 0;
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Mon manager', onBack: () => context.go('/business')),
+      const SizedBox(height: 12),
+      GameCard(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        const SizedBox(
+            width: 96,
+            height: 120,
+            child: CharacterView(who: 'nadia', mood: 'poised', crop: 'bust')),
+        const SizedBox(width: 12),
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['n'] as String).toUpperCase(), style: V20Text.lab(color: V20.accText)),
+          Text('Niveau ${(s['mgLevel'] ?? 'm1').toString().toUpperCase()}', style: V20Text.nm()),
+          Text('Réseau local · conseils simples · calendrier de base',
+              style: V20Text.bs()),
+        ])),
+      ])),
+      const SizedBox(height: 12),
+      GlassCard(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('CONTRAT', style: V20Text.lab()),
+        KeyVal('Commission', '${((Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['rate'] as num) * 100).round()} % des cachets'),
+        KeyVal('Fixe hebdomadaire', '${fmt21(Reg21.managerTiers[s['mgLevel'] ?? 'm1']!['fee'] as num)} cauris'),
+        KeyVal('Commissions versées', '${fmt21(_n(s['managerPaid']))} cauris'),
+        const SizedBox(height: 6),
+        Text(
+            'Le forfait est prélevé tous les 7 jours. La commission s’applique aux cachets de scène. Les revenus des écoutes et du merchandising restent intacts.',
+            style: V20Text.bs()),
+      ])),
+      const SizedBox(height: 12),
+      for (final tier in Reg21.managerTiers.entries) ...[
+        const SizedBox(height: 8),
+        ActionRow(
+          title: '${tier.key.toUpperCase()} · ${tier.value['n']}',
+          subtitle: '${((tier.value['rate'] as num) * 100).round()} % des cachets · ${fmt21(tier.value['fee'] as num)}/semaine · réputation ${tier.value['rep']} · ${tier.value['xp']} XP requis',
+          trailing: s['mgLevel'] == tier.key ? const GameTag('Actif', style: GameTagStyle.ok) : ActionRow.arrow(),
+          disabled: _n(s['rep']) < (tier.value['rep'] as num) || _n(s['xp']) < (tier.value['xp'] as num),
+          onTap: () => doAct(context, ref, 'hireManager', tier.key, null, 'Contrat signé avec ${tier.value['n']}'),
+        ),
+      ],
+      if (active) PrimaryButton(label: 'Mettre fin au contrat', style: GameButtonStyle.secondary, onPressed: () => doAct(context, ref, 'mgr', null, null, 'Contrat terminé')),
+      const GameHint(icon: 'info', text: 'Barèmes et conditions provisoires issus des planches managers v20. Les bonus de développement commercial des planches ne sont pas chiffrés dans le moteur.'),
+    ]);
+  }
+}
+
+class Justice21Screen extends ConsumerWidget {
+  const Justice21Screen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const SizedBox();
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Justice et détention', onBack: () => context.go('/business')),
+      const SizedBox(height: 12),
+      GameHint(icon: 'info', text: _n(s['jail']) > 0
+          ? 'Détention : ${s['jail']} jour(s). Seules les actions en prison et la fin de journée sont accessibles.'
+          : s['charges'] != null ? 'Audience en attente · choisis un avocat avant le procès.' : 'Règles provisoires autorisées : les risques et peines sont affichés avant chaque action.'),
+      if (_n(s['jail']) > 0) ...[
+        ActionRow(title: 'Petit boulot en prison', subtitle: '6 h · −10 énergie · +750 cauris', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'prisonWork', null, null, 'Boulot effectué')),
+        ActionRow(title: 'Enregistrer une maquette', subtitle: '2 h · −20 énergie · qualité 35', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'prisonRecord', null, null, 'Maquette enregistrée')),
+      ] else if (s['charges'] != null) ...[
+        for (final lawyer in const {'debutant': (10000, '15 % de relaxe'), 'confirme': (30000, '35 % de relaxe'), 'expert': (75000, '60 % de relaxe')}.entries)
+          ActionRow(title: 'Avocat ${lawyer.key}', subtitle: '${fmt21(lawyer.value.$1)} cauris · ${lawyer.value.$2}', trailing: ActionRow.arrow(), disabled: _n(s['cash']) < lawyer.value.$1, onTap: () => doAct(context, ref, 'trial', lawyer.key, null, 'Audience jugée')),
+      ] else ...[
+        for (final job in Reg21.crimeJobs.entries)
+          ActionRow(title: job.value['n'] as String, subtitle: '${job.value['h']} h · −${job.value['e']} énergie · risque ${((job.value['risk'] as num) * 100).round()} % · peine possible ${job.value['days']} j · gain ${fmt21(job.value['cash'] as num)}', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'crime', job.key, null, 'Action terminée')),
+      ],
+      const GameHint(icon: 'info', text: 'Une arrestation mène à une audience. Le résultat est déterministe selon la sauvegarde. Les honoraires d’avocat ne sont pas remboursés.'),
+    ]);
+  }
+}
+
+/// Battle 06.3 v20, pilotée par le défi K-Zer et sauvegardée dans l'état v21.
+class Battle21Screen extends ConsumerStatefulWidget {
+  const Battle21Screen({super.key, this.target = 'kzer'});
+  final String target;
+  @override
+  ConsumerState<Battle21Screen> createState() => _Battle21ScreenState();
+}
+
+class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
+  List<(String, String, String)> get _rounds =>
+      Reg21.rivalRounds[widget.target] ?? Reg21.rivalRounds['kzer']!;
+  static const _answers = ['Agressif', 'Malin', 'Cool'];
+  int _round = 0, _score = 0;
+  bool _busy = false;
+
+  Future<void> _answer(String answer) async {
+    if (_busy) return;
+    final score = _score + (answer == _rounds[_round].$3 ? 1 : 0);
+    if (_round < 2) {
+      setState(() {
+        _score = score;
+        _round++;
+      });
+      return;
+    }
+    setState(() => _busy = true);
+    final error = widget.target == 'kzer'
+        ? await ref.read(game21Provider.notifier).act('battle', score)
+        : await ref.read(game21Provider.notifier).act('rivalBattle', [widget.target, score]);
+    if (!mounted) return;
+    if (error != null) {
+      toastErr(context, error);
+      setState(() => _busy = false);
+      return;
+    }
+    context.go('/scene/battle-result');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final round = _rounds[_round];
+    final s = ref.watch(game21Provider).valueOrNull;
+    final moto = s != null && _m(s['own'])['moto'] != null;
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(
+          title: 'Battle · ${Reg21.rivals[widget.target] ?? 'artiste'}',
+          step: 'Round ${_round + 1} / 3',
+          onBack: () => context.go('/scene')),
+      const SizedBox(height: 12),
+      GameCard(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('PUNCHLINE ${_round + 1}', style: V20Text.lab()),
+        const SizedBox(height: 6),
+        Text(round.$1, style: V20Text.nm()),
+        Text(round.$2, style: V20Text.bs()),
+        const SizedBox(height: 8),
+        Text('Score : $_score / 3', style: V20Text.bm),
+      ])),
+      const SizedBox(height: 12),
+      for (final answer in _answers) ...[
+        PrimaryButton(
+            label: answer,
+            style: GameButtonStyle.secondary,
+            onPressed: _busy ? null : () => _answer(answer)),
+        const SizedBox(height: 8),
+      ],
+      const Conseq21(ConsequenceKind.certain, 'Battle : 1 h · −15 énergie'),
+      Conseq21(ConsequenceKind.estimated,
+          'Victoire à 2 bonnes réponses ou plus : +${_n(s?['mg']) != 0 ? '2 760 net après manager' : '3 000'} cauris, +150 fans, +6 réputation, +60 XP. Défaite : +12 fans.'),
+      if (moto)
+        const GameHint(
+            icon: 'info',
+            text:
+                'La moto réduit de 5 l’énergie des dates, pas celle de la battle.'),
+    ]);
+  }
+}
+
+class Rivalites21Screen extends ConsumerWidget {
+  const Rivalites21Screen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const SizedBox();
+    final links = s['rivals'] is Map ? s['rivals'] as Map : const {};
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Réseau artistique', onBack: () => context.go('/scene')),
+      const SizedBox(height: 12),
+      const GameHint(icon: 'info', text: 'Parle avec les artistes, provoque-les ou tente d’apaiser une rivalité. Les interactions et leurs effets chiffrés sont provisoires.'),
+      const Lab21('Artistes de Bakoma'),
+      for (final rival in Reg21.rivals.entries.where((e) => e.key != 'kzer')) ...[
+        const SizedBox(height: 8),
+        GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const CircleAvatar(child: Icon(Icons.mic_external_on_outlined)),
+            const SizedBox(width: 10),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(rival.value, style: V20Text.nm()),
+              Text(_artistRelation(links[rival.key]), style: V20Text.bs()),
+            ])),
+          ]),
+          const SizedBox(height: 8),
+          Text(_artistIntro[rival.key]!, style: V20Text.bm),
+          const SizedBox(height: 8),
+          ActionRow(title: 'Discuter', subtitle: '1 h · −5 énergie · relation +5 · tension −3', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'discuter'], null, 'Discussion terminée')),
+          ActionRow(title: 'Provoquer', subtitle: '1 h · −10 énergie · relation −5 · tension +15', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'provoquer'], null, 'La rivalité monte')),
+          ActionRow(title: 'Apaiser la rivalité', subtitle: '1 h · −8 énergie · −2 000 cauris · relation +8 · tension −12', trailing: ActionRow.arrow(), disabled: _n(s['cash']) < 2000, onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'apaiser'], null, 'Tension réduite')),
+          const SizedBox(height: 6),
+          PrimaryButton(label: 'Répondre en freestyle', sublabel: 'Battle · 1 h · −15 énergie', style: GameButtonStyle.secondary, compact: true, onPressed: () => context.go('/scene/rival-battle/${rival.key}')),
+        ])),
+      ],
+      const SizedBox(height: 12),
+      const GameHint(icon: 'info', text: 'Une battle se joue en trois rounds. À partir de deux bonnes réponses : +150 fans, +3 000 cauris bruts, +6 réputation et +60 XP. La commission du manager est retenue sur le cachet.'),
+    ]);
+  }
+
+  static const _artistIntro = {
+    'zaki': 'Zaki te croise après une sortie et te reproche de viser son public.',
+    'orage': 'Madame Orage veut entendre ce que tu as réellement à défendre.',
+    'djo': 'Djo Kene te lance un défi pour mesurer ton identité musicale.',
+  };
+
+  static String _artistRelation(dynamic raw) {
+    if (raw is! Map) return 'Relation neutre · tension 0 / 100';
+    final data = Map<String, dynamic>.from(raw);
+    final relation = _n(data['relation']).round();
+    final tension = _n(data['tension']).round();
+    return 'Relation ${relation >= 0 ? '+' : ''}$relation · tension $tension / 100';
+  }
+}
+
+class BattleResult21Screen extends ConsumerWidget {
+  const BattleResult21Screen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const SizedBox();
+    final r = s['btl'] as J?;
+    if (r == null) {
+      return ListView(padding: const EdgeInsets.all(16), children: [
+        BackHeader(
+            title: 'Résultat de la battle', onBack: () => context.go('/scene')),
+        const GameHint(
+            icon: 'info',
+            text:
+                'Aucune battle terminée. Les défis d’artistes se lancent depuis Scène · Rivalités.'),
+      ]);
+    }
+    final win = _n(r['win']) == 1;
+    final isRivalBattle = r['rival'] != null;
+    final returnTo = isRivalBattle ? '/scene/rivalites' : '/';
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Résultat · ${r['rival'] ?? 'K-Zer'}', onBack: () => context.go('/scene')),
+      const SizedBox(height: 12),
+      GlassCard(
+          accent: win ? GlassAccent.cyan : GlassAccent.magenta,
+          halo: false,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(win ? 'VICTOIRE' : 'DÉFAITE',
+                style: V20Text.lab(color: win ? Tk.ok : V20.accText)),
+            Text('Punchlines gagnées : ${r['score']} / 3',
+                style: V20Text.dm(size: 26)),
+          ])),
+      const SizedBox(height: 12),
+      KpiRow(children: [
+        StatKpi(label: 'Fans', value: '+${r['fans']}'),
+        StatKpi(label: 'Réputation', value: '+${r['rep']}')
+      ]),
+      const SizedBox(height: 8),
+      KpiRow(children: [
+        StatKpi(label: 'Cauris', value: '+${fmt21(_n(r['cash']))}'),
+        StatKpi(label: 'XP', value: '+${r['xp']}')
+      ]),
+      if (_n(r['managerCut']) > 0) ...[
+        const SizedBox(height: 8),
+        KeyVal('Commission manager',
+            '−${fmt21(_n(r['managerCut']))} sur ${fmt21(_n(r['gross']))} cauris'),
+      ],
+      const SizedBox(height: 16),
+      PrimaryGlowButton(
+          label: isRivalBattle ? 'Retour aux rivalités' : 'Retour au QG', onPressed: () => context.go(returnTo)),
+      const SizedBox(height: 8),
+      PrimaryButton(
+          label: 'Continuer vers le studio',
+          style: GameButtonStyle.secondary,
+          onPressed: () => context.go('/studio')),
     ]);
   }
 }

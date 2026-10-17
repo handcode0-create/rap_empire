@@ -6,6 +6,7 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/features/v21/music_screens.dart' show Cabine21Screen;
 
 import 'support.dart' show navTab, tapText, txt;
 
@@ -29,7 +30,11 @@ Future<FakeRepo21> pump21(WidgetTester tester, J start, {String location = '/', 
     overrides: [save21RepoProvider.overrideWithValue(repo)],
     child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter21(initialLocation: location)),
   ));
-  await tester.pumpAndSettle();
+  if (location == '/studio/cabine') {
+    await tester.pump(const Duration(milliseconds: 100));
+  } else {
+    await tester.pumpAndSettle();
+  }
   return repo;
 }
 
@@ -74,10 +79,17 @@ void main() {
   testWidgets('journée : événement, boulot, bilan', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/evenement');
     expect(txt("K-Zer d'Mabaya te défie"), findsOneWidget);
-    await tester.tap(txt('Choisir').first);
+    await tester.tap(find.text('RÉPONDRE EN FREESTYLE').last);
     await tester.pumpAndSettle();
     expect(repo.current['ev'], isNull);
-    expect(repo.current['fans'], 270);
+    expect(repo.current['battlePending'], 1);
+    expect(txt('Battle · K-Zer'), findsOneWidget);
+    await tapText(tester, 'Malin');
+    await tapText(tester, 'Agressif');
+    await tapText(tester, 'Cool');
+    expect(txt('VICTOIRE'), findsOneWidget);
+    expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 28000]);
+    await tapText(tester, 'Retour au QG');
     await tester.tap(navTab('Business'));
     await tester.pumpAndSettle();
     await tapText(tester, 'Livraison à moto · Ndolo');
@@ -85,6 +97,12 @@ void main() {
     expect(txt('+3 500'), findsOneWidget);
     await tester.tap(txt('Retour au QG'));
     await tester.pumpAndSettle();
+    (repo.current['disco'] as List).add({
+      'id': 'OLD1', 'title': 'Ancien single', 'day': 1, 'launchL': 10000,
+      'L': 10000, 'rev': 0, 'cut': 0, 'signed': 0, 'views': 0,
+      'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 5000, 'apple': 3000, 'youtube': 2000}),
+      'clip': Map.unmodifiable(<dynamic, dynamic>{'st': 'aucun'}),
+    });
     await tapText(tester, 'Terminer la journée');
     expect(txt('Bilan de la journée'), findsOneWidget);
     expect(repo.current['day'], 2);
@@ -92,17 +110,56 @@ void main() {
     expect(txt('JOUR 2'), findsOneWidget);
   });
 
+  testWidgets('catalogue accepte les plateformes immuables des anciennes sauvegardes', (tester) async {
+    final state = preset('debut');
+    (state['disco'] as List).add({
+      'id': 'OLD1', 'title': 'Ancien single', 'format': 'single', 'year': 1,
+      'label': 'Indépendant', 'L': 1200, 'views': 0, 'sales': 0,
+      'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 700, 'apple': 300, 'youtube': 200}),
+      'clip': {'st': 'aucun'}, 'feats': <dynamic>[]
+    });
+    await pump21(tester, state, location: '/studio/catalogue');
+    expect(txt('Ancien single'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
+    final repo = await pump21(tester, preset('debut'), location: '/scene/rivalites');
+    expect(txt('Zaki Mbela'), findsOneWidget);
+    await tapText(tester, 'Discuter');
+    expect((repo.current['rivals'] as J)['zaki']['relation'], 5);
+    await tapText(tester, 'Répondre en freestyle');
+    expect(txt('Battle · Zaki Mbela'), findsOneWidget);
+    expect(txt('« Tu veux ma place sans avoir fait tes preuves. »'), findsOneWidget);
+    await tapText(tester, 'Malin');
+    await tapText(tester, 'Agressif');
+    await tapText(tester, 'Cool');
+    expect(txt('Résultat · Zaki Mbela'), findsOneWidget);
+    expect(repo.current['btl']['rival'], 'Zaki Mbela');
+  });
+
   testWidgets('studio : écrire, enregistrer, sortir, résultats', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/studio');
-    await tapText(tester, 'Écrire le texte');
+    await tapText(tester, 'Créer le titre');
+    expect((repo.current['cur'] as J)['st'], 'draft');
+    await tester.tap(find.textContaining('CHOISIR · −8 000 CAURIS'));
+    await tester.pumpAndSettle();
+    expect((repo.current['cur'] as J)['instId'], 'gbaka');
+    await tester.tap(txt('Terminer le texte'));
+    await tester.pump(const Duration(milliseconds: 100));
     expect((repo.current['cur'] as J)['st'], 'ecrit');
-    await tapText(tester, 'Enregistrer en cabine');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(Cabine21Screen), findsOneWidget);
+    await tester.ensureVisible(txt('Simuler les 3 prises'));
+    await tester.tap(txt('Simuler les 3 prises'));
+    await tester.pumpAndSettle();
     expect((repo.current['cur'] as J)['st'], 'enregistre');
     await tapText(tester, 'Préparer la sortie');
     await tapText(tester, 'Sortir le titre');
     expect(txt('Résultats de la sortie'), findsOneWidget);
     expect((repo.current['disco'] as List).length, 2);
     expect(repo.current['cur'], isNull);
+    expect(repo.current['hour'], 11);
   });
 
   testWidgets('scène : open mic puis résultat', (tester) async {
@@ -148,8 +205,8 @@ void main() {
 
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
-      '/', '/studio', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
-      '/scene', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels',
+      '/', '/studio', '/studio/instru', '/studio/ecriture', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
+      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/manager', '/business/justice',
       '/profil', '/profil/rang', '/profil/classements', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',

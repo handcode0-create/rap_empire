@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// Personnage 2D modulaire (illustrations générées par tools/design, style provisoire D-01).
-/// who : djo, kore, orage, zaki, nadia (= Maya Tessé), zamba, rosine, anselme, ayana.
+/// who : cast rap / studio / managers et huit profils de rencontres (ines, kadi, lina, sefa, amara, yao, noe, teo).
 /// mood : neutral, cool, smile, laugh, serious, worried, angry, poised, smirk, sing.
 /// crop : head, bust, torso. gesture/pose facultatifs (seules les combinaisons de assets/characters/manifest.json existent).
 class CharacterView extends StatelessWidget {

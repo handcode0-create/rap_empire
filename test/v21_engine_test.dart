@@ -246,20 +246,22 @@ void main() {
     expect([c['age'], m(c['sk'])['cha'], m(c['sk'])['voix'], m(c['geo'])['tamarel'], c['ev']], [29, 11, 11, 4, 'kzer']);
     expect(act21(c, 'finish').err, 'deja');
     c = act21(c, 'evc', 'a').s;
-    expect([c['ev'], c['rep'], m(c['evDone'])['kzer']], [null, 14, 'a']);
+    expect([c['ev'], c['rep'], c['battlePending'], m(c['evDone'])['kzer']], [null, 8, 1, 'a']);
     expect(m(c['ms'])['m3'], isNull);
     expect(act21(c, 'evc', 'a').err, 'rien');
+    c = act21(c, 'battle', 2).s;
+    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 28000, 60]);
     c = act21(c, 'setui', 'title=Ndolo en feu').s;
     c = act21(c, 'create', ['quartier', 'sombre']).s;
     expect(m(c['cur'])['title'], 'Ndolo en feu');
     expect(m(c['ui'])['title'], '');
     c = act21(c, 'record').s;
     expect(m(c['ms'])['m1'], isNotNull);
-    expect([c['ev'], c['cash']], ['kore', 30000]);
+    expect([c['ev'], c['cash']], ['kore', 33000]);
     final poor = clone21(c)..['cash'] = 100;
     expect(act21(poor, 'evc', 'a').err, 'cash');
     c = act21(c, 'evc', 'b').s;
-    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash']], [3, 12, 23000]);
+    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash']], [3, 12, 26000]);
     c = act21(c, 'release').s;
     expect(m(c['ms'])['m2'], isNotNull);
     c = act21(c, 'endDay').s;
@@ -292,11 +294,16 @@ void main() {
 
   test('décisions du 16/10 : atelier, rangs, part du label, rythme', () {
     var a = act21(init21(), 'preset', 'debut').s;
+    // L'open mic ne remplit plus la mission 3 : seul l'atelier la valide.
+    a = act21(a, 'openmic').s;
+    expect(m(a['ms'])['m3'], isNull);
     final c0 = a['cash'] as num, e0 = m(a['sk'])['ecr'] as num;
     a = act21(a, 'atelier').s;
     expect(m(a['ms'])['m3'], isNotNull);
     expect(m(a['sk'])['ecr'], e0 + 5);
     expect(a['cash'], c0 - 6000 + 4000);
+    expect([a['hour'], a['en']], [11, 65]);
+    expect(Reg21.missions[2], {'id': 'm3', 't': "Fais un atelier d'écriture", 'cash': 4000, 'xp': 60});
     expect(Reg21.ranks[2]['xp'], 1500);
     var b = act21(init21(), 'preset', 'carriere').s;
     b['signed'] = 1;
@@ -304,7 +311,9 @@ void main() {
     b = act21(b, 'record').s;
     b = act21(b, 'release').s;
     final t = m(l(b['disco']).first);
-    expect(t['cut'], jsRound((t['L'] as num) * 0.01) - (t['rev'] as num));
+    final gross = jsRound((t['L'] as num) * Reg21.listenValue);
+    expect(t['rev'], gross - jsRound(gross * Reg21.labelCut));
+    expect(t['cut'], jsRound(gross * Reg21.labelCut));
     expect(t['cut'] as num, greaterThan(0));
     var x = act21(init21(), 'preset', 'debut').s;
     for (var d = 0; d < 7; d++) {
@@ -312,5 +321,132 @@ void main() {
       x = act21(x, 'endDay').s;
     }
     expect(x['rank'] as num, lessThan(3));
+  });
+
+  test('origine choisie, départ de carrière toujours à Ndolo', () {
+    var s = act21(init21(), 'setp', 'name=Djo Kene').s;
+    s = act21(s, 'setp', 'origin=tamarel').s;
+    expect(act21(s, 'setp', 'origin=invalide').err, 'inconnu');
+    s = act21(s, 'finish').s;
+    expect([m(s['p'])['origin'], s['ev'], m(s['geo'])['tamarel']], ['tamarel', 'kzer', 4]);
+    expect(l(s['log']).first['t'], contains('Bienvenue à Ndolo'));
+  });
+
+  test('studio v21 reprend instru, écriture, trois prises et qualité v20', () {
+    var s = act21(init21(), 'preset', 'debut').s;
+    s = act21(s, 'draft', ['rue', 'sombre']).s;
+    expect([m(s['cur'])['st'], s['hour'], s['en'], s['cash']], ['draft', 8, 100, 25000]);
+    s = act21(s, 'pickInstru', 'gbaka').s;
+    expect([m(s['cur'])['inst'], m(s['cur'])['instQ'], s['cash']], ['Gbaka de 6h', 56, 17000]);
+    s = act21(s, 'write').s;
+    expect([m(s['cur'])['st'], s['hour'], s['en']], ['ecrit', 9, 80]);
+    s = act21(s, 'take', 90).s;
+    s = act21(s, 'take', 80).s;
+    s = act21(s, 'take', 70).s;
+    final song = m(s['cur']);
+    expect([song['st'], song['takes'], song['voix'], song['prod'], song['Q']], ['enregistre', [90, 80, 70], 80, 56, 69]);
+    expect([s['hour'], s['en']], [11, 55]);
+    expect(m(s['ms'])['m1'], isNotNull);
+  });
+
+  test('dix thèmes v20 gardés avec note de texte et viralité', () {
+    const themes = ['rue', 'argent', 'ambition', 'amour', 'fete', 'ego', 'introspection', 'identite', 'trap', 'gloire'];
+    expect(themes.every(Reg21.themes.containsKey), isTrue);
+    for (final theme in themes) {
+      final s = act21(init21(), 'draft', [theme, 'sombre']).s;
+      final song = m(s['cur']);
+      expect(song['tx'], 72 + (Reg21.themes[theme]!['tx'] as int), reason: theme);
+      expect(virOf21(song), greaterThan(Reg21.virBase), reason: theme);
+    }
+  });
+
+  test('battle K-Zer conserve les issues v20', () {
+    var win = act21(init21(), 'preset', 'debut').s;
+    win = act21(win, 'evc', 'a').s;
+    win = act21(win, 'battle', 3).s;
+    expect([win['cash'], win['fans'], win['rep'], win['xp'], m(win['btl'])['win']], [28000, 270, 14, 60, 1]);
+    var loss = act21(init21(), 'preset', 'debut').s;
+    loss = act21(loss, 'evc', 'a').s;
+    loss = act21(loss, 'battle', 1).s;
+    expect([loss['cash'], loss['fans'], loss['rep'], loss['xp'], m(loss['btl'])['win']], [25000, 132, 8, 0, 0]);
+  });
+
+  test('ventes virtuelles R7 calculées à la sortie', () {
+    var s = act21(init21(), 'create', 'random').s;
+    s = act21(s, 'record').s;
+    s = act21(s, 'release').s;
+    final song = m(l(s['disco']).first);
+    final fans = song['salesFans'] as num;
+    final expected = jsRound(fans * .10 * .12 + fans * .20 * .08 + fans * .40 * .01);
+    expect(song['sales'], expected);
+    expect(song['salesPrice'], isNull);
+  });
+
+  test('managers M2 utilisent commission proposée et forfait au septième jour', () {
+    final s = init21()..['rep'] = 15..['xp'] = 120;
+    var hired = act21(s, 'hireManager', 'm2');
+    expect(hired.err, isNull);
+    expect(hired.s['mgLevel'], 'm2');
+    hired.s['day'] = 7;
+    final commissioned = act21(hired.s, 'concert');
+    // Le rang du concert n’est pas requis ici, on vérifie la commission via un cachet open mic.
+    final opened = act21(hired.s, 'openmic');
+    expect(opened.err, isNull);
+    expect(opened.s['cash'], 27700); // 3 000 − 10 %
+    final charged = act21(hired.s, 'endDay');
+    expect(charged.s['cash'], hired.s['cash']! - 1500);
+    expect(commissioned.err, anyOf(isNull, 'rang'));
+  });
+
+  test('justice provisoire : procès, détention et actions accessibles en prison', () {
+    var state = init21();
+    Res? crime;
+    for (var seed = 1; seed < 30; seed++) {
+      final candidate = init21()..['seed'] = seed;
+      final result = act21(candidate, 'crime', 'braquage');
+      if (m(result.s['lastCrime'] ?? {'caught': 0})['caught'] == 1) { crime = result; break; }
+    }
+    expect(crime, isNotNull);
+    state = crime!.s;
+    expect(state['charges'], isNotNull);
+    final trial = act21(state, 'trial', 'debutant');
+    expect(trial.err, isNull);
+    expect(trial.s['lastTrial'], isNotNull);
+    if ((trial.s['jail'] as num) > 0) {
+      expect(act21(trial.s, 'job', 'livraison').err, 'prison');
+      expect(act21(trial.s, 'prisonWork').err, isNull);
+    }
+  });
+
+  test('battle multi-artistes applique les effets au rival choisi', () {
+    final result = act21(init21(), 'rivalBattle', ['zaki', 3]);
+    expect(result.err, isNull);
+    expect([m(result.s['btl'])['rival'], m(result.s['rivals'])['zaki']['lastWin']], ['Zaki Mbela', 1]);
+  });
+
+  test('scènes artistes : discussion, provocation et apaisement font évoluer la relation', () {
+    var s = act21(init21(), 'artistScene', ['zaki', 'discuter']).s;
+    expect([m(m(s['rivals'])['zaki'])['relation'], m(m(s['rivals'])['zaki'])['tension'], s['hour'], s['en']], [5, 0, 9, 95]);
+    s = act21(s, 'artistScene', ['zaki', 'provoquer']).s;
+    expect([m(m(s['rivals'])['zaki'])['relation'], m(m(s['rivals'])['zaki'])['tension']], [0, 15]);
+    s = act21(s, 'artistScene', ['zaki', 'apaiser']).s;
+    expect([m(m(s['rivals'])['zaki'])['relation'], m(m(s['rivals'])['zaki'])['tension'], s['cash']], [8, 3, 23000]);
+  });
+
+  test('passer la journée copie les plateformes immuables avant les streams passifs', () {
+    final s = init21();
+    s['disco'] = [
+      {
+        'id': 'OLD1', 'title': 'Ancien single', 'day': 1, 'launchL': 10000,
+        'L': 10000, 'rev': 0, 'cut': 0, 'signed': 0, 'views': 0,
+        'platforms': Map.unmodifiable(<dynamic, dynamic>{'spotify': 5000, 'apple': 3000, 'youtube': 2000}),
+        'clip': Map.unmodifiable(<dynamic, dynamic>{'st': 'aucun'}),
+      }
+    ];
+    final result = act21(s, 'endDay');
+    expect(result.err, isNull);
+    expect(result.s['day'], 2);
+    expect(m(l(result.s['disco']).single)['L'], greaterThan(10000));
+    expect(m(m(l(result.s['disco']).single)['platforms'])['spotify'], greaterThan(5000));
   });
 }

@@ -13,6 +13,15 @@ CAST = {
  'kzer':  dict(name="K-Zer d'Mabaya", role='Rappeur · adversaire de battle', skin=SKINS[5], hair='hitwist', hc='#14102B', beard='goatee', acc=('ring',), outfit=dict(top='#8B5CF6', pants='#14102B', shoe='#F8F7FF', accent='#3CD6F2', kind='hoodie', logo=False)),
  'woro':  dict(name='Mister Wôrô', role="Beatmaker · instru Lagune d'Ambre", skin=SKINS[4], hair='bald', hc='#14102B', beard='full', acc=('glasses', 'phones'), outfit=dict(top='#F8F7FF', pants='#2B2459', shoe='#FFC83D', accent='#FFC83D', kind='tee', logo=False)),
  'sanko': dict(name='Sanko Beats', role='Beatmaker · instru Pont des Griots', skin=SKINS[3], hair='fade', hc='#14102B', beard='stubble', acc=('cap',), outfit=dict(top='#3DDC97', pants='#14102B', shoe='#F43F9D', accent='#14102B', kind='tee', logo=False)),
+ # Profils de rencontres v21 : personnages dessinés par le générateur, sans lien avec les artistes du même nom.
+ 'ines':  dict(name='Inès Waly', role='Styliste', skin=SKINS[3], hair='braids', hc='#14102B', beard='none', acc=('fem', 'ring'), outfit=dict(top='#8B5CF6', pants='#14102B', shoe='#FFC83D', accent='#3CD6F2', kind='blazer', logo=False)),
+ 'kadi':  dict(name='Kadi Sora', role='Infirmière', skin=SKINS[4], hair='afro', hc='#21162D', beard='none', acc=('fem',), outfit=dict(top='#3CD6F2', pants='#2B2459', shoe='#F8F7FF', accent='#FFC83D', kind='tee', logo=False)),
+ 'lina':  dict(name='Lina Mbaré', role='Danseuse', skin=SKINS[2], hair='knots', hc='#14102B', beard='none', acc=('fem',), outfit=dict(top='#F43F9D', pants='#14102B', shoe='#F8F7FF', accent='#FFC83D', kind='hoodie', logo=False)),
+ 'sefa':  dict(name='Sefa Doumbé', role='Journaliste musique', skin=SKINS[5], hair='locks', hc='#14102B', beard='none', acc=('fem', 'glasses'), outfit=dict(top='#3A3270', pants='#14102B', shoe='#3CD6F2', accent='#FFC83D', kind='blazer', logo=False)),
+ 'amara': dict(name='Amara Teki', role='Étudiante en droit', skin=SKINS[1], hair='cornrows', hc='#14102B', beard='none', acc=('fem',), outfit=dict(top='#3DDC97', pants='#2B2459', shoe='#F8F7FF', accent='#FFC83D', kind='bomber', logo=False)),
+ 'yao':   dict(name='Yao Bellam', role='Photographe', skin=SKINS[6], hair='fade', hc='#14102B', beard='goatee', acc=('glasses',), outfit=dict(top='#2B2459', pants='#14102B', shoe='#FFC83D', accent='#3CD6F2', kind='bomber', logo=False)),
+ 'noe':   dict(name='Noé Akan', role='Chef cuisinier', skin=SKINS[3], hair='bald', hc='#14102B', beard='full', acc=(), outfit=dict(top='#F8F7FF', pants='#2B2459', shoe='#FFC83D', accent='#F43F9D', kind='tee', logo=False)),
+ 'teo':   dict(name='Téo Gbéli', role='Animateur radio', skin=SKINS[5], hair='hitwist', hc='#14102B', beard='stubble', acc=('phones',), outfit=dict(top='#8B5CF6', pants='#14102B', shoe='#3CD6F2', accent='#FFC83D', kind='hoodie', logo=False)),
 }
 
 def _arm(x1, y1, x2, y2, top, skin, w=22):
