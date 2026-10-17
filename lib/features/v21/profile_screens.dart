@@ -201,9 +201,9 @@ class ClassementsScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
-      const GlassCard(child: Row(children: [Expanded(child: Text('Top 200 Albums\nVerrouillé : un album demande 8 titres sortis et la sortie d’album n’existe pas encore.')), GameTag('À concevoir', style: GameTagStyle.outline)])),
+      _projectBoardCard(s, 'Album', 'album', 'Crée un album de 8 titres ou plus'),
       const SizedBox(height: 8),
-      const GlassCard(child: Row(children: [Expanded(child: Text('Top 50 EPs\nVerrouillé : la sortie d’EP (05-5) est une maquette non interactive.')), GameTag('À concevoir', style: GameTagStyle.outline)])),
+      _projectBoardCard(s, 'EP', 'EP', 'Crée un EP de 3 à 7 titres'),
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Les rangs du joueur sont calculés à partir de ses vraies écoutes (loi R18) et de son indice (R10, normalisation provisoire D-17). Les autres lignes sont les valeurs existantes de 13.2 et 13.5.'),
     ]);
@@ -236,4 +236,23 @@ class ReglagesScreen extends ConsumerWidget {
           },
         ),
       ]);
+}
+
+/// Ligne Top 200 Albums / Top 50 EPs : le meilleur projet du joueur (vraies ventes), sinon une invitation à en créer un.
+Widget _projectBoardCard(J s, String type, String word, String invite) {
+  final p = bestProject(s, type);
+  return GlassCard(
+    child: Row(children: [
+      Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(projectBoard(type).toUpperCase(), style: V20Text.lab()),
+        const SizedBox(height: 4),
+        Text(p == null ? invite : 'Ton meilleur $word : ${p['title']} · ${fmt21(_n(p['sales']))} ventes', style: V20Text.bs()),
+        if (p != null && _n(p['rank']) == 0)
+          Text('Entrée à ${fmt21(Reg21.proj[type]!['entry'] as num)} ventes.', style: V20Text.bs()),
+      ])),
+      const SizedBox(width: 8),
+      Text(p == null ? 'Aucun $word' : projectRankLabel(p), style: V20Text.baloo(size: 22, line: 24)),
+    ]),
+  );
 }

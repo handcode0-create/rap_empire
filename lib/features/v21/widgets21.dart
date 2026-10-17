@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
@@ -140,4 +141,17 @@ Future<void> doAct(BuildContext context, WidgetRef ref, String name, [dynamic ar
   }
   if (ok != null) toastOk(context, ok);
   then?.call();
+}
+
+/// Pochette d'un titre (SVG extrait des planches 21-A* : assets/svg/pochette-0 à 7, huit dégradés qui tournent selon la position).
+class Pochette21 extends StatelessWidget {
+  final int index;
+  final double size;
+  const Pochette21(this.index, {super.key, this.size = 48});
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: 'Pochette',
+        excludeSemantics: true,
+        child: SvgPicture.asset('assets/svg/pochette-${index % 8}.svg', width: size, height: size),
+      );
 }

@@ -38,7 +38,14 @@ Future<FakeRepo21> pump21(WidgetTester tester, J start, {String location = '/', 
   return repo;
 }
 
-J preset(String id) => act21(init21(), 'preset', id).s;
+J preset(String id) {
+  if (id == 'prison') {
+    final s = act21(init21(), 'preset', 'carriere').s;
+    s['jail'] = {'until': s['day'] + 5, 'days': 5};
+    return s;
+  }
+  return act21(init21(), 'preset', id).s;
+}
 
 void main() {
   testWidgets('création de l’artiste : splash, univers, identité, look, style, objectif, QG', (tester) async {
@@ -121,6 +128,32 @@ void main() {
     await pump21(tester, state, location: '/studio/catalogue');
     expect(txt('Ancien single'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('EP de 3 titres jusqu’au Top 50 EPs', (tester) async {
+    final state = preset('star');
+    state['fans'] = 400000;
+    state['disco'] = [
+      for (var i = 0; i < 3; i++)
+        {'id': 'T$i', 'title': 'Titre $i', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 50000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Bon', 'promo': 0, 'vir': 30, 'day': 10 + i},
+    ];
+    final repo = await pump21(tester, state, location: '/studio/catalogue');
+    expect(txt('Aucun EP'), findsOneWidget);
+    await tapText(tester, 'Créer un EP ou un album');
+    expect(txt('Encore 3 titre(s) à choisir'), findsOneWidget);
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(txt('Ajouter').first);
+      await tester.pumpAndSettle();
+    }
+    expect(txt('Prêt à sortir'), findsOneWidget);
+    await tapText(tester, 'Sortir le projet');
+    expect(txt('Projet sorti'), findsOneWidget);
+    final p = (repo.current['projects'] as List).first as J;
+    expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);
+    await tapText(tester, 'Voir les classements');
+    await tester.scrollUntilVisible(txt('Top 50 EPs'), 300, scrollable: find.byType(Scrollable).first);
+    expect(txt('Top 50 EPs'), findsOneWidget);
+    expect(find.textContaining('Ton meilleur EP'), findsOneWidget);
   });
 
   testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
@@ -211,7 +244,7 @@ void main() {
 
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
-      '/', '/studio', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
+      '/', '/studio', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/manager', '/business/justice',
       '/profil', '/profil/rang', '/profil/classements', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
@@ -220,7 +253,7 @@ void main() {
       '/demarrer', '/nouvelle-partie', '/univers', '/artiste/identite', '/artiste/look', '/artiste/style', '/artiste/objectif', '/demo',
     ];
     for (final size in [(390.0, 844.0), (360.0, 800.0)]) {
-      for (final p in ['debut', 'star', 'parent']) {
+      for (final p in ['debut', 'carriere', 'star', 'parent', 'prison']) {
         testWidgets('${size.$1.toInt()} px · état $p', (tester) async {
           for (final r in routes) {
             final s = preset(p);

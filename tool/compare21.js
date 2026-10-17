@@ -24,15 +24,15 @@ function shot(url, file, w, h) {
 const url = (p) => 'file:///' + p.replace(/\\/g, '/');
 
 for (const f of fs.readdirSync(flutterDir).filter((x) => x.endsWith('.png') && x.startsWith(only))) {
-  const board = f.replace(/\.png$/, '');
+  const name = f.replace(/.png$/, ''), board = name.split('+')[0];
   const html = path.join(root, 'docs', 'design-ref', 'v21', board + '.dc.html');
   if (!fs.existsSync(html)) { console.log('planche absente pour', board); continue; }
   const bpng = path.join(boardsDir, board + '.png');
-  shot(url(html), bpng, 390, 844);
-  const page = path.join(cmpDir, board + '.html');
+  if (!fs.existsSync(bpng)) shot(url(html), bpng, 390, 844);
+  const page = path.join(cmpDir, name + '.html');
   fs.writeFileSync(page, `<!doctype html><meta charset="utf-8"><body style="margin:0;background:#0C0820;color:#B6B0DD;font:12px Poppins,sans-serif">
 <div style="display:flex;gap:16px;padding:12px;width:820px"><div><div style="margin-bottom:6px">PLANCHE · ${board}</div><img src="${url(bpng)}" width="390" height="844"></div>
 <div><div style="margin-bottom:6px">FLUTTER · 390 × 844</div><img src="${url(path.join(flutterDir, f))}" width="390" height="844"></div></div>`);
-  shot(url(page), path.join(cmpDir, board + '.png'), 836, 912);
-  console.log('ok', board);
+  shot(url(page), path.join(cmpDir, name + '.png'), 836, 912);
+  console.log('ok', name);
 }

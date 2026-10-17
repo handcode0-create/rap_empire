@@ -69,7 +69,35 @@ List<Shot> shots() => [
       Shot('21-M6-Instru', '/studio/instru', st('debut', const [('create', ['quartier', 'sombre'])])),
       Shot('21-M7-Cabine', '/studio/cabine', st('debut', const [('create', ['quartier', 'sombre'])]), animated: true),
       Shot('21-M8-Mix', '/studio/mix', st('debut', const [('create', ['ambition', 'fiere']), ('feat', 'nadia'), ('record', [74, 48, 43])])),
+      // Catalogue
+      Shot('21-A0-Catalogue', '/studio/catalogue', st('star')),
+      Shot('21-A0b-Titre', '/studio/catalogue/titre', st('star', const [('ctki', 0)])),
+      Shot('21-A1-Projet', '/studio/catalogue/projet', st('star')),
+      Shot('21-A1-Projet+choix', '/studio/catalogue/projet', _picked()),
+      Shot('21-A2-Projet-sorti', '/studio/catalogue/projet-sorti', st('star')),
+      Shot('21-A2-Projet-sorti+EP', '/studio/catalogue/projet-sorti', _epState()),
     ];
+
+List<J> _extraSongs() => [
+      for (var i = 0; i < 3; i++)
+        {'id': 'X$i', 'title': 'Titre ${i + 3}', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60 + i, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 20000 + i * 9000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Correct', 'promo': 0, 'vir': 30, 'day': 10 + i},
+    ];
+
+J _picked() {
+  var s = st('star');
+  s['disco'] = [...(s['disco'] as List), ..._extraSongs()];
+  s = act21(s, 'ptki', 0).s;
+  return act21(s, 'ptki', 2).s;
+}
+
+J _epState() {
+  var s = st('star');
+  s['disco'] = [...(s['disco'] as List), ..._extraSongs()];
+  for (var i = 0; i < 3; i++) {
+    s = act21(s, 'ptki', i).s;
+  }
+  return act21(s, 'prel').s;
+}
 
 void main() {
   final dir = Platform.environment['CAPTURE_DIR'];

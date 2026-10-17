@@ -102,3 +102,54 @@ String instName21(J cur) {
 }
 
 num instQ21(J cur) => (Reg21.instrus[cur['instId'] ?? cur['inst']]?['Q'] ?? cur['instQ'] ?? 0) as num;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Catalogue, fiches de titres, EP et albums (planches 21-A0 à 21-A2). Valeurs d'affichage seulement.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Streams cumulés d'un titre : 7 premiers jours, puis +35 % par semaine pendant 12 semaines (provisoire), plus les écoutes du clip.
+int streamsTotal(J s, J t) {
+  final wk = ((_n(s['day']) - _n(t['day'])) / 7).floor();
+  return jsRound(_n(t['L']) * (1 + math.min(wk, 12) * 0.35)) + _n(t['clipL']).toInt();
+}
+
+/// Nombre de ventes d'un titre (anciennes sauvegardes : 1,2 % des écoutes).
+int salesOf(J t) => (t['sales'] ?? jsRound(_n(t['L']) * Reg21.singleSales)) as int;
+
+/// Rang d'un single au Top 100 (0 = non classé), formule de la planche 21-R2.
+int singleRankOf(J t) => _n(t['L']) >= Reg21.entry ? math.max(8, math.min(100, jsRound(7 * math.pow(_n(t['L']) / 8e6, -1 / 1.3)))) : 0;
+
+/// « J25 · Indépendant · Bon » : ligne de détail d'une ligne du catalogue.
+String titleMeta(J t) => 'J${t['day']} · ${t['labelAt'] ?? 'Indépendant'} · ${t['tier']}';
+
+/// Meilleur projet (le plus vendu) d'un type, ou null.
+J? bestProject(J s, String type) {
+  J? best;
+  for (final p in _l(s['projects'])) {
+    final pj = _m(p);
+    if (pj['type'] == type && (best == null || _n(pj['sales']) > _n(best['sales']))) best = pj;
+  }
+  return best;
+}
+
+/// Rang d'un projet : « #12 », ou « Non classé ».
+String projectRankLabel(J p) => _n(p['rank']) > 0 ? '#${p['rank']}' : 'Non classé';
+
+/// Nom du classement d'un projet : Top 50 EPs ou Top 200 Albums.
+String projectBoard(String type) => type == 'EP' ? 'Top ${Reg21.proj['EP']!['top']} EPs' : 'Top ${Reg21.proj['Album']!['top']} Albums';
+
+/// Titre sélectionné pour la fiche (ui.ctk), à défaut le dernier sorti.
+J? selectedTitle(J s) {
+  final id = _m(s['ui'])['ctk'];
+  final d = _l(s['disco']);
+  for (final t in d) {
+    if (_m(t)['id'] == id) return _m(t);
+  }
+  return d.isEmpty ? null : _m(d.first);
+}
+
+/// Projets qui contiennent un titre (« EP « Nuits » »).
+String titleInProjects(J s, J t) {
+  final names = [for (final p in _l(s['projects'])) if (_l(_m(p)['tracks']).contains(t['id'])) '${_m(p)['type']} « ${_m(p)['title']} »'];
+  return names.isEmpty ? 'Aucun projet' : names.join(', ');
+}

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../features/v21/catalogue_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/profile_screens.dart';
@@ -90,8 +91,16 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         builder: (_, __) => const Mix21Screen()),
                     GoRoute(
                         path: 'catalogue',
-                        name: '21-M6-Catalogue',
-                        builder: (_, __) => const CatalogueScreen()),
+                        name: '21-A0-Catalogue',
+                        builder: (_, __) => const CatalogueScreen(),
+                        routes: [
+                          GoRoute(path: 'titre', name: '21-A0b-Titre', builder: (_, __) => const TitreScreen()),
+                          GoRoute(path: 'projet', name: '21-A1-Projet', builder: (_, __) => const ProjetScreen()),
+                          GoRoute(
+                              path: 'projet-sorti',
+                              name: '21-A2-Projet-sorti',
+                              builder: (_, state) => ProjetSortiScreen(index: int.tryParse(state.uri.queryParameters['i'] ?? '') ?? 0)),
+                        ]),
                     GoRoute(
                         path: 'feats',
                         name: '21-M2-Featurings',
