@@ -49,8 +49,46 @@ class QgScreen extends ConsumerWidget {
     final mission = nextMission(s);
     final left = Reg21.romPerDay - _n(rom['used']).toInt();
     final nextRank = rankOf(s) < Reg21.ranks.length ? Reg21.ranks[rankOf(s)]['n'] as String : 'Rang maximal';
+    final cas = s['cas'] as J?;
+    final dl = s['dlg'] == null ? null : _m(s['dlg']);
     return ListView(padding: const EdgeInsets.all(16), children: [
       _Hero(s),
+      if (s['jail'] != null) ...[
+        const SizedBox(height: 12),
+        GlassCard(
+          accent: GlassAccent.magenta,
+          halo: false,
+          onTap: () => context.go('/business/justice'),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('En prison · encore ${jailDaysLeft(s)} jour(s)', style: V20Text.nm()),
+            Text('Seules l’écriture, le sport et la fin de journée sont possibles.', style: V20Text.bs()),
+          ]),
+        ),
+      ],
+      if (cas != null) ...[
+        const SizedBox(height: 12),
+        GlassCard(
+          accent: GlassAccent.magenta,
+          halo: false,
+          onTap: () => context.go('/business/justice'),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Affaire en cours : ${cas['n']}', style: V20Text.nm()),
+            Text('Procès le jour ${cas['trial']}', style: V20Text.bs()),
+          ]),
+        ),
+      ],
+      if (dl != null) ...[
+        const SizedBox(height: 12),
+        GlassCard(
+          accent: GlassAccent.cyan,
+          halo: false,
+          onTap: () => context.go('/dialogue'),
+          child: Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Dialogue', style: V20Text.nm()), Text('Scène · ${dlg21[dl['id']]!.t}', style: V20Text.bs())])),
+            GameTag(_n(dl['done']) != 0 ? 'À clore' : 'À décider', style: GameTagStyle.accent),
+          ]),
+        ),
+      ],
       if (ev != null) ...[
         const SizedBox(height: 12),
         GlassCard(

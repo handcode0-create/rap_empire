@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import '../features/v21/catalogue_screens.dart';
+import '../features/v21/dialogue_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/profile_screens.dart';
@@ -229,6 +230,14 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             path: '/journal',
             name: '21-J1-Journal',
             builder: (_, __) => const JournalScreen()),
+        GoRoute(
+            path: '/dialogue',
+            name: '21-X1-Dialogue',
+            builder: (_, __) => const DialogueScreen()),
+        GoRoute(
+            path: '/scenes',
+            name: '21-X0-Scenes',
+            builder: (_, __) => const ScenesScreen()),
         GoRoute(
             path: '/evenement',
             name: '21-V1-Evenement',

@@ -159,6 +159,54 @@ void main() {
     expect(find.textContaining('Ton meilleur EP'), findsOneWidget);
   });
 
+  /// Touche le bouton « Choisir » de la n-ième réponse d'un dialogue.
+  Future<void> choose(WidgetTester tester, int i) async {
+    final f = txt('Choisir').at(i);
+    await tester.ensureVisible(f);
+    await tester.pumpAndSettle();
+    await tester.tap(f);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('offre de Kôrô en dialogue, négociée à 35 %', (tester) async {
+    var st = preset('debut');
+    st = act21(act21(st, 'create', ['quartier', 'sombre']).s, 'record').s;
+    expect((st['dlg'] as J)['id'], 'kore');
+    final repo = await pump21(tester, st, location: '/');
+    // la carte « Dialogue » du QG ouvre la scène
+    await tapText(tester, 'Dialogue');
+    expect(txt('Échange 1/4'), findsOneWidget);
+    await choose(tester, 0); // Rejouer le refrain
+    expect(txt('Échange 2/4'), findsOneWidget);
+    await choose(tester, 1); // Négocier
+    expect(txt('Échange 3/4'), findsOneWidget);
+    final cash = repo.current['cash'] as num;
+    await choose(tester, 0); // 35 %, mix signé
+    expect(txt('Accord à 35 %'), findsOneWidget);
+    expect(((repo.current['kc'] as J)['st'], (repo.current['kc'] as J)['left'], repo.current['cash']), ('Accord à 35 %, mix signé', 3, cash - 7000));
+    await tapText(tester, 'Continuer');
+    expect(repo.current['dlg'], isNull);
+  });
+
+  testWidgets('offre de label signée après contre-offre', (tester) async {
+    var st = preset('debut');
+    st['rep'] = 12;
+    st['disco'] = [
+      {'id': 'T1', 'title': 'Gbaka', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 5000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Discret', 'promo': 0, 'vir': 30, 'day': 1},
+    ];
+    st['dseen'] = {'kore': 'x', 'mgr': 'x'};
+    st = act21(st, 'setui', 'th=amour').s; // déclenche les scènes
+    expect((st['dlg'] as J)['id'], 'lb_AUB');
+    final repo = await pump21(tester, st, location: '/dialogue');
+    expect(txt('Awa Liméa · Découvreuse · Aube Nouvelle (Mabaya)'), findsOneWidget);
+    await choose(tester, 1); // Négocier
+    expect(txt('15 % sur 18 mois'), findsOneWidget);
+    final cash = repo.current['cash'] as num;
+    await choose(tester, 0);
+    expect([repo.current['signed'], repo.current['label'], repo.current['lcut'], repo.current['cash']], [1, 'AUB', 0.15, cash + 30000]);
+    expect(txt('Signé chez Aube Nouvelle (15 %)'), findsOneWidget);
+  });
+
   testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/scene/rivalites');
     expect(txt('Zaki Mbela'), findsOneWidget);
@@ -253,7 +301,7 @@ void main() {
 
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
-      '/', '/studio', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
+      '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/manager', '/business/justice',
       '/profil', '/profil/rang', '/profil/classements', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',

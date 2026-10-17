@@ -45,6 +45,22 @@ jobs.portraits = () => {
   return svgs.length >= 2 ? [['portrait-kzer.svg', svgs[1].replace(/ style="[^"]*"/, '')]] : [];
 };
 
+// Directeurs de label (21-X1) : pas de personnage dans assets/characters, un SVG inline par échange (n1, n2) et par fin de scène (dd).
+jobs.directeurs = () => {
+  const html = fs.readFileSync(path.join(boards, '21-X1-Dialogue.dc.html'), 'utf8');
+  const who = { AUB: 'awa', NUG: 'bakary', SIC: 'liv', VAG: 'marius', BLG: 'kre', LYR: 'maze', AMG: 'benedicte', RCD: 'kofi' };
+  const out = [];
+  const marks = [...html.matchAll(/data-if="((?:dn|dd)_lb_([A-Z]{3})(?:_(n\d))?)"/g)];
+  marks.forEach((m, i) => {
+    const code = m[2];
+    if (!who[code]) return;
+    const chunk = html.slice(m.index, i + 1 < marks.length ? marks[i + 1].index : html.length);
+    const pc = [...chunk.matchAll(/<div class="pc" style="left:236px[^"]*"[^>]*>(<svg[\s\S]*?<\/svg>)/g)][0];
+    if (pc) out.push([`portrait-${who[code]}-${m[3] || 'fin'}.svg`, pc[1].replace(/ style="[^"]*"/, '')]);
+  });
+  return out;
+};
+
 const only = process.argv[2];
 let n = 0;
 for (const [name, job] of Object.entries(jobs)) {

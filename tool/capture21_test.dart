@@ -85,7 +85,22 @@ List<Shot> shots() => [
       Shot('21-B2-Battle-resultat+defaite', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 1)])),
       Shot('21-C3-Concert', '/scene/resultat', st('carriere', const [('concert', null)])),
 
+      // Dialogues
+      Shot('21-X1-Dialogue', '/dialogue', st('debut', const [('create', ['quartier', 'sombre']), ('record', null)])),
+      Shot('21-X1-Dialogue+label', '/dialogue', _labelState()),
+      Shot('21-X1-Dialogue+fin', '/dialogue', st('debut', const [('create', ['quartier', 'sombre']), ('record', null), ('dch', 'a'), ('dch', 'a')])),
+      Shot('21-X0-Scenes', '/scenes', st('carriere', const [], (s) {
+        (s['rel'] as Map)['nadia'] = 10;
+      })),
     ];
+
+J _labelState() {
+  final s = st('debut');
+  s['rep'] = 12;
+  s['dseen'] = {'kore': 'x', 'mgr': 'x'};
+  s['disco'] = [(st('carriere')['disco'] as List).first];
+  return act21(s, 'setui', 'th=amour').s; // déclenche l'offre d'Aube Nouvelle
+}
 
 List<J> _extraSongs() => [
       for (var i = 0; i < 3; i++)
