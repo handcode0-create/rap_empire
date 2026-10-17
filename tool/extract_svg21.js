@@ -76,6 +76,13 @@ jobs.labels = () => {
   return out;
 };
 
+// Plateformes fictives (21-D1) : Ondéa, Klipo, Cauri Music.
+jobs.plateformes = () => {
+  const html = fs.readFileSync(path.join(boards, '21-D1-Plateformes.dc.html'), 'utf8');
+  const logos = allSvgs(html).filter((x) => /viewBox="0 0 64 64"/.test(x));
+  return ['ondea', 'klipo', 'cauri'].slice(0, logos.length).map((n, i) => [`logo-${n}.svg`, logos[i].replace(/ aria-label="[^"]*"/, '').replace(/ role="img"/, '')]);
+};
+
 const only = process.argv[2];
 let n = 0;
 for (const [name, job] of Object.entries(jobs)) {

@@ -4,6 +4,7 @@ import '../features/v21/dialogue_screens.dart';
 import '../features/v21/labels_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
+import '../features/v21/platform_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
 import '../features/v21/scene_business_screens.dart';
@@ -208,6 +209,15 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
+                    GoRoute(
+                        path: 'plateformes',
+                        name: '21-D1-Plateformes',
+                        builder: (_, __) => const PlateformesScreen(),
+                        routes: [
+                          GoRoute(path: 'ondea', name: '21-D2-Ondea', builder: (_, __) => const OndeaScreen()),
+                          GoRoute(path: 'klipo', name: '21-D3-Klipo', builder: (_, __) => const KlipoScreen()),
+                          GoRoute(path: 'cauri', name: '21-D4-Cauri-Music', builder: (_, __) => const CauriMusicScreen()),
+                        ]),
                     GoRoute(
                         path: 'annee',
                         name: '21-Q4-Annee',

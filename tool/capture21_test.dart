@@ -85,6 +85,11 @@ List<Shot> shots() => [
       Shot('21-B2-Battle-resultat+defaite', '/scene/battle-result', st('debut', const [('evc', 'a'), ('battle', 1)])),
       Shot('21-C3-Concert', '/scene/resultat', st('carriere', const [('concert', null)])),
 
+      // Plateformes
+      Shot('21-D1-Plateformes', '/profil/plateformes', st('star')),
+      Shot('21-D2-Ondea', '/profil/plateformes/ondea', st('star')),
+      Shot('21-D3-Klipo', '/profil/plateformes/klipo', st('star')),
+      Shot('21-D4-Cauri-Music', '/profil/plateformes/cauri', st('star')),
       // Labels
       Shot('21-L2-Labels', '/business/labels/tous', st('carriere')),
       Shot('21-L1-Labels-merch', '/business/labels', st('carriere')),

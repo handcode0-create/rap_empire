@@ -159,3 +159,30 @@ int openMicEffect(J s) {
   final n = _l(s['omHist']).where((d) => _n(s['day']) - _n(d) < Reg21.omWindow).length;
   return jsRound(100 * math.max(Reg21.omFloor, 1 - Reg21.omStep * n));
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Plateformes fictives (21-D1 à D4) : répartition des écoutes déjà calculées, aucun revenu ni écoute en plus.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Écoutes d'un titre vues par les plateformes : écoutes de lancement + écoutes apportées par le clip.
+int platformListens(J t) => (_n(t['L']) + _n(t['clipL'])).toInt();
+
+/// Totaux par plateforme sur tout le catalogue.
+({int total, int ondea, int cauri, int listeners, int followers, int klipoViews, int clips, int revOndea, int revCauri}) platformTotals(J s) {
+  final disco = _l(s['disco']).map(_m).toList();
+  final tot = disco.fold<int>(0, (a, t) => a + platformListens(t));
+  final clips = disco.where((t) => t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie').toList();
+  final p = platformSplit21(tot);
+  final vpl = Reg21.platforms['klipo']!['viewsPerClipListen'] as num;
+  return (
+    total: tot,
+    ondea: p.ondea,
+    cauri: p.cauri,
+    listeners: jsRound(tot * Reg21.listenersRatio),
+    followers: jsRound(_n(s['fans']) * 0.6),
+    klipoViews: clips.fold<int>(0, (a, t) => a + jsRound(_n(t['clipL']) * vpl)),
+    clips: clips.length,
+    revOndea: jsRound(tot * (Reg21.platforms['ondea']!['share'] as num) * Reg21.listenValue),
+    revCauri: jsRound(tot * (Reg21.platforms['cauri']!['share'] as num) * Reg21.listenValue),
+  );
+}
