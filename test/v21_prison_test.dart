@@ -47,6 +47,7 @@ void main() {
 
   test('actions de prison interdites hors détention', () {
     expect(act21(init21(), 'jrecord').err, 'prison');
+    expect(act21(init21(), 'jphone').err, 'prison');
     expect(act21(init21(), 'jrio').err, 'prison');
     expect(act21(init21(), 'jfight').err, 'prison');
   });

@@ -48,7 +48,8 @@ List<J> _disco(J s) => _l(s['disco']).map(_m).toList();
 class _PlatformHero extends StatelessWidget {
   final String logo, eyebrow, value, detail;
   final Color start, end, accent;
-  const _PlatformHero({required this.logo, required this.eyebrow, required this.value, required this.detail, required this.start, required this.end, required this.accent});
+  final int? thumbnailIndex;
+  const _PlatformHero({required this.logo, required this.eyebrow, required this.value, required this.detail, required this.start, required this.end, required this.accent, this.thumbnailIndex});
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(18),
@@ -68,6 +69,25 @@ class _PlatformHero extends StatelessWidget {
         const SizedBox(height: 3),
         Text(detail, style: V20Text.bs(color: Tk.ink)),
       ])),
+      if (thumbnailIndex != null) ...[
+        const SizedBox(width: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 88,
+            height: 66,
+            child: Stack(fit: StackFit.expand, children: [
+              SvgPicture.asset(
+                'assets/klipo/thumbs/T${(thumbnailIndex! % 50 + 1).toString().padLeft(3, '0')}.svg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF171323)),
+              ),
+              const ColoredBox(color: Color.fromRGBO(12, 8, 32, .28)),
+              const Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 30)),
+            ]),
+          ),
+        ),
+      ],
     ]),
   );
 }
@@ -248,7 +268,7 @@ class KlipoScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       const _PfHeader('Klipo', 'klipo'),
       const SizedBox(height: 12),
-      _PlatformHero(logo: 'klipo', eyebrow: 'KLIPO · VIDÉO / CLIPS', value: '${fmt21(t.klipoViews)} vues', detail: 'Chaîne de ${playerName(s)} · ${t.clips} clip(s) publié(s)', start: const Color(0xFF351029), end: const Color(0xFF701B50), accent: const Color(0xFFFF4DA6)),
+      _PlatformHero(logo: 'klipo', eyebrow: 'KLIPO · VIDÉO / CLIPS', value: '${fmt21(t.klipoViews)} vues', detail: 'Chaîne de ${playerName(s)} · ${t.clips} clip(s) publié(s)', start: const Color(0xFF351029), end: const Color(0xFF701B50), accent: const Color(0xFFFF4DA6), thumbnailIndex: clips.isEmpty ? 0 : _disco(s).indexOf(clips.last)),
       const SizedBox(height: 12),
       if (clips.isEmpty) ...[
         const GlassCard(

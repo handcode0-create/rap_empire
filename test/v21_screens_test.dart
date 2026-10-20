@@ -292,7 +292,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo3.current['cas'], isNull);
     expect(repo3.current['verdict'], isNotNull);
-    expect(find.textContaining('Coupable'), findsWidgets);
+    // Le verdict peut condamner à la prison : dans ce cas, le verrou V21 redirige immédiatement
+    // l'interface vers la cellule. Vérifier le verdict dans l'état plutôt que chercher le texte hors prison.
+    expect((repo3.current['verdict'] as J)['txt'], contains('Coupable'));
     expect((repo3.current['casier'] as List).length, 1);
     final prison = clone21(repo3.current);
     prison['jail'] = {'until': (prison['day'] as num) + 2, 'days': 2};

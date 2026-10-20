@@ -1492,7 +1492,7 @@ final Map<String, Action> actions21 = {
   },
   // Enregistrement carcéral : qualité volontairement faible, améliorée par le téléphone satellite.
   'jrecord': (s, a) {
-    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (!_t(s['jail'])) return _no(s, 'prison');
     if (_n(s['jrec']) == _n(s['day'])) return _no(s, 'deja');
     if (s['cur'] != null && _m(s['cur'])['st'] != 'sorti') return _no(s, 'encours');
     final n = clone21(s);
@@ -1511,7 +1511,7 @@ final Map<String, Action> actions21 = {
   },
   // Le téléphone satellite améliore les prises futures, sans effacer la qualité des titres déjà enregistrés.
   'jphone': (s, a) {
-    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (!_t(s['jail'])) return _no(s, 'prison');
     if (_t(s['jphone'])) return _no(s, 'deja');
     const cost = 18000;
     if (_n(s['cash']) < cost) return _no(s, 'cash');
@@ -1523,7 +1523,7 @@ final Map<String, Action> actions21 = {
   },
   // RIO : défi musical carcéral, enregistré comme un morceau distinct et publiable après la libération.
   'jrio': (s, a) {
-    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (!_t(s['jail'])) return _no(s, 'prison');
     if (_n(s['jrio']) == _n(s['day'])) return _no(s, 'deja');
     if (s['cur'] != null && _m(s['cur'])['st'] != 'sorti') return _no(s, 'encours');
     final n = clone21(s);
@@ -1543,7 +1543,7 @@ final Map<String, Action> actions21 = {
   },
   // Affrontement fictif résolu par le moteur : pas de commandes ni de détails de violence réelle.
   'jfight': (s, a) {
-    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (!_t(s['jail'])) return _no(s, 'prison');
     if (_n(s['jfight']) == _n(s['day'])) return _no(s, 'deja');
     final n = clone21(s);
     final won = rng21(s, 710 + _n(s['jrep'])) >= .38;
