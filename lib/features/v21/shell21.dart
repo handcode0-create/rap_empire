@@ -9,6 +9,7 @@ import '../../core/widgets/screen_background.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'justice_screens.dart';
 
 /// HUD de la v21 : initiales et nom de l'artiste, rang de carrière, cauris, énergie « x / max » et temps « J1 · 13:00 ».
 class Hud21 extends ConsumerWidget {
@@ -36,7 +37,8 @@ class Hud21 extends ConsumerWidget {
 class Shell21 extends ConsumerWidget {
   final StatefulNavigationShell shell;
   final bool showNav;
-  const Shell21({super.key, required this.shell, this.showNav = true});
+  final String location;
+  const Shell21({super.key, required this.shell, required this.location, this.showNav = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,21 +49,35 @@ class Shell21 extends ConsumerWidget {
         if (context.mounted) context.go('/demarrer');
       });
     }
+    final jailed = s != null && s['jail'] != null;
+    if (jailed && location != '/business/justice/prison') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go('/business/justice/prison');
+      });
+    }
     return GameScaffold(
         hud: const Hud21(),
-        body: shell,
-        bottomNavigationBar: showNav ? GameNavBar(currentIndex: shell.currentIndex, onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex)) : null,
+        body: jailed ? const PrisonScreen() : shell,
+        bottomNavigationBar: !jailed && showNav ? GameNavBar(currentIndex: shell.currentIndex, onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex)) : null,
     );
   }
 }
 
 /// Cadre des écrans plein écran avec HUD mais sans navigation (journée, bilan, événements, vie perso) : le contenu défile.
-class Frame21 extends StatelessWidget {
+class Frame21 extends ConsumerWidget {
   final List<Widget> children;
   const Frame21({super.key, required this.children});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s != null && s['jail'] != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go('/business/justice/prison');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return Scaffold(
         body: ScreenBackground(
           child: SafeArea(
             child: Column(children: [
@@ -71,6 +87,7 @@ class Frame21 extends StatelessWidget {
           ),
         ),
       );
+  }
 }
 
 /// Valeur de Reg21 lisible depuis un écran sans importer le moteur entier.

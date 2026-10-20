@@ -159,6 +159,11 @@ J init21() {
     'merchDone': <String, dynamic>{},
     'signed': 0,
     'jail': null,
+    'jphone': 0,
+    'jrep': 0,
+    'jrec': -1,
+    'jrio': -1,
+    'jfight': -1,
     'rivals': <String, dynamic>{},
     'managerPaid': 0,
     'ap': {'hair': 'hitwist', 'top': 'hoodie', 'skin': '3'},
@@ -616,7 +621,7 @@ String? _applyEff(J n, J? e) {
 
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
-  'endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
+  'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
   'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'
 };
 
@@ -1483,6 +1488,76 @@ final Map<String, Action> actions21 = {
     n['cas'] = null;
     n['heat'] = math.max(0, _n(n['heat']) - 20);
     _log(n, 'Verdict (${cs['ch']}) : $txt', 'justice');
+    return _ok(n);
+  },
+  // Enregistrement carcéral : qualité volontairement faible, améliorée par le téléphone satellite.
+  'jrecord': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (_n(s['jrec']) == _n(s['day'])) return _no(s, 'deja');
+    if (s['cur'] != null && _m(s['cur'])['st'] != 'sorti') return _no(s, 'encours');
+    final n = clone21(s);
+    final phone = _t(n['jphone']);
+    final quality = phone ? 62 : 24;
+    final title = 'Freestyle de cellule J${n['day']}';
+    n['cur'] = {
+      'id': 'T${_nextSongSeq(n)}', 'title': title, 'theme': 'quartier', 'amb': 'sombre',
+      'mode': 'prison', 'tx': quality, 'st': 'enregistre', 'Q': quality,
+      'quality': quality, 'jailRecord': 1, 'feats': <dynamic>[], 'clip': {'st': 'aucun'},
+    };
+    n['jrec'] = n['day'];
+    _m(n['sk'])['voix'] = _n(_m(n['sk'])['voix']) + 1;
+    _log(n, 'Enregistrement en cellule : $title · qualité $quality/100${phone ? ' (téléphone satellite)' : ' (téléphone basique)'}', 'musique');
+    return _ok(n);
+  },
+  // Le téléphone satellite améliore les prises futures, sans effacer la qualité des titres déjà enregistrés.
+  'jphone': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (_t(s['jphone'])) return _no(s, 'deja');
+    const cost = 18000;
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
+    final n = clone21(s);
+    _pay(n, -cost);
+    n['jphone'] = 1;
+    _log(n, 'Téléphone satellite acheté en prison (−$cost cauris) : qualité des prochains enregistrements améliorée', 'justice');
+    return _ok(n);
+  },
+  // RIO : défi musical carcéral, enregistré comme un morceau distinct et publiable après la libération.
+  'jrio': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (_n(s['jrio']) == _n(s['day'])) return _no(s, 'deja');
+    if (s['cur'] != null && _m(s['cur'])['st'] != 'sorti') return _no(s, 'encours');
+    final n = clone21(s);
+    final phone = _t(n['jphone']);
+    final quality = phone ? 68 : 28;
+    final title = 'RIO de cellule';
+    n['cur'] = {
+      'id': 'T${_nextSongSeq(n)}', 'title': title, 'theme': 'quartier', 'amb': 'sombre',
+      'mode': 'rio-prison', 'tx': quality, 'st': 'enregistre', 'Q': quality,
+      'quality': quality, 'jailRecord': 1, 'rio': 1, 'feats': <dynamic>[], 'clip': {'st': 'aucun'},
+    };
+    n['jrio'] = n['day'];
+    n['jrep'] = _n(n['jrep']) + 2;
+    n['rep'] = _n(n['rep']) + 1;
+    _log(n, 'RIO de cellule créé · qualité $quality/100 · réputation carcérale +2', 'justice');
+    return _ok(n);
+  },
+  // Affrontement fictif résolu par le moteur : pas de commandes ni de détails de violence réelle.
+  'jfight': (s, a) {
+    if (!_t(s['jail'])) return _no(s, 'rien');
+    if (_n(s['jfight']) == _n(s['day'])) return _no(s, 'deja');
+    final n = clone21(s);
+    final won = rng21(s, 710 + _n(s['jrep'])) >= .38;
+    n['jfight'] = n['day'];
+    if (won) {
+      n['jrep'] = _n(n['jrep']) + 3;
+      n['rep'] = _n(n['rep']) + 1;
+      n['en'] = math.max(0, _n(n['en']) - 12);
+      _log(n, 'Affrontement scénarisé remporté : réputation carcérale +3, énergie −12', 'justice');
+    } else {
+      n['jrep'] = math.max(0, _n(n['jrep']) - 1);
+      n['en'] = math.max(0, _n(n['en']) - 22);
+      _log(n, 'Affrontement scénarisé perdu : énergie −22, réputation carcérale −1', 'justice');
+    }
     return _ok(n);
   },
   'jw': (s, a) {

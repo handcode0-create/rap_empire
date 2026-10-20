@@ -71,6 +71,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
         StatefulShellRoute.indexedStack(
           builder: (_, state, shell) => Shell21(
               shell: shell,
+              location: state.matchedLocation,
               showNav: _rootPaths.contains(state.matchedLocation)),
           branches: [
             StatefulShellBranch(routes: [
