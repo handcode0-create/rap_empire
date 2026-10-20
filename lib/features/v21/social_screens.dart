@@ -253,18 +253,11 @@ class _Composer extends ConsumerWidget {
           if (t.viral) const Conseq21(ConsequenceKind.uncertain, 'Peut devenir virale (portée × 4)'),
           Conseq21(ConsequenceKind.risk, t.clash ? 'Risque ${t.risk} : polémique possible (réputation −2)' : 'Risque ${t.risk}'),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              height: 48,
-              child: PrimaryButton(
-                label: 'Publier',
-                compact: true,
-                arrow: false,
-                style: off ? GameButtonStyle.disabled : GameButtonStyle.primary,
-                onPressed: off ? null : () => _publish(context, ref, t),
-              ),
-            ),
+          PrimaryButton(
+            label: 'Publier sur ${socialNets21[t.net]!.n}',
+            compact: true,
+            style: off ? GameButtonStyle.disabled : GameButtonStyle.primary,
+            onPressed: off ? null : () => _publish(context, ref, t),
           ),
         ]),
       ),

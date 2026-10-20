@@ -877,21 +877,18 @@ class _MediaCard extends ConsumerWidget {
           const SizedBox(height: 8),
           Text('${_fx(m)} · fans +${m.fans}/j · écoutes des sorties +${(m.boost * 100).round()} %${m.spon > 0 ? ' · sponsor en concert +${(m.spon * 100).round()} % de cachet' : ''}', style: V20Text.bs()),
           const SizedBox(height: 8),
-          Row(children: [
-            Expanded(child: Text('${fmt21(m.c)} cauris', style: V20Text.poppins(size: 13, line: 18, weight: FontWeight.w700, color: Tk.gold))),
-            if (e == null)
-              SizedBox(
-                height: 48,
-                child: PrimaryButton(
-                  label: 'Lancer · ${fmt21(m.c)}',
-                  compact: true,
-                  arrow: false,
-                  onPressed: () => m.c >= mediaConfirmAt21
-                      ? doAct(context, ref, 'mkask', m.id, () => _confirmSheet(context, ref))
-                      : doAct(context, ref, 'mkbuy', m.id, null, 'Campagne lancée : ${m.n}'),
-                ),
-              ),
-          ]),
+          Text('${fmt21(m.c)} cauris', style: V20Text.poppins(size: 13, line: 18, weight: FontWeight.w700, color: Tk.gold)),
+          if (e == null) ...[
+            const SizedBox(height: 8),
+            PrimaryButton(
+              label: 'Lancer la campagne',
+              sublabel: m.c >= mediaConfirmAt21 ? 'Confirmation demandée' : null,
+              compact: true,
+              onPressed: () => m.c >= mediaConfirmAt21
+                  ? doAct(context, ref, 'mkask', m.id, () => _confirmSheet(context, ref))
+                  : doAct(context, ref, 'mkbuy', m.id, null, 'Campagne lancée : ${m.n}'),
+            ),
+          ],
         ]),
       ),
     );
