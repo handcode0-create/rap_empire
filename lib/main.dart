@@ -10,7 +10,6 @@ import 'core/theme/app_theme.dart';
 Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    debugPrint('RE_BOOT main');
     // En release, une erreur de construction d'écran s'affiche en clair au lieu d'un bloc vide.
     ErrorWidget.builder = (d) => Material(
           color: const Color(0xFF14102B),
@@ -30,7 +29,6 @@ Future<void> main() async {
     // anonKey volontairement conservé (clé anon, cf. env.example.json) ; migration vers publishableKey à décider.
     // ignore: deprecated_member_use
     if (Env.hasSupabase) await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
-    debugPrint('RE_BOOT runApp');
     runApp(const ProviderScope(child: RapEmpireApp()));
   }, (e, st) => debugPrint('ZONE_ERROR $e\n$st'));
 }

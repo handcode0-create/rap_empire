@@ -79,10 +79,6 @@
         var reason = event.reason && (event.reason.stack || event.reason.message) || event.reason;
         showError('Le jeu a rencontré une erreur non traitée.', reason || 'Promesse rejetée sans détail.');
       });
-      window.setTimeout(function () { if (!finished) message.textContent = 'Chargement lent (réseau mobile ?)… encore un instant.'; }, 15000);
-      window.setTimeout(function () {
-        if (!finished && !panel.classList.contains('is-error')) showError('Le jeu ne répond pas après 45 secondes.', 'Flutter n’a pas affiché sa première image.');
-      }, 45000);
     })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
