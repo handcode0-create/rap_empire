@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="768" viewBox="0 0 512 768">
+ <defs><linearGradient id="skin" x2="0" y2="1"><stop stop-color="#B97755"/><stop offset="1" stop-color="#A96543"/></linearGradient><linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#B65A2B"/><stop offset="1" stop-color="#11131D"/></linearGradient></defs>
+ <ellipse cx="256" cy="724" rx="135" ry="18" fill="#090B15" opacity=".35"/>
+ <path d="M211 457h90l17 164-42 8-20-118-20 118-42-8Z" fill="#252734" stroke="#11131D" stroke-width="8"/>
+ <path d="M213 620h48l-5 50h-65q-14-6-5-22Z M270 620h36l32 27q10 18-5 23h-63Z" fill="#F5A36B" stroke="#11131D" stroke-width="8"/>
+ <path d="M224 213h64v73h-64Z" fill="url(#skin)"/>
+ <path d="M180 285Q195 265 220 260L240 278H272L292 260Q320 267 334 285L363 393 326 408 310 350 316 468H196L202 350 186 408 149 393Z" fill="url(#cloth)" stroke="#11131D" stroke-width="8"/>
+ <path d="M180 285Q195 265 220 260L240 278H272L292 260Q320 267 334 285L363 393 326 408 310 350 316 468H196L202 350 186 408 149 393Z" fill="#B65A2B" stroke="#0D1020" stroke-width="8"/><path d="M240 278L256 324 272 278 286 376H226Z" fill="#F5A36B"/><path d="M206 391h100" stroke="#F1D2B8" stroke-width="5"/>
+ <path d="M196 458h120l-5 20H201Z" fill="#F5A36B"/>
+ <path d="M216 116Q256 82 296 116L306 171Q304 218 256 230Q208 218 206 171Z" fill="url(#skin)" stroke="#5C3328" stroke-width="5"/>
+ <path d="M203 147Q192 99 228 91Q274 70 303 108L309 147 293 129Q264 145 222 126Z" fill="#19141B" stroke="#171219" stroke-width="6"/>
+ <path d="M211 116l-13-18 25 3-4-20 24 15 13-20 12 21 21-12-3 22 20-2-12 18" fill="#19141B"/>
+ <path d="M224 160q10-7 20 0 M268 160q10-7 20 0" stroke="#2A1A18" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <ellipse cx="232" cy="171" rx="4" ry="6" fill="#171219"/><ellipse cx="280" cy="171" rx="4" ry="6" fill="#171219"/>
+ <path d="M244 189q12 8 24 0" stroke="#47241D" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M224 158h13 M275 158h13" stroke="#633D32" stroke-width="3" stroke-linecap="round"/><path d="M218 185 Q256 228 294 185 L286 211 Q256 239 226 211Z" fill="#241A20"/>
+ <path d="M224 276q32 34 64 0" fill="none" stroke="#F5A36B" stroke-width="8" stroke-linecap="round"/>
+ <path d="M231 306l25 17 25-17" fill="none" stroke="#F5A36B" stroke-width="5"/>
+ <text x="256" y="548" font-family="sans-serif" font-size="17" font-weight="bold" text-anchor="middle" fill="#FFFFFF" opacity=".9">VESTE CUIVRE</text></svg>

@@ -1,84 +1,136 @@
 {
- "character": "rapper_001",
- "name": "Djo Kéné (look par défaut : teint 3, twists hi-top)",
- "status": "TEST · illustrations de test générées, non finales",
- "frame": {
-  "w": 512,
-  "h": 768,
-  "format": "webp",
-  "background": "transparent",
-  "anchor": "pieds en bas, centré"
- },
- "outfits": [
-  {
-   "id": "OUTFIT_001",
-   "n": "Hoodie Néon",
-   "d": "Le hoodie rose de tes débuts, patch BKM sur la poitrine.",
-   "price": 0,
-   "rank": 1,
-   "ref": "12.5 (équipé)",
-   "start": true,
-   "images": {
-    "young": "young/OUTFIT_001.webp",
-    "mature": "mature/OUTFIT_001.webp"
-   },
-   "status": "disponible"
+  "character": "rapper_001",
+  "name": "Djo Kéné (look par défaut : teint 3, twists hi-top)",
+  "status": "TEST · illustrations de test générées, non finales",
+  "frame": {
+    "w": 512,
+    "h": 768,
+    "format": "webp",
+    "background": "transparent",
+    "anchor": "pieds en bas, centré"
   },
-  {
-   "id": "OUTFIT_002",
-   "n": "Survêt Soleil",
-   "d": "Survêtement jaune soleil, zip et bandes magenta.",
-   "price": 6000,
-   "rank": 1,
-   "ref": "12.5 (6 000)",
-   "start": false,
-   "images": {
-    "young": "young/OUTFIT_002.webp",
-    "mature": "mature/OUTFIT_002.webp"
-   },
-   "status": "disponible"
-  },
-  {
-   "id": "OUTFIT_003",
-   "n": "Veste Brume",
-   "d": "Veste gris-violet, baskets cyan. Le look des sessions studio.",
-   "price": 18000,
-   "rank": 1,
-   "ref": "12.5 / 12.5b (18 000)",
-   "start": false,
-   "images": {
-    "young": "young/OUTFIT_003.webp",
-    "mature": "mature/OUTFIT_003.webp"
-   },
-   "status": "disponible"
-  },
-  {
-   "id": "OUTFIT_004",
-   "n": "Veste Nuit",
-   "d": "Blazer bleu nuit et détails or, pour les grandes scènes.",
-   "price": 30000,
-   "rank": 3,
-   "ref": "12.5 (niveau 3, prix à confirmer)",
-   "start": false,
-   "images": {
-    "young": "young/OUTFIT_004.webp",
-    "mature": "mature/OUTFIT_004.webp"
-   },
-   "status": "disponible"
-  },
-  {
-   "id": "OUTFIT_005",
-   "n": "Hoodie Jade",
-   "d": "Hoodie vert jade. Illustration mature pas encore produite.",
-   "price": 12000,
-   "rank": 1,
-   "ref": "12.5 (acheté dans la maquette)",
-   "start": false,
-   "images": {
-    "young": "young/OUTFIT_005.webp",
-    "mature": null
-   },
-   "status": "indisponible"
-  }
- ]
+  "outfits": [
+    {
+      "id": "OUTFIT_001",
+      "n": "Hoodie Néon",
+      "d": "Le hoodie rose de tes débuts, patch BKM sur la poitrine.",
+      "price": 0,
+      "rank": 1,
+      "ref": "12.5 (équipé)",
+      "start": true,
+      "images": {
+        "young": "young/OUTFIT_001.webp",
+        "mature": "mature/OUTFIT_001.webp"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_002",
+      "n": "Survêt Soleil",
+      "d": "Survêtement jaune soleil, zip et bandes magenta.",
+      "price": 6000,
+      "rank": 1,
+      "ref": "12.5 (6 000)",
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_002.webp",
+        "mature": "mature/OUTFIT_002.webp"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_003",
+      "n": "Veste Brume",
+      "d": "Veste gris-violet, baskets cyan. Le look des sessions studio.",
+      "price": 18000,
+      "rank": 1,
+      "ref": "12.5 / 12.5b (18 000)",
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_003.webp",
+        "mature": "mature/OUTFIT_003.webp"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_004",
+      "n": "Veste Nuit",
+      "d": "Blazer bleu nuit et détails or, pour les grandes scènes.",
+      "price": 30000,
+      "rank": 3,
+      "ref": "12.5 (niveau 3, prix à confirmer)",
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_004.webp",
+        "mature": "mature/OUTFIT_004.webp"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_005",
+      "n": "Hoodie Jade",
+      "d": "Hoodie vert jade. Illustration mature pas encore produite.",
+      "price": 12000,
+      "rank": 1,
+      "ref": "12.5 (acheté dans la maquette)",
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_005.webp",
+        "mature": null
+      },
+      "status": "indisponible"
+    },
+    {
+      "id": "OUTFIT_006",
+      "n": "Hoodie Cobalt",
+      "d": "Hoodie bleu cobalt, coutures cyan et sneakers blanches pour les sessions de nuit.",
+      "price": 14000,
+      "rank": 1,
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_006.svg",
+        "mature": "mature/OUTFIT_006.svg"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_007",
+      "n": "Veste Cuivre",
+      "d": "Veste courte cuivre et pantalon anthracite, un look affirmé pour les showcases.",
+      "price": 22000,
+      "rank": 2,
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_007.svg",
+        "mature": "mature/OUTFIT_007.svg"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_008",
+      "n": "Ensemble Impérial",
+      "d": "Ensemble noir profond, finitions or et chaîne de scène.",
+      "price": 42000,
+      "rank": 3,
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_008.svg",
+        "mature": "mature/OUTFIT_008.svg"
+      },
+      "status": "disponible"
+    },
+    {
+      "id": "OUTFIT_009",
+      "n": "Néon de Bakoma",
+      "d": "Tenue de performance magenta et cyan, conçue pour les grandes scènes.",
+      "price": 65000,
+      "rank": 5,
+      "start": false,
+      "images": {
+        "young": "young/OUTFIT_009.svg",
+        "mature": "mature/OUTFIT_009.svg"
+      },
+      "status": "disponible"
+    }
+  ]
 }

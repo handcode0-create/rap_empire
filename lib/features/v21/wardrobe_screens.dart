@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
@@ -37,10 +38,12 @@ class OutfitImage extends StatelessWidget {
       height: height,
       child: path == null
           ? Center(child: fallback())
-          : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, error, __) {
-                debugPrint('OutfitImage: chargement impossible de $path : $error');
-                return Center(child: fallback());
-              }),
+          : path!.toLowerCase().endsWith('.svg')
+              ? SvgPicture.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticsLabel: label)
+              : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, error, __) {
+                  debugPrint('OutfitImage: chargement impossible de $path : $error');
+                  return Center(child: fallback());
+                }),
     );
   }
 }

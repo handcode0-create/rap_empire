@@ -42,6 +42,10 @@ const _existing = <(String, String, String)>[
   ('ayana', 'Ayana Dembé', 'Artiste · chanteuse afro-soul'),
   ('rosine', 'Rosine Adjoua', 'Manager · presse et crise'),
   ('anselme', 'Anselme Bayoko', 'Manager · négociation de contrats'),
+  ('mika', 'Mika Soro', 'Manager · développement et image'),
+  ('tamsir', 'Tamsir Koffi', 'Beatmaker · sonorités afro-drill'),
+  ('desire', 'Désiré Kpan', 'Road manager · logistique de tournée'),
+  ('naya', 'Naya Rêve', 'Artiste · rap mélodique et R&B'),
 ];
 
 class PersonnagesScreen extends StatelessWidget {

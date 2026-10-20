@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="768" viewBox="0 0 512 768"><defs><linearGradient id="skin" x2="1" y2="1"><stop stop-color="#70412F"/><stop offset="1" stop-color="#42271F"/></linearGradient></defs>
+ <ellipse cx="256" cy="713" rx="135" ry="20" fill="#070914" opacity=".35"/>
+ <path d="M181 300Q200 264 223 260H289Q318 267 332 300L360 480H152Z" fill="#33313F" stroke="#0B0D18" stroke-width="9"/>
+ <path d="M223 262l33 54 33-54" fill="none" stroke="#D9B45B" stroke-width="10"/><path d="M204 325h104" stroke="#D9B45B" stroke-width="7"/>
+ <path d="M219 205h74v72h-74Z" fill="url(#skin)"/><path d="M185 152Q185 105 256 104Q326 104 327 152L316 211Q300 258 256 260Q211 258 196 211Z" fill="url(#skin)" stroke="#43271F" stroke-width="5"/>
+ <path d="M163 143Q179 88 250 87Q315 90 333 142L330 157H164Z" fill="#19151C"/><path d="M155 143H343Q334 165 260 168H177Z" fill="#D9B45B"/>
+ <path d="M216 181q12-8 24 0M272 181q12-8 24 0" stroke="#20151A" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="229" cy="191" rx="4" ry="6" fill="#15111A"/><ellipse cx="283" cy="191" rx="4" ry="6" fill="#15111A"/>
+ <path d="M240 217q16 9 32 0" stroke="#D9B45B" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <circle cx="193" cy="212" r="10" fill="#D9B45B"/><circle cx="319" cy="212" r="10" fill="#D9B45B"/>
+ <path d="M183 480h146l-14 36H197Z" fill="#171722"/><text x="256" y="572" font-family="sans-serif" font-size="22" font-weight="bold" text-anchor="middle" fill="#FFFFFF">DESIRE</text></svg>
