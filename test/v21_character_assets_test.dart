@@ -32,6 +32,18 @@ void main() {
     expect(sources.toSet().length, ids.length, reason: 'Chaque personnage doit avoir son propre avatar.');
   });
 
+
+  test('le manifeste référence les nouveaux personnages générés', () {
+    final manifest = File('assets/characters/manifest.json').readAsStringSync();
+    for (final id in [
+      'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi',
+      'kaira', 'tito', 'lazuli', 'nadia-kolo', 'solo', 'mika', 'tamsir',
+      'desire', 'naya',
+    ]) {
+      expect(manifest, contains('"$id"'), reason: 'ID absent du manifeste : $id');
+    }
+  });
+
   test('les nouvelles tenues disposent des variantes jeune et mature en SVG', () {
     for (final id in ['OUTFIT_006', 'OUTFIT_007', 'OUTFIT_008', 'OUTFIT_009']) {
       for (final age in ['young', 'mature']) {
