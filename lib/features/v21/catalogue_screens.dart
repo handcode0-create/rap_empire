@@ -368,7 +368,7 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
               Text(promos21[i]['n'] as String, style: V20Text.nm()),
               Text(i == 0 ? 'Sortie organique' : (i == 1 ? 'Portée ×1,6 · campagne numérique fictive' : 'Portée ×3,2 · campagne média locale fictive'), style: V20Text.bs()),
             ])),
-            Text((s['lperk'] == 'radio' && i == 2) || (promos21[i]['c'] as num) == 0 ? 'Gratuit' : fmt21(promos21[i]['c'] as num) + ' cauris', style: V20Text.nm(color: Tk.gold)),
+            Text((s['lperk'] == 'radio' && i == 2) || (promos21[i]['c'] as num) == 0 ? 'Gratuit' : '${fmt21(promos21[i]['c'] as num)} cauris', style: V20Text.nm(color: Tk.gold)),
           ]),
         ),
       ],
@@ -384,7 +384,7 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
       const SizedBox(height: 12),
       const Lab21('DATE DE SORTIE'),
       DropdownButtonFormField<int>(
-        value: _days,
+        initialValue: _days,
         decoration: const InputDecoration(labelText: 'Délai dans le jeu'),
         items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d jour${d > 1 ? 's' : ''} · J${_n(s['day']).toInt() + d}'))],
         onChanged: (v) { if (v != null) setState(() => _days = v); },

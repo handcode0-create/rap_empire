@@ -765,7 +765,7 @@ void _releaseProject(J n, J draft) {
   _addXp(n, type == 'Album' ? 150 : 80);
   final projects = _l(n['projects']);
   projects.insert(0, {
-    'id': draft['id'] ?? ('P' + (projects.length + 1).toString()),
+    'id': draft['id'] ?? 'P${projects.length + 1}',
     'type': type, 'title': draft['title'], 'tracks': List<dynamic>.of(ids), 'day': n['day'],
     'Q': q, 'L': streams, 'sales': sales, 'rev': revenue, 'cut': gross - revenue,
     'fans': newFans, 'rank': rank, 'promo': promo, 'promoName': promos21[promo]['n'],
@@ -774,7 +774,7 @@ void _releaseProject(J n, J draft) {
     if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
   });
   _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
-  _log(n, type + ' sorti : ' + draft['title'].toString() + ' · ' + tr.length.toString() + ' titres · ' + fmt21(sales) + ' ventes · campagne ' + promos21[promo]['n'].toString() + ' · ' + (rank != 0 ? '#' + rank.toString() + ' au Top ' + top.toString() : 'non classé'), 'musique');
+  _log(n, '$type sorti : ${draft['title']} · ${tr.length} titres · ${fmt21(sales)} ventes · campagne ${promos21[promo]['n']} · ${rank != 0 ? '#$rank au Top $top' : 'non classé'}', 'musique');
 }
 
 int _projectPromoCost(J s, int promo) =>
@@ -1088,10 +1088,10 @@ final Map<String, Action> actions21 = {
     var title = cleanName21(ui['ptitle']);
     if (title.length > 30) title = title.substring(0, 30);
     if (title.isEmpty) {
-      title = (type == 'EP' ? 'EP n° ' : 'Album n° ') + (_l(n['projects']).where((x) => _m(x)['type'] == type).length + _l(n['pendingProjects'] ?? const []).where((x) => _m(x)['type'] == type).length + 1).toString();
+      title = '${type == 'EP' ? 'EP n° ' : 'Album n° '}${_l(n['projects']).where((x) => _m(x)['type'] == type).length + _l(n['pendingProjects'] ?? const []).where((x) => _m(x)['type'] == type).length + 1}';
     }
     final draft = <String, dynamic>{
-      'id': 'P' + (_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1).toString(),
+      'id': 'P${_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1}',
       'type': type, 'title': title, 'tracks': List<dynamic>.of(ids),
       'trackData': [for (final x in tracks) Map<String, dynamic>.from(x!)],
       'promo': promo, 'promoCost': promoCost,
@@ -1099,7 +1099,7 @@ final Map<String, Action> actions21 = {
     _releaseProject(n, draft);
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
-    _log(n, type + ' publié immédiatement : ' + title + ' · campagne ' + promos21[promo]['n'].toString() + ' · coût ' + fmt21(total) + ' cauris', 'musique');
+    _log(n, '$type publié immédiatement : $title · campagne ${promos21[promo]['n']} · coût ${fmt21(total)} cauris', 'musique');
     return _ok(n);
   },
 
@@ -1138,7 +1138,7 @@ final Map<String, Action> actions21 = {
     _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
-    _log(n, type + ' programmé : ' + title + ' · J' + pending['relDay'].toString() + ' · campagne ' + promos21[promo]['n'].toString() + ' · coût ' + fmt21(total) + ' cauris', 'musique');
+    _log(n, '$type programmé : $title · J${pending['relDay']} · campagne ${promos21[promo]['n']} · coût ${fmt21(total)} cauris', 'musique');
     return _ok(n);
   },
 
@@ -2325,7 +2325,7 @@ Res _endDay(J s) {
   for (final p in dueProjects) {
     pendingProjects.removeWhere((x) => _m(x)['id'] == p['id']);
     _releaseProject(n, p);
-    ev.add('Sortie programmée : ' + p['title'].toString());
+    ev.add('Sortie programmée : ${p['title']}');
   }
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
