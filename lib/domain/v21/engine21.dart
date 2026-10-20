@@ -768,8 +768,10 @@ void _releaseProject(J n, J draft) {
     'id': draft['id'] ?? 'P${projects.length + 1}',
     'type': type, 'title': draft['title'], 'tracks': List<dynamic>.of(ids), 'day': n['day'],
     'Q': q, 'L': streams, 'sales': sales, 'rev': revenue, 'cut': gross - revenue,
-    'fans': newFans, 'rank': rank, 'promo': promo, 'promoName': promos21[promo]['n'],
-    'promoCost': _n(draft['promoCost']),
+    'fans': newFans, 'rank': rank,
+    if (promo != 0) 'promo': promo,
+    if (promo != 0) 'promoName': promos21[promo]['n'],
+    if (promo != 0) 'promoCost': _n(draft['promoCost']),
     'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
     if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
   });
