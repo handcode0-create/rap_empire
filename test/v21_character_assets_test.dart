@@ -2,6 +2,22 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+
+  test('les nouveaux personnages du registre ont des portraits générés en 2D', () {
+    const ids = [
+      'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi',
+      'kaira', 'tito', 'lazuli', 'nadia-kolo', 'solo', 'mika', 'tamsir',
+      'desire', 'naya',
+    ];
+    for (final id in ids) {
+      final file = File('assets/characters/${id}_cool_bust.svg');
+      expect(file.existsSync(), isTrue, reason: 'Portrait généré manquant : $id');
+      final svg = file.readAsStringSync();
+      expect(svg, contains('<svg'), reason: id);
+      expect(svg, contains('</svg>'), reason: id);
+    }
+  });
+
   test('les nouveaux avatars de personnages sont présents et distincts', () {
     const ids = ['mika', 'tamsir', 'desire', 'naya'];
     final sources = <String>[];
