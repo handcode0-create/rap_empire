@@ -45,6 +45,35 @@ class _PfHeader extends StatelessWidget {
 
 List<J> _disco(J s) => _l(s['disco']).map(_m).toList();
 
+/// Cartouche de marque : chaque plateforme possède sa propre palette et sa hiérarchie visuelle.
+class _PlatformHero extends StatelessWidget {
+  final String logo, eyebrow, value, detail;
+  final Color start, end, accent;
+  const _PlatformHero({required this.logo, required this.eyebrow, required this.value, required this.detail, required this.start, required this.end, required this.accent});
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [start, end]),
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: accent.withOpacity(.55)),
+      boxShadow: [BoxShadow(color: accent.withOpacity(.12), blurRadius: 22, offset: const Offset(0, 8))],
+    ),
+    child: Row(children: [
+      _Logo(logo, 58),
+      const SizedBox(width: 14),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(eyebrow, style: V20Text.lab(color: accent)),
+        const SizedBox(height: 5),
+        Text(value, style: V20Text.baloo(size: 27, line: 30)),
+        const SizedBox(height: 3),
+        Text(detail, style: V20Text.bs(color: Tk.ink)),
+      ])),
+    ]),
+  );
+}
+
+
 class _Row extends StatelessWidget {
   final Widget lead;
   final String title, sub;
@@ -77,8 +106,12 @@ class PlateformesScreen extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = platformTotals(s);
     final none = _disco(s).isEmpty;
-    Widget card(String logo, String name, String sub, int value, String route) => Padding(
-          padding: const EdgeInsets.only(top: 12),
+    Widget card(String logo, String name, String sub, int value, String route) {
+      final accent = logo == 'ondea' ? const Color(0xFF3CD6F2) : logo == 'klipo' ? const Color(0xFFFF4DA6) : const Color(0xFFFFC83D);
+      return Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: accent.withOpacity(.65))),
           child: GameCard(
             onTap: () => context.go(route),
             child: Row(children: [
@@ -86,10 +119,12 @@ class PlateformesScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: V20Text.nm()), Text(sub, style: V20Text.bs())])),
               const SizedBox(width: 8),
-              Text(fmt21(value), style: V20Text.baloo(size: 20, line: 22)),
+              Text(fmt21(value), style: V20Text.baloo(size: 20, line: 22, color: accent)),
             ]),
           ),
-        );
+        ),
+      );
+    }
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Plateformes', step: 'Proposé · à valider', onBack: () => context.go('/profil')),
       const SizedBox(height: 12),
@@ -138,17 +173,11 @@ class OndeaScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       const _PfHeader('Ondéa', 'ondea'),
       const SizedBox(height: 12),
-      GlassCard(
-          child: Row(children: [
-        EquippedAvatar(s, width: 80, height: 120),
-        const SizedBox(width: 12),
-        Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('ARTISTE VÉRIFIÉ · FICTIF', style: V20Text.lab()),
-          Text(playerName(s).toUpperCase(), style: V20Text.baloo(size: 28, line: 30)),
-          Text('${fmt21(t.listeners)} auditeurs estimés · ${fmt21(t.followers)} abonnés', style: V20Text.bs(color: Tk.ink)),
-        ])),
-      ])),
+      Column(children: [
+        _PlatformHero(logo: 'ondea', eyebrow: 'ONDEA ORIGINAL · STREAMING AUDIO', value: '${fmt21(t.listeners)} auditeurs', detail: '${fmt21(t.followers)} abonnés · artiste : ${playerName(s)}', start: const Color(0xFF102B48), end: const Color(0xFF29245B), accent: const Color(0xFF3CD6F2)),
+        const SizedBox(height: 8),
+        Align(alignment: Alignment.centerRight, child: Text('Profil artiste vérifié · univers fictif', style: V20Text.bs())),
+      ])
       const SizedBox(height: 12),
       GlassCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -220,12 +249,7 @@ class KlipoScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       const _PfHeader('Klipo', 'klipo'),
       const SizedBox(height: 12),
-      GlassCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('CHAÎNE DE ${playerName(s).toUpperCase()}', style: V20Text.lab()),
-        Text('${fmt21(t.klipoViews)} VUES', style: V20Text.baloo(size: 30, line: 32)),
-        Text('${t.clips} clip(s) publié(s)', style: V20Text.bs(color: Tk.ink)),
-      ])),
+      _PlatformHero(logo: 'klipo', eyebrow: 'KLIPO · VIDÉO / CLIPS', value: '${fmt21(t.klipoViews)} vues', detail: 'Chaîne de ${playerName(s)} · ${t.clips} clip(s) publié(s)', start: const Color(0xFF351029), end: const Color(0xFF701B50), accent: const Color(0xFFFF4DA6)),
       const SizedBox(height: 12),
       if (clips.isEmpty) ...[
         const GlassCard(
@@ -275,12 +299,7 @@ class CauriMusicScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       const _PfHeader('Cauri Music', 'cauri'),
       const SizedBox(height: 12),
-      GlassCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('ÉCOUTE PREMIUM', style: V20Text.lab()),
-        Text('${fmt21(t.cauri)} ÉCOUTES', style: V20Text.baloo(size: 30, line: 32)),
-        Text('Revenus : ${fmt21(t.revCauri)} cauris', style: V20Text.bs(color: Tk.ink)),
-      ])),
+      _PlatformHero(logo: 'cauri', eyebrow: 'CAURI MUSIC · PREMIUM', value: '${fmt21(t.cauri)} écoutes', detail: 'Revenus estimés : ${fmt21(t.revCauri)} cauris', start: const Color(0xFF352016), end: const Color(0xFF69402D), accent: const Color(0xFFFFC83D)),
       const SizedBox(height: 12),
       GlassCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
