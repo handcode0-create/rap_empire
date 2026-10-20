@@ -14,7 +14,6 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
-import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
 /// Plateformes fictives : liste (21-D1), Ondéa (21-D2), Klipo (21-D3), Cauri Music (21-D4).
@@ -177,7 +176,7 @@ class OndeaScreen extends ConsumerWidget {
         _PlatformHero(logo: 'ondea', eyebrow: 'ONDEA ORIGINAL · STREAMING AUDIO', value: '${fmt21(t.listeners)} auditeurs', detail: '${fmt21(t.followers)} abonnés · artiste : ${playerName(s)}', start: const Color(0xFF102B48), end: const Color(0xFF29245B), accent: const Color(0xFF3CD6F2)),
         const SizedBox(height: 8),
         Align(alignment: Alignment.centerRight, child: Text('Profil artiste vérifié · univers fictif', style: V20Text.bs())),
-      ])
+      ]),
       const SizedBox(height: 12),
       GlassCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -41,7 +41,7 @@ class OutfitImage extends StatelessWidget {
         'OUTFIT_004': 'bomber', 'OUTFIT_005': 'hoodie', 'OUTFIT_006': 'hoodie',
         'OUTFIT_007': 'bomber', 'OUTFIT_008': 'bomber', 'OUTFIT_009': 'hoodie',
       }[outfitId] ?? (ap['top'] as String? ?? 'hoodie');
-      return CharacterView(who: 'me_${ap['hair'] ?? 'hitwist'}_$top_${ap['skin'] ?? '3'}',
+      return CharacterView(who: 'me_${ap['hair'] ?? 'hitwist'}_${top}_${ap['skin'] ?? '3'}',
         mood: mood == 'smile' ? 'smile' : 'cool', crop: 'torso', width: width * .94, height: height * .94);
     }
     return SizedBox(
