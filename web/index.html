@@ -41,31 +41,48 @@
       var panel = document.getElementById('boot-status');
       var message = document.getElementById('boot-message');
       var detail = document.getElementById('boot-error');
-      var finished = false;
+      var finished = false, t0 = Date.now(), logs = [];
+      function note(kind, args) {
+        var line = kind + ' ' + Array.prototype.map.call(args, function (a) { try { return a && a.stack ? a.stack : (typeof a === 'string' ? a : JSON.stringify(a)); } catch (e) { return String(a); } }).join(' ');
+        logs.push(((Date.now() - t0) / 1000).toFixed(1) + 's ' + line.slice(0, 400)); if (logs.length > 25) logs.shift();
+        return line;
+      }
+      ['log', 'warn', 'error'].forEach(function (k) {
+        var orig = console[k];
+        console[k] = function () {
+          var line = note(k.toUpperCase(), arguments);
+          if (k === 'error' || /Uncaught|Exception|Error:|FLUTTER_ERROR|ZONE_ERROR/.test(line)) showError('Erreur pendant le démarrage du jeu.', line);
+          return orig.apply(console, arguments);
+        };
+      });
+      function resources() {
+        try {
+          return performance.getEntriesByType('resource').filter(function (r) { return /\.(js|wasm|json|bin|ttf|otf)(\?|$)/.test(r.name); })
+            .map(function (r) { return r.name.split('/').slice(-2).join('/') + ' · ' + Math.round(r.duration) + ' ms' + (r.transferSize ? ' · ' + Math.round(r.transferSize / 1024) + ' Ko' : ''); }).join('\n');
+        } catch (e) { return ''; }
+      }
       function showError(title, error) {
         if (finished) return;
         panel.classList.add('is-error');
         message.textContent = title;
-        detail.textContent = error ? String(error).slice(0, 700) : 'Aucun détail JavaScript disponible.';
+        detail.style.whiteSpace = 'pre-wrap';
+        detail.textContent = (error ? String(error).slice(0, 900) : 'Aucun détail JavaScript disponible.')
+          + '\n\n— Journal —\n' + logs.join('\n') + '\n\n— Fichiers chargés —\n' + resources() + '\n\n' + navigator.userAgent;
         document.getElementById('boot-dots').style.display = 'none';
       }
-      window.addEventListener('flutter-first-frame', function () {
-        finished = true;
-        panel.style.display = 'none';
-      });
+      window.addEventListener('flutter-first-frame', function () { finished = true; panel.style.display = 'none'; });
       window.addEventListener('error', function (event) {
         var source = event.filename ? ' (' + event.filename.split('/').pop() + (event.lineno ? ':' + event.lineno : '') + ')' : '';
         showError('Erreur pendant le démarrage du jeu.', (event.message || 'Erreur JavaScript') + source);
-      });
+      }, true);
       window.addEventListener('unhandledrejection', function (event) {
         var reason = event.reason && (event.reason.stack || event.reason.message) || event.reason;
         showError('Le jeu a rencontré une erreur non traitée.', reason || 'Promesse rejetée sans détail.');
       });
+      window.setTimeout(function () { if (!finished) message.textContent = 'Chargement lent (réseau mobile ?)… encore un instant.'; }, 15000);
       window.setTimeout(function () {
-        if (!finished && !panel.classList.contains('is-error')) {
-          showError('Le jeu ne répond pas après 15 secondes.', 'Le navigateur a chargé la page, mais Flutter n’a pas affiché sa première image. Recharge la page et transmets cette capture.');
-        }
-      }, 15000);
+        if (!finished && !panel.classList.contains('is-error')) showError('Le jeu ne répond pas après 45 secondes.', 'Flutter n’a pas affiché sa première image.');
+      }, 45000);
     })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
