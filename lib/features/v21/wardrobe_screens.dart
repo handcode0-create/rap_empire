@@ -47,16 +47,30 @@ class OutfitImage extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      child: outfitId != null
-          ? Center(child: fallback())
-          : path == null
-              ? Center(child: PlayerAvatar(s, mood: mood, height: height * .8))
-              : path!.toLowerCase().endsWith('.svg')
-              ? SvgPicture.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticsLabel: label)
-              : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, error, __) {
-                  debugPrint('OutfitImage: chargement impossible de $path : $error');
-                  return Center(child: fallback());
-                }),
+      child: path == null
+          ? Center(
+              child: outfitId != null
+                  ? fallback()
+                  : PlayerAvatar(s, mood: mood, height: height * .8),
+            )
+          : path!.toLowerCase().endsWith('.svg')
+              ? SvgPicture.asset(
+                  path!,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                  semanticsLabel: label,
+                  placeholderBuilder: (_) => Center(child: fallback()),
+                )
+              : Image.asset(
+                  path!,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                  semanticLabel: label,
+                  errorBuilder: (_, error, __) {
+                    debugPrint('OutfitImage: chargement impossible de $path : $error');
+                    return Center(child: fallback());
+                  },
+                ),
     );
   }
 }
