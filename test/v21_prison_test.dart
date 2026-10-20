@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 
+typedef J = Map<String, dynamic>;
+
 void main() {
   J jailed() {
     final s = act21(init21(), 'preset', 'carriere').s;
