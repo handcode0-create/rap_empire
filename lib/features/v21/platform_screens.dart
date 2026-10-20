@@ -193,7 +193,12 @@ class _ClipThumb extends StatelessWidget {
             width: 112,
             height: 63,
             child: Stack(fit: StackFit.expand, children: [
-              SvgPicture.asset('assets/svg/pochette-${index % 8}.svg', fit: BoxFit.cover),
+              SvgPicture.asset(
+                'assets/klipo/thumbs/T${(index % 50 + 1).toString().padLeft(3, '0')}.svg',
+                fit: BoxFit.cover,
+                semanticsLabel: 'Vignette du clip',
+                errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF171323)),
+              ),
               const ColoredBox(color: Color.fromRGBO(12, 8, 32, .35)),
               const Center(child: Icon(Icons.play_circle_fill_rounded, color: Tk.ink, size: 30)),
             ]),

@@ -28,6 +28,7 @@ flutter:
     - assets/characters/rapper_001/mature/
     - assets/scenes/
     - assets/svg/
+    - assets/klipo/
     - assets/patrimoine/
   fonts:
     - family: Poppins
