@@ -12,7 +12,6 @@ import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/glass_tile.dart';
-import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/scene_banner.dart';
@@ -22,6 +21,7 @@ import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'shell21.dart';
 import 'wardrobe_screens.dart';
+import 'cast21.dart';
 import 'widgets21.dart';
 
 /// QG du jour (21-Q1), journée (21-Q2), bilan (21-Q3), année (21-Q4), journal (21-J1) et événements (21-V1).
@@ -452,7 +452,7 @@ class EvenementScreen extends ConsumerWidget {
         ],
       ] else ...[
         Row(children: [
-          Portrait((e['who'] as String).split(' ').map((w) => w[0]).take(2).join().toUpperCase(), size: 96),
+          CastAvatar(e['who'] as String, size: 96, mood: 'poised'),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text((e['who'] as String).toUpperCase(), style: V20Text.lab()), Text((e['t'] as String).toUpperCase(), style: V20Text.baloo(size: 22, line: 24))])),
         ]),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,12 @@ import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
+import '../../core/widgets/bottom_sheet_game.dart';
+import '../../core/widgets/cascade.dart';
+import '../../core/widgets/character_view.dart';
+import '../../core/widgets/hero_stat.dart';
+import '../../core/widgets/primary_glow_button.dart';
+import '../../core/widgets/reward_burst.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
@@ -13,7 +20,6 @@ import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/engine21.dart';
-import '../../core/widgets/game_toast.dart';
 import '../../domain/v21/reg21.dart' show J;
 import '../../domain/v21/view21.dart';
 import 'widgets21.dart';
@@ -242,7 +248,7 @@ class _Composer extends ConsumerWidget {
           Text(t.d, style: V20Text.bs()),
           const SizedBox(height: 6),
           Conseq21(ConsequenceKind.certain, cost),
-          Conseq21(ConsequenceKind.estimated, '≈ ${fmt21(jsRound(reach * .7))} à ${fmt21(jsRound(reach * 1.3))} vues · +${fmt21(jsRound(reach * .04))} abonnés · +${fmt21(jsRound(reach * t.fanRate))} fans'),
+          Conseq21(ConsequenceKind.uncertain, 'Entre ${fmt21(jsRound(reach * .6))} et ${fmt21(jsRound(reach * 1.4))} vues · environ +${fmt21(jsRound(reach * .04))} abonnés · +${fmt21(jsRound(reach * t.fanRate))} fans (varie à chaque publication)'),
           if (t.hype > 0) Conseq21(ConsequenceKind.certain, 'Annonce : +20 % d\'écoutes si tu sors le titre dans les ${t.hype} jours'),
           if (t.viral) const Conseq21(ConsequenceKind.uncertain, 'Peut devenir virale (portée × 4)'),
           Conseq21(ConsequenceKind.risk, t.clash ? 'Risque ${t.risk} : polémique possible (réputation −2)' : 'Risque ${t.risk}'),
@@ -275,9 +281,97 @@ Future<void> _publish(BuildContext context, WidgetRef ref, PostType21 t) async {
   }
   final s = ref.read(game21Provider).valueOrNull;
   final p = s == null ? null : postsOf21(s, t.net).firstOrNull;
-  if (p == null) return;
-  final msg = '${fmt21(_n(p['reach']))} vues · +${fmt21(_n(p['fg']))} fans${_n(p['viral']) == 1 ? ' · VIRALE !' : ''}${_n(p['polem']) == 1 ? ' · polémique : réputation −2' : ''}';
-  showGameToast(context, msg, kind: _n(p['polem']) == 1 ? ToastKind.error : ToastKind.success);
+  if (s == null || p == null) return;
+  HapticFeedback.lightImpact();
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => _PostResult(s, p, t),
+  );
+}
+
+/// Résultat d'une publication, en trois temps : réaction de Djo et chiffre héroïque, détails en cascade, commentaires.
+class _PostResult extends StatelessWidget {
+  final J s, p;
+  final PostType21 t;
+  const _PostResult(this.s, this.p, this.t);
+  @override
+  Widget build(BuildContext context) {
+    final viral = _n(p['viral']) == 1, polem = _n(p['polem']) == 1;
+    final net = socialNets21[t.net]!;
+    final mood = viral ? 'laugh' : polem ? 'worried' : 'smile';
+    return BottomSheetGame(
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Stack(clipBehavior: Clip.none, children: [
+          if (viral) const Positioned.fill(child: IgnorePointer(child: RewardBurst(height: 200))),
+          Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  _NetBadge(t.net, 30),
+                  const SizedBox(width: 8),
+                  Text('${net.n.toUpperCase()} · ${t.n.toUpperCase()}', style: V20Text.lab(color: Color(net.col))),
+                ]),
+                const SizedBox(height: 8),
+                if (viral) const GameTag('Virale', style: GameTagStyle.accent),
+                if (polem) const GameTag('Polémique', style: GameTagStyle.accent),
+                HeroStat(label: 'Vues', value: _n(p['reach']).toInt(), size: 44, color: viral ? Tk.gold : Tk.ink),
+                Text(viral ? 'Tout Bakoma partage ta vidéo.' : polem ? 'La ville s\'enflamme : réputation −2.' : 'Ta publication tourne dans le quartier.',
+                    style: V20Text.bs(color: Tk.ink)),
+              ]),
+            ),
+            SizedBox(width: 110, height: 140, child: CharacterView(who: 'djo', mood: mood, crop: 'bust', width: 110, height: 140)),
+          ]),
+        ]),
+        const SizedBox(height: 12),
+        Cascade(children: [
+          Row(children: [
+            Expanded(child: _Fig('J\'aime', fmt21(_n(p['likes'])))),
+            const SizedBox(width: 8),
+            Expanded(child: _Fig('Commentaires', fmt21(_n(p['cm'])))),
+          ]),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: _Fig('Abonnés', '+${fmt21(_n(p['nf']))}')),
+            const SizedBox(width: 8),
+            Expanded(child: _Fig('Fans', '+${fmt21(_n(p['fg']))}')),
+          ]),
+          const SizedBox(height: 10),
+          for (final (u, c) in _comments(p))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.chat_bubble_rounded, color: V20.ink2, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text.rich(TextSpan(children: [
+                    TextSpan(text: '$u  ', style: V20Text.poppins(size: 12, line: 16, weight: FontWeight.w700, color: Tk.cy)),
+                    TextSpan(text: c, style: V20Text.poppins(size: 12, line: 16)),
+                  ])),
+                ),
+              ]),
+            ),
+        ]),
+        const SizedBox(height: 12),
+        PrimaryGlowButton(label: 'Continuer', onPressed: () => Navigator.of(context).pop()),
+      ]),
+    );
+  }
+}
+
+class _Fig extends StatelessWidget {
+  final String k, v;
+  const _Fig(this.k, this.v);
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .05), borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.white.withValues(alpha: .08))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(k.toUpperCase(), style: V20Text.lab()),
+          Text(v, style: V20Text.baloo(size: 20, line: 22)),
+        ]),
+      );
 }
 
 class _Stats extends StatelessWidget {

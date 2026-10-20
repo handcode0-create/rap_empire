@@ -24,6 +24,7 @@ import '../../domain/v21/view21.dart';
 import 'labels_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
+import 'cast21.dart';
 import 'widgets21.dart';
 
 /// Scène (21-C1 à 21-C3) et Business (21-E1 à 21-E5, 21-L1).
@@ -817,10 +818,13 @@ class Manager21Screen extends ConsumerWidget {
       const SizedBox(height: 12),
       GameCard(
           child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        const SizedBox(
+        // Le manager affiché est celui de ton niveau (illustration si le personnage existe, sinon monogramme).
+        SizedBox(
             width: 96,
             height: 120,
-            child: CharacterView(who: 'nadia', mood: 'poised', crop: 'bust')),
+            child: castId21(tier['n'] as String) != null
+                ? CharacterView(who: castId21(tier['n'] as String)!, mood: 'poised', crop: 'bust')
+                : Center(child: CastAvatar(tier['n'] as String, size: 80))),
         const SizedBox(width: 12),
         Expanded(
             child:
@@ -1007,7 +1011,7 @@ class Rivalites21Screen extends ConsumerWidget {
         const SizedBox(height: 8),
         GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const CircleAvatar(child: Icon(Icons.mic_external_on_outlined)),
+            CastAvatar(rival.key, size: 48, mood: 'smirk'),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(rival.value, style: V20Text.nm()),

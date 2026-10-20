@@ -812,11 +812,13 @@ Res _post(J s, String id) {
   if (e != null) return _no(s, e);
   final so = _m(n['soc']);
   final f0 = followers21(n, t.net);
-  final r = rng21(n, 77 + _n(so['tot']) * 13 + id.length);
-  var reach = jsRound(reachEstimate21(n, t) * (0.7 + 0.6 * r));
+  // [VALIDÉ 20/10] chiffres aléatoires : portée, j'aime, commentaires et abonnés varient à chaque publication.
+  final salt = 77 + _n(so['tot']) * 13 + id.length + _n(n['nonce']);
+  final r = rng21(n, salt), r2 = rng21(n, salt + 1), r3 = rng21(n, salt + 2), r4 = rng21(n, salt + 3);
+  var reach = jsRound(reachEstimate21(n, t) * (0.6 + 0.8 * r));
   final viral = t.viral && r > 0.88, polem = t.clash && r < 0.35;
-  if (viral) reach *= 4;
-  final likes = jsRound(reach * 0.12), cm = jsRound(reach * 0.01) + 1, nf = jsRound(reach * 0.04), fg = jsRound(reach * t.fanRate);
+  if (viral) reach = jsRound(reach * (3 + 2 * r2));
+  final likes = jsRound(reach * (0.07 + 0.1 * r2)), cm = jsRound(reach * (0.005 + 0.012 * r3)) + 1, nf = jsRound(reach * (0.03 + 0.025 * r4)), fg = jsRound(reach * t.fanRate * (0.8 + 0.4 * r3));
   _m(so['f'])[t.net] = f0 + nf;
   n['fans'] = _n(n['fans']) + fg;
   n['pop'] = clamp21(_n(n['pop']) + t.pop + (viral ? 2 : 0), 0, 100);
@@ -2765,6 +2767,8 @@ Res _preset(J s, dynamic id) {
 /// [now] : date de l'enregistrement en millisecondes (le domaine ne lit pas l'horloge).
 Res act21(J s, String name, [dynamic arg, int now = 0]) {
   final st = norm21(s);
+  // Hasard des publications : l'instant de l'action (0 dans les tests, donc reproductible).
+  st['nonce'] = now % 1000003;
   final f = name == 'preset' ? _preset : actions21[name];
   if (f == null || name.startsWith('_')) return _no(st, 'inconnu');
   if (_t(st['jail']) && !jailOk21.contains(name)) return _no(st, 'prison');

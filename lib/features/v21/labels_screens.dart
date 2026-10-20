@@ -13,6 +13,8 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
+import '../../core/widgets/character_view.dart';
+import 'cast21.dart';
 
 /// Les 10 labels (21-L2) : logo, siège, influence, contrat type, directeur, conditions et avantage ; l'état de l'offre se lit d'un coup d'œil.
 /// Données de présentation (ville, profil, influence) : planche 18.1 ; conditions, avantages et contrats : dialogues21.dart.
@@ -160,5 +162,7 @@ class LabelsAllScreen extends ConsumerWidget {
     ]);
   }
 
-  Widget _director(String who) => SvgPicture.asset('assets/svg/portrait-$who-bust.svg', fit: BoxFit.cover, alignment: Alignment.topCenter);
+  Widget _director(String who) => castIllustrated21.contains(who)
+      ? CharacterView(who: who, mood: 'poised', crop: 'head')
+      : SvgPicture.asset('assets/svg/portrait-$who-bust.svg', fit: BoxFit.cover, alignment: Alignment.topCenter);
 }

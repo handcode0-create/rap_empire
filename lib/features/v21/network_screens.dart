@@ -18,6 +18,7 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'cast21.dart';
 import 'social_screens.dart';
 import 'widgets21.dart';
 
@@ -453,7 +454,11 @@ class _RailItem extends ConsumerWidget {
             _Thumb(_thumbOf(i), dur: k['du'] as String),
             const SizedBox(height: 6),
             Text(k['t'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 13, line: 17, weight: FontWeight.w600)),
-            Text('${k['a']} · ${fmtK21(k['v'] as num)} vues', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+            Row(children: [
+              CastAvatar(k['a'] as String, size: 22, ring: _klpGold),
+              const SizedBox(width: 6),
+              Expanded(child: Text('${k['a']} · ${fmtK21(k['v'] as num)} vues', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2))),
+            ]),
           ]),
         ),
       ),
@@ -561,7 +566,17 @@ class KlipoPlayerScreen extends ConsumerWidget {
       ),
       const SizedBox(height: 4),
       Text(k['t'] as String, style: V20Text.baloo(size: 24, line: 26)),
-      Text('${k['a']} · ${fmtK21(v)} vues · il y a ${k['age']} j', style: V20Text.bs()),
+      const SizedBox(height: 6),
+      Row(children: [
+        CastAvatar(k['a'] as String, size: 44, ring: _klpGold),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(k['a'] as String, style: V20Text.nm()),
+            Text('${castRole21(k['a'] as String).isEmpty ? 'Artiste de Bakoma' : castRole21(k['a'] as String)} · ${fmtK21(v)} vues · il y a ${k['age']} j', style: V20Text.bs()),
+          ]),
+        ),
+      ]),
       const SizedBox(height: 12),
       _Kpis([('Vues', fmtK21(v), null), ("J'aime", fmtK21(jsRound(v * 0.048)), null), ('Comm.', fmtK21(jsRound(v * 0.0042)), null)]),
       const _Sec('À suivre'),

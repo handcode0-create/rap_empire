@@ -11,7 +11,6 @@ import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
-import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/stat_kpi.dart';
@@ -19,6 +18,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'reserve_screens.dart';
+import 'cast21.dart';
 import 'widgets21.dart';
 
 /// Studio v21 : création v21 complétée par les instrus, prises et mix du studio v20.
@@ -96,13 +96,11 @@ class _FeatCard extends ConsumerWidget {
         f['needPop'] != null && _n(s['pop']) < (f['needPop'] as num);
     final locked = rival || popLock;
     final cost = _n(f['cost']);
-    final initials =
-        (f['n'] as String).split(' ').map((w) => w[0]).take(2).join();
     return GameCard(
       selected: added,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Portrait(initials, size: 56),
+          CastAvatar(f['n'] as String, size: 56),
           const SizedBox(width: 12),
           Expanded(
             child:
