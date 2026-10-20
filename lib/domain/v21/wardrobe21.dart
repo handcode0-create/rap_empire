@@ -1,7 +1,7 @@
 import 'reg21.dart' show J;
 
-/// Garde-robe à tenues préfabriquées (planches 21-W0 à 21-W3, engine21.js « WARDROBE »). [PROPOSÉ, à valider].
-/// Une tenue = deux illustrations complètes du même rappeur (jeune / mature). Aucune composition de vêtements en jeu :
+/// Garde-robe à tenues préfabriquées (planches 21-W0 à 21-W3, engine21.js « WARDROBE »). [VALIDÉ — architecture].
+/// Une tenue = deux illustrations complètes du même rappeur (jeune / mature). Les illustrations actuellement référencées sont provisoires, non finales. Aucune composition de vêtements en jeu :
 /// le jeu sélectionne une image existante. Le catalogue est identique à assets/characters/rapper_001/manifest.json
 /// (vérifié par test/v21_wardrobe_test.dart).
 class Wardrobe21 {
