@@ -376,6 +376,12 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
       Conseq21(ConsequenceKind.estimated,
           'Ventes selon tes fans et la qualité moyenne des titres ; entrée au Top ${Reg21.proj['EP']!['top']} EPs à ${fmt21(Reg21.proj['EP']!['entry'] as num)} ventes, au Top ${Reg21.proj['Album']!['top']} Albums à ${fmt21(Reg21.proj['Album']!['entry'] as num)}.'),
       const SizedBox(height: 12),
+      Text(
+        need,
+        key: const ValueKey('project-selection-status'),
+        style: V20Text.bs(color: ok ? Tk.ok : Tk.ink),
+      ),
+      const SizedBox(height: 8),
       PrimaryGlowButton(
         label: 'Sortir le projet',
         sublabel: ok ? 'Maintenant · total ${fmt21(totalCost)} cauris' : need,
