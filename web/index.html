@@ -1,46 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="RAP EMPIRE — jeu mobile de carrière musicale dans l’univers fictif de Bakoma.">
-
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="rap_empire">
+  <meta name="apple-mobile-web-app-title" content="RAP EMPIRE">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>RAP EMPIRE</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#14102B">
+  <title>RAP EMPIRE</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; background: #14102B; color: #fff; font-family: Arial, sans-serif; }
+    #boot-status { min-height: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+    #boot-card { max-width: 420px; }
+    #boot-title { font-size: 32px; font-weight: 800; letter-spacing: 1px; }
+    #boot-message { color: #c9c4d8; line-height: 1.5; margin-top: 16px; }
+    #boot-error { display: none; margin-top: 16px; padding: 12px; border: 1px solid #8f4b77; border-radius: 10px; color: #ffd5ec; text-align: left; overflow-wrap: anywhere; font-size: 13px; }
+    #boot-status.is-error #boot-error { display: block; }
+    #boot-status.is-error #boot-message { color: #ffd5ec; }
+    .boot-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ec4899; margin: 20px 4px 0; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { to { opacity: .25; } }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <div id="boot-status" role="status" aria-live="polite">
+    <div id="boot-card">
+      <div id="boot-title">RAP EMPIRE</div>
+      <div id="boot-message">Initialisation du jeu…</div>
+      <div id="boot-dots"><span class="boot-dot"></span><span class="boot-dot"></span><span class="boot-dot"></span></div>
+      <div id="boot-error"></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var panel = document.getElementById('boot-status');
+      var message = document.getElementById('boot-message');
+      var detail = document.getElementById('boot-error');
+      var finished = false;
+      function showError(title, error) {
+        if (finished) return;
+        panel.classList.add('is-error');
+        message.textContent = title;
+        detail.textContent = error ? String(error).slice(0, 700) : 'Aucun détail JavaScript disponible.';
+        document.getElementById('boot-dots').style.display = 'none';
+      }
+      window.addEventListener('flutter-first-frame', function () {
+        finished = true;
+        panel.style.display = 'none';
+      });
+      window.addEventListener('error', function (event) {
+        var source = event.filename ? ' (' + event.filename.split('/').pop() + (event.lineno ? ':' + event.lineno : '') + ')' : '';
+        showError('Erreur pendant le démarrage du jeu.', (event.message || 'Erreur JavaScript') + source);
+      });
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason && (event.reason.stack || event.reason.message) || event.reason;
+        showError('Le jeu a rencontré une erreur non traitée.', reason || 'Promesse rejetée sans détail.');
+      });
+      window.setTimeout(function () {
+        if (!finished && !panel.classList.contains('is-error')) {
+          showError('Le jeu ne répond pas après 15 secondes.', 'Le navigateur a chargé la page, mais Flutter n’a pas affiché sa première image. Recharge la page et transmets cette capture.');
+        }
+      }, 15000);
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
