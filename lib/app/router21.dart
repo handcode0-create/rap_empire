@@ -6,6 +6,7 @@ import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
+import '../features/v21/network_screens.dart';
 import '../features/v21/platform_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
@@ -238,6 +239,25 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                           GoRoute(path: 'ondea', name: '21-D2-Ondea', builder: (_, __) => const OndeaScreen()),
                           GoRoute(path: 'klipo', name: '21-D3-Klipo', builder: (_, __) => const KlipoScreen()),
                           GoRoute(path: 'cauri', name: '21-D4-Cauri-Music', builder: (_, __) => const CauriMusicScreen()),
+                        ]),
+                    GoRoute(
+                        path: 'reseau',
+                        name: '21-N0-Reseau',
+                        builder: (_, __) => const ReseauScreen(),
+                        routes: [
+                          GoRoute(path: 'ondea', name: '21-N1-Ondea', builder: (_, __) => const OndeaArtistScreen()),
+                          GoRoute(
+                              path: 'klipo',
+                              name: '21-N2-Klipo',
+                              builder: (_, __) => const KlipoHomeScreen(),
+                              routes: [GoRoute(path: 'video', name: '21-N3-Klipo-lecteur', builder: (_, __) => const KlipoPlayerScreen())]),
+                          GoRoute(
+                              path: 'clips',
+                              name: '21-N4-Mes-clips',
+                              builder: (_, __) => const MyClipsScreen(),
+                              routes: [GoRoute(path: 'clip', name: '21-N5-Clip', builder: (_, __) => const ClipDetailScreen())]),
+                          GoRoute(path: 'cauri', name: '21-N6-Cauri-Music', builder: (_, __) => const CauriPremiumScreen()),
+                          GoRoute(path: 'marketing', name: '21-N7-Marketing', builder: (_, __) => const MarketingScreen()),
                         ]),
                     GoRoute(
                         path: 'annee',

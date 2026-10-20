@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
 import 'dialogues21.dart';
+import 'network21.dart';
 import 'reg21.dart';
 import 'wardrobe21.dart';
 
 export 'dialogues21.dart';
+export 'network21.dart';
 export 'wardrobe21.dart';
 
 /// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
@@ -92,6 +94,9 @@ J init21() {
   final s = <String, dynamic>{
     'v': 21,
     'wd': initWardrobe21(),
+    'mk': initMk21(),
+    'kv': 0,
+    'mcl': 0,
     'stock': <dynamic>[],
     'pendingProjects': <dynamic>[],
     'songSeq': 0,
@@ -622,7 +627,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'
+  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -648,6 +653,12 @@ void _doRelease(J n, J c, int promo) {
     L = jsRound(L * 1.1);
     c['diss'] = 1;
     n['diss'] = 0;
+  }
+  // [VALIDÉ 20/10, valeurs provisoires] campagnes marketing actives : bonus d'écoutes de la sortie.
+  final mb = mkBoost21(n);
+  if (mb > 0) {
+    L = jsRound(L * (1 + mb));
+    c['mkB'] = jsRound(mb * 100);
   }
   final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
   final signed = _t(n['signed']);
@@ -787,7 +798,56 @@ void _releaseProject(J n, J draft) {
 int _projectPromoCost(J s, int promo) =>
     (s['lperk'] == 'radio' && promo == 2) ? 0 : (promos21[promo]['c'] as num).toInt();
 
+Res _mkBuy(J s, String id, bool ok) {
+  final e = mkCheck21(s, id);
+  if (e != null) return _no(s, e);
+  final m = media21[id]!;
+  if (m.c >= mediaConfirmAt21 && !ok) return _no(s, 'confirm');
+  final n = clone21(s);
+  final mk = _m(n['mk']);
+  _pay(n, -m.c);
+  _l(mk['on']).add({'id': id, 'from': n['day'], 'until': _n(n['day']) + m.d});
+  mk['ask'] = null;
+  mk['tot'] = _n(mk['tot']) + m.c;
+  mk['n'] = _n(mk['n']) + 1;
+  _log(n, 'Campagne ${mediaLevelName21[m.lvl]} : ${m.n} (${m.d} j, −${fmt21(m.c)} cauris)', 'eco');
+  return _ok(n);
+}
+
 final Map<String, Action> actions21 = {
+  // ---- Espace Réseau (21-N0 à 21-N8) [VALIDÉ 20/10, valeurs provisoires] ----
+  'kv': (s, a) {
+    final i = a is num ? a.toInt() : int.tryParse('$a') ?? -1;
+    if (i < 0 || i >= klipo21.length) return _no(s, 'inconnu');
+    final n = clone21(s);
+    n['kv'] = i;
+    return _ok(n);
+  },
+  'mcl': (s, a) {
+    final i = a is num ? a.toInt() : int.tryParse('$a') ?? -1;
+    if (i < 0 || i >= myClips21(s).length) return _no(s, 'inconnu');
+    final n = clone21(s);
+    n['mcl'] = i;
+    return _ok(n);
+  },
+  'mkask': (s, id) {
+    final e = mkCheck21(s, '$id');
+    if (e != null) return _no(s, e);
+    final n = clone21(s);
+    _m(n['mk'])['ask'] = '$id';
+    return _ok(n);
+  },
+  'mkcancel': (s, a) {
+    final n = clone21(s);
+    _m(n['mk'])['ask'] = null;
+    return _ok(n);
+  },
+  'mkbuy': (s, id) => _mkBuy(s, '$id', false),
+  'mkconfirm': (s, a) {
+    final ask = _m(s['mk'])['ask'];
+    if (ask == null) return _no(s, 'rien');
+    return _mkBuy(s, '$ask', true);
+  },
   'reset': (s, a) => _ok(init21()),
 
   'create': (s, arg) {
@@ -1706,10 +1766,12 @@ final Map<String, Action> actions21 = {
     final ca = jsRound(tk * Reg21.ticketPrice * (top ? 1 : 0.85)),
         fg = jsRound(tk * (top ? 1.6 : 1.1)),
         rp = top ? 10 : 6;
+    // [VALIDÉ 20/10] média partenaire : bonus de cachet, nom affiché sur l'écran géant.
+    final sp = mkSponsor21(s), sb = sp == null ? 0 : jsRound(ca * media21[sp]!.spon);
     n['shows'] = _n(n['shows']) + 1;
     n['fans'] = _n(n['fans']) + fg;
     n['rep'] = _n(n['rep']) + rp;
-    final managerCut = _cachet(n, ca, 'concert');
+    final managerCut = _cachet(n, ca + sb, 'concert');
     _geoAdd(n, 'bakoma', 4);
     n['pop'] = clamp21(_n(n['pop']) + 1, 0, 100);
     _addXp(n, 90);
@@ -1718,12 +1780,15 @@ final Map<String, Action> actions21 = {
     n['cc'] = {
       'g': top ? 'A' : 'B',
       'tk': tk,
-      'gross': ca,
-      'cash': ca - managerCut,
+      'gross': ca + sb,
+      'cash': ca + sb - managerCut,
       'managerCut': managerCut,
       'fans': fg,
       'rep': rp,
-      'day': n['day']
+      'day': n['day'],
+      'media': sp,
+      'spon': sb,
+      'fill': jsRound(100 * tk / Reg21.capacity)
     };
     _log(
         n,
@@ -2331,6 +2396,18 @@ Res _endDay(J s) {
     }
   }
   _pay(n, inc);
+  // [VALIDÉ 20/10, valeurs provisoires] campagnes marketing : effets quotidiens, puis fin de campagne.
+  final mk = _m(n['mk']);
+  for (final c in mkActive21(n)) {
+    final m = media21[c['id']]!;
+    m.geo.forEach((g, v) => _geoAdd(n, g, v));
+    n['fans'] = _n(n['fans']) + m.fans;
+    n['pop'] = clamp21(((_n(n['pop']) + m.pop) * 10).round() / 10, 0, 100);
+  }
+  for (final c in _l(mk['on']).map(_m)) {
+    if (_n(c['until']) == _n(n['day']) + 1) ev.add('Campagne terminée : ${media21[c['id']]?.n ?? c['id']}');
+  }
+  mk['on'] = _l(mk['on']).where((c) => _n(_m(c)['until']) > _n(n['day']) + 1).toList();
   num cost = 0;
   if (_m(n['own'])['appart'] != null) {
     cost += Reg21.assets['appart']!['upkeep'] as num;

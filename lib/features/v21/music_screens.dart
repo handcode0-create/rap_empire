@@ -620,7 +620,10 @@ class ClipPubScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         PrimaryGlowButton(
-            label: 'Retour au studio', onPressed: () => context.go('/studio')),
+            label: 'Voir mes clips', onPressed: () => context.go('/profil/reseau/clips')),
+        const SizedBox(height: 8),
+        PrimaryButton(
+            label: 'Retour au studio', style: GameButtonStyle.ghost, onPressed: () => context.go('/studio')),
       ],
     ]);
   }

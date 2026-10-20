@@ -72,7 +72,7 @@ class ProfilScreen21 extends ConsumerWidget {
       const SizedBox(height: 8),
       ActionRow(title: 'Scènes et dialogues', subtitle: 'Conditions, choix faits, mémoire des personnages', trailing: ActionRow.arrow(), onTap: () => context.go('/scenes')),
       const SizedBox(height: 8),
-      ActionRow(title: 'Plateformes', subtitle: 'Ondéa, Klipo, Cauri Music', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/plateformes')),
+      ActionRow(title: 'Réseau', subtitle: 'Ondéa, Klipo, Cauri Music · mes clips · marketing', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/reseau')),
       const SizedBox(height: 8),
       ActionRow(title: 'Garde-robe', subtitle: '${(_m(s['wd'])['owned'] as List).length} / ${Wardrobe21.outfits.length} tenues · illustrations de test', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/garde-robe')),
       const SizedBox(height: 8),

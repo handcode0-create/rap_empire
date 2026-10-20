@@ -22,6 +22,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'labels_screens.dart';
+import 'network_screens.dart';
 import 'shell21.dart';
 import 'widgets21.dart';
 
@@ -102,6 +103,11 @@ class SceneScreen21 extends ConsumerWidget {
             onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat'))),
       row('Rivalités', 'Défie d’autres artistes en battle · 1 h · −15 énergie',
           onTap: () => context.go('/scene/rivalites')),
+      // [VALIDÉ 20/10] public visible : aperçu selon les billets estimés, média partenaire sur l'écran géant.
+      if (rank >= 3) ...[
+        CrowdStage(fill: (tk / Reg21.capacity).clamp(0, 1), media: mkSponsor21(s) == null ? null : media21[mkSponsor21(s)]!.n, fillLabel: 'Remplissage estimé'),
+        const SizedBox(height: 8),
+      ],
       if (rank < 3)
         row('Concert au Parvis', 'Débloqué au rang N3',
             off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
@@ -221,6 +227,14 @@ class ConcertResultScreen extends ConsumerWidget {
                 style: V20Text.dm(size: 30)),
           ]),
         ),
+        const SizedBox(height: 12),
+        CrowdStage(
+            fill: cc['tour'] == 1 ? 0.9 : (_n(cc['fill'] ?? jsRound(100 * _n(cc['tk']) / Reg21.capacity)) / 100).clamp(0, 1),
+            media: cc['media'] == null ? null : media21[cc['media']]?.n),
+        if (_n(cc['spon']) > 0) ...[
+          const SizedBox(height: 8),
+          Conseq21(ConsequenceKind.certain, 'Partenaire ${media21[cc['media']]?.n ?? ''} : bonus de cachet +${fmt21(_n(cc['spon']))} (inclus dans le gain)'),
+        ],
         const SizedBox(height: 12),
         if (cc['tour'] != 1)
           GlassCard(

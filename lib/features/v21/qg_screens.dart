@@ -176,6 +176,12 @@ class QgScreen extends ConsumerWidget {
         const SizedBox(width: 12),
         Expanded(child: GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee'))),
       ]),
+      const SizedBox(height: 12),
+      Row(children: [
+        Expanded(child: GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes et clips', onTap: () => context.go('/profil/reseau'))),
+        const SizedBox(width: 12),
+        Expanded(child: GlassTile(icon: 'flame', title: 'Marketing', subtitle: 'Local · National · Global', onTap: () => context.go('/profil/reseau/marketing'))),
+      ]),
       const SizedBox(height: 16),
       PrimaryGlowButton(
         label: 'Terminer la journée',
