@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
+import 'package:rap_empire/domain/v21/reg21.dart' show J;
 
 /// Espace Réseau v21 (21-N0 à 21-N8) : mêmes règles que le bloc « Réseau, marketing, médias en concert, public » de
 /// docs/design-ref/v21/sources/test21.js. Valeurs provisoires (D-08).

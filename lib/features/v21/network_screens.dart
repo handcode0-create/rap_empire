@@ -380,9 +380,9 @@ class OndeaArtistScreen extends ConsumerWidget {
               const Icon(Icons.music_note_rounded, color: V20.ink2, size: 20),
             ]),
           ),
-      Row(children: [
-        const Expanded(child: _Sec('Playlists éditoriales')),
-        const Padding(padding: EdgeInsets.only(top: 12), child: GameTag('Démo', style: GameTagStyle.outline)),
+      const Row(children: [
+        Expanded(child: _Sec('Playlists éditoriales')),
+        Padding(padding: EdgeInsets.only(top: 12), child: GameTag('Démo', style: GameTagStyle.outline)),
       ]),
       GridView.count(
         crossAxisCount: 2,
