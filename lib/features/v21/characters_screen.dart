@@ -16,7 +16,9 @@ import '../../core/widgets/game_tag.dart';
 const _generatedCastIds = <String>{
   'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme',
   'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
-  'amara', 'yao', 'noe', 'teo',
+  'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre',
+  'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo', 'solo',
+  'mika', 'tamsir', 'desire', 'naya',
 };
 
 const _newCast = <(String, String, String)>[
@@ -124,7 +126,7 @@ class PersonnagesScreen extends StatelessWidget {
         const SizedBox(height: 12),
         const GameHint(
           icon: 'info',
-          text: 'Les personnages présents dans le registre sont rendus par le générateur 2D RAP EMPIRE. Les portraits proposés hors registre restent dédiés et ne sont pas remplacés par des avatars génériques.',
+          text: 'Les portraits de cette galerie sont générés par le moteur 2D RAP EMPIRE : identité, coiffure, teint, accessoires et tenue sont définis dans tools/design/cast.py.',
         ),
         _section('Nouveaux personnages', 'Proposé · à valider', _newCast, isNew: true),
         _section('Directeurs de label', 'Proposé · à valider', _directors, isNew: true),
