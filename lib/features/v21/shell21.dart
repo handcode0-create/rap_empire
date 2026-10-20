@@ -66,12 +66,14 @@ class Shell21 extends ConsumerWidget {
 /// Cadre des écrans plein écran avec HUD mais sans navigation (journée, bilan, événements, vie perso) : le contenu défile.
 class Frame21 extends ConsumerWidget {
   final List<Widget> children;
-  const Frame21({super.key, required this.children});
+  /// Écran accessible en prison (bilan de fin de journée) : pas de renvoi vers la cellule.
+  final bool allowInJail;
+  const Frame21({super.key, required this.children, this.allowInJail = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
-    if (s != null && s['jail'] != null) {
+    if (s != null && s['jail'] != null && !allowInJail) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go('/business/justice/prison');
       });

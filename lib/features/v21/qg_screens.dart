@@ -276,7 +276,8 @@ class BilanScreen extends ConsumerWidget {
     final rel = b['rel'] as num?, rel0 = b['rel0'] as num?;
     final evs = [..._l(b['ev']), ..._l(b['acts'])].cast<String>();
     final kids = _n(b['kids']).toInt();
-    return Frame21(children: [
+    // Le bilan reste visible en prison : « Commencer la journée » ramène ensuite à la cellule.
+    return Frame21(allowInJail: true, children: [
       BackHeader(title: 'Bilan de la journée', onBack: () => context.go('/')),
       const SizedBox(height: 12),
       Container(
