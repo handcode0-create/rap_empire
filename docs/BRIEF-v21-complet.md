@@ -2,11 +2,17 @@
 
 Lis ce fichier en entier avant d'agir. Applique les règles de CLAUDE.md : skills chargés, ligne « Skills appliqués » en tête de chaque réponse, rien de cassé dans ce qui fonctionne déjà. Ce brief remplace BRIEF-v21-suite.md (tout ce qu'il contenait est repris ici).
 
+## Règle prioritaire de consolidation différentielle
+
+Le dépôt a déjà évolué depuis la rédaction initiale de ce brief. **Ne traite pas les listes « à créer » ci-dessous comme une preuve d'absence.** Avant toute modification, inspecte le routeur, les écrans, le moteur Dart, `docs/design-ref/v21/sources/engine21.js`, les tests et l'historique Git. Pour chaque exigence, classe-la `[EXISTANT]`, `[INCOMPLET]`, `[ABSENT]` ou `[À VALIDER]`. Ne développe que `[INCOMPLET]` ou `[ABSENT]`; ajoute un test de non-régression. Ne répète pas les fonctionnalités déjà implémentées.
+
+Les décisions de conception validées par le propriétaire restent validées même si un commentaire de code ancien indique encore « proposé ». Distingue toujours la décision de conception de la validation technique des ressources ou paramètres. En particulier, l'architecture de garde-robe à tenues complètes avec variantes jeune/mature est validée ; les illustrations de test ne sont pas finales et les seuils numériques non validés restent provisoires.
+
 ## 0 · Préparation
 
 1. S'il n'y a pas encore de dépôt git : `git init`, `.gitignore` Flutter standard (build/, .dart_tool/, .env, toute clé), puis un commit « avant mise à jour v21 complète ». Sinon, un commit de l'état actuel. Ne pousse rien en ligne.
 2. Décompresse `RAP-EMPIRE-v21.zip` dans `docs/design-ref/v21/` (remplace la version précédente s'il y en a une). Tu obtiens :
-   - `21-*.dc.html` : les 72 planches (69 écrans de 390 px, 3 documents) ; ouvre `index.html` pour les parcourir ;
+   - `21-*.dc.html` : les planches HTML v21 présentes dans l'archive (inventaire observé dans le dépôt au 20-10-2026 : 76 fichiers HTML distincts ; l'index contient 78 liens, doublons inclus ; recalculer ce nombre après toute mise à jour) ; ouvre `index.html` pour les parcourir ;
    - `sources/engine21.js` : **la référence de toutes les règles** (moteur pur : `act(état, action, argument)` et `view(état)`) ;
    - `sources/test21.js` : les tests du moteur (`node test21.js` depuis `sources/`) ;
    - `sources/binder21.js` : la liaison des écrans du prototype (mini-jeu de cabine, battle) ;
