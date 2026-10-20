@@ -205,6 +205,20 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
       ],
       const SizedBox(height: 12),
       GameCard(
+        onTap: () => context.go('/studio/reserve'),
+        child: Row(children: [
+          const GameIcon('clock', color: Tk.cy),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Sorties à venir', style: V20Text.nm()),
+            Text(_l(s['stock']).isEmpty ? 'Programme la sortie d\'un titre ou garde-le pour un EP / album' : '${_l(s['stock']).length} titre(s) en attente de sortie', style: V20Text.bs()),
+          ])),
+          const GameIcon('arrow', color: Tk.ink),
+        ]),
+      ),
+      const SizedBox(height: 8),
+      GameCard(
         onTap: () => context.go('/studio/catalogue'),
         child: Row(children: [
           const GameIcon('music', color: Tk.cy),

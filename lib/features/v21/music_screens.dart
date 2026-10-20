@@ -18,6 +18,7 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'reserve_screens.dart';
 import 'widgets21.dart';
 
 /// Studio v21 : création v21 complétée par les instrus, prises et mix du studio v20.
@@ -245,6 +246,10 @@ class SortieScreen extends ConsumerWidget {
                 () => context.go('/studio/resultats'))
             : null,
       ),
+      if (ready) ...[
+        const SizedBox(height: 16),
+        const ScheduleBlock21(),
+      ],
     ]);
   }
 }

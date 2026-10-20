@@ -178,6 +178,30 @@ class OndeaScreen extends ConsumerWidget {
 // 21-D3 Klipo
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// Vignette d'un clip Klipo : pochette du titre en 16:9 avec un bouton lecture (SVG extraits des planches : assets/svg/pochette-*).
+class _ClipThumb extends StatelessWidget {
+  final int index;
+  const _ClipThumb({required this.index});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: 'Vignette du clip',
+        excludeSemantics: true,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(
+            width: 112,
+            height: 63,
+            child: Stack(fit: StackFit.expand, children: [
+              SvgPicture.asset('assets/svg/pochette-${index % 8}.svg', fit: BoxFit.cover),
+              const ColoredBox(color: Color.fromRGBO(12, 8, 32, .35)),
+              const Center(child: Icon(Icons.play_circle_fill_rounded, color: Tk.ink, size: 30)),
+            ]),
+          ),
+        ),
+      );
+}
+
 class KlipoScreen extends ConsumerWidget {
   const KlipoScreen({super.key});
 
@@ -210,9 +234,15 @@ class KlipoScreen extends ConsumerWidget {
       ],
       for (final c in clips) ...[
         GameCard(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${c['title']}', style: V20Text.nm()),
-          Text('${fmt21(jsRound(_n(c['clipL']) * vpl))} vues', style: V20Text.bs()),
+            child: Row(children: [
+          _ClipThumb(index: _disco(s).indexOf(c)),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${c['title']}', style: V20Text.nm()),
+            Text('${fmt21(jsRound(_n(c['clipL']) * vpl))} vues', style: V20Text.bs()),
+            Text('Réalisé par ${Reg21.directors[(c['clip'] as Map)['dir']]?['n'] ?? 'un réalisateur'}', style: V20Text.bs()),
+          ])),
         ])),
         const SizedBox(height: 8),
       ],

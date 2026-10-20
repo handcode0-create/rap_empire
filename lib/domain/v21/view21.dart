@@ -186,3 +186,19 @@ int platformListens(J t) => (_n(t['L']) + _n(t['clipL'])).toInt();
     revCauri: jsRound(tot * (Reg21.platforms['cauri']!['share'] as num) * Reg21.listenValue),
   );
 }
+
+/// Date de jeu lisible : « J12 · An 1 ». C'est la date qui sert aux sorties programmées.
+String dateLabel21(num day) => 'J${((day - 1) % Reg21.daysPerYear).toInt() + 1} · An ${((day - 1) / Reg21.daysPerYear).floor() + 1}';
+
+/// « demain », « dans 3 jours », « aujourd'hui » par rapport au jour courant.
+String dueIn21(num relDay, num today) {
+  final d = (relDay - today).toInt();
+  return d <= 0 ? "aujourd'hui" : d == 1 ? 'demain' : 'dans $d jours';
+}
+
+/// Titres enregistrés non sortis : sorties programmées d'abord (par date), puis la réserve sans date.
+List<J> stockSongs21(J s) {
+  final all = (s['stock'] as List? ?? const []).map((x) => x as J).toList();
+  final dated = all.where((x) => x['relDay'] != null).toList()..sort((a, b) => _n(a['relDay']).compareTo(_n(b['relDay'])));
+  return [...dated, ...all.where((x) => x['relDay'] == null)];
+}

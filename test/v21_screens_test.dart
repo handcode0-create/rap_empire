@@ -6,6 +6,7 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/core/widgets/back_header.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
+import 'package:rap_empire/domain/v21/view21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
@@ -420,11 +421,53 @@ void main() {
     expect(((repo.current['wd'] as J)['owned'] as List), contains('OUTFIT_003'));
   });
 
+  testWidgets('sortie programmée : date choisie, réserve, titre sorti le jour venu', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    final title = (s['cur'] as J)['title'] as String;
+    final repo = await pump21(tester, s, location: '/studio/sortie');
+    await tapText(tester, '+3 jours');
+    await tapText(tester, 'Programmer pour ${dateLabel21((s['day'] as num) + 3)}');
+    expect(txt('Sorties à venir'), findsOneWidget);
+    expect(txt(title), findsOneWidget);
+    expect(txt('Programmé'), findsOneWidget);
+    expect((repo.current['stock'] as List).length, 1);
+    expect(repo.current['cur'], isNull);
+    await tapText(tester, 'Annuler la date');
+    expect(txt('En réserve'), findsOneWidget);
+    expect(((repo.current['stock'] as List).first as J)['relDay'], isNull);
+  });
+
+  testWidgets('EP : un titre non sorti de la réserve est proposé comme inédit', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    s = act21(s, 'shelve').s;
+    await pump21(tester, s, location: '/studio/catalogue/projet');
+    expect(txt('Inédit'), findsOneWidget);
+  });
+
+  testWidgets('réserve : titres programmés et sans date, sans débordement à 360 px', (tester) async {
+    var s = preset('carriere');
+    for (var i = 0; i < 2; i++) {
+      s['en'] = 100;
+      s['hour'] = 8;
+      s = act21(s, 'create', ['ambition', 'fiere']).s;
+      s = act21(s, 'record').s;
+      s = i == 0 ? act21(s, 'schedule', 7).s : act21(s, 'shelve').s;
+    }
+    await pump21(tester, s, location: '/studio/reserve', width: 360, height: 800);
+    expect(txt('Programmé'), findsOneWidget);
+    expect(txt('En réserve'), findsWidgets);
+    expect(txt('Sortir maintenant'), findsNWidgets(2));
+  });
+
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/garde-robe', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',

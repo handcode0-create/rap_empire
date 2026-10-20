@@ -230,7 +230,8 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
     final picked = _l(ui['ptk']).cast<String>();
     final disco = _l(s['disco']).map(_m).toList();
     final min = P['min'] as int, max = P['max'] as int;
-    final enough = disco.length >= min;
+    final stock = _l(s['stock']).map(_m).toList();
+    final enough = disco.length + stock.length >= min;
     final ok = picked.length >= min && picked.length <= max;
     final need = picked.length < min ? 'Encore ${min - picked.length} titre(s) à choisir' : (picked.length > max ? 'Trop de titres : $max au maximum' : 'Prêt à sortir');
     if (_title.text.isEmpty && (ui['ptitle'] ?? '') != '' && !FocusScope.of(context).hasFocus) _title.text = ui['ptitle'] as String;
@@ -287,6 +288,30 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
               const GameTag('Ajouter'),
           ]),
         ),
+      ],
+      if (stock.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        Text('PAS ENCORE SORTIS · ${stock.length}', style: V20Text.lab()),
+        const SizedBox(height: 4),
+        Text('Ils sortent avec le projet, pas en single.', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        for (var i = 0; i < stock.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          GameCard(
+            selected: picked.contains(stock[i]['id']),
+            onTap: () => ref.read(game21Provider.notifier).act('ptk', stock[i]['id']),
+            child: Row(children: [
+              Pochette21(disco.length + i, size: 40),
+              const SizedBox(width: 12),
+              Expanded(child: Text('${stock[i]['title']} · qualité ${stock[i]['Q']}', style: V20Text.nm())),
+              const SizedBox(width: 8),
+              if (picked.contains(stock[i]['id']))
+                const Row(mainAxisSize: MainAxisSize.min, children: [GameIcon('check', size: 14, color: Tk.ok), SizedBox(width: 4), GameTag('Choisi', style: GameTagStyle.ok)])
+              else
+                const GameTag('Inédit', style: GameTagStyle.accent),
+            ]),
+          ),
+        ],
       ],
       const SizedBox(height: 12),
       Conseq21(ConsequenceKind.certain, 'Mastering et pochette : ${fmt21(P['cost'] as num)} cauris · ${hs ? 'EP' : 'album'} ${P['h']} h −${P['e']} énergie'),

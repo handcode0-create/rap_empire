@@ -512,6 +512,9 @@ class Reg21 {
   static const mgrCut = 0.08;
 
   // EP et album (13.3, 13.4, 05-5) : `top` = taille du classement, `k` = pente, `entry` = ventes d'entrée
+  /// Réserve de titres enregistrés non sortis, et fenêtre de programmation d'une sortie (jours de jeu). Valeurs provisoires.
+  static const stockMax = 20, relMaxDays = 28;
+
   static const proj = <String, J>{
     'EP': {'min': 3, 'max': 7, 'cost': 15000, 'h': 4, 'e': 20, 'entry': 20000, 'top': 50, 'k': 1.285},
     'Album': {'min': 8, 'max': 20, 'cost': 40000, 'h': 6, 'e': 30, 'entry': 15000, 'top': 200, 'k': 1.095},

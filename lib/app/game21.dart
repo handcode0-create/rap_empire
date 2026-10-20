@@ -45,6 +45,7 @@ const err21 = {
   'garde': 'En garde à vue : paie la caution ou accepte la détention',
   'affaire': 'Une affaire est en cours : attends le procès',
   'proces': "Le procès n'a pas encore eu lieu",
+  'reserve': 'Réserve pleine : 20 titres au maximum',
   'pistes': 'Nombre de titres incorrect pour ce projet',
   'confirm': "Confirme l'achat (15 000 cauris ou plus)",
   'indispo': 'Tenue indisponible : une illustration manque',

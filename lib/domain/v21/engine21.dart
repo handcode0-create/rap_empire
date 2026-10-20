@@ -92,6 +92,8 @@ J init21() {
   final s = <String, dynamic>{
     'v': 21,
     'wd': initWardrobe21(),
+    'stock': <dynamic>[],
+    'songSeq': 0,
     'created': 0,
     'btq': null,
     'bt': null,
@@ -617,6 +619,111 @@ const jailOk21 = {
   'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'
 };
 
+/// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
+int _nextSongSeq(J n) {
+  final seq = math.max(_n(n['songSeq']), _l(n['disco']).length).toInt() + 1;
+  n['songSeq'] = seq;
+  return seq;
+}
+
+int _promoCost(J s, int promo) => (s['lperk'] == 'radio' && promo == 2) ? 0 : (promos21[promo]['c'] as num).toInt();
+
+/// Sortie d'un titre : écoutes, ventes, revenus, fans, popularité. Partagée par la sortie immédiate, le titre sorti de la réserve
+/// et la sortie programmée qui arrive à échéance. Le coût de la promotion est payé avant par l'appelant.
+void _doRelease(J n, J c, int promo) {
+  c['vir'] = virOf21(c, promo);
+  var L = jsRound(listensFor21(_n(c['Q']), _n(n['fans']), promo) * (0.8 + _n(c['vir']) / 250) * featBoost21(c));
+  if (_t(n['hype']) && _n(n['day']) <= _n(n['hype'])) {
+    L = jsRound(L * 1.2);
+    c['hype'] = 1;
+  }
+  n['hype'] = 0;
+  if (_t(n['diss'])) {
+    L = jsRound(L * 1.1);
+    c['diss'] = 1;
+    n['diss'] = 0;
+  }
+  final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
+  final signed = _t(n['signed']);
+  final gross = jsRound(L * Reg21.listenValue);
+  var rev = signed ? jsRound(gross * (1 - cutRate)) : gross;
+  final fg = (L * 0.07 / (1 + _n(n['fans']) / Reg21.fanSat)).ceil();
+  var pg = (L / 900).floor();
+  if (c['duo'] != null) {
+    final dc = jsRound(rev * _n(c['duo']) / 100);
+    rev -= dc;
+    c['duoCut'] = dc;
+  }
+  final sl = jsRound(L * Reg21.singleSales);
+  final sg0 = sl * Reg21.salePrice;
+  final sr = signed ? jsRound(sg0 * (1 - cutRate)) : sg0;
+  c['salesRev'] = sr;
+  c['cut'] = _n(c['cut']);
+  c['salesCut'] = sg0 - sr;
+  rev += sr;
+  pg = jsRound(math.min(12, pg) * (1 - _n(n['pop']) / 100));
+  _pay(n, rev);
+  n['fans'] = _n(n['fans']) + fg;
+  n['pop'] = clamp21(_n(n['pop']) + pg, 0, 100);
+  _geoAdd(n, 'bakoma', math.min(12, jsRound(L / 1500 * 10) / 10 + 1));
+  if (promo == 2) {
+    _geoAdd(n, 'portambre', 2);
+    _geoAdd(n, 'selene', 2);
+  }
+  c['labelAt'] = signed ? lblName21(n) : 'Indépendant';
+  c['auteur'] = _m(n['p'])['name'];
+  c['sales'] = sl;
+  final perk = n['lperk'];
+  final sk = _m(n['sk']);
+  if (perk == 'export') {
+    _geoAdd(n, 'portambre', 3);
+    _geoAdd(n, 'selene', 3);
+  }
+  if (perk == 'dev') {
+    sk['flow'] = _n(sk['flow']) + 1;
+    sk['voix'] = _n(sk['voix']) + 1;
+  }
+  if (perk == 'ecr') sk['ecr'] = _n(sk['ecr']) + 2;
+  c['st'] = 'sorti';
+  c['day'] = n['day'];
+  c['L'] = L;
+  c['launchL'] = L;
+  c['rev'] = rev;
+  c['streamRev'] = rev - sr;
+  c['cut'] = gross - _n(c['streamRev']) - _n(c['duoCut']) + _n(c['salesCut']);
+  c['fg'] = fg;
+  c['pg'] = pg;
+  c['tier'] = tierOf21(L);
+  c['promo'] = promo;
+  c['label'] = c['labelAt'];
+  c['signed'] = signed ? 1 : 0;
+  c['year'] = 1 + ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
+  c['views'] = _m(c['clip'])['st'] == 'publie' ? jsRound(L * .35) : 0;
+  final split = platformSplit21(L);
+  c['platforms'] = {'ondea': split.ondea, 'cauri': split.cauri};
+  _l(n['disco']).insert(0, c);
+  n['last'] = c['id'];
+  _addXp(n, 40);
+  _log(n, 'Sortie : ${c['title']} · ${fmt21(L)} écoutes · ${c['tier']}', 'musique');
+}
+
+/// Sorties programmées arrivées à échéance (date de sortie <= jour courant) : elles sortent dans l'ordre des dates.
+List<String> _releaseDue(J n) {
+  final stock = _l(n['stock']);
+  final due = stock.map(_m).where((c) => c['relDay'] != null && _n(c['relDay']) <= _n(n['day'])).toList()
+    ..sort((a, b) => _n(a['relDay']).compareTo(_n(b['relDay'])));
+  final out = <String>[];
+  for (final c in due) {
+    stock.removeWhere((x) => identical(x, c));
+    final promo = _n(c['promoSel']).toInt();
+    c.remove('relDay');
+    c.remove('promoSel');
+    _doRelease(n, c, promo);
+    out.add('Sortie programmée : ${c['title']}');
+  }
+  return out;
+}
+
 final Map<String, Action> actions21 = {
   'reset': (s, a) => _ok(init21()),
 
@@ -656,7 +763,7 @@ final Map<String, Action> actions21 = {
     ui['title'] = '';
     ui['rt'] = 0;
     n['cur'] = {
-      'id': 'T${_l(n['disco']).length + 1}',
+      'id': 'T${_nextSongSeq(n)}',
       'title': title,
       'theme': th,
       'amb': am,
@@ -799,81 +906,88 @@ final Map<String, Action> actions21 = {
     final n = clone21(s);
     final c = _m(n['cur']);
     if (pc != 0) _pay(n, -pc);
-    c['vir'] = virOf21(c, promo);
-    var L = jsRound(listensFor21(_n(c['Q']), _n(n['fans']), promo) * (0.8 + _n(c['vir']) / 250) * featBoost21(c));
-    if (_t(n['hype']) && _n(n['day']) <= _n(n['hype'])) {
-      L = jsRound(L * 1.2);
-      c['hype'] = 1;
-    }
-    n['hype'] = 0;
-    if (_t(n['diss'])) {
-      L = jsRound(L * 1.1);
-      c['diss'] = 1;
-      n['diss'] = 0;
-    }
-    final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
-    final signed = _t(n['signed']);
-    final gross = jsRound(L * Reg21.listenValue);
-    var rev = signed ? jsRound(gross * (1 - cutRate)) : gross;
-    final fg = (L * 0.07 / (1 + _n(n['fans']) / Reg21.fanSat)).ceil();
-    var pg = (L / 900).floor();
-    if (c['duo'] != null) {
-      final dc = jsRound(rev * _n(c['duo']) / 100);
-      rev -= dc;
-      c['duoCut'] = dc;
-    }
-    final sl = jsRound(L * Reg21.singleSales);
-    final sg0 = sl * Reg21.salePrice;
-    final sr = signed ? jsRound(sg0 * (1 - cutRate)) : sg0;
-    c['salesRev'] = sr;
-    c['cut'] = _n(c['cut']);
-    c['salesCut'] = sg0 - sr;
-    rev += sr;
-    pg = jsRound(math.min(12, pg) * (1 - _n(n['pop']) / 100));
-    _pay(n, rev);
-    n['fans'] = _n(n['fans']) + fg;
-    n['pop'] = clamp21(_n(n['pop']) + pg, 0, 100);
-    _geoAdd(n, 'bakoma', math.min(12, jsRound(L / 1500 * 10) / 10 + 1));
-    if (promo == 2) {
-      _geoAdd(n, 'portambre', 2);
-      _geoAdd(n, 'selene', 2);
-    }
-    c['labelAt'] = signed ? lblName21(n) : 'Indépendant';
-    c['auteur'] = _m(n['p'])['name'];
-    c['sales'] = sl;
-    final perk = n['lperk'];
-    final sk = _m(n['sk']);
-    if (perk == 'export') {
-      _geoAdd(n, 'portambre', 3);
-      _geoAdd(n, 'selene', 3);
-    }
-    if (perk == 'dev') {
-      sk['flow'] = _n(sk['flow']) + 1;
-      sk['voix'] = _n(sk['voix']) + 1;
-    }
-    if (perk == 'ecr') sk['ecr'] = _n(sk['ecr']) + 2;
-    c['st'] = 'sorti';
-    c['day'] = n['day'];
-    c['L'] = L;
-    c['launchL'] = L;
-    c['rev'] = rev;
-    c['streamRev'] = rev - sr;
-    c['cut'] = gross - _n(c['streamRev']) - _n(c['duoCut']) + _n(c['salesCut']);
-    c['fg'] = fg;
-    c['pg'] = pg;
-    c['tier'] = tierOf21(L);
-    c['promo'] = promo;
-    c['label'] = c['labelAt'];
-    c['signed'] = signed ? 1 : 0;
-    c['year'] = 1 + ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
-    c['views'] = _m(c['clip'])['st'] == 'publie' ? jsRound(L * .35) : 0;
-    final split = platformSplit21(L);
-    c['platforms'] = {'ondea': split.ondea, 'cauri': split.cauri};
-    _l(n['disco']).insert(0, c);
+    _doRelease(n, c, promo);
     n['cur'] = null;
-    n['last'] = c['id'];
-    _addXp(n, 40);
-    _log(n, 'Sortie : ${c['title']} · ${fmt21(L)} écoutes · ${c['tier']}', 'musique');
+    return _ok(n);
+  },
+
+  // ---------- réserve et sorties programmées (titres enregistrés, non sortis) ----------
+  // Le titre en cours, une fois enregistré, peut partir en réserve (sans date) ou être programmé (J+1 à J+Reg21.relMaxDays).
+  // Un titre en réserve peut entrer dans un EP ou un album, sortir tout de suite, ou être programmé. La date est celle du jeu.
+  'shelve': (s, a) {
+    final cur = s['cur'];
+    if (cur == null || _m(cur)['st'] != 'enregistre') return _no(s, 'pasenregistre');
+    if (_l(s['stock']).length >= Reg21.stockMax) return _no(s, 'reserve');
+    final n = clone21(s);
+    final c = _m(n['cur']);
+    _l(n['stock']).add(c);
+    n['cur'] = null;
+    _log(n, 'En réserve : ${c['title']}', 'musique');
+    return _ok(n);
+  },
+
+  'schedule': (s, arg) {
+    final fromList = arg is List && arg.length == 2;
+    final id = fromList ? arg[0] : null;
+    final days = int.tryParse('${fromList ? arg[1] : arg}') ?? 0;
+    if (days < 1 || days > Reg21.relMaxDays) return _no(s, 'inconnu');
+    final cur = s['cur'];
+    J? song;
+    if (id == null) {
+      if (cur == null || _m(cur)['st'] != 'enregistre') return _no(s, 'pasenregistre');
+      if (_l(s['stock']).length >= Reg21.stockMax) return _no(s, 'reserve');
+      song = _m(cur);
+    } else {
+      for (final x in _l(s['stock'])) {
+        if (_m(x)['id'] == id) song = _m(x);
+      }
+      if (song == null) return _no(s, 'inconnu');
+    }
+    final paid = _t(song['promoPaid']);
+    final promo = paid ? _n(song['promoSel']).toInt() : _n(_m(s['ui'])['promo']).toInt();
+    final pc = paid ? 0 : _promoCost(s, promo);
+    if (_n(s['cash']) < pc) return _no(s, 'cash');
+    final n = clone21(s);
+    final c = id == null ? _m(n['cur']) : _l(n['stock']).map(_m).firstWhere((x) => x['id'] == id);
+    if (pc != 0) _pay(n, -pc);
+    c['promoSel'] = promo;
+    c['promoPaid'] = 1;
+    c['relDay'] = _n(n['day']) + days;
+    if (id == null) {
+      _l(n['stock']).add(c);
+      n['cur'] = null;
+    }
+    _log(n, 'Sortie programmée : ${c['title']} · J${_n(c['relDay']).toInt()}${pc != 0 ? ' (promotion −${fmt21(pc)})' : ''}', 'musique');
+    return _ok(n);
+  },
+
+  'unschedule': (s, id) {
+    if (!_l(s['stock']).any((x) => _m(x)['id'] == id && _m(x)['relDay'] != null)) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final c = _l(n['stock']).map(_m).firstWhere((x) => x['id'] == id);
+    c['relDay'] = null;
+    _log(n, 'Sortie annulée, titre remis en réserve : ${c['title']}', 'musique');
+    return _ok(n);
+  },
+
+  /// Sortie immédiate d'un titre en réserve (promotion choisie dans la sortie, déjà payée si le titre a été programmé).
+  'rnow': (s, id) {
+    J? song;
+    for (final x in _l(s['stock'])) {
+      if (_m(x)['id'] == id) song = _m(x);
+    }
+    if (song == null) return _no(s, 'inconnu');
+    final paid = _t(song['promoPaid']);
+    final promo = paid ? _n(song['promoSel']).toInt() : _n(_m(s['ui'])['promo']).toInt();
+    final pc = paid ? 0 : _promoCost(s, promo);
+    if (_n(s['cash']) < pc) return _no(s, 'cash');
+    final n = clone21(s);
+    final c = _l(n['stock']).map(_m).firstWhere((x) => x['id'] == id);
+    if (pc != 0) _pay(n, -pc);
+    _l(n['stock']).removeWhere((x) => identical(x, c));
+    c.remove('relDay');
+    c.remove('promoSel');
+    _doRelease(n, c, promo);
     return _ok(n);
   },
 
@@ -886,7 +1000,7 @@ final Map<String, Action> actions21 = {
   },
   'ptype': (s, t) => Reg21.proj.containsKey(t) ? _setUi(s, 'ptype', t) : _no(s, 'inconnu'),
   'ptk': (s, id) {
-    if (!_l(s['disco']).any((x) => _m(x)['id'] == id)) return _no(s, 'inconnu');
+    if (![..._l(s['disco']), ..._l(s['stock'])].any((x) => _m(x)['id'] == id)) return _no(s, 'inconnu');
     final n = clone21(s), ui = _m(n['ui']);
     final cur = ((ui['ptk'] as List?) ?? <dynamic>[]).toList();
     ui['ptk'] = cur.contains(id) ? cur.where((x) => x != id).toList() : [...cur, id];
@@ -907,7 +1021,11 @@ final Map<String, Action> actions21 = {
     final e = _spend(n, P['h'] as num, P['e'] as num);
     if (e != null) return _no(s, e);
     _pay(n, -(P['cost'] as num));
-    final tr = _l(n['disco']).map(_m).where((x) => ids.contains(x['id'])).toList();
+    final tr = [..._l(n['disco']), ..._l(n['stock'])].map(_m).where((x) => ids.contains(x['id'])).toList();
+    if (tr.length != ids.length) return _no(s, 'inconnu');
+    // Un titre de la réserve sort avec le projet : écoutes estimées sans promotion, aucune sortie en single.
+    num lOf(J x) => x['st'] == 'sorti' ? _n(x['L']) : jsRound(listensFor21(_n(x['Q']), _n(n['fans']), 0));
+    final inedits = tr.where((x) => x['st'] != 'sorti').toList();
     final q = jsRound(tr.fold<num>(0, (a, x) => a + _n(x['Q'])) / tr.length);
     final ui = _m(n['ui']);
     var title = cleanName21(ui['ptitle']);
@@ -916,7 +1034,7 @@ final Map<String, Action> actions21 = {
       title = '${t == 'EP' ? 'EP n° ' : 'Album n° '}${_l(n['projects']).where((p) => _m(p)['type'] == t).length + 1}';
     }
     final fans = _n(n['fans']);
-    final st = jsRound(tr.fold<num>(0, (a, x) => a + _n(x['L'])) * 0.3 + fans * 2);
+    final st = jsRound(tr.fold<num>(0, (a, x) => a + lOf(x)) * 0.3 + fans * 2);
     final sl = jsRound(fans * 0.06 * q / 60 * (t == 'Album' ? 1.3 : 1) + st * 0.004);
     final gross = sl * Reg21.salePrice;
     final rev = _t(n['signed']) ? jsRound(gross * (1 - (_t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut))) : gross;
@@ -931,7 +1049,9 @@ final Map<String, Action> actions21 = {
       'id': 'P${_l(n['projects']).length + 1}', 'type': t, 'title': title, 'tracks': List<dynamic>.of(ids), 'day': n['day'],
       'Q': q, 'L': st, 'sales': sl, 'rev': rev, 'cut': gross - rev, 'fans': fg, 'rank': rk,
       'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
+      if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
     });
+    _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
     _log(n, '$t sorti : $title · ${tr.length} titres · ${fmt21(sl)} ventes · ${rk != 0 ? '#$rk au Top $top' : 'non classé'}', 'musique');
@@ -2113,6 +2233,7 @@ Res _endDay(J s) {
   final y0 = ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
   n['day'] = _n(n['day']) + 1;
   n['hour'] = Reg21.dayStart;
+  ev.addAll(_releaseDue(n));
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {
