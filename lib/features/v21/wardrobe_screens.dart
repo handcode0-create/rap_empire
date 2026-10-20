@@ -82,11 +82,18 @@ String _cond(Map<String, dynamic> o) => (o['rank'] as num) > 1 ? 'Rang N${o['ran
 // 21-W1 Garde-robe
 // ---------------------------------------------------------------------------------------------------------------------
 
-class GardeRobeScreen extends ConsumerWidget {
+class GardeRobeScreen extends ConsumerStatefulWidget {
   const GardeRobeScreen({super.key});
+  @override
+  ConsumerState<GardeRobeScreen> createState() => _GardeRobeState();
+}
+
+class _GardeRobeState extends ConsumerState<GardeRobeScreen> {
+  /// Filtre de catégorie (null = toutes) ; « Possédées » montre l'inventaire.
+  String? _cat;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final wd = _m(s['wd']);
@@ -124,12 +131,33 @@ class GardeRobeScreen extends ConsumerWidget {
         const GameHint(icon: 'info', text: 'Illustration manquante pour cette variante : avatar provisoire affiché.', warn: true),
       ],
       const SizedBox(height: 12),
-      Text('TENUES', style: V20Text.lab()),
+      Text('TENUES · ${Wardrobe21.outfits.length} PIÈCES', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      SizedBox(
+        height: 48,
+        child: ListView(scrollDirection: Axis.horizontal, children: [
+          for (final c in <String?>[null, 'Possédées', ...Wardrobe21.categories])
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(c ?? 'Toutes', style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: _cat == c ? Tk.bg : Tk.ink)),
+                selected: _cat == c,
+                selectedColor: Tk.gold,
+                backgroundColor: Tk.s1,
+                side: BorderSide(color: _cat == c ? Tk.gold : Tk.line),
+                showCheckmark: false,
+                onSelected: (_) => setState(() => _cat = c),
+              ),
+            ),
+        ]),
+      ),
       const SizedBox(height: 8),
       LayoutBuilder(builder: (context, c) {
         final w = (c.maxWidth - 8) / 2;
+        final list = Wardrobe21.outfits.where((o) => _cat == null || (_cat == 'Possédées' ? owned.contains(o['id']) : o['cat'] == _cat)).toList();
+        if (list.isEmpty) return Text('Aucune tenue dans cette catégorie pour l\'instant.', style: V20Text.bs());
         return Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final o in Wardrobe21.outfits) SizedBox(width: w, child: _OutfitCard(s, o)),
+          for (final o in list) SizedBox(width: w, child: _OutfitCard(s, o)),
         ]);
       }),
     ]);
