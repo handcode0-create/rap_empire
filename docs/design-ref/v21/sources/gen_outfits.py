@@ -31,7 +31,7 @@ with sync_playwright() as p:
             s = svg(o, v).replace('<svg ', '<svg style="width:512px;height:768px;display:block" ', 1)
             pg.set_content('<html><body style="margin:0;background:transparent">%s</body></html>' % s); pg.wait_for_timeout(80)
             png = pg.screenshot(omit_background=True)
-            rel = '%s/%s.webp' % (v, o['id']); os.makedirs(os.path.join(OUT, v), exist_ok=True)
+            rel = '%s/v21b_%s.webp' % (v, o['id']); os.makedirs(os.path.join(OUT, v), exist_ok=True)
             Image.open(io.BytesIO(png)).convert('RGBA').save(os.path.join(OUT, rel), 'WEBP', quality=88, method=6)
             imgs[v] = rel
         man['outfits'].append({k: o[k] for k in ('id', 'n', 'd', 'price', 'rank', 'ref')} | {'start': bool(o.get('start')), 'images': imgs,
