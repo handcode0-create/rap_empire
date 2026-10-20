@@ -18,6 +18,7 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'social_screens.dart';
 import 'widgets21.dart';
 
 /// Espace Réseau v21 (planches 21-N0 à 21-N8) [VALIDÉ par Smith le 20/10/2026].
@@ -158,6 +159,13 @@ class _Tiers extends StatelessWidget {
   }
 }
 
+/// Auditeurs estimés d'une ville : répartition des auditeurs au prorata de la popularité par ville.
+int _cityListeners(J s, String city, int total) {
+  final g = (s['geo'] as Map?) ?? const {};
+  final sum = Reg21.cities.keys.fold<num>(0, (a, k) => a + _n(g[k]));
+  return sum <= 0 ? 0 : jsRound(total * _n(g[city]) / sum);
+}
+
 String _dec(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1).replaceAll('.', ',');
 
 /// Grande carte de plateforme (hub).
@@ -286,6 +294,8 @@ class ReseauScreen extends ConsumerWidget {
           image: clips.isEmpty ? 'assets/klipo/mine/M1.svg' : clipStats21(clips.first, 0).img,
           onTap: () => context.go('/profil/reseau/clips')),
       const SizedBox(height: 12),
+      const SocialEntryCard(),
+      const SizedBox(height: 12),
       GameCard(
         onTap: () => context.go('/profil/reseau/marketing'),
         child: Row(children: [
@@ -380,6 +390,20 @@ class OndeaArtistScreen extends ConsumerWidget {
               const Icon(Icons.music_note_rounded, color: V20.ink2, size: 20),
             ]),
           ),
+      const _Sec('Auditeurs par ville', 'estimés'),
+      GameCard(child: Column(children: [
+        for (final c in Reg21.cities.entries)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(children: [
+              SizedBox(width: 96, child: Text(c.value, style: V20Text.poppins(size: 13, line: 17, weight: FontWeight.w700))),
+              Expanded(child: MeterBar(value: (geoOf(s, c.key) / 100).clamp(0, 1).toDouble(), tone: MeterTone.cyan, thin: true)),
+              SizedBox(
+                  width: 70,
+                  child: Text(fmt21(_cityListeners(s, c.key, t.listeners)), textAlign: TextAlign.end, style: V20Text.poppins(size: 13, line: 17, weight: FontWeight.w700))),
+            ]),
+          ),
+      ])),
       const Row(children: [
         Expanded(child: _Sec('Playlists éditoriales')),
         Padding(padding: EdgeInsets.only(top: 12), child: GameTag('Démo', style: GameTagStyle.outline)),
@@ -716,6 +740,12 @@ class CauriPremiumScreen extends ConsumerWidget {
       ),
       const SizedBox(height: 12),
       _Kpis([('Écoutes', fmt21(t.cauri), null), ('Revenus', fmt21(t.revCauri), Tk.gold), ('Part', '${(share * 100).round()} %', null)]),
+      const SizedBox(height: 8),
+      _Kpis([
+        ('Ventes', fmt21(disco.fold<num>(0, (a, d) => a + _n(d['sales']))), null),
+        ('Titres', '${disco.length}', null),
+        ('Hi-Fi', 'Oui', Tk.gold),
+      ]),
       const _Sec('Ta discographie', 'écoute premium'),
       if (disco.isEmpty) const GameCard(child: Text('Aucun titre sorti.')),
       for (var i = 0; i < disco.length && i < 5; i++)

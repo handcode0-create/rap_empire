@@ -47,6 +47,7 @@ const err21 = {
   'proces': "Le procès n'a pas encore eu lieu",
   'reserve': 'Réserve pleine : 20 titres au maximum',
   'pistes': 'Nombre de titres incorrect pour ce projet',
+  'postjour': 'Trois publications par jour : reviens demain',
   'campagne': 'Cette campagne est déjà en cours',
   'confirm': "Confirme l'achat (15 000 cauris ou plus)",
   'indispo': 'Tenue indisponible : une illustration manque',

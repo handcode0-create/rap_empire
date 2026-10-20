@@ -4,11 +4,13 @@ import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
 import 'dialogues21.dart';
 import 'network21.dart';
+import 'social21.dart';
 import 'reg21.dart';
 import 'wardrobe21.dart';
 
 export 'dialogues21.dart';
 export 'network21.dart';
+export 'social21.dart';
 export 'wardrobe21.dart';
 
 /// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
@@ -95,6 +97,7 @@ J init21() {
     'v': 21,
     'wd': initWardrobe21(),
     'mk': initMk21(),
+    'soc': initSocial21(),
     'kv': 0,
     'mcl': 0,
     'stock': <dynamic>[],
@@ -798,6 +801,52 @@ void _releaseProject(J n, J draft) {
 int _projectPromoCost(J s, int promo) =>
     (s['lperk'] == 'radio' && promo == 2) ? 0 : (promos21[promo]['c'] as num).toInt();
 
+Res _post(J s, String id) {
+  final t = postTypes21[id];
+  if (t == null) return _no(s, 'inconnu');
+  final need = postNeed21(s, t);
+  if (need != null) return _no(s, need);
+  if (postsLeft21(s) <= 0) return _no(s, 'postjour');
+  final n = clone21(s);
+  final e = _spend(n, t.h, t.e);
+  if (e != null) return _no(s, e);
+  final so = _m(n['soc']);
+  final f0 = followers21(n, t.net);
+  final r = rng21(n, 77 + _n(so['tot']) * 13 + id.length);
+  var reach = jsRound(reachEstimate21(n, t) * (0.7 + 0.6 * r));
+  final viral = t.viral && r > 0.88, polem = t.clash && r < 0.35;
+  if (viral) reach *= 4;
+  final likes = jsRound(reach * 0.12), cm = jsRound(reach * 0.01) + 1, nf = jsRound(reach * 0.04), fg = jsRound(reach * t.fanRate);
+  _m(so['f'])[t.net] = f0 + nf;
+  n['fans'] = _n(n['fans']) + fg;
+  n['pop'] = clamp21(_n(n['pop']) + t.pop + (viral ? 2 : 0), 0, 100);
+  _geoAdd(n, 'bakoma', viral ? 1.5 : 0.3);
+  if (t.hype > 0) n['hype'] = _n(n['day']) + t.hype;
+  if (polem) n['rep'] = math.max(0, _n(n['rep']) - 2);
+  if (t.clash && !polem) n['rep'] = _n(n['rep']) + 1;
+  so['buzz'] = clamp21(_n(so['buzz']) + (viral ? 35 : polem ? 25 : 8), 0, 100);
+  if (_n(so['day']) != _n(n['day'])) {
+    so['day'] = n['day'];
+    so['today'] = 0;
+  }
+  so['today'] = _n(so['today']) + 1;
+  final tot = _n(so['tot']).toInt() + 1;
+  so['tot'] = tot;
+  if (viral) so['viral'] = _n(so['viral']) + 1;
+  if (polem) so['polem'] = _n(so['polem']) + 1;
+  final ci = (r * 1000).floor();
+  final posts = _l(so['posts']);
+  posts.insert(0, {
+    'id': 'P$tot', 'net': t.net, 'type': id, 'day': n['day'], 'txt': postText21(n, t), 'reach': reach, 'likes': likes, 'cm': cm, 'nf': nf, 'fg': fg,
+    'viral': viral ? 1 : 0, 'polem': polem ? 1 : 0,
+    'c': [ci % socialComments21.length, (ci ~/ 7 + 3) % socialComments21.length], 'u': [ci % socialHandles21.length, (ci ~/ 3 + 5) % socialHandles21.length],
+  });
+  if (posts.length > 30) posts.removeRange(30, posts.length);
+  _addXp(n, viral ? 25 : 8);
+  _log(n, 'Publication ${socialNets21[t.net]!.n} : ${t.n} · ${fmt21(reach)} vues · +${fmt21(fg)} fans${viral ? ' · virale !' : ''}${polem ? ' · polémique (réputation −2)' : ''}', 'carriere');
+  return _ok(n);
+}
+
 Res _mkBuy(J s, String id, bool ok) {
   final e = mkCheck21(s, id);
   if (e != null) return _no(s, e);
@@ -843,6 +892,7 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
   'mkbuy': (s, id) => _mkBuy(s, '$id', false),
+  'post': (s, id) => _post(s, '$id'),
   'mkconfirm': (s, a) {
     final ask = _m(s['mk'])['ask'];
     if (ask == null) return _no(s, 'rien');
@@ -2408,6 +2458,13 @@ Res _endDay(J s) {
     if (_n(c['until']) == _n(n['day']) + 1) ev.add('Campagne terminée : ${media21[c['id']]?.n ?? c['id']}');
   }
   mk['on'] = _l(mk['on']).where((c) => _n(_m(c)['until']) > _n(n['day']) + 1).toList();
+  // [VALIDÉ 20/10, valeurs provisoires] réseaux sociaux : le buzz retombe, les abonnés suivent la popularité.
+  final so = _m(n['soc']);
+  so['buzz'] = jsRound(_n(so['buzz']) * 0.7);
+  final sf = _m(so['f']);
+  for (final k in sf.keys.toList()) {
+    sf[k] = _n(sf[k]) + jsRound(_n(n['pop']) * (socialNets21[k]?.share ?? 0) * 0.5);
+  }
   num cost = 0;
   if (_m(n['own'])['appart'] != null) {
     cost += Reg21.assets['appart']!['upkeep'] as num;

@@ -108,4 +108,39 @@ void main() {
     expect(fmtK21(12000000), '12 M');
     expect(fmtK21(960000), '960 k');
   });
+
+  test('réseaux sociaux : trois réseaux fictifs, publication, limite de trois par jour, conditions', () {
+    expect(socialOrder21, ['lueur', 'bakoz', 'griot']);
+    var s = act21(init21(), 'preset', 'debut').s;
+    expect(followers21(s, 'lueur'), ((s['fans'] as num) * 0.5 + 0.5).floor());
+    expect(act21(s, 'post', 'extrait').err, 'single');
+    expect(act21(s, 'post', 'coulisses').err, 'pasdeconcert');
+    expect(act21(s, 'post', 'inconnu').err, 'inconnu');
+    final f0 = s['fans'] as num, l0 = followers21(s, 'lueur');
+    s = _ok(s, 'post', 'photo');
+    final p = postsOf21(s, 'lueur').first;
+    expect(p['reach'] as num, greaterThan(0));
+    expect(s['fans'] as num, f0 + (p['fg'] as num));
+    expect(followers21(s, 'lueur'), l0 + (p['nf'] as num));
+    expect(postsLeft21(s), 2);
+    s = _ok(s, 'post', 'merci');
+    s = _ok(s, 'post', 'look');
+    expect(postsLeft21(s), 0);
+    expect(act21(s, 'post', 'photo').err, 'postjour');
+    final d = _ok(s, 'endDay');
+    expect(postsLeft21(d), 3);
+    expect(buzz21(d), lessThan(buzz21(s)));
+  });
+
+  test('réseaux sociaux : l\'annonce prépare une sortie (bonus existant de 20 %), le clash touche la réputation', () {
+    var s = act21(init21(), 'preset', 'star').s;
+    final withCur = _copy(s)..['cur'] = {'title': 'Nouveau son', 'st': 'ecrit', 'feats': []};
+    final a = _ok(withCur, 'post', 'annonce');
+    expect(a['hype'], (a['day'] as num) + 3);
+    final r0 = s['rep'] as num;
+    s = _ok(s, 'post', 'clash');
+    final c = postsOf21(s, 'griot').first;
+    expect(s['rep'], (c['polem'] as num) == 1 ? r0 - 2 : r0 + 1);
+    expect((c['c'] as List).length, 2);
+  });
 }
