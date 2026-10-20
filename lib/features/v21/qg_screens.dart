@@ -21,7 +21,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'shell21.dart';
-import 'start_screens.dart';
+import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
 /// QG du jour (21-Q1), journée (21-Q2), bilan (21-Q3), année (21-Q4), journal (21-J1) et événements (21-V1).
@@ -200,7 +200,7 @@ class _Hero extends StatelessWidget {
           nameSize: 30,
           subtitle: "${hoursLeft(s)} h restantes aujourd'hui",
         ),
-        Positioned(right: 8, top: -40, child: IgnorePointer(child: SizedBox(width: 100, height: 150, child: PlayerAvatar(s, mood: isTired(s) ? 'worried' : 'smile', height: 150)))),
+        Positioned(right: 8, top: -40, child: IgnorePointer(child: EquippedAvatar(s, width: 100, height: 150, mood: isTired(s) ? 'worried' : 'smile'))),
       ]);
 }
 

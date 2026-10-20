@@ -145,7 +145,7 @@
   function stageOf(age) { var n = REG.stages[0][1]; REG.stages.forEach(function (p) { if (age >= p[0]) n = p[1]; }); return n; }
 
   function init() {
-    var s = { v: 21, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, mature: 0, projects: [], heat: 0, crimeN: 0, cas: null, jail: null, casier: [], dlg: null, dq: [], dseen: {}, rel: {}, mgr: null, lcut: null, duo: null, hype: 0, diss: 0, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
+    var s = { v: 21, wd: { owned: ['OUTFIT_001'], eq: 'OUTFIT_001', sel: 'OUTFIT_001', ask: null }, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, mature: 0, projects: [], heat: 0, crimeN: 0, cas: null, jail: null, casier: [], dlg: null, dq: [], dseen: {}, rel: {}, mgr: null, lcut: null, duo: null, hype: 0, diss: 0, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
       sk: { flow: 17, ecr: 14, voix: 10, cha: 8 },
       cur: null, disco: [], shows: 0,
       geo: { bakoma: 4, portambre: 0, selene: 0, tamarel: 0, korvane: 0, aldera: 0 },
@@ -776,9 +776,49 @@
   };
   A.jw = function (s) { if (!s.jail) return { s: s, err: 'rien' }; if (s.jw === s.day) return { s: s, err: 'deja' }; var n = clone(s); n.jw = n.day; n.sk.ecr += 2; log(n, 'En cellule : textes écrits (Écriture +2)', 'justice'); return { s: n }; };
   A.js = function (s) { if (!s.jail) return { s: s, err: 'rien' }; if (s.jsp === s.day) return { s: s, err: 'deja' }; var n = clone(s); n.jsp = n.day; n.sk.cha += 1; n.en = Math.min(enMax(n), n.en + 10); log(n, 'En cellule : sport (Charisme +1)', 'justice'); return { s: n }; };
+  // ---------- garde-robe à tenues préfabriquées [PROPOSÉ, non validé] ----------
+  // Chaque tenue = deux illustrations complètes du même rappeur (jeune / mature). Aucune composition de vêtements en jeu.
+  // Catalogue identique à assets/characters/rapper_001/manifest.json (vérifié par test21.js).
+  var WARDROBE = { character: 'rapper_001', look: { skin: '3', hair: 'hitwist' }, base: 'assets/characters/rapper_001/',
+    matureRank: 4,          // [À CONCEVOIR] aucun seuil n'existe dans les sources : valeur de test configurable
+    confirmAt: 15000,       // I-08 [EXISTANT] : confirmation dès 15 000 cauris
+    outfits: [{"id": "OUTFIT_001", "n": "Hoodie Néon", "d": "Le hoodie rose de tes débuts, patch BKM sur la poitrine.", "price": 0, "rank": 1, "start": true, "images": {"young": "young/OUTFIT_001.webp", "mature": "mature/OUTFIT_001.webp"}, "status": "disponible"}, {"id": "OUTFIT_002", "n": "Survêt Soleil", "d": "Survêtement jaune soleil, zip et bandes magenta.", "price": 6000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_002.webp", "mature": "mature/OUTFIT_002.webp"}, "status": "disponible"}, {"id": "OUTFIT_003", "n": "Veste Brume", "d": "Veste gris-violet, baskets cyan. Le look des sessions studio.", "price": 18000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_003.webp", "mature": "mature/OUTFIT_003.webp"}, "status": "disponible"}, {"id": "OUTFIT_004", "n": "Veste Nuit", "d": "Blazer bleu nuit et détails or, pour les grandes scènes.", "price": 30000, "rank": 3, "start": false, "images": {"young": "young/OUTFIT_004.webp", "mature": "mature/OUTFIT_004.webp"}, "status": "disponible"}, {"id": "OUTFIT_005", "n": "Hoodie Jade", "d": "Hoodie vert jade. Illustration mature pas encore produite.", "price": 12000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_005.webp", "mature": null}, "status": "indisponible"}] };
+  function wOutfit(id) { return WARDROBE.outfits.filter(function (o) { return o.id === id; })[0] || null; }
+  function wComplete(o) { return !!(o && o.images && o.images.young && o.images.mature); }
+  function ageVariant(s) { return s.rank >= WARDROBE.matureRank ? 'mature' : 'young'; }   // dérivée de la progression, jamais stockée
+  function characterId(s) { var L = WARDROBE.look; return (s.ap.skin || '3') === L.skin && s.ap.hair === L.hair ? WARDROBE.character : null; }
+  function resolveLook(s, outfitId) {   // résolveur d'apparence : sélectionne une image existante, ne compose rien
+    var ch = characterId(s), v = ageVariant(s), o = wOutfit(outfitId || s.wd.eq), rel = o && o.images ? o.images[v] : null;
+    var fb = !ch ? 'look' : !o ? 'tenue' : !rel ? 'image' : null;
+    return { character: ch, variant: v, outfit: o ? o.id : null, path: fb ? null : WARDROBE.base + rel, fallback: fb };
+  }
+  A.osel = function (s, id) { if (!wOutfit(id)) return { s: s, err: 'inconnu' }; var n = clone(s); n.wd.sel = id; n.wd.ask = null; return { s: n }; };
+  A.oask = function (s, id) {   // ouvre la confirmation d'un achat ≥ 15 000
+    var o = wOutfit(id), e = wCheck(s, o); if (e) return { s: s, err: e }; var n = clone(s); n.wd.sel = id; n.wd.ask = id; return { s: n };
+  };
+  function wCheck(s, o) {
+    if (!o) return 'inconnu'; if (s.wd.owned.indexOf(o.id) > -1) return 'deja';
+    if (o.status !== 'disponible' || !wComplete(o)) return 'indispo';
+    if (s.rank < o.rank) return 'rang'; if (s.cash < o.price) return 'cash'; return null;
+  }
+  A.obuy = function (s, id) {
+    var o = wOutfit(id), e = wCheck(s, o); if (e) return { s: s, err: e };
+    if (o.price >= WARDROBE.confirmAt && s.wd.ask !== id) return { s: s, err: 'confirm' };
+    var n = clone(s); pay(n, -o.price); n.wd.owned.push(o.id); n.wd.ask = null; n.wd.sel = o.id;   // l'achat n'équipe pas
+    log(n, 'Tenue achetée : ' + o.n + (o.price ? ' (−' + fmt(o.price) + ')' : ''), 'eco'); return { s: n };
+  };
+  A.oasksel = function (s) { return A.oask(s, s.wd.sel); };
+  A.obuysel = function (s) { return A.obuy(s, s.wd.sel); };
+  A.oconfirm = function (s) { return s.wd.ask ? A.obuy(s, s.wd.ask) : { s: s, err: 'rien' }; };
+  A.oeqsel = function (s) { return A.oeq(s, s.wd.sel); };
+  A.ocancel = function (s) { var n = clone(s); n.wd.ask = null; return { s: n }; };
+  A.oeq = function (s, id) {
+    var o = wOutfit(id); if (!o) return { s: s, err: 'inconnu' }; if (s.wd.owned.indexOf(id) < 0) return { s: s, err: 'pasachete' };
+    if (s.wd.eq === id) return { s: s }; var n = clone(s); n.wd.eq = id; n.wd.sel = id; log(n, 'Tenue équipée : ' + o.n, 'jeu'); return { s: n };
+  };
   A.preset = function (s, id) { var f = PRE[id]; if (!f) return { s: s, err: 'inconnu' }; var x = f(); if (!x.created) { x.created = 1; x.p.name = 'Djo Kéné'; } if (id === 'debut') { x.ev = 'kzer'; } else { x.evDone.kzer = 'b'; x.dseen.kore = 'Accord à 35 % (préréglage)'; x.kc = x.kc && x.kc.st ? x.kc : { st: 'Accord à 35 %, mix signé', bonus: 12, left: 0, rel: 8 }; x.ms = {}; var dn = { m1: x.disco.length > 0, m2: x.disco.length > 0, m3: !!x.trained, m4: x.fans >= 1000 }; Object.keys(dn).forEach(function (k) { if (dn[k]) x.ms[k] = 1; }); } return { s: x }; };
 
-  var JAIL_OK = ['endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk', 'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature'];
+  var JAIL_OK = ['endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk', 'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'];
   function act(s, name, arg) { s = norm(s); var f = A[name]; if (!f) return { s: s, err: 'inconnu' }; if (s.jail && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'prison' }; if (s.cas && s.cas.stage === 'garde' && ['bail', 'detention', 'lawyer', 'ctk'].indexOf(name) < 0 && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'garde' }; var r = f(s, arg); if (!r.err && r.s !== s) { norm(r.s); missions(r.s); triggers(r.s); } r.s.t = Date.now(); return r; }
 
   // ---------- vue : toutes les valeurs affichées ----------
@@ -975,6 +1015,22 @@
     var sr = bestS.L >= ENTRY ? Math.max(8, Math.min(100, Math.round(7 * Math.pow(bestS.L / 8e6, -1 / 1.3)))) : 0;
     o.sRank = sr ? '#' + sr : 'Non classé'; o.sRanked = !!sr; o.sUn = !sr; o.sTitle = bestS.title || 'Aucun titre sorti'; o.sL = fmt(bestS.L);
     var gr = ip.i >= 76.3 ? Math.max(1, Math.round(10 * Math.pow(ip.i / 76.3, -1 / 1.19))) : 0; o.gRank = gr ? '#' + gr : 'Non classé'; o.gIn = !!gr; o.gOut = !gr; o.gGap = d1(Math.max(0, 76.3 - ip.i));
+    // garde-robe
+    var RL = resolveLook(s), W = WARDROBE, wd = s.wd, so = wOutfit(wd.sel) || wOutfit(wd.eq);
+    o.wdImg = RL.path || ''; o.wdHas = !!RL.path; o.wdFb = !RL.path; o.wdVar = RL.variant === 'mature' ? 'Mature' : 'Jeune'; o.wdMature = RL.variant === 'mature'; o.wdYoung = RL.variant === 'young';
+    o.wdFbWhy = RL.fallback === 'look' ? 'Illustrations préfabriquées produites pour le look par défaut seulement (teint 3, twists hi-top) : avatar provisoire affiché.' : RL.fallback === 'image' ? 'Illustration manquante pour cette variante : avatar provisoire affiché.' : RL.fallback === 'tenue' ? 'Tenue inconnue : avatar provisoire affiché.' : '';
+    o.wdRule = 'Variante mature dès le rang N' + W.matureRank + ' (valeur de test, règle à concevoir)'; o.wdRankN = 'N' + s.rank; o.wdToMature = s.rank >= W.matureRank ? 'Variante mature active' : 'Encore ' + (W.matureRank - s.rank) + ' rang(s) avant la variante mature';
+    var eo = wOutfit(wd.eq); o.wdEqN = eo ? eo.n : '—'; o.wdOwnedN = String(wd.owned.length); o.wdTotal = String(W.outfits.length); o.wdChar = RL.character || 'aucun (look non couvert)';
+    W.outfits.forEach(function (ot) { var k = ot.id, own = wd.owned.indexOf(k) > -1, eq = wd.eq === k, ind = ot.status !== 'disponible' || !wComplete(ot), lk = !own && !ind && s.rank < ot.rank;
+      o['wq_' + k] = eq; o['wo_' + k] = own && !eq; o['wu_' + k] = !own && ind; o['wl_' + k] = lk; o['wb_' + k] = !own && !ind && !lk; o['wp_' + k] = ot.price ? fmt(ot.price) : 'Offerte'; o['ws_' + k] = wd.sel === k;
+      o['wy_' + k] = ot.images.young ? W.base + ot.images.young : ''; });
+    o.wsId = so ? so.id : ''; o.wsN = so ? so.n : ''; o.wsD = so ? so.d : ''; o.wsP = so ? (so.price ? fmt(so.price) + ' cauris' : 'Offerte') : '';
+    o.wsY = so && so.images.young ? W.base + so.images.young : ''; o.wsM = so && so.images.mature ? W.base + so.images.mature : ''; o.wsYOk = !!o.wsY; o.wsMOk = !!o.wsM; o.wsYKo = !o.wsY; o.wsMKo = !o.wsM;
+    var sOwn = so && wd.owned.indexOf(so.id) > -1, sInd = so && (so.status !== 'disponible' || !wComplete(so)), sLk = so && !sOwn && !sInd && s.rank < so.rank, sCash = so && !sOwn && !sInd && !sLk && s.cash < so.price;
+    o.wsEq = !!(so && wd.eq === so.id); o.wsCanEq = !!(sOwn && wd.eq !== so.id); o.wsInd = !!(so && !sOwn && sInd); o.wsLk = !!sLk; o.wsCashKo = !!sCash; o.wsCond = so ? (so.rank > 1 ? 'Rang N' + so.rank + ' requis' : 'Aucune condition') : '';
+    o.wsBuyD = !!(so && !sOwn && !sInd && !sLk && !sCash && so.price < W.confirmAt); o.wsBuyC = !!(so && !sOwn && !sInd && !sLk && !sCash && so.price >= W.confirmAt); o.wsAfter = so ? fmt(s.cash - so.price) : ''; o.wsOwnedNotEq = !!(sOwn && wd.eq !== so.id);
+    o.wsPrev = so ? (resolveLook(s, so.id).path || '') : ''; o.wsPrevOk = !!o.wsPrev; o.wsPrevKo = !o.wsPrev;
+    var ao = wOutfit(wd.ask); o.waOn = !!ao; o.waN = ao ? ao.n : ''; o.waP = ao ? fmt(ao.price) : ''; o.waAfter = ao ? fmt(s.cash - ao.price) : ''; o.waId = ao ? ao.id : '';
     return o;
   }
   function idxParts(s) {   // R10 : poids 25/15/30/20/10 ; échelles 0-100 de l'étude D-17 v20 (provisoires)
@@ -983,7 +1039,7 @@
     ip.i = 0.25 * ip.f + 0.15 * ip.g + 0.30 * ip.c + 0.20 * ip.s + 0.10 * ip.n; return ip;
   }
   function csq(x) { var p = []; if (x.g) p.push('relation ' + sg(x.g)); if (x.l) p.push('lien enfant ' + sg(x.l)); if (x.cash) p.push(sg(x.cash) + ' cauris'); if (x.e) p.push('énergie ' + sg(x.e)); if (x.h) p.push(x.h + ' h'); return p.join(' · '); }
-  return { LBL: LBL, PERK: PERK, DLG: DLG, DLG_ORDER: DLG_ORDER, CASTN: CASTN, EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
+  return { WARDROBE: WARDROBE, resolveLook: resolveLook, ageVariant: ageVariant, LBL: LBL, PERK: PERK, DLG: DLG, DLG_ORDER: DLG_ORDER, CASTN: CASTN, EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
 });
 /* RAP EMPIRE v21 — liaison DOM de la zone de consolidation. Amélioration progressive : sans stockage ni script, chaque écran affiche les valeurs de la démo canonique. */
 (function () {
@@ -1007,13 +1063,15 @@
       var t = document.createElement('div'); t.className = 'toast e top'; t.setAttribute('role', 'alert'); t.textContent = msg;
       var h = document.querySelector('.scr'); if (!h) return; h.appendChild(t); setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 2200);
     }
-    var ERR = { mature: 'Contenu mature désactivé : active-le dans le Profil (16+)', prison: 'Impossible en prison : écris, fais du sport ou termine la journée', garde: 'En garde à vue : paie la caution ou accepte la détention', affaire: 'Une affaire est en cours : attends le procès', proces: 'Le procès n\'a pas encore eu lieu', pistes: 'Nombre de titres incorrect pour ce projet', cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
+    var ERR = { confirm: 'Confirme l\'achat (15 000 cauris ou plus)', indispo: 'Tenue indisponible : une illustration manque', pasachete: 'Achète d\'abord cette tenue', mature: 'Contenu mature désactivé : active-le dans le Profil (16+)', prison: 'Impossible en prison : écris, fais du sport ou termine la journée', garde: 'En garde à vue : paie la caution ou accepte la détention', affaire: 'Une affaire est en cours : attends le procès', proces: 'Le procès n\'a pas encore eu lieu', pistes: 'Nombre de titres incorrect pour ce projet', cash: 'Cash insuffisant', energie: 'Énergie insuffisante : termine la journée', tard: 'Plus assez d\'heures aujourd\'hui : termine la journée', rang: 'Rang de carrière insuffisant', rep: 'Réputation insuffisante', deja: 'Déjà fait', encours: 'Un titre est déjà en cours', pasdetexte: 'Écris d\'abord le texte', pasenregistre: 'Enregistre d\'abord le titre', pasdetitre: 'Aucun titre concerné', maxfeat: 'Deux featurings au maximum', rival: 'Indisponible : rivalité en cours', pop: 'Popularité insuffisante', clipapres: 'Trop tard : un clip se prépare avant la sortie', pasprepare: 'Prépare d\'abord le clip', avantsortie: 'Le clip ne peut sortir qu\'après le titre', pasproduit: 'Tourne d\'abord le clip', charisme: 'Charisme insuffisant', fans: 'Pas assez de fans', single: 'Sors d\'abord un single', romjour: 'Deux actions romantiques par jour : reviens demain', exclusif: 'Tu es en couple : relation exclusive', ex: 'Relation terminée récemment', pasdeconcert: 'Fais d\'abord un concert ou un open mic', seuil: 'Relation encore trop faible', condmariage: 'Conditions du mariage non réunies', mariage: 'Réservé aux couples mariés', pasdecouple: 'Aucune relation officielle', age: 'Pas encore de cet âge', nom: 'Nom de scène invalide', delai: 'Trop tôt : cette date n\'est pas encore disponible', audience: 'Audience insuffisante à Port-Ambre et Sélène', rien: 'Aucun événement en attente', inconnu: 'Action impossible' };
     function get(o, p) { return p.split('.').reduce(function (a, k) { return a == null ? a : a[k]; }, o); }
     function render() {
       var SS = S || snap(); var v = RE.view(SS), i, els;
       els = document.querySelectorAll('[data-b]'); for (i = 0; i < els.length; i++) { var k = els[i].getAttribute('data-b'); if (v[k] !== undefined) els[i].textContent = v[k]; }
       els = document.querySelectorAll('[data-w]'); for (i = 0; i < els.length; i++) { var w = v[els[i].getAttribute('data-w')]; if (w !== undefined) els[i].style.width = w + '%'; }
+      els = document.querySelectorAll('[data-src]'); for (i = 0; i < els.length; i++) { var sp = v[els[i].getAttribute('data-src')]; if (sp && els[i].getAttribute('src') !== sp) { els[i].removeAttribute('data-broken'); els[i].setAttribute('src', sp); } }
       els = document.querySelectorAll('[data-if]'); for (i = 0; i < els.length; i++) { var r = els[i].getAttribute('data-if'), neg = r.charAt(0) === '!'; var val = !!v[neg ? r.slice(1) : r]; if (neg) val = !val; if (val) els[i].removeAttribute('hidden'); else els[i].setAttribute('hidden', ''); }
+      els = document.querySelectorAll('img[data-broken]'); for (i = 0; i < els.length; i++) fbShow(els[i], true);
       els = document.querySelectorAll('[data-hr]'); for (i = 0; i < els.length; i++) { var p = els[i].getAttribute('data-hr').split('|'), kv = p[0].split('='); els[i].setAttribute('href', ((String(v[kv[0]]) === kv[1]) ? p[1] : p[2]) + '.dc.html'); }
       els = document.querySelectorAll('[data-path]'); for (i = 0; i < els.length; i++) { if (document.activeElement !== els[i]) { var pv = get(SS, els[i].getAttribute('data-path')); els[i].value = pv == null ? '' : pv; } }
       els = document.querySelectorAll('[data-on]'); for (i = 0; i < els.length; i++) { var q = els[i].getAttribute('data-on').split('='); if (String(get(SS, q[0])) === q[1]) els[i].classList.add('sel'); else els[i].classList.remove('sel'); }
@@ -1030,6 +1088,10 @@
       S = r.s; save(S); render(); return { ok: true };
     }
     window.RE21B = { run: run, state: function () { return snap(); }, render: render, toast: toast };
+    /* image de personnage manquante : pas d'image cassée, l'avatar de secours prend la place */
+    function fbShow(img, on) { var box = img.closest('[data-fbbox]'); if (!box) return; var f = box.querySelector('.fbx'); img.hidden = on; if (f) { if (on) f.removeAttribute('hidden'); else f.setAttribute('hidden', ''); } }
+    document.addEventListener('error', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && t.hasAttribute('data-src')) { t.setAttribute('data-broken', '1'); fbShow(t, true); } }, true);
+    document.addEventListener('load', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && t.hasAttribute('data-src')) { t.removeAttribute('data-broken'); var box = t.closest('[data-fbbox]'); if (box && box.getAttribute('data-fbif') && !RE.view(S || snap())[box.getAttribute('data-fbif')]) return; fbShow(t, false); } }, true);
     document.addEventListener('input', function (e) { var t = e.target && e.target.closest ? e.target.closest('[data-model]') : null; if (!t) return; run(t.getAttribute('data-model') + '=' + t.value); }, true);
     document.addEventListener('click', function (e) {
       var t = e.target && e.target.closest ? e.target.closest('[data-act],[data-sel]') : null; if (!t) return;

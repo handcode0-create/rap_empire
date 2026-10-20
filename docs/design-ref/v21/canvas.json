@@ -574,6 +574,37 @@
       "w": 390,
       "x": 1880,
       "y": 14989
+    },
+    "21-W1-Garde-robe.dc.html": {
+      "h": 844,
+      "title": "21.W1 Garde-robe : tenues préfabriquées",
+      "w": 390,
+      "x": 0,
+      "y": 16083,
+      "is_interactive": true
+    },
+    "21-W2-Tenue.dc.html": {
+      "h": 844,
+      "title": "21.W2 Tenue : aperçus jeune et mature, achat, équipement",
+      "w": 390,
+      "x": 470,
+      "y": 16083,
+      "is_interactive": true
+    },
+    "21-W3-Achat-tenue.dc.html": {
+      "h": 844,
+      "title": "21.W3 Confirmation d'achat d'une tenue (12-5b)",
+      "w": 390,
+      "x": 940,
+      "y": 16083,
+      "is_interactive": true
+    },
+    "21-W0-Tenues.dc.html": {
+      "h": 4170,
+      "title": "21.W0 Tenues préfabriquées : audit, architecture, tests",
+      "w": 1400,
+      "x": 1410,
+      "y": 16083
     }
   },
   "createdOnFiles": {
@@ -678,16 +709,24 @@
       "maxW": 3800,
       "text": "21.A — NOUVEAU · Catalogue des sons (streams, ventes, date, label, crédits), création d’EP et d’album (05-5 rendu jouable)",
       "w": 240,
-      "x": 47,
-      "y": 13738
+      "x": -69,
+      "y": 13645
     },
     "tz": {
       "kind": "title1",
       "maxW": 3800,
       "text": "21.Z — NOUVEAU · 16+ · À valider : activités illégales, garde à vue, avocat, tribunal, prison",
       "w": 240,
+      "x": 72,
+      "y": 14739
+    },
+    "tw": {
+      "kind": "title1",
+      "maxW": 3800,
+      "text": "21.W — PROPOSÉ · À valider : garde-robe à tenues préfabriquées (une illustration complète par tenue, variante jeune et mature, résolveur d’apparence)",
+      "w": 240,
       "x": 0,
-      "y": 14899
+      "y": 15993
     }
   },
   "order": [
@@ -762,7 +801,11 @@
     "21-Z2-Garde-a-vue.dc.html",
     "21-Z3-Avocat.dc.html",
     "21-Z4-Tribunal.dc.html",
-    "21-Z5-Prison.dc.html"
+    "21-Z5-Prison.dc.html",
+    "21-W1-Garde-robe.dc.html",
+    "21-W2-Tenue.dc.html",
+    "21-W3-Achat-tenue.dc.html",
+    "21-W0-Tenues.dc.html"
   ],
   "pages": [],
   "title": "RAP EMPIRE — Consolidation globale des améliorations (v21)"

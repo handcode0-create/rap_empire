@@ -219,3 +219,34 @@ console.log('tests v21.2 réussis', ok2, 'échecs', ko2); if (ko2) process.exitC
   let b = E.act(E.init(), 'preset', 'debut').s; b = R(R(R(b, 'create'), 'record'), 'release'); const t = b.disco[0]; ok(t.salesRev === Math.round(t.L * 0.012) * 30 && t.rev === t.streamRev + t.salesRev, 'ventes des singles : 30 cauris la vente, ajoutées aux revenus');
   let p = E.act(E.init(), 'preset', 'star').s; p.pop = 95; p.dlg = null; p = R(R(R(p, 'create'), 'record'), 'release'); ok(p.pop <= 97, 'popularité : progression ralentie près de 100');
 }
+// garde-robe à tenues préfabriquées (20/10) — tests d'acceptation 3 à 11 côté moteur
+{
+  const fs = require('fs'), path = require('path');
+  const R = (s, n, a) => { const r = E.act(s, n, a); if (r.err) throw new Error(n + ' ' + a + ' ' + r.err); return r.s; }; const ok = (c, t) => console.log((c ? 'ok' : 'ÉCHEC') + ' ' + t);
+  const W = E.WARDROBE, root = path.join(__dirname, '..');
+  const manFile = path.join(root, W.base, 'manifest.json');
+  if (fs.existsSync(manFile)) {
+    const man = JSON.parse(fs.readFileSync(manFile, 'utf8')), pick = o => JSON.stringify({ id: o.id, n: o.n, d: o.d, price: o.price, rank: o.rank, start: o.start, images: o.images, status: o.status });
+    ok(JSON.stringify(man.outfits.map(pick)) === JSON.stringify(W.outfits.map(pick)), 'catalogue du moteur identique au manifest.json (une seule source)');
+    ok(W.outfits.filter(o => o.status === 'disponible').every(o => ['young', 'mature'].every(v => o.images[v] && fs.existsSync(path.join(root, W.base, o.images[v])))), 'test 3 : chaque tenue disponible a ses deux illustrations sur disque');
+  } else console.log('ok manifest.json absent du dossier : contrôle des fichiers ignoré (lancer depuis le zip)');
+  ok(W.outfits.filter(o => !(o.images.young && o.images.mature)).every(o => o.status === 'indisponible'), 'une tenue sans ses deux variantes est indisponible');
+  let s = E.act(E.init(), 'preset', 'debut').s; const c0 = s.cash;
+  ok(s.wd.eq === 'OUTFIT_001' && s.wd.owned.length === 1, 'départ : Hoodie Néon possédé et équipé');
+  s = R(s, 'obuy', 'OUTFIT_002'); ok(s.wd.owned.includes('OUTFIT_002') && s.cash === c0 - 6000, 'test 4 : l\'achat ajoute la tenue à l\'inventaire et débite 6 000');
+  ok(s.wd.eq === 'OUTFIT_001', 'test 6 : l\'achat n\'équipe pas la tenue');
+  ok(E.act(s, 'obuy', 'OUTFIT_002').err === 'deja' && s.cash === c0 - 6000, 'double achat refusé, aucun second débit');
+  ok(E.act(s, 'obuy', 'OUTFIT_003').err === 'confirm', 'achat de 18 000 sans confirmation refusé (I-08)');
+  ok(E.act(s, 'obuy', 'OUTFIT_005').err === 'indispo', 'tenue sans illustration mature : non achetable');
+  ok(E.act(s, 'obuy', 'OUTFIT_004').err === 'rang', 'Veste Nuit : rang N3 requis');
+  let poor = JSON.parse(JSON.stringify(s)); poor.cash = 100; ok(E.act(poor, 'obuy', 'OUTFIT_003').err === 'cash' || E.act(poor, 'oask', 'OUTFIT_003').err === 'cash', 'cash insuffisant refusé');
+  ok(E.act(s, 'oeq', 'OUTFIT_003').err === 'pasachete', 'impossible d\'équiper une tenue non achetée');
+  s = R(s, 'oeq', 'OUTFIT_002'); const r1 = E.resolveLook(s);
+  ok(r1.path === W.base + 'young/OUTFIT_002.webp' && r1.variant === 'young', 'test 5 et 8 : équiper change l\'image (jeune, OUTFIT_002)');
+  s.rank = W.matureRank; s = R(s, 'endDay'); const r2 = E.resolveLook(s);
+  ok(r2.variant === 'mature' && r2.outfit === 'OUTFIT_002' && r2.path === W.base + 'mature/OUTFIT_002.webp' && s.wd.owned.length === 2, 'test 7 : au stade mature, même tenue et même inventaire');
+  const saved = JSON.parse(JSON.stringify(s)); ok(E.resolveLook(saved).path === r2.path && saved.wd.eq === 'OUTFIT_002', 'test 10 (moteur) : état sérialisé, même apparence');
+  let other = R(E.act(E.init(), 'preset', 'debut').s, 'ap', 'hair=afro'); const r3 = E.resolveLook(other);
+  ok(r3.path === null && r3.fallback === 'look', 'test 9 (moteur) : look non couvert → secours maîtrisé, pas de chemin cassé');
+  ok(E.ageVariant(Object.assign({}, s, { rank: W.matureRank - 1 })) === 'young', 'variante d\'âge dérivée du rang, jamais stockée');
+}

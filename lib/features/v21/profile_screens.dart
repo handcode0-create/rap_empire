@@ -16,6 +16,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'start_screens.dart';
+import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
 /// Profil (21-P1), rang de carrière (21-R1), classements (21-R2) et réglages.
@@ -39,7 +40,7 @@ class ProfilScreen21 extends ConsumerWidget {
     final off = _m(s['rom'])['off'] as String?;
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(children: [
-        SizedBox(width: 96, height: 120, child: PlayerAvatar(s, height: 120)),
+        EquippedAvatar(s, width: 80, height: 120),
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -72,6 +73,8 @@ class ProfilScreen21 extends ConsumerWidget {
       ActionRow(title: 'Scènes et dialogues', subtitle: 'Conditions, choix faits, mémoire des personnages', trailing: ActionRow.arrow(), onTap: () => context.go('/scenes')),
       const SizedBox(height: 8),
       ActionRow(title: 'Plateformes', subtitle: 'Ondéa, Klipo, Cauri Music', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/plateformes')),
+      const SizedBox(height: 8),
+      ActionRow(title: 'Garde-robe', subtitle: '${(_m(s['wd'])['owned'] as List).length} / ${Wardrobe21.outfits.length} tenues · illustrations de test', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/garde-robe')),
       const SizedBox(height: 8),
       ActionRow(title: 'Personnages', subtitle: 'Galerie des personnages du jeu', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/personnages')),
       const SizedBox(height: 8),

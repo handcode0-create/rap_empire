@@ -4,8 +4,10 @@ import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
 import 'dialogues21.dart';
 import 'reg21.dart';
+import 'wardrobe21.dart';
 
 export 'dialogues21.dart';
+export 'wardrobe21.dart';
 
 /// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
 /// Écarts assumés avec le prototype (extensions déjà présentes dans l'application) : 10 thèmes de la bibliothèque musicale, titres générés,
@@ -89,6 +91,7 @@ J? partner(J s) {
 J init21() {
   final s = <String, dynamic>{
     'v': 21,
+    'wd': initWardrobe21(),
     'created': 0,
     'btq': null,
     'bt': null,
@@ -611,7 +614,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature'
+  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'
 };
 
 final Map<String, Action> actions21 = {
@@ -1293,6 +1296,66 @@ final Map<String, Action> actions21 = {
     _m(n['sk'])['cha'] = _n(_m(n['sk'])['cha']) + 1;
     n['en'] = math.min(enMax(n), _n(n['en']) + 10);
     _log(n, 'En cellule : sport (Charisme +1)', 'justice');
+    return _ok(n);
+  },
+
+  // Garde-robe à tenues préfabriquées (21-W0 à 21-W3). L'achat n'équipe pas ; confirmation dès Wardrobe21.confirmAt.
+  'osel': (s, id) {
+    if (id is! String || outfit21(id) == null) return _no(s, 'inconnu');
+    final n = clone21(s);
+    _m(n['wd'])['sel'] = id;
+    _m(n['wd'])['ask'] = null;
+    return _ok(n);
+  },
+
+  'oask': (s, id) {
+    if (id is! String) return _no(s, 'inconnu');
+    final e = outfitCheck21(s, id);
+    if (e != null) return _no(s, e);
+    final n = clone21(s);
+    _m(n['wd'])['sel'] = id;
+    _m(n['wd'])['ask'] = id;
+    return _ok(n);
+  },
+
+  'obuy': (s, id) {
+    if (id is! String) return _no(s, 'inconnu');
+    final e = outfitCheck21(s, id);
+    if (e != null) return _no(s, e);
+    final o = outfit21(id)!;
+    if ((o['price'] as num) >= Wardrobe21.confirmAt && _m(s['wd'])['ask'] != id) return _no(s, 'confirm');
+    final n = clone21(s);
+    final wd = _m(n['wd']);
+    _pay(n, -(o['price'] as num));
+    _l(wd['owned']).add(id);
+    wd['ask'] = null;
+    wd['sel'] = id;
+    _log(n, 'Tenue achetée : ${o['n']}${(o['price'] as num) != 0 ? ' (−${fmt21(o['price'] as num)})' : ''}', 'eco');
+    return _ok(n);
+  },
+
+  'oasksel': (s, a) => actions21['oask']!(s, _m(s['wd'])['sel']),
+  'obuysel': (s, a) => actions21['obuy']!(s, _m(s['wd'])['sel']),
+  'oconfirm': (s, a) {
+    final ask = _m(s['wd'])['ask'];
+    return ask == null ? _no(s, 'rien') : actions21['obuy']!(s, ask);
+  },
+  'oeqsel': (s, a) => actions21['oeq']!(s, _m(s['wd'])['sel']),
+  'ocancel': (s, a) {
+    final n = clone21(s);
+    _m(n['wd'])['ask'] = null;
+    return _ok(n);
+  },
+
+  'oeq': (s, id) {
+    if (id is! String || outfit21(id) == null) return _no(s, 'inconnu');
+    final wd = _m(s['wd']);
+    if (!_l(wd['owned']).contains(id)) return _no(s, 'pasachete');
+    if (wd['eq'] == id) return _ok(s);
+    final n = clone21(s);
+    _m(n['wd'])['eq'] = id;
+    _m(n['wd'])['sel'] = id;
+    _log(n, 'Tenue équipée : ${outfit21(id)!['n']}', 'jeu');
     return _ok(n);
   },
 

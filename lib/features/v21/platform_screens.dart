@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +14,7 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
-import 'start_screens.dart';
+import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
 /// Plateformes fictives : liste (21-D1), Ondéa (21-D2), Klipo (21-D3), Cauri Music (21-D4).
@@ -140,7 +140,7 @@ class OndeaScreen extends ConsumerWidget {
       const SizedBox(height: 12),
       GlassCard(
           child: Row(children: [
-        SizedBox(width: 100, height: 120, child: PlayerAvatar(s, mood: 'smile', height: 120)),
+        EquippedAvatar(s, width: 80, height: 120),
         const SizedBox(width: 12),
         Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

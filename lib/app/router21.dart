@@ -12,6 +12,7 @@ import '../features/v21/qg_screens.dart';
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/shell21.dart';
 import '../features/v21/studio_screens.dart';
+import '../features/v21/wardrobe_screens.dart';
 import '../features/v21/start_screens.dart';
 
 /// Routes de la v21 (planches 21-*). Cinq onglets : QG, Studio, Scène, Business, Profil. La barre de navigation n'apparaît
@@ -218,6 +219,13 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
+                    GoRoute(
+                        path: 'garde-robe',
+                        name: '21-W1-Garde-robe',
+                        builder: (_, __) => const GardeRobeScreen(),
+                        routes: [
+                          GoRoute(path: 'tenue', name: '21-W2-Tenue', builder: (_, __) => const TenueScreen()),
+                        ]),
                     GoRoute(path: 'personnages', name: '21-K1-Personnages', builder: (_, __) => const PersonnagesScreen()),
                     GoRoute(
                         path: 'plateformes',

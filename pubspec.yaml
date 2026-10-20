@@ -23,6 +23,9 @@ flutter:
   assets:
     - assets/data/
     - assets/characters/
+    - assets/characters/rapper_001/
+    - assets/characters/rapper_001/young/
+    - assets/characters/rapper_001/mature/
     - assets/scenes/
     - assets/svg/
     - assets/patrimoine/

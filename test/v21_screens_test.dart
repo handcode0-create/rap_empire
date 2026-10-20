@@ -393,11 +393,38 @@ void main() {
     expect(txt('Commencer'), findsOneWidget);
   });
 
+  testWidgets('garde-robe : achat direct, confirmation à 18 000, équipement', (tester) async {
+    final s = preset('carriere')..['cash'] = 60000;
+    final repo = await pump21(tester, s, location: '/profil/garde-robe');
+    expect(txt('Garde-robe'), findsWidgets);
+    expect(txt('Équipée'), findsOneWidget);
+    await tapText(tester, 'Survêt Soleil');
+    expect(find.textContaining('Aucune condition'), findsOneWidget);
+    await tapText(tester, 'Acheter · 6 000 cauris');
+    expect(((repo.current['wd'] as J)['owned'] as List), contains('OUTFIT_002'));
+    expect(repo.current['cash'], 54000);
+    await tapText(tester, 'Équiper');
+    expect((repo.current['wd'] as J)['eq'], 'OUTFIT_002');
+    await tapText(tester, 'Retour à la garde-robe');
+    await tapText(tester, 'Veste Brume');
+    await tapText(tester, 'Acheter · 18 000 cauris');
+    expect(txt("Confirmer l'achat"), findsOneWidget);
+    await tester.tap(txt('Annuler'));
+    await tester.pumpAndSettle();
+    expect(repo.current['cash'], 54000);
+    expect((repo.current['wd'] as J)['ask'], isNull);
+    await tapText(tester, 'Acheter · 18 000 cauris');
+    await tester.tap(txt("Confirmer l'achat"));
+    await tester.pumpAndSettle();
+    expect(repo.current['cash'], 36000);
+    expect(((repo.current['wd'] as J)['owned'] as List), contains('OUTFIT_003'));
+  });
+
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/garde-robe', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',

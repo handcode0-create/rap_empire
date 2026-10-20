@@ -18,6 +18,7 @@ import '../../core/widgets/screen_background.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
 /// Écrans de démarrage de la v21 : splash (21-S0), univers (21-S1), création de l'artiste (21-S2 à 21-S5), nouvelle partie (21-S0b)
@@ -75,7 +76,7 @@ class SplashScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               Text('De Ndolo au monde.', style: V20Text.bm),
               const Spacer(),
-              SizedBox(height: 230, child: s == null ? const SizedBox() : PlayerAvatar(s, mood: 'smile', height: 230)),
+              SizedBox(height: 230, child: s == null ? const SizedBox() : EquippedAvatar(s, width: 153, height: 230)),
               if (saved) ...[
                 _SavedCard(s),
                 const SizedBox(height: 12),
@@ -423,7 +424,7 @@ class ObjectifScreen extends ConsumerWidget {
           Text('TON ARTISTE', style: V20Text.lab()),
           const SizedBox(height: 8),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(width: 110, height: 140, child: PlayerAvatar(s, height: 140)),
+            EquippedAvatar(s, width: 93, height: 140),
             const SizedBox(width: 12),
             Expanded(
               child: Column(children: [
