@@ -35,9 +35,10 @@ jobs:
               except Exception: continue
               if e.get('type') == 'testStart': names[e['test']['id']] = (e['test']['name'], e['test'].get('url') or '')
               if e.get('type') == 'error': out.setdefault(e['testID'], []).append(e.get('error', '')[:400])
+              if e.get('type') == 'print' and 'EXCEPTION' in e.get('message', '') or (e.get('type') == 'print' and 'Expected' in e.get('message', '')): out.setdefault(e['testID'], []).append(e['message'][:1200])
               if e.get('type') == 'testDone' and e.get('result') != 'success' and not e.get('hidden'):
                   n, u = names.get(e['testID'], ('?', ''))
-                  msg = ' | '.join(out.get(e['testID'], []))[:600].replace('\n', ' ')
+                  msg = ' | '.join(out.get(e['testID'], []))[:2500].replace('\n', ' ')
                   print('::error title=Test en échec::' + n + ' @ ' + u.split('/')[-1] + ' :: ' + msg)
           PY
       - run: flutter build web --release
