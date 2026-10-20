@@ -264,11 +264,12 @@ class KlipoScreen extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = platformTotals(s);
     final vpl = Reg21.platforms['klipo']!['viewsPerClipListen'] as num;
-    final clips = _disco(s).where((x) => x['clip'] is Map && (x['clip'] as Map)['st'] == 'publie').toList();
+    final disco = _disco(s);
+    final clips = disco.where((x) => x['clip'] is Map && (x['clip'] as Map)['st'] == 'publie').toList();
     return ListView(padding: const EdgeInsets.all(16), children: [
       const _PfHeader('Klipo', 'klipo'),
       const SizedBox(height: 12),
-      _PlatformHero(logo: 'klipo', eyebrow: 'KLIPO · VIDÉO / CLIPS', value: '${fmt21(t.klipoViews)} vues', detail: 'Chaîne de ${playerName(s)} · ${t.clips} clip(s) publié(s)', start: const Color(0xFF351029), end: const Color(0xFF701B50), accent: const Color(0xFFFF4DA6), thumbnailIndex: clips.isEmpty ? 0 : _disco(s).indexOf(clips.last)),
+      _PlatformHero(logo: 'klipo', eyebrow: 'KLIPO · VIDÉO / CLIPS', value: '${fmt21(t.klipoViews)} vues', detail: 'Chaîne de ${playerName(s)} · ${t.clips} clip(s) publié(s)', start: const Color(0xFF351029), end: const Color(0xFF701B50), accent: const Color(0xFFFF4DA6), thumbnailIndex: clips.isEmpty ? 0 : disco.indexOf(clips.last)),
       const SizedBox(height: 12),
       if (clips.isEmpty) ...[
         const GlassCard(
@@ -283,7 +284,7 @@ class KlipoScreen extends ConsumerWidget {
       for (final c in clips) ...[
         GameCard(
             child: Row(children: [
-          _ClipThumb(index: _disco(s).indexOf(c)),
+          _ClipThumb(index: disco.indexOf(c)),
           const SizedBox(width: 12),
           Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
