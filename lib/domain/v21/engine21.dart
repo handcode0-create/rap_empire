@@ -1128,7 +1128,7 @@ final Map<String, Action> actions21 = {
       title = (type == 'EP' ? 'EP n° ' : 'Album n° ') + (_l(n['projects']).where((x) => _m(x)['type'] == type).length + _l(n['pendingProjects'] ?? const []).where((x) => _m(x)['type'] == type).length + 1).toString();
     }
     final pending = <String, dynamic>{
-      'id': 'P' + (_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1).toString(),
+      'id': 'P${_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1}',
       'type': type, 'title': title, 'tracks': List<dynamic>.of(ids),
       'trackData': [for (final x in tracks) Map<String, dynamic>.from(x!)],
       'promo': promo, 'promoCost': promoCost, 'relDay': _n(n['day']) + days,
