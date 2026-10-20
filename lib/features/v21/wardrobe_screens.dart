@@ -37,7 +37,10 @@ class OutfitImage extends StatelessWidget {
       height: height,
       child: path == null
           ? Center(child: fallback())
-          : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, __, ___) => Center(child: fallback())),
+          : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, error, __) {
+                debugPrint('OutfitImage: chargement impossible de $path : $error');
+                return Center(child: fallback());
+              }),
     );
   }
 }
