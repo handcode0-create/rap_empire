@@ -55,8 +55,8 @@ class _PlatformHero extends StatelessWidget {
     decoration: BoxDecoration(
       gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [start, end]),
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: accent.withOpacity(.55)),
-      boxShadow: [BoxShadow(color: accent.withOpacity(.12), blurRadius: 22, offset: const Offset(0, 8))],
+      border: Border.all(color: accent.withValues(alpha: .55)),
+      boxShadow: [BoxShadow(color: accent.withValues(alpha: .12), blurRadius: 22, offset: const Offset(0, 8))],
     ),
     child: Row(children: [
       _Logo(logo, 58),
@@ -110,7 +110,7 @@ class PlateformesScreen extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 12),
         child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: accent.withOpacity(.65))),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: accent.withValues(alpha: .65))),
           child: GameCard(
             onTap: () => context.go(route),
             child: Row(children: [
