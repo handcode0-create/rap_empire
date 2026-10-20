@@ -8,8 +8,22 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
       - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter test
+      - name: flutter analyze
+        run: |
+          set +e
+          flutter analyze --no-pub > analyze.txt 2>&1
+          status=$?
+          cat analyze.txt
+          grep -E '^ *(error|warning|info) •' analyze.txt | while IFS= read -r l; do
+            lvl=$(echo "$l" | sed -E 's/^ *(error|warning|info) .*/\1/'); loc=$(echo "$l" | awk -F' • ' '{print $3}'); msg=$(echo "$l" | awk -F' • ' '{print $2 " (" $4 ")"}')
+            f=${loc%%:*}; rest=${loc#*:}; ln=${rest%%:*}
+            [ "$lvl" = error ] && t=error || t=warning
+            echo "::$t file=$f,line=$ln::$msg"
+          done
+          exit $status
+      - name: flutter test
+        if: ${{ !cancelled() }}
+        run: flutter test --reporter github
       - run: flutter build web --release
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }

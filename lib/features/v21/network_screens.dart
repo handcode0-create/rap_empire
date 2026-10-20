@@ -515,7 +515,7 @@ class KlipoPlayerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
-    final i = _n(s['kv']).toInt().clamp(0, klipo21.length - 1);
+    final i = _n(s['kv']).toInt().clamp(0, klipo21.length - 1).toInt();
     final k = klipo21[i];
     final v = k['v'] as num;
     const next = [10, 11, 15, 13, 20, 29, 35, 44];
@@ -636,7 +636,7 @@ class ClipDetailScreen extends ConsumerWidget {
         Text('Aucun clip publié', style: V20Text.nm()),
       ]);
     }
-    final i = _n(s['mcl']).toInt().clamp(0, clips.length - 1);
+    final i = _n(s['mcl']).toInt().clamp(0, clips.length - 1).toInt();
     final c = clips[i];
     final st = clipStats21(c, i);
     final dir = (c['clip'] as Map)['dir'];
