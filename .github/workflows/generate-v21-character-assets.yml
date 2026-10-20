@@ -10,6 +10,7 @@ on:
       - 'tools/design/chars2.py'
       - 'tools/design/export_assets.py'
       - 'tools/design/used_combos.json'
+      - 'docs/design-ref/v21/sources/gen_outfits.py'
       - '.github/workflows/generate-v21-character-assets.yml'
 
 permissions:
@@ -32,8 +33,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install wardrobe renderer dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pillow playwright
+          python -m playwright install --with-deps chromium
       - name: Generate character and scene SVGs
         run: python tools/design/export_assets.py
+      - name: Generate all v21 wardrobe outfit images with the project generator
+        run: |
+          python docs/design-ref/v21/sources/gen_outfits.py "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/assets/characters/rapper_001"
       - name: Commit generated assets to their asset directories
         run: |
           git config user.name "github-actions[bot]"
