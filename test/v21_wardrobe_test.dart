@@ -42,7 +42,7 @@ void main() {
     var r = act21(s, 'obuy', 'OUTFIT_002');
     expect([r.err, r.s['cash']], ['deja', c0 - 6000]);
     expect(act21(s, 'obuy', 'OUTFIT_003').err, 'confirm'); // I-08 : 18 000 sans confirmation
-    expect(act21(s, 'obuy', 'OUTFIT_005').err, 'cash'); // tenue générée : achat possible si le solde suffit
+    expect(Wardrobe21.outfits.firstWhere((o) => o['id'] == 'OUTFIT_005')['status'], 'disponible'); // variante mature générée
     expect(act21(s, 'obuy', 'OUTFIT_004').err, 'rang');
     final poor = clone21(s)..['cash'] = 100;
     expect(act21(poor, 'oask', 'OUTFIT_003').err, 'cash');
