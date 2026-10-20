@@ -19,8 +19,8 @@
    "ref": "12.5 (équipé)",
    "start": true,
    "images": {
-    "young": "young/OUTFIT_001.webp",
-    "mature": "mature/OUTFIT_001.webp"
+    "young": "young/v21b_OUTFIT_001.webp",
+    "mature": "mature/v21b_OUTFIT_001.webp"
    },
    "status": "disponible"
   },
@@ -33,8 +33,8 @@
    "ref": "12.5 (6 000)",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_002.webp",
-    "mature": "mature/OUTFIT_002.webp"
+    "young": "young/v21b_OUTFIT_002.webp",
+    "mature": "mature/v21b_OUTFIT_002.webp"
    },
    "status": "disponible"
   },
@@ -47,8 +47,8 @@
    "ref": "12.5 / 12.5b (18 000)",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_003.webp",
-    "mature": "mature/OUTFIT_003.webp"
+    "young": "young/v21b_OUTFIT_003.webp",
+    "mature": "mature/v21b_OUTFIT_003.webp"
    },
    "status": "disponible"
   },
@@ -61,8 +61,8 @@
    "ref": "12.5 (niveau 3, prix à confirmer)",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_004.webp",
-    "mature": "mature/OUTFIT_004.webp"
+    "young": "young/v21b_OUTFIT_004.webp",
+    "mature": "mature/v21b_OUTFIT_004.webp"
    },
    "status": "disponible"
   },
@@ -75,8 +75,8 @@
    "ref": "12.5 (acheté dans la maquette)",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_005.webp",
-    "mature": "mature/OUTFIT_005.webp"
+    "young": "young/v21b_OUTFIT_005.webp",
+    "mature": "mature/v21b_OUTFIT_005.webp"
    },
    "status": "disponible"
   },
@@ -89,8 +89,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_006.webp",
-    "mature": "mature/OUTFIT_006.webp"
+    "young": "young/v21b_OUTFIT_006.webp",
+    "mature": "mature/v21b_OUTFIT_006.webp"
    },
    "status": "disponible"
   },
@@ -103,8 +103,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_007.webp",
-    "mature": "mature/OUTFIT_007.webp"
+    "young": "young/v21b_OUTFIT_007.webp",
+    "mature": "mature/v21b_OUTFIT_007.webp"
    },
    "status": "disponible"
   },
@@ -117,8 +117,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_008.webp",
-    "mature": "mature/OUTFIT_008.webp"
+    "young": "young/v21b_OUTFIT_008.webp",
+    "mature": "mature/v21b_OUTFIT_008.webp"
    },
    "status": "disponible"
   },
@@ -131,8 +131,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/OUTFIT_009.webp",
-    "mature": "mature/OUTFIT_009.webp"
+    "young": "young/v21b_OUTFIT_009.webp",
+    "mature": "mature/v21b_OUTFIT_009.webp"
    },
    "status": "disponible"
   }
