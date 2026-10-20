@@ -13,10 +13,10 @@ CAT = [
  dict(id='OUTFIT_003', n='Veste Brume', d='Veste gris-violet, baskets cyan. Le look des sessions studio.', price=18000, rank=1, ref='12.5 / 12.5b (18 000)', of=dict(top='#6E6896', pants='#14102B', shoe='#3CD6F2', accent='#3CD6F2', kind='bomber')),
  dict(id='OUTFIT_004', n='Veste Nuit', d='Blazer bleu nuit et détails or, pour les grandes scènes.', price=30000, rank=3, ref='12.5 (niveau 3, prix à confirmer)', of=dict(top='#1E2A5A', pants='#0C0820', shoe='#FFC83D', accent='#FFC83D', kind='blazer')),
  dict(id='OUTFIT_005', n='Hoodie Jade', d='Hoodie vert jade.', price=12000, rank=1, ref='12.5 (acheté dans la maquette)', of=dict(top='#3DDC97', pants='#14102B', shoe='#F8F7FF', accent='#14102B', kind='hoodie')),
- dict(id='OUTFIT_006', n='Hoodie Cobalt', d='Hoodie bleu cobalt, coutures cyan et sneakers blanches.', price=14000, rank=1, ref='catalogue v21', of=dict(top='#2457D6', pants='#14102B', shoe='#F8F7FF', accent='#3CD6F2', kind='hoodie')),
- dict(id='OUTFIT_007', n='Veste Cuivre', d='Veste courte cuivre et pantalon anthracite.', price=22000, rank=2, ref='catalogue v21', of=dict(top='#B86B3D', pants='#14102B', shoe='#FFC83D', accent='#FFC83D', kind='bomber')),
+ dict(id='OUTFIT_006', n='Hoodie Cobalt', d='Hoodie bleu cobalt, coutures cyan et sneakers blanches pour les sessions de nuit.', price=14000, rank=1, ref='catalogue v21', of=dict(top='#2457D6', pants='#14102B', shoe='#F8F7FF', accent='#3CD6F2', kind='hoodie')),
+ dict(id='OUTFIT_007', n='Veste Cuivre', d='Veste courte cuivre et pantalon anthracite, un look affirmé pour les showcases.', price=22000, rank=2, ref='catalogue v21', of=dict(top='#B86B3D', pants='#14102B', shoe='#FFC83D', accent='#FFC83D', kind='bomber')),
  dict(id='OUTFIT_008', n='Ensemble Impérial', d='Ensemble noir profond, finitions or et chaîne de scène.', price=42000, rank=3, ref='catalogue v21', of=dict(top='#14102B', pants='#0C0820', shoe='#FFC83D', accent='#FFC83D', kind='blazer')),
- dict(id='OUTFIT_009', n='Néon de Bakoma', d='Tenue de performance magenta et cyan pour les grandes scènes.', price=65000, rank=5, ref='catalogue v21', of=dict(top='#F43F9D', pants='#14102B', shoe='#3CD6F2', accent='#FFC83D', kind='bomber')),
+ dict(id='OUTFIT_009', n='Néon de Bakoma', d='Tenue de performance magenta et cyan, conçue pour les grandes scènes.', price=65000, rank=5, ref='catalogue v21', of=dict(top='#F43F9D', pants='#14102B', shoe='#3CD6F2', accent='#FFC83D', kind='bomber')),
 ]
 VAR = {'young': dict(beard='stubble', mood='smile'), 'mature': dict(beard='full', mood='poised')}
 def svg(o, v):
