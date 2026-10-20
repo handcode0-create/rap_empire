@@ -93,6 +93,7 @@ J init21() {
     'v': 21,
     'wd': initWardrobe21(),
     'stock': <dynamic>[],
+    'pendingProjects': <dynamic>[],
     'songSeq': 0,
     'created': 0,
     'btq': null,
@@ -179,7 +180,7 @@ J init21() {
     'log': <dynamic>[],
     'bil': null,
     'd0': null,
-    'ui': {'promo': 0, 'feat': null},
+    'ui': {'promo': 0, 'ppromo': 0, 'feat': null},
     't': 0,
     'evId': 0,
   };
@@ -724,6 +725,61 @@ List<String> _releaseDue(J n) {
   return out;
 }
 
+/// Termine un EP ou un album. Les titres sortis sont relus depuis la discographie à la date réelle de sortie ;
+/// les inédits restent des pistes du projet et ne deviennent jamais des singles.
+void _releaseProject(J n, J draft) {
+  final ids = _l(draft['tracks']).cast<String>();
+  final snapshots = _l(draft['trackData']).map(_m).toList();
+  final disco = _l(n['disco']).map(_m).toList();
+  final tr = <J>[];
+  for (final id in ids) {
+    J? live;
+    for (final x in disco) { if (x['id'] == id) live = x; }
+    if (live != null) {
+      tr.add(live);
+    } else {
+      for (final x in snapshots) { if (x['id'] == id) tr.add(x); }
+    }
+  }
+  if (tr.isEmpty || tr.length != ids.length) return;
+  final type = draft['type'] as String;
+  final p = Reg21.proj[type]!;
+  final promo = _n(draft['promo']).toInt().clamp(0, promos21.length - 1).toInt();
+  final multiplier = promos21[promo]['m'] as num;
+  num listens(J x) => x['st'] == 'sorti' ? _n(x['L']) : jsRound(listensFor21(_n(x['Q']), _n(n['fans']), 0));
+  final inedits = tr.where((x) => x['st'] != 'sorti').toList();
+  final q = jsRound(tr.fold<num>(0, (sum, x) => sum + _n(x['Q'])) / tr.length);
+  final baseStreams = jsRound(tr.fold<num>(0, (sum, x) => sum + listens(x)) * 0.3 + _n(n['fans']) * 2);
+  // Effet marketing provisoire : le multiplicateur de portée single s'applique aux écoutes du projet.
+  final streams = jsRound(baseStreams * multiplier);
+  final fans = _n(n['fans']);
+  final sales = jsRound(fans * 0.06 * q / 60 * (type == 'Album' ? 1.3 : 1) + streams * 0.004);
+  final gross = sales * Reg21.salePrice;
+  final revenue = _t(n['signed']) ? jsRound(gross * (1 - (_t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut))) : gross;
+  final newFans = jsRound(sales * 2);
+  final top = p['top'] as num, entry = p['entry'] as num, k = p['k'] as num;
+  final rank = sales >= entry ? math.max(1, math.min(top, jsRound(top * math.pow(sales / entry, -k)))) : 0;
+  _pay(n, revenue);
+  n['fans'] = fans + newFans;
+  n['pop'] = clamp21(_n(n['pop']) + math.min(6, (sales / 400).floor()), 0, 100);
+  _addXp(n, type == 'Album' ? 150 : 80);
+  final projects = _l(n['projects']);
+  projects.insert(0, {
+    'id': draft['id'] ?? ('P' + (projects.length + 1).toString()),
+    'type': type, 'title': draft['title'], 'tracks': List<dynamic>.of(ids), 'day': n['day'],
+    'Q': q, 'L': streams, 'sales': sales, 'rev': revenue, 'cut': gross - revenue,
+    'fans': newFans, 'rank': rank, 'promo': promo, 'promoName': promos21[promo]['n'],
+    'promoCost': _n(draft['promoCost']),
+    'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
+    if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
+  });
+  _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
+  _log(n, type + ' sorti : ' + draft['title'].toString() + ' · ' + tr.length.toString() + ' titres · ' + fmt21(sales) + ' ventes · campagne ' + promos21[promo]['n'].toString() + ' · ' + (rank != 0 ? '#' + rank.toString() + ' au Top ' + top.toString() : 'non classé'), 'musique');
+}
+
+int _projectPromoCost(J s, int promo) =>
+    (s['lperk'] == 'radio' && promo == 2) ? 0 : (promos21[promo]['c'] as num).toInt();
+
 final Map<String, Action> actions21 = {
   'reset': (s, a) => _ok(init21()),
 
@@ -999,6 +1055,7 @@ final Map<String, Action> actions21 = {
     return _setUi(s, 'ctk', _m(d[k])['id']);
   },
   'ptype': (s, t) => Reg21.proj.containsKey(t) ? _setUi(s, 'ptype', t) : _no(s, 'inconnu'),
+  'ppromo': (s, k) => _setUi(s, 'ppromo', clamp21(int.tryParse('$k') ?? 0, 0, promos21.length - 1).toInt()),
   'ptk': (s, id) {
     if (![..._l(s['disco']), ..._l(s['stock'])].any((x) => _m(x)['id'] == id)) return _no(s, 'inconnu');
     final n = clone21(s), ui = _m(n['ui']);
@@ -1013,48 +1070,75 @@ final Map<String, Action> actions21 = {
   },
   'prel': (s, a) {
     final ui0 = _m(s['ui']);
-    final t = (ui0['ptype'] ?? 'EP') as String, P = Reg21.proj[t]!;
+    final type = (ui0['ptype'] ?? 'EP') as String, p = Reg21.proj[type]!;
     final ids = ((ui0['ptk'] as List?) ?? const []).cast<String>();
-    if (ids.length < (P['min'] as num) || ids.length > (P['max'] as num)) return _no(s, 'pistes');
-    if (_n(s['cash']) < (P['cost'] as num)) return _no(s, 'cash');
+    if (ids.length < (p['min'] as num) || ids.length > (p['max'] as num)) return _no(s, 'pistes');
+    final available = [..._l(s['disco']), ..._l(s['stock'])].map(_m).toList();
+    final tracks = ids.map((id) => available.where((x) => x['id'] == id).firstOrNull).toList();
+    if (tracks.any((x) => x == null)) return _no(s, 'inconnu');
+    final promo = _n(_m(s['ui'])['ppromo']).toInt().clamp(0, promos21.length - 1).toInt();
+    final promoCost = _projectPromoCost(s, promo);
+    final total = (p['cost'] as num) + promoCost;
+    if (_n(s['cash']) < total) return _no(s, 'cash');
     final n = clone21(s);
-    final e = _spend(n, P['h'] as num, P['e'] as num);
-    if (e != null) return _no(s, e);
-    _pay(n, -(P['cost'] as num));
-    final tr = [..._l(n['disco']), ..._l(n['stock'])].map(_m).where((x) => ids.contains(x['id'])).toList();
-    if (tr.length != ids.length) return _no(s, 'inconnu');
-    // Un titre de la réserve sort avec le projet : écoutes estimées sans promotion, aucune sortie en single.
-    num lOf(J x) => x['st'] == 'sorti' ? _n(x['L']) : jsRound(listensFor21(_n(x['Q']), _n(n['fans']), 0));
-    final inedits = tr.where((x) => x['st'] != 'sorti').toList();
-    final q = jsRound(tr.fold<num>(0, (a, x) => a + _n(x['Q'])) / tr.length);
+    final err = _spend(n, p['h'] as num, p['e'] as num);
+    if (err != null) return _no(s, err);
+    _pay(n, -total);
     final ui = _m(n['ui']);
     var title = cleanName21(ui['ptitle']);
     if (title.length > 30) title = title.substring(0, 30);
     if (title.isEmpty) {
-      title = '${t == 'EP' ? 'EP n° ' : 'Album n° '}${_l(n['projects']).where((p) => _m(p)['type'] == t).length + 1}';
+      title = (type == 'EP' ? 'EP n° ' : 'Album n° ') + (_l(n['projects']).where((x) => _m(x)['type'] == type).length + _l(n['pendingProjects'] ?? const []).where((x) => _m(x)['type'] == type).length + 1).toString();
     }
-    final fans = _n(n['fans']);
-    final st = jsRound(tr.fold<num>(0, (a, x) => a + lOf(x)) * 0.3 + fans * 2);
-    final sl = jsRound(fans * 0.06 * q / 60 * (t == 'Album' ? 1.3 : 1) + st * 0.004);
-    final gross = sl * Reg21.salePrice;
-    final rev = _t(n['signed']) ? jsRound(gross * (1 - (_t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut))) : gross;
-    final fg = jsRound(sl * 2);
-    final top = P['top'] as num, entry = P['entry'] as num, k = P['k'] as num;
-    final rk = sl >= entry ? math.max(1, math.min(top, jsRound(top * math.pow(sl / entry, -k)))) : 0;
-    _pay(n, rev);
-    n['fans'] = fans + fg;
-    n['pop'] = clamp21(_n(n['pop']) + math.min(6, (sl / 400).floor()), 0, 100);
-    _addXp(n, t == 'Album' ? 150 : 80);
-    _l(n['projects']).insert(0, {
-      'id': 'P${_l(n['projects']).length + 1}', 'type': t, 'title': title, 'tracks': List<dynamic>.of(ids), 'day': n['day'],
-      'Q': q, 'L': st, 'sales': sl, 'rev': rev, 'cut': gross - rev, 'fans': fg, 'rank': rk,
-      'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
-      if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
-    });
+    final draft = <String, dynamic>{
+      'id': 'P' + (_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1).toString(),
+      'type': type, 'title': title, 'tracks': List<dynamic>.of(ids),
+      'trackData': [for (final x in tracks) Map<String, dynamic>.from(x!)],
+      'promo': promo, 'promoCost': promoCost,
+    };
+    _releaseProject(n, draft);
+    ui['ptk'] = <dynamic>[];
+    ui['ptitle'] = '';
+    _log(n, type + ' publié immédiatement : ' + title + ' · campagne ' + promos21[promo]['n'].toString() + ' · coût ' + fmt21(total) + ' cauris', 'musique');
+    return _ok(n);
+  },
+
+  'pschedule': (s, arg) {
+    final days = int.tryParse('$arg') ?? 0;
+    if (days < 1 || days > Reg21.relMaxDays) return _no(s, 'inconnu');
+    final ui0 = _m(s['ui']);
+    final type = (ui0['ptype'] ?? 'EP') as String, p = Reg21.proj[type]!;
+    final ids = ((ui0['ptk'] as List?) ?? const []).cast<String>();
+    if (ids.length < (p['min'] as num) || ids.length > (p['max'] as num)) return _no(s, 'pistes');
+    final available = [..._l(s['disco']), ..._l(s['stock'])].map(_m).toList();
+    final tracks = ids.map((id) => available.where((x) => x['id'] == id).firstOrNull).toList();
+    if (tracks.any((x) => x == null)) return _no(s, 'inconnu');
+    final promo = _n(_m(s['ui'])['ppromo']).toInt().clamp(0, promos21.length - 1).toInt();
+    final promoCost = _projectPromoCost(s, promo);
+    final total = (p['cost'] as num) + promoCost;
+    if (_n(s['cash']) < total) return _no(s, 'cash');
+    final n = clone21(s);
+    final err = _spend(n, p['h'] as num, p['e'] as num);
+    if (err != null) return _no(s, err);
+    _pay(n, -total);
+    final ui = _m(n['ui']);
+    var title = cleanName21(ui['ptitle']);
+    if (title.length > 30) title = title.substring(0, 30);
+    if (title.isEmpty) {
+      title = (type == 'EP' ? 'EP n° ' : 'Album n° ') + (_l(n['projects']).where((x) => _m(x)['type'] == type).length + _l(n['pendingProjects'] ?? const []).where((x) => _m(x)['type'] == type).length + 1).toString();
+    }
+    final pending = <String, dynamic>{
+      'id': 'P' + (_l(n['projects']).length + _l(n['pendingProjects'] ?? const []).length + 1).toString(),
+      'type': type, 'title': title, 'tracks': List<dynamic>.of(ids),
+      'trackData': [for (final x in tracks) Map<String, dynamic>.from(x!)],
+      'promo': promo, 'promoCost': promoCost, 'relDay': _n(n['day']) + days,
+    };
+    n['pendingProjects'] ??= <dynamic>[];
+    _l(n['pendingProjects']).add(pending);
     _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
-    _log(n, '$t sorti : $title · ${tr.length} titres · ${fmt21(sl)} ventes · ${rk != 0 ? '#$rk au Top $top' : 'non classé'}', 'musique');
+    _log(n, type + ' programmé : ' + title + ' · J' + pending['relDay'].toString() + ' · campagne ' + promos21[promo]['n'].toString() + ' · coût ' + fmt21(total) + ' cauris', 'musique');
     return _ok(n);
   },
 
@@ -2234,6 +2318,15 @@ Res _endDay(J s) {
   n['day'] = _n(n['day']) + 1;
   n['hour'] = Reg21.dayStart;
   ev.addAll(_releaseDue(n));
+  n['pendingProjects'] ??= <dynamic>[];
+  final pendingProjects = _l(n['pendingProjects']);
+  final dueProjects = pendingProjects.map(_m).where((p) => p['relDay'] != null && _n(p['relDay']) <= _n(n['day'])).toList()
+    ..sort((a, b) => _n(a['relDay']).compareTo(_n(b['relDay'])));
+  for (final p in dueProjects) {
+    pendingProjects.removeWhere((x) => _m(x)['id'] == p['id']);
+    _releaseProject(n, p);
+    ev.add('Sortie programmée : ' + p['title'].toString());
+  }
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {

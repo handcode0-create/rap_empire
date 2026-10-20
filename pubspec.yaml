@@ -29,6 +29,9 @@ flutter:
     - assets/scenes/
     - assets/svg/
     - assets/klipo/
+    - assets/klipo/thumbs/
+    - assets/klipo/mine/
+    - assets/klipo/crowd/
     - assets/patrimoine/
   fonts:
     - family: Poppins

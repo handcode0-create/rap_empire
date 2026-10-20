@@ -195,6 +195,9 @@ void main() {
     }
     expect(txt('Prêt à sortir'), findsOneWidget);
     await tapText(tester, 'Sortir le projet');
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Confirmer la sortie');
+    await tester.pumpAndSettle();
     expect(txt('Projet sorti'), findsOneWidget);
     final p = (repo.current['projects'] as List).first as J;
     expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);

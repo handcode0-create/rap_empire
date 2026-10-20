@@ -7,6 +7,72 @@ J must(J s, String name, [dynamic arg]) {
   final r = act21(s, name, arg);
   expect(r.err, isNull, reason: '$name $arg');
   return r.s;
+  test('un projet mélange les singles déjà sortis et les inédits sélectionnés manuellement', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 100000;
+    s = recorded(s);
+    final unreleasedId = m(s['cur'])['id'] as String;
+    s = must(s, 'shelve');
+    s = recorded(s);
+    final secondUnreleasedId = m(s['cur'])['id'] as String;
+    s = must(s, 'shelve');
+    s = recorded(s);
+    s = must(s, 'release');
+    final releasedId = m(l(s['disco']).first)['id'] as String;
+    s = must(s, 'ptype', 'EP');
+    for (final id in [releasedId, unreleasedId, secondUnreleasedId]) {
+      s = must(s, 'ptk', id);
+    }
+    s = must(s, 'ppromo', 1);
+    s = must(s, 'prel');
+    expect(l(s['projects']).length, 1);
+    final p = m(l(s['projects']).first);
+    expect(p['tracks'], [releasedId, unreleasedId, secondUnreleasedId]);
+    expect(l(p['inedits']).length, 2);
+    expect(l(s['disco']).length, 1, reason: 'les inédits ne deviennent pas des singles');
+    expect(l(s['stock']), isEmpty);
+    expect(p['promoName'], 'Réseaux sociaux');
+  });
+
+  test('un EP programmé sort au jour demandé et conserve la campagne choisie', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 100000;
+    for (var i = 0; i < 3; i++) {
+      s = recorded(s);
+      s = must(s, 'shelve');
+    }
+    s = must(s, 'ptype', 'EP');
+    for (final song in l(s['stock'])) {
+      s = must(s, 'ptk', m(song)['id']);
+    }
+    s = must(s, 'ppromo', 1);
+    final day = s['day'] as num;
+    s = must(s, 'pschedule', 2);
+    expect(l(s['pendingProjects']).length, 1);
+    expect(l(s['stock']), isEmpty, reason: 'les pistes réservées ne doivent pas être réutilisées');
+    expect(l(s['projects']), isEmpty, reason: 'le projet ne sort pas avant sa date');
+    s = must(s, 'endDay');
+    expect(l(s['projects']), isEmpty);
+    s = must(s, 'endDay');
+    expect(l(s['pendingProjects']), isEmpty);
+    expect(l(s['projects']).length, 1);
+    final project = m(l(s['projects']).first);
+    expect([project['day'], project['promoName'], l(project['inedits']).length], [day + 2, 'Réseaux sociaux', 3]);
+  });
+
+  test('programmation EP : date invalide et fonds insuffisants ne débitent rien', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 16000;
+    for (var i = 0; i < 3; i++) {
+      s = recorded(s);
+      s = must(s, 'shelve');
+    }
+    s = must(s, 'ptype', 'EP');
+    for (final song in l(s['stock'])) { s = must(s, 'ptk', m(song)['id']); }
+    s = must(s, 'ppromo', 1);
+    final before = s['cash'];
+    expect(act21(s, 'pschedule', 0).err, 'inconnu');
+    expect(act21(s, 'pschedule', 1).err, 'cash');
+    expect(s['cash'], before);
+  });
+
 }
 
 List l(dynamic x) => x as List;
