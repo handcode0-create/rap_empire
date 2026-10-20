@@ -2,8 +2,7 @@ import 'reg21.dart' show J;
 
 /// Garde-robe à tenues préfabriquées (planches 21-W0 à 21-W3, engine21.js « WARDROBE »). [VALIDÉ — architecture].
 /// Une tenue = deux illustrations complètes du même rappeur (jeune / mature). Les illustrations actuellement référencées sont provisoires, non finales. Aucune composition de vêtements en jeu :
-/// le jeu sélectionne une image existante. Le catalogue est identique à assets/characters/rapper_001/manifest.json
-/// (vérifié par test/v21_wardrobe_test.dart).
+/// le jeu sélectionne une image existante. Les variantes jeune/mature sont générées par docs/design-ref/v21/sources/gen_outfits.py.
 class Wardrobe21 {
   static const character = 'rapper_001';
   static const base = 'assets/characters/rapper_001/';
@@ -17,11 +16,11 @@ class Wardrobe21 {
     {'id': 'OUTFIT_002', 'n': 'Survêt Soleil', 'd': 'Survêtement jaune soleil, zip et bandes magenta.', 'price': 6000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_002.webp', 'mature': 'mature/OUTFIT_002.webp'}, 'status': 'disponible'},
     {'id': 'OUTFIT_003', 'n': 'Veste Brume', 'd': 'Veste gris-violet, baskets cyan. Le look des sessions studio.', 'price': 18000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_003.webp', 'mature': 'mature/OUTFIT_003.webp'}, 'status': 'disponible'},
     {'id': 'OUTFIT_004', 'n': 'Veste Nuit', 'd': 'Blazer bleu nuit et détails or, pour les grandes scènes.', 'price': 30000, 'rank': 3, 'start': false, 'images': {'young': 'young/OUTFIT_004.webp', 'mature': 'mature/OUTFIT_004.webp'}, 'status': 'disponible'},
-    {'id': 'OUTFIT_005', 'n': 'Hoodie Jade', 'd': 'Hoodie vert jade. Illustration mature pas encore produite.', 'price': 12000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_005.webp', 'mature': null}, 'status': 'indisponible'},
-    {'id': 'OUTFIT_006', 'n': 'Hoodie Cobalt', 'd': 'Hoodie bleu cobalt, coutures cyan et sneakers blanches pour les sessions de nuit.', 'price': 14000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_006.svg', 'mature': 'mature/OUTFIT_006.svg'}, 'status': 'disponible'},
-    {'id': 'OUTFIT_007', 'n': 'Veste Cuivre', 'd': 'Veste courte cuivre et pantalon anthracite, un look affirmé pour les showcases.', 'price': 22000, 'rank': 2, 'start': false, 'images': {'young': 'young/OUTFIT_007.svg', 'mature': 'mature/OUTFIT_007.svg'}, 'status': 'disponible'},
-    {'id': 'OUTFIT_008', 'n': 'Ensemble Impérial', 'd': 'Ensemble noir profond, finitions or et chaîne de scène.', 'price': 42000, 'rank': 3, 'start': false, 'images': {'young': 'young/OUTFIT_008.svg', 'mature': 'mature/OUTFIT_008.svg'}, 'status': 'disponible'},
-    {'id': 'OUTFIT_009', 'n': 'Néon de Bakoma', 'd': 'Tenue de performance magenta et cyan, conçue pour les grandes scènes.', 'price': 65000, 'rank': 5, 'start': false, 'images': {'young': 'young/OUTFIT_009.svg', 'mature': 'mature/OUTFIT_009.svg'}, 'status': 'disponible'},
+    {'id': 'OUTFIT_005', 'n': 'Hoodie Jade', 'd': 'Hoodie vert jade. Illustration mature pas encore produite.', 'price': 12000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_005.webp', 'mature': 'mature/OUTFIT_005.webp'}, 'status': 'disponible'},
+    {'id': 'OUTFIT_006', 'n': 'Hoodie Cobalt', 'd': 'Hoodie bleu cobalt, coutures cyan et sneakers blanches pour les sessions de nuit.', 'price': 14000, 'rank': 1, 'start': false, 'images': {'young': 'young/OUTFIT_006.webp', 'mature': 'mature/OUTFIT_006.webp'}, 'status': 'disponible'},
+    {'id': 'OUTFIT_007', 'n': 'Veste Cuivre', 'd': 'Veste courte cuivre et pantalon anthracite, un look affirmé pour les showcases.', 'price': 22000, 'rank': 2, 'start': false, 'images': {'young': 'young/OUTFIT_007.webp', 'mature': 'mature/OUTFIT_007.webp'}, 'status': 'disponible'},
+    {'id': 'OUTFIT_008', 'n': 'Ensemble Impérial', 'd': 'Ensemble noir profond, finitions or et chaîne de scène.', 'price': 42000, 'rank': 3, 'start': false, 'images': {'young': 'young/OUTFIT_008.webp', 'mature': 'mature/OUTFIT_008.webp'}, 'status': 'disponible'},
+    {'id': 'OUTFIT_009', 'n': 'Néon de Bakoma', 'd': 'Tenue de performance magenta et cyan, conçue pour les grandes scènes.', 'price': 65000, 'rank': 5, 'start': false, 'images': {'young': 'young/OUTFIT_009.webp', 'mature': 'mature/OUTFIT_009.webp'}, 'status': 'disponible'},
   ];
 
   static const startId = 'OUTFIT_001';
