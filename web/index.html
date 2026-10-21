@@ -70,6 +70,11 @@
           + '\n\n— Journal —\n' + logs.join('\n') + '\n\n— Fichiers chargés —\n' + resources() + '\n\n' + navigator.userAgent;
         document.getElementById('boot-dots').style.display = 'none';
       }
+      // Anciennes versions : retirer le service worker et ses caches, qui servaient du code et des images périmés.
+      try {
+        if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); });
+        if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
+      } catch (e) {}
       window.addEventListener('flutter-first-frame', function () { finished = true; panel.style.display = 'none'; });
       window.addEventListener('error', function (event) {
         var source = event.filename ? ' (' + event.filename.split('/').pop() + (event.lineno ? ':' + event.lineno : '') + ')' : '';
