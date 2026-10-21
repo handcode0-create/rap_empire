@@ -528,6 +528,21 @@ class Reg21 {
   };
 
   // atelier et missions de départ
+  /// Formations (en plus de l'atelier d'écriture) : une fois par jour chacune ; les plus poussées s'ouvrent avec le rang.
+  /// Coach vocal, freestyle au carrefour et shooting viennent de la planche 09.3 ; les autres sont proposées. Valeurs provisoires (D-08).
+  static const trainings = <String, J>{
+    'freestyle': {'n': 'Freestyle au carrefour', 'd': 'Improviser devant les passants de Ndolo', 'h': 1, 'e': 15, 'cost': 0, 'gain': {'flow': 2}, 'rank': 1, 'art': 'street'},
+    'coach': {'n': 'Coach vocal', 'd': 'Souffle, justesse, placement de la voix', 'h': 2, 'e': 20, 'cost': 9000, 'gain': {'voix': 5}, 'rank': 1, 'art': 'studio'},
+    'shooting': {'n': 'Shooting et réseaux', 'd': 'Image, poses, présence en ligne', 'h': 2, 'e': 15, 'cost': 7000, 'gain': {'cha': 4}, 'rank': 1, 'art': 'backstage'},
+    'impro': {'n': 'Atelier de scène', 'd': 'Occuper la scène, parler au public', 'h': 3, 'e': 25, 'cost': 15000, 'gain': {'cha': 6}, 'rank': 2, 'art': 'stage'},
+    'placement': {'n': 'Cours de rythme et placement', 'd': 'Contretemps, débit, respirations sur la mesure', 'h': 3, 'e': 20, 'cost': 18000, 'gain': {'flow': 5}, 'rank': 2, 'art': 'studio'},
+    'masterclass': {'n': "Masterclass d'écriture", 'd': 'Avec Prof Mazé (Lyrik Atelier) : images, rimes, structure', 'h': 4, 'e': 25, 'cost': 40000, 'gain': {'ecr': 9}, 'rank': 3, 'art': 'office'},
+    'media': {'n': 'Media training', 'd': 'Interviews, plateaux télé, gestion des questions pièges', 'h': 3, 'e': 20, 'cost': 35000, 'gain': {'cha': 8}, 'rank': 4, 'art': 'call'},
+    'stagevocal': {'n': 'Stage vocal intensif', 'd': 'Une journée complète avec une chanteuse de Sélène', 'h': 6, 'e': 35, 'cost': 60000, 'gain': {'voix': 10}, 'rank': 4, 'art': 'studio'},
+    'residence': {'n': "Résidence d'écriture à Port-Ambre", 'd': 'Écrire loin du quartier, avec d\'autres plumes', 'h': 8, 'e': 40, 'cost': 120000, 'gain': {'ecr': 12, 'flow': 4}, 'rank': 5, 'art': 'office'},
+  };
+  static const skillNames = {'flow': 'Flow', 'ecr': 'Écriture', 'voix': 'Voix', 'cha': 'Charisme'};
+
   static const atelier = <String, dynamic>{
     'n': "Atelier d'écriture",
     'h': 2,

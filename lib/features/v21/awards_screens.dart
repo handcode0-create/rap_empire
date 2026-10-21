@@ -434,7 +434,7 @@ class TropheesScreen extends ConsumerWidget {
       const SizedBox(height: 8),
       const GameHint(
           icon: 'info',
-          text: 'Certifications : Disque d\'or à 50 000 unités, platine 100 000, double 200 000, triple 300 000, diamant 500 000. Unités = ventes + équivalent streaming (single : écoutes cumulées ÷ 10 ; EP et album : écoutes ÷ 100). Une certification n\'est jamais retirée. '
+          text: 'Certifications : Disque d\'or à 50 000 unités, platine 100 000, double 200 000, triple 300 000, diamant 500 000. Unités = ventes + équivalent streaming : 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes ; EP et album : écoutes du projet). Une certification n\'est jamais retirée. '
               'Cérémonies : score = 0,35 qualité + 0,25 résultats + 0,20 impact + 0,10 popularité + jury ; au plus 3 victoires par cérémonie ; une nomination rapporte aussi de la réputation. Seuils provisoires (18.4, 18.5).'),
     ]);
   }

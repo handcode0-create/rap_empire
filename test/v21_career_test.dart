@@ -144,4 +144,24 @@ void main() {
     expect(missionMetric21(st, 'geo_bakoma'), (st['geo'] as Map)['bakoma']);
     expect(missionMetric21(st, 'inconnu'), 0);
   });
+
+  test('formations : coût, compétence, une fois par jour, verrou de rang', () {
+    expect(Reg21.trainings.length, greaterThanOrEqualTo(9));
+    var s = act21(init21(), 'preset', 'debut').s;
+    s['hour'] = 8;
+    s['en'] = 100;
+    s['cash'] = 50000;
+    final v0 = (s['sk'] as Map)['voix'] as num, c0 = s['cash'] as num, tr0 = (s['trained'] ?? 0) as num;
+    s = _ok(s, 'train', 'coach');
+    expect([(s['sk'] as Map)['voix'], s['cash'], s['trained']], [v0 + 5, c0 - 9000, tr0 + 1]);
+    expect(act21(s, 'train', 'coach').err, 'aujourdhui');
+    expect(trainLock21(s, 'residence'), 'rang');
+    expect(act21(s, 'train', 'residence').err, 'rang');
+    expect(act21(s, 'train', 'zzz').err, 'inconnu');
+    final poor = _copy(s)..['cash'] = 0;
+    expect(act21(poor, 'train', 'shooting').err, 'cash');
+    expect(act21(poor, 'train', 'freestyle').err, isNull); // gratuit
+    s['day'] = (s['day'] as num) + 1;
+    expect(trainLock21(s, 'coach'), isNull);
+  });
 }

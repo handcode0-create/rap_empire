@@ -30,7 +30,7 @@ void main() {
     final s = act21(init21(), 'preset', 'star').s;
     final t = (s['disco'] as List).first as J;
     final big = _copy(s);
-    ((big['disco'] as List).first as J)['L'] = 3000000;
+    ((big['disco'] as List).first as J)['L'] = 6000000;
     final c = certs21(big).firstWhere((x) => x.id == t['id']);
     expect(c.level, greaterThanOrEqualTo(0));
     expect(c.units, singleUnits21(big, (big['disco'] as List).first as J));
@@ -45,9 +45,23 @@ void main() {
     expect(certs21(none).first.plaque, 'assets/awards/plaque_vide.svg');
   });
 
+  test('certification : un million d\'écoutes ne fait pas un disque de diamant', () {
+    final s = act21(init21(), 'preset', 'star').s;
+    final t = (s['disco'] as List).first as J;
+    t['L'] = 1000000;
+    t['clipL'] = 0;
+    t['plL'] = 0;
+    t['sales'] = 12000;
+    expect(singleUnits21(s, t), 12000 + 1000000 ~/ streamsPerUnit21);
+    expect(certs21(s).firstWhere((c) => c.id == t['id']).level, lessThan(0));
+    t['L'] = 30000000;
+    t['sales'] = 360000;
+    expect(certs21(s).firstWhere((c) => c.id == t['id']).levelId, 'diamant');
+  });
+
   test('certification annoncée une seule fois et jamais retirée', () {
     var s = act21(init21(), 'preset', 'star').s;
-    ((s['disco'] as List).first as J)['L'] = 3000000;
+    ((s['disco'] as List).first as J)['L'] = 6000000;
     s = act21(s, 'endDay').s;
     final id = ((s['disco'] as List).first as J)['id'];
     final lv = (s['certSeen'] as Map)[id] as num;
@@ -102,7 +116,7 @@ void main() {
   test('annonces : une par certification ou cérémonie, retirées une à une (awseen)', () {
     var s = act21(init21(), 'preset', 'star').s;
     expect(act21(s, 'awseen').err, 'rien');
-    ((s['disco'] as List).first as J)['L'] = 3000000;
+    ((s['disco'] as List).first as J)['L'] = 6000000;
     s = act21(s, 'endDay').s;
     final news = s['awNews'] as List;
     expect(news, isNotEmpty);

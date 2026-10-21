@@ -28,6 +28,7 @@ const err21 = {
   'voix': 'Voix insuffisante',
   'ecriture': 'Écriture insuffisante',
   'pasfaite': "Mission pas encore accomplie",
+  'aujourdhui': 'Déjà suivie aujourd’hui : reviens demain',
   'fans': 'Pas assez de fans',
   'single': "Sors d'abord un single",
   'romjour': 'Deux actions romantiques par jour : reviens demain',

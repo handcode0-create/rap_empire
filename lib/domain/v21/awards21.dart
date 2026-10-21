@@ -23,7 +23,8 @@ const certNames21 = {
 
 /// Seuils en unités, identiques pour single, EP et album : Disque d'or à 50 000 (validé par Smith le 21/10/2026),
 /// puis platine 100 000, double 200 000, triple 300 000, diamant 500 000 (provisoires).
-/// Unités : ventes + équivalent streaming (single : écoutes cumulées ÷ 10 ; EP et album : écoutes du projet ÷ 100).
+/// Unités : ventes + équivalent streaming, 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes, clip et playlists
+/// compris ; EP et album : écoutes du projet). Exemple : 1 000 000 d'écoutes d'un single ≈ 10 000 unités + ses ventes.
 const certThresholds21 = <String, List<int>>{
   'Single': [50000, 100000, 200000, 300000, 500000],
   'EP': [50000, 100000, 200000, 300000, 500000],
@@ -41,11 +42,11 @@ class Cert21 {
   String get plaque => 'assets/awards/plaque_${levelId ?? 'vide'}.svg';
 }
 
-/// Écoutes cumulées d'un single (même règle que le catalogue : 7 premiers jours, puis +35 % par semaine pendant 12 semaines).
-int _streams(J s, J t) {
-  final wk = ((_n(s['day']) - _n(t['day'])) / 7).floor();
-  return ((_n(t['L']) * (1 + math.min(math.max(wk, 0), 12) * 0.35)) + _n(t['clipL']) + _n(t['plL'])).round();
-}
+/// Écoutes cumulées d'un single : celles qu'affichent les plateformes (sortie et jours suivants, clip, playlists).
+int _streams(J t) => (_n(t['L']) + _n(t['clipL']) + _n(t['plL'])).round();
+
+/// Écoutes pour une unité certifiable (provisoire, D-08).
+const streamsPerUnit21 = 100;
 
 int _level(String kind, int units) {
   final th = certThresholds21[kind]!;
@@ -57,10 +58,10 @@ int _level(String kind, int units) {
 }
 
 /// Unités certifiables d'un single.
-int singleUnits21(J s, J t) => (_n(t['sales'] ?? (_n(t['L']) * Reg21.singleSales)) + _streams(s, t) / 10).round();
+int singleUnits21(J s, J t) => (_n(t['sales'] ?? (_n(t['L']) * Reg21.singleSales)) + _streams(t) / streamsPerUnit21).round();
 
 /// Unités certifiables d'un EP ou d'un album.
-int projectUnits21(J p) => (_n(p['sales']) + _n(p['L']) / 100).round();
+int projectUnits21(J p) => (_n(p['sales']) + _n(p['L']) / streamsPerUnit21).round();
 
 /// Toutes les œuvres du joueur avec leur certification (la plus haute d'abord).
 List<Cert21> certs21(J s) {

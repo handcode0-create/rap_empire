@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -537,10 +539,11 @@ class BusinessScreen21 extends ConsumerWidget {
       ),
       const _SceneSection('Petits boulots', 'Des cauris vite gagnés. Les plus rentables s’ouvrent avec le rang et les compétences.'),
       for (final j in jobs) _VenueCard(j),
-      const _SceneSection('Formation', 'Progresser pour mieux écrire.'),
-      _VenueCard(_Venue("Atelier d'écriture", 'Écriture +5 · mission 3', 'assets/scenes/office.svg',
-          meta: const [('clock', '2 h'), ('zap', '−20'), ('cash', '−6 000 cauris')],
-          onTap: () => doAct(context, ref, 'atelier', null, null, 'Écriture +5 · Atelier terminé'))),
+      const _SceneSection('Formation', 'Progresser : flow, écriture, voix, charisme.'),
+      _SkillsCard(s, onTap: () => context.go('/business/formation')),
+      const SizedBox(height: 10),
+      for (final v in _trainingVenues(context, ref, s).where((v) => v.onTap != null).take(2)) _VenueCard(v),
+      ActionRow(title: 'Toutes les formations', subtitle: '${Reg21.trainings.length + 1} formations · les plus poussées s’ouvrent avec le rang', trailing: ActionRow.arrow(), onTap: () => context.go('/business/formation')),
       _SceneSection('Entreprises', active.isEmpty ? 'Des revenus chaque jour, selon le rang.' : 'Cumul de tes entreprises : ${fmt21(bizTotal)} cauris.'),
       for (final e in Reg21.biz.entries)
         _VenueCard(biz[e.key] != null
@@ -565,6 +568,80 @@ class BusinessScreen21 extends ConsumerWidget {
       ]),
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Boulots, entreprises, patrimoine et merch rapportent des cauris, pas de fans ni de rang.'),
+    ]);
+  }
+}
+
+/// Formations sous forme de lieux (atelier d'écriture puis Reg21.trainings), disponibles d'abord.
+List<_Venue> _trainingVenues(BuildContext context, WidgetRef ref, J s) {
+  final moto = _m(s['own'])['moto'] != null ? 5 : 0;
+  String gains(Map g) => g.entries.map((e) => '${Reg21.skillNames[e.key]} +${e.value}').join(' · ');
+  final out = <_Venue>[
+    _Venue("Atelier d'écriture", 'Écriture +5 · mission 3', 'assets/scenes/office.svg',
+        meta: const [('clock', '2 h'), ('zap', '−20'), ('cash', '−6 000 cauris')],
+        onTap: () => doAct(context, ref, 'atelier', null, null, 'Écriture +5 · Atelier terminé')),
+    for (final e in Reg21.trainings.entries)
+      () {
+        final t = e.value;
+        final lock = trainLock21(s, e.key);
+        final meta = [('clock', '${t['h']} h'), ('zap', '−${math.max(0, (t['e'] as num) - moto)}'), ('cash', _n(t['cost']) == 0 ? 'Gratuit' : '−${fmt21(t['cost'] as num)} cauris')];
+        if (lock == 'rang') return _Venue('${t['n']}', '${t['d']} · ${gains(t['gain'] as Map)}', 'assets/scenes/${t['art']}.svg', lock: 'Débloquée au rang N${t['rank']} · ${gains(t['gain'] as Map)}', off: true);
+        if (lock == 'aujourdhui') return _Venue('${t['n']}', 'Déjà suivie aujourd’hui · reviens demain', 'assets/scenes/${t['art']}.svg', status: ('Demain', GameTagStyle.outline), off: true);
+        return _Venue('${t['n']}', '${t['d']} · ${gains(t['gain'] as Map)}', 'assets/scenes/${t['art']}.svg',
+            meta: meta, status: (gains(t['gain'] as Map), GameTagStyle.ok), onTap: () => doAct(context, ref, 'train', e.key, null, '${t['n']} · ${gains(t['gain'] as Map)}'));
+      }(),
+  ];
+  out.sort((a, b) => (a.onTap != null ? 0 : 1).compareTo(b.onTap != null ? 0 : 1));
+  return out;
+}
+
+/// Les quatre compétences du joueur.
+class _SkillsCard extends StatelessWidget {
+  final J s;
+  final VoidCallback? onTap;
+  const _SkillsCard(this.s, {this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    final sk = _m(s['sk']);
+    return GlassCard(
+      halo: false,
+      onTap: onTap,
+      semanticLabel: 'Compétences : ${Reg21.skillNames.entries.map((e) => '${e.value} ${_n(sk[e.key])}').join(', ')}',
+      child: Row(children: [
+        for (final e in Reg21.skillNames.entries)
+          Expanded(
+            child: Column(children: [
+              Text('${_n(sk[e.key])}', style: V20Text.baloo(size: 24, line: 28, color: Tk.ink)),
+              const SizedBox(height: 4),
+              MeterBar(value: (_n(sk[e.key]) / 100).clamp(0, 1).toDouble(), tone: MeterTone.cyan, thin: true),
+              const SizedBox(height: 4),
+              Text(e.value.toUpperCase(), style: V20Text.poppins(size: 10, line: 12, weight: FontWeight.w700, color: V20.ink2, spacing: .4)),
+            ]),
+          ),
+      ].expand((w) => [w, const SizedBox(width: 8)]).toList()..removeLast()),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 21-E6 Formation
+// ---------------------------------------------------------------------------------------------------------------------
+
+class FormationScreen21 extends ConsumerWidget {
+  const FormationScreen21({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const Center(child: CircularProgressIndicator());
+    final venues = _trainingVenues(context, ref, s);
+    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+      BackHeader(title: 'Formation', step: '${venues.where((v) => v.onTap != null).length} dispo', onBack: () => context.go('/business')),
+      const SizedBox(height: 12),
+      _SkillsCard(s),
+      const SizedBox(height: 8),
+      const GameHint(icon: 'info', text: 'Chaque formation se suit une fois par jour. Coach vocal, freestyle et shooting : planche 09.3 ; les autres formations et leurs effets sont proposés, valeurs provisoires.'),
+      const SizedBox(height: 12),
+      for (final v in venues) _VenueCard(v),
     ]);
   }
 }

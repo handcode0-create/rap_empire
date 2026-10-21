@@ -1857,6 +1857,32 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // Formation (Reg21.trainings) : coût, temps, énergie, gain de compétence ; une fois par jour chacune.
+  'train': (s, id) {
+    final t = Reg21.trainings[id];
+    if (t == null) return _no(s, 'inconnu');
+    final lock = trainLock21(s, '$id');
+    if (lock != null) return _no(s, lock);
+    if (_n(s['cash']) < (t['cost'] as num)) return _no(s, 'cash');
+    final n = clone21(s);
+    final e = _spend(n, t['h'] as num, t['e'] as num);
+    if (e != null) return _no(s, e);
+    _pay(n, -(t['cost'] as num));
+    final sk = _m(n['sk']);
+    final gains = <String>[];
+    _m(t['gain']).forEach((k, v) {
+      sk[k] = _n(sk[k]) + (v as num);
+      gains.add('${Reg21.skillNames[k] ?? k} +$v');
+    });
+    final td = n['trDay'] is Map ? _m(n['trDay']) : <String, dynamic>{};
+    td['$id'] = n['day'];
+    n['trDay'] = td;
+    n['trained'] = _n(n['trained']) + 1;
+    _addXp(n, 10 + (t['h'] as num).toInt() * 5);
+    _log(n, '${t['n']} : ${gains.join(', ')}${_n(t['cost']) > 0 ? ' (−${fmt21(t['cost'] as num)} cauris)' : ''}', 'carriere');
+    return _ok(n);
+  },
+
   'artistScene': (s, args) {
     if (args is! List || args.length != 2) return _no(s, 'inconnu');
     final id = args[0], choice = args[1];
@@ -3111,6 +3137,15 @@ void _missions2(J n) {
 }
 
 /// Condition manquante d'un boulot (code d'erreur) ou null s'il est accessible.
+/// Pourquoi une formation est indisponible (null : disponible) : rang insuffisant ou déjà suivie aujourd'hui.
+String? trainLock21(J s, String id) {
+  final t = Reg21.trainings[id];
+  if (t == null) return 'inconnu';
+  if (_n(s['rank']) < (t['rank'] as num)) return 'rang';
+  if (s['trDay'] is Map && _n(_m(s['trDay'])[id]) == _n(s['day']) && _m(s['trDay'])[id] != null) return 'aujourdhui';
+  return null;
+}
+
 String? jobLock21(J s, String id) {
   final j = Reg21.jobs[id];
   if (j == null) return 'inconnu';

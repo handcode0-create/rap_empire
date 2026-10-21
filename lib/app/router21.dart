@@ -179,6 +179,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'boulot',
                         name: '21-E2-Boulot',
                         builder: (_, __) => const BoulotScreen()),
+                    GoRoute(path: 'formation', name: '21-E6-Formation', builder: (_, __) => const FormationScreen21()),
                     GoRoute(
                         path: 'entreprises',
                         name: '21-E3-Entreprises',
