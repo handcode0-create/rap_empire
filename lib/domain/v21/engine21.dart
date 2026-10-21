@@ -798,6 +798,45 @@ void _releaseProject(J n, J draft) {
   final top = p['top'] as num, entry = p['entry'] as num, k = p['k'] as num;
   final rank = sales >= entry ? math.max(1, math.min(top, jsRound(top * math.pow(sales / entry, -k)))) : 0;
   _pay(n, revenue);
+
+  // Les inédits deviennent des pistes du catalogue à la sortie du projet,
+  // sans déclencher une seconde sortie single. Ils ont leurs propres écoutes,
+  // ventes à l'unité et revenus quotidiens comme les autres titres du catalogue.
+  final allListenWeight = tr.fold<num>(0, (sum, x) => sum + listens(x));
+  final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
+  for (final track in inedits) {
+    final weight = allListenWeight > 0 ? listens(track) / allListenWeight : 1 / inedits.length;
+    final trackStreams = jsRound(streams * weight);
+    final trackSales = jsRound(trackStreams * Reg21.singleSales);
+    final streamGross = jsRound(trackStreams * Reg21.listenValue);
+    final salesGross = trackSales * Reg21.salePrice;
+    final trackStreamNet = _t(n['signed']) ? jsRound(streamGross * (1 - cutRate)) : streamGross;
+    final trackSalesNet = _t(n['signed']) ? jsRound(salesGross * (1 - cutRate)) : salesGross;
+    final trackCut = streamGross - trackStreamNet + salesGross - trackSalesNet;
+    final split = _platformStreams21(trackStreams);
+    final title = <String, dynamic>{
+      ...track,
+      'st': 'sorti',
+      'day': n['day'],
+      'L': trackStreams,
+      'launchL': trackStreams,
+      'rev': trackStreamNet + trackSalesNet,
+      'streamRev': trackStreamNet,
+      'sales': trackSales,
+      'salesRev': trackSalesNet,
+      'salesCut': salesGross - trackSalesNet,
+      'cut': trackCut,
+      'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
+      'auteur': _m(n['p'])['name'],
+      'tier': tierOf21(trackStreams),
+      'signed': _t(n['signed']),
+      'platforms': split,
+      'fg': 0,
+      'pg': 0,
+    };
+    _l(n['disco']).insert(0, title);
+    _pay(n, trackStreamNet + trackSalesNet);
+  }
   n['fans'] = fans + newFans;
   n['pop'] = clamp21(_n(n['pop']) + math.min(6, (sales / 400).floor()), 0, 100);
   _addXp(n, type == 'Album' ? 150 : 80);
