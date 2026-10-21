@@ -65,7 +65,7 @@ class SceneScreen21 extends ConsumerWidget {
         : _Venue("Battle contre K-Zer d'Mabaya", 'Défi accepté · 3 rounds face au rival de Mabaya', 'assets/scenes/street.svg',
             meta: const [('clock', '1 h'), ('zap', '−15')], status: ('En attente', GameTagStyle.ok), verb: 'Entrer dans la battle', onTap: () => context.go('/scene/battle'));
     final omPlayed = _n(s['omDay']) == day;
-    final omNet = hasManager ? '+${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net' : '+3 000';
+    final omNet = hasManager ? '+${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} cauris net' : '+3 000 cauris';
     final openMic = omPlayed
         ? const _Venue('Open mic de Ndolo', 'Déjà joué aujourd’hui · reviens demain', 'assets/scenes/street.svg', status: ('Demain', GameTagStyle.outline), off: true)
         : _Venue('Open mic de Ndolo',
@@ -80,8 +80,8 @@ class SceneScreen21 extends ConsumerWidget {
         ? const _Venue('Concert au Parvis', 'Salle de Ndolo · billetterie à ton nom', 'assets/scenes/stage.svg', lock: 'Débloqué au rang N3', off: true)
         : cWait > 0
             ? _Venue('Concert au Parvis', 'Une date par semaine : prochaine possible dans $cWait j', 'assets/scenes/stage.svg', status: ('Dans $cWait j', GameTagStyle.outline), off: true)
-            : _Venue('Concert au Parvis (${Reg21.capacity} places)', 'Billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4', 'assets/scenes/stage.svg',
-                meta: [('clock', '4 h'), ('zap', '−${35 - moto - car}'), ('cash', '${fmt21(tk * Reg21.ticketPrice)} brut')],
+            : _Venue('Concert au Parvis', '${Reg21.capacity} places · billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4', 'assets/scenes/stage.svg',
+                meta: [('clock', '4 h'), ('zap', '−${35 - moto - car}'), ('cash', '≈ ${fmt21(tk * Reg21.ticketPrice)} cauris brut')],
                 status: ('Prêt', GameTagStyle.ok),
                 verb: 'Jouer le concert',
                 onTap: () => doAct(context, ref, 'concert', null, () => context.go('/scene/resultat')));
@@ -94,7 +94,7 @@ class SceneScreen21 extends ConsumerWidget {
             : tWait > 0
                 ? _Venue(tourName, 'Une tournée toutes les 4 semaines : encore $tWait j', 'assets/scenes/call.svg', status: ('Dans $tWait j', GameTagStyle.outline), off: true)
                 : _Venue(tourName, 'Frais ${fmt21(Reg21.tour['cost'] as num)} · cachets ${fmt21(fee)} · +${Reg21.tour['fans']} fans', 'assets/scenes/call.svg',
-                    meta: [('clock', '10 h'), ('zap', '−${(Reg21.tour['e'] as num) - moto - car}'), ('cash', '${fmt21(fee)} cachets')],
+                    meta: [('clock', '10 h'), ('zap', '−${(Reg21.tour['e'] as num) - moto - car}'), ('cash', '${fmt21(fee)} cauris de cachets')],
                     status: ('Prête', GameTagStyle.ok),
                     verb: 'Partir en tournée',
                     onTap: () => doAct(context, ref, 'tour', null, () => context.go('/scene/resultat')));
@@ -121,7 +121,7 @@ class SceneScreen21 extends ConsumerWidget {
       KpiRow(children: [
         StatKpi(label: 'Fans', value: fmt21(s['fans'] as num)),
         StatKpi(label: 'Popularité', value: '${s['pop']}'),
-        StatKpi(label: 'Billets estimés', value: rank < 3 ? '—' : '$tk', valueColor: Tk.gold),
+        StatKpi(label: 'Billets', value: rank < 3 ? '—' : '$tk', valueColor: Tk.gold),
       ]),
       const SizedBox(height: 16),
       if (featured != null) ...[
@@ -183,7 +183,7 @@ Widget _metaChip((String, String) m) {
     decoration: BoxDecoration(color: col.withValues(alpha: .10), borderRadius: BorderRadius.circular(999), border: Border.all(color: col.withValues(alpha: .35))),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       if (icon != 'cash') ...[GameIcon(icon, size: 12, color: col), const SizedBox(width: 4)],
-      Text(icon == 'cash' ? '$v cauris' : v, style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: col)),
+      Text(v, style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: col)),
     ]),
   );
 }
