@@ -2,6 +2,9 @@ name: Captures du site en ligne
 
 on:
   workflow_dispatch:
+  push:
+    branches: [feat/v21-project-release-workflow]
+    paths: ['.github/workflows/screens-live.yml', 'tool/screens/**']
 
 permissions:
   contents: write
@@ -11,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Attendre le déploiement Render de ce commit
+        run: sleep 300
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
       - run: |
