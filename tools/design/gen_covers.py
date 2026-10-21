@@ -2,7 +2,7 @@
 """Génère les pochettes de RAP EMPIRE : singles (selon le thème et l'ambiance du son) et projets (albums, EP).
 
 Usage :  python3 tools/design/gen_covers.py        (depuis la racine du dépôt)
-Sortie : assets/covers/s_<theme>_<ambiance>_<variante>.svg   pochettes de single (13 thèmes x 3 ambiances x 3 variantes)
+Sortie : assets/covers/s_<theme>_<ambiance>_<variante>.svg   pochettes de single (13 thèmes x 3 ambiances x 6 variantes)
          assets/covers/al_<n>.svg                            pochettes d'album (8), Djo Kéné en couleur
          assets/covers/ep_<n>.svg                            pochettes d'EP (8), Djo Kéné en silhouette
 Mêmes règles que export_assets.py et gen_awards.py : SVG pur, carré 300 x 300, pas de filtre, pas de <text>
@@ -314,13 +314,23 @@ MOTIFS = {'quartier': m_quartier, 'rue': m_rue, 'galere': m_galere, 'ambition': 
           'ego': m_ego, 'introspection': m_introspection, 'identite': m_identite, 'trap': m_trap, 'gloire': m_gloire, 'autre': m_autre}
 
 
+VARIANTS = 6
+
+
 def single(theme, amb, v):
-    a = AMBS[amb]
+    """Variantes 0 à 2 : trois mises en page ; 3 à 5 : les mêmes en miroir, accents inversés, autre tirage."""
+    top, bot, acc, acc2, light = AMBS[amb]
+    a = (top, bot, acc2, acc, light) if v >= 3 else (top, bot, acc, acc2, light)
+    lay = v % 3
     r = random.Random('%s|%s|%d' % (theme, amb, v))
     s = Svg('c%s%s%d' % (theme[:3], amb[:2], v))
-    background(s, a, r, v)
-    MOTIFS[theme](s, a, r, v)
-    finish(s, a, r, v)
+    background(s, a, r, lay)
+    if v >= 3:
+        s.add('<g transform="translate(300 0) scale(-1 1)">')
+    MOTIFS[theme](s, a, r, lay)
+    if v >= 3:
+        s.add('</g>')
+    finish(s, a, r, lay)
     return s.render()
 
 
@@ -434,7 +444,7 @@ def main():
     n = 0
     for t in THEMES:
         for a in AMBS:
-            for v in range(3):
+            for v in range(VARIANTS):
                 open(os.path.join(OUT, 's_%s_%s_%d.svg' % (t, a, v)), 'w').write(single(t, a, v))
                 n += 1
     for k in ('al', 'ep'):

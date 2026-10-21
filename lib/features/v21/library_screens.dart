@@ -38,7 +38,7 @@ Pf21 pf21(String key) => key == 'cauri' ? pfCauri : pfOndea;
 // Pochettes générées par tools/design/gen_covers.py (assets/covers) : toujours la même image pour le même son.
 const coverThemes21 = ['quartier', 'galere', 'ambition', 'amour', 'rue', 'argent', 'fete', 'ego', 'introspection', 'identite', 'trap', 'gloire', 'autre'];
 const coverAmbs21 = ['sombre', 'fiere', 'legere'];
-const projectCovers21 = 8;
+const projectCovers21 = 8, coverVariants21 = 6;
 int _h21(String id) => id.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) & 0x3fffffff);
 
 /// Pochette d'un single : le motif suit le thème du texte, les couleurs l'ambiance, la variante l'identifiant.
@@ -46,7 +46,7 @@ String trackCover21(Map t) {
   final id = '${t['id']}', h = _h21(id);
   final th = coverThemes21.contains(t['theme']) ? '${t['theme']}' : coverThemes21[h % coverThemes21.length];
   final amb = coverAmbs21.contains(t['amb']) ? '${t['amb']}' : coverAmbs21[(h ~/ 13) % 3];
-  return 'assets/covers/s_${th}_${amb}_${(h ~/ 39) % 3}.svg';
+  return 'assets/covers/s_${th}_${amb}_${(h ~/ 39) % coverVariants21}.svg';
 }
 
 /// Pochette d'un album (Djo Kéné en couleur) ou d'un EP (Djo Kéné en silhouette).
