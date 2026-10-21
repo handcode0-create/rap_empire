@@ -19,6 +19,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'wardrobe_screens.dart';
+import 'start_screens.dart';
 import 'widgets21.dart';
 
 /// Profil (21-P1), rang de carrière (21-R1), classements (21-R2) et réglages.
