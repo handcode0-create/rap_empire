@@ -2862,11 +2862,23 @@ List<String> _awardsDay(J n) {
   final aw = _m(n['aw']);
   aw['done'] ??= <String, dynamic>{};
   aw['hist'] ??= <dynamic>[];
+  // Semaine 41 : nominations de l'année annoncées et figées (les résultats se décident ensuite à chaque cérémonie).
+  aw['nom'] ??= <String, dynamic>{};
+  if (w >= nominationsWeek21 && w < ceremonies21.first.week && _m(aw['nom'])['$y'] == null) {
+    final noms = nominations21(n);
+    _m(aw['nom'])['$y'] = [for (final x in noms) '${x.$1.id}-${x.$2.id}'];
+    _log(n, noms.isEmpty ? 'Nominations de l\'année : aucune pour toi' : 'Nominations de l\'année : ${noms.length} catégorie(s)', 'carriere');
+    _awNews(n, {
+      'k': 'nom', 'y': y, 'd': day,
+      'cats': [for (final x in noms) {'n': x.$2.n, 'c': x.$1.id}],
+    });
+    ev.add(noms.isEmpty ? 'Nominations : aucune cette année' : 'Nominations : ${noms.length} catégorie(s)');
+  }
   for (final c in ceremonies21) {
     final key = '$y-${c.id}';
     if (w < c.week || _m(aw['done'])[key] != null) continue;
     _m(aw['done'])[key] = day;
-    final res = ceremonyResults21(n, c);
+    final res = ceremonyResults21(n, c, frozenNominations21(n));
     var wins = 0, noms = 0;
     for (final cat in c.cats) {
       final r = res[cat.id];

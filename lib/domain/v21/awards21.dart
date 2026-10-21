@@ -174,12 +174,14 @@ double? awardScore21(J s, Ceremony21 c, AwardCat21 cat) {
 }
 
 /// Résultats d'une cérémonie : 'win', 'nom' ou null (non nommé) par catégorie, au plus 3 victoires.
-Map<String, String?> ceremonyResults21(J s, Ceremony21 c) {
+/// [nominated] : nominations figées à la semaine 41 (clés « cérémonie-catégorie ») ; null = calcul direct.
+Map<String, String?> ceremonyResults21(J s, Ceremony21 c, [Set<String>? nominated]) {
   final out = <String, String?>{};
   var wins = 0;
   for (final cat in c.cats) {
     final sc = awardScore21(s, c, cat);
-    if (sc == null || sc < c.nominateAt) {
+    final isNom = nominated != null ? nominated.contains('${c.id}-${cat.id}') : (sc != null && sc >= c.nominateAt);
+    if (sc == null || !isNom) {
       out[cat.id] = null;
     } else if (sc >= c.winAt && wins < 3) {
       out[cat.id] = 'win';
@@ -189,6 +191,23 @@ Map<String, String?> ceremonyResults21(J s, Ceremony21 c) {
     }
   }
   return out;
+}
+
+/// Semaine d'annonce des nominations de l'année.
+const nominationsWeek21 = 41;
+
+/// Nominations calculées (clés « cérémonie-catégorie ») à partir de l'état actuel.
+List<(Ceremony21, AwardCat21)> nominations21(J s) => [
+      for (final c in ceremonies21)
+        for (final cat in c.cats)
+          if ((awardScore21(s, c, cat) ?? -1) >= c.nominateAt) (c, cat),
+    ];
+
+/// Nominations figées de l'année en cours (null si pas encore annoncées).
+Set<String>? frozenNominations21(J s) {
+  final y = yearOf21(_n(s['day']));
+  final f = _m(_m(s['aw'])['nom'])['$y'];
+  return f is List ? f.map((e) => '$e').toSet() : null;
 }
 
 /// Palmarès enregistré (aw.hist) : victoires et nominations.

@@ -111,4 +111,25 @@ void main() {
     s = act21(s, 'awseen').s;
     expect((s['awNews'] as List).length, n0 - 1);
   });
+
+  test('nominations figées en semaine 41, puis résultats limités aux catégories nommées', () {
+    var s = act21(init21(), 'preset', 'star').s;
+    s['rep'] = 90;
+    s['pop'] = 80;
+    s['day'] = 40 * 7; // fin de semaine 40
+    s['hour'] = 8;
+    s = act21(s, 'endDay').s; // semaine 41
+    final frozen = frozenNominations21(s)!;
+    expect(((s['awNews'] as List).last as Map)['k'], 'nom');
+    expect((((s['awNews'] as List).last as Map)['cats'] as List).length, frozen.length);
+    for (final c in ceremonies21) {
+      final r = ceremonyResults21(s, c, frozen);
+      for (final cat in c.cats) {
+        if (!frozen.contains('${c.id}-${cat.id}')) expect(r[cat.id], isNull);
+      }
+      expect(ceremonyResults21(s, c, const <String>{}).values.every((v) => v == null), isTrue);
+    }
+    final again = act21(s, 'endDay').s; // pas de seconde annonce la même année
+    expect((again['awNews'] as List).where((x) => (x as Map)['k'] == 'nom').length, 1);
+  });
 }

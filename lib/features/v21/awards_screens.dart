@@ -499,6 +499,12 @@ class _CatLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sc = awardScore21(s, c, cat);
+    final frozen = frozenNominations21(s);
+    if (frozen != null) {
+      final nom = frozen.contains('${c.id}-${cat.id}');
+      if (!nom) return Conseq21(ConsequenceKind.certain, '${cat.n} : pas nommé cette année');
+      return Conseq21(ConsequenceKind.estimated, '${cat.n} : nommé · score estimé ${(sc ?? 0).round()} · victoire ${c.winAt.round()}');
+    }
     if (sc == null) return Conseq21(ConsequenceKind.uncertain, '${cat.n} : pas encore éligible');
     final txt = '${cat.n} : score estimé ${sc.round()} · nomination ${c.nominateAt.round()} · victoire ${c.winAt.round()}';
     return Conseq21(ConsequenceKind.estimated, txt);
@@ -572,13 +578,14 @@ class AwardNewsCard21 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final news = (s['awNews'] as List?) ?? const [];
-    if (news.isEmpty) return const SizedBox.shrink();
+    if (news.isEmpty) return _Countdown(s);
     final it = news.first as Map;
-    final cert = it['k'] == 'cert';
-    final c = cert ? null : ceremonies21.firstWhere((x) => x.id == it['c'], orElse: () => ceremonies21.first);
-    final img = cert ? 'assets/awards/plaque_${certLevels21[(it['lv'] as num).toInt()]}.svg' : c!.trophy;
-    final title = cert ? certNames21[certLevels21[(it['lv'] as num).toInt()]]! : c!.n;
-    final sub = cert ? '${it['t']} · ${it['kind']}' : _cerLine(it);
+    final cert = it['k'] == 'cert', nom = it['k'] == 'nom';
+    final nomCats = nom ? ((it['cats'] as List?) ?? const []).cast<Map>() : const <Map>[];
+    final c = cert ? null : (nom ? ceremonies21.first : ceremonies21.firstWhere((x) => x.id == it['c'], orElse: () => ceremonies21.first));
+    final img = cert ? 'assets/awards/plaque_${certLevels21[(it['lv'] as num).toInt()]}.svg' : (nom && nomCats.isEmpty ? 'assets/awards/trophee_vide.svg' : c!.trophy);
+    final title = cert ? certNames21[certLevels21[(it['lv'] as num).toInt()]]! : (nom ? 'Nominations de l\'année' : c!.n);
+    final sub = cert ? '${it['t']} · ${it['kind']}' : (nom ? (nomCats.isEmpty ? 'Aucune nomination cette année' : '${nomCats.length} catégorie(s) : ${nomCats.map((x) => x['n']).join(', ')}') : _cerLine(it));
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: GlassCard(
@@ -590,7 +597,7 @@ class AwardNewsCard21 extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(cert ? 'NOUVELLE CERTIFICATION' : 'RÉSULTATS DE LA CÉRÉMONIE', style: V20Text.lab(color: V20.hintGoldText)),
+              Text(cert ? 'NOUVELLE CERTIFICATION' : (nom ? 'NOMINATIONS ANNONCÉES' : 'RÉSULTATS DE LA CÉRÉMONIE'), style: V20Text.lab(color: V20.hintGoldText)),
               Text(title, style: V20Text.nm()),
               Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.bs()),
             ]),
@@ -624,6 +631,7 @@ class AnnonceTropheeScreen extends ConsumerWidget {
       ]);
     }
     final it = news.first as Map;
+    if (it['k'] == 'nom') return _NominationsAnnonce(news: news, it: it);
     final cert = it['k'] == 'cert';
     final c = cert ? null : ceremonies21.firstWhere((x) => x.id == it['c'], orElse: () => ceremonies21.first);
     final lv = cert ? certLevels21[(it['lv'] as num).toInt()] : null;
@@ -682,5 +690,96 @@ class AnnonceTropheeScreen extends ConsumerWidget {
       ]),
       if (celebrate) const IgnorePointer(child: Align(alignment: Alignment.topCenter, child: RewardBurst(height: 320))),
     ]);
+  }
+}
+
+
+/// Annonce des nominations (semaine 41) : catégories retenues, dates des cérémonies, rappel que le résultat reste à venir.
+class _NominationsAnnonce extends ConsumerWidget {
+  final List news;
+  final Map it;
+  const _NominationsAnnonce({required this.news, required this.it});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cats = ((it['cats'] as List?) ?? const []).cast<Map>();
+    final any = cats.isNotEmpty;
+    return Stack(children: [
+      ListView(padding: const EdgeInsets.fromLTRB(16, 24, 16, 16), children: [
+        Text('SEMAINE $nominationsWeek21 · ANNÉE ${it['y']}', textAlign: TextAlign.center, style: V20Text.lab(color: V20.hintGoldText)),
+        const SizedBox(height: 8),
+        Center(child: SizedBox(height: 200, child: AspectRatio(aspectRatio: 220 / 300, child: SvgPicture.asset(any ? 'assets/awards/trophee_grandprix.svg' : 'assets/awards/trophee_vide.svg')))),
+        const SizedBox(height: 12),
+        Text(any ? 'TU ES NOMMÉ' : 'PAS DE NOMINATION', textAlign: TextAlign.center, style: V20Text.baloo(size: 34, line: 36, color: any ? Tk.gold : Tk.ink)),
+        Text(any ? '${cats.length} catégorie(s) cette année' : 'Le jury n\'a pas retenu ton nom cette année.', textAlign: TextAlign.center, style: V20Text.poppins(size: 15, line: 20, weight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        GlassCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (!any) Text('Sors des titres, monte sur scène, gagne en réputation : les nominations reviennent chaque année en semaine $nominationsWeek21.', style: V20Text.bs()),
+            for (final x in cats)
+              Builder(builder: (context) {
+                final c = ceremonies21.firstWhere((e) => e.id == x['c'], orElse: () => ceremonies21.first);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(children: [
+                    SizedBox(width: 34, height: 46, child: SvgPicture.asset(c.trophy)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('${x['n']}', style: V20Text.nm()),
+                        Text('${c.n} · semaine ${c.week}', style: V20Text.bs()),
+                      ]),
+                    ),
+                  ]),
+                );
+              }),
+            if (any) ...[
+              const SizedBox(height: 8),
+              const Conseq21(ConsequenceKind.certain, 'Être nommé rapporte déjà +1 réputation et +80 fans le jour de la cérémonie.'),
+              const Conseq21(ConsequenceKind.uncertain, 'La victoire se décide le jour de la cérémonie : continue à sortir des titres et à monter sur scène.'),
+            ],
+          ]),
+        ),
+        const SizedBox(height: 16),
+        PrimaryGlowButton(
+          label: news.length > 1 ? 'Annonce suivante' : 'Voir la salle des trophées',
+          onPressed: () => doAct(context, ref, 'awseen', null, () => context.go(news.length > 1 ? '/profil/trophees/annonce' : '/profil/trophees')),
+        ),
+      ]),
+      if (any) const IgnorePointer(child: Align(alignment: Alignment.topCenter, child: RewardBurst(height: 280))),
+    ]);
+  }
+}
+
+/// Carte du QG : une cérémonie approche (7 jours ou moins) et le joueur y est nommé.
+class _Countdown extends StatelessWidget {
+  final J s;
+  const _Countdown(this.s);
+  @override
+  Widget build(BuildContext context) {
+    final (c, days) = nextCeremony21(s);
+    final frozen = frozenNominations21(s);
+    if (days > 7 || frozen == null) return const SizedBox.shrink();
+    final mine = c.cats.where((x) => frozen.contains('${c.id}-${x.id}')).toList();
+    if (mine.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: GlassCard(
+        accent: GlassAccent.gold,
+        halo: false,
+        onTap: () => context.go('/profil/trophees'),
+        semanticLabel: '${c.n} dans $days jour(s)',
+        child: Row(children: [
+          SizedBox(width: 44, height: 58, child: SvgPicture.asset(c.trophy)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(days == 0 ? 'CÉRÉMONIE CE SOIR' : 'CÉRÉMONIE DANS $days JOUR(S)', style: V20Text.lab(color: V20.hintGoldText)),
+              Text(c.n, style: V20Text.nm()),
+              Text('Nommé : ${mine.map((x) => x.n).join(', ')}', maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.bs()),
+            ]),
+          ),
+        ]),
+      ),
+    );
   }
 }
