@@ -32,8 +32,10 @@ jobs:
         with: { python-version: '3.12' }
       - run: |
           python -m pip install playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps chromium webkit
       - run: python tool/screens/shoot.py build/web shots
+      - name: Mêmes écrans avec le moteur de Safari (WebKit)
+        run: SHOT_ENGINE=webkit python tool/screens/shoot.py build/web shots || echo 'WebKit indisponible'
       - name: Publier les captures sur la branche ci-screens
         run: |
           sha=$(git rev-parse --short HEAD)

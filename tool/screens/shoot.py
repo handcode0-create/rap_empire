@@ -24,9 +24,11 @@ handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=WEB)
 srv = http.server.ThreadingHTTPServer(('127.0.0.1', 8765), handler)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 state = json.load(open(STATE))
+ENGINE = os.environ.get('SHOT_ENGINE', 'chromium')  # 'webkit' : moteur de Safari (iPhone)
+PFX = '' if ENGINE == 'chromium' else ENGINE[:2] + '-'
 with sync_playwright() as p:
-    b = p.chromium.launch()
-    for scroll in (False, True):
+    b = getattr(p, ENGINE).launch()
+    for scroll in ((False, True) if ENGINE == 'chromium' else (False,)):
         pg = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
         pg.goto('http://127.0.0.1:8765/')
         pg.evaluate('s => localStorage.setItem("flutter.save_v21", JSON.stringify(s))', json.dumps(state))
@@ -37,7 +39,7 @@ with sync_playwright() as p:
                 pg.mouse.move(195, 500)
                 pg.mouse.wheel(0, 700)
                 pg.wait_for_timeout(1200)
-            pg.screenshot(path=os.path.join(OUT, '%s%s.png' % (name, '-bas' if scroll else '')))
+            pg.screenshot(path=os.path.join(OUT, '%s%s%s.png' % (PFX, name, '-bas' if scroll else '')))
             print('ok', name, scroll, flush=True)
         pg.close()
     b.close()

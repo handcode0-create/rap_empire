@@ -3,9 +3,9 @@
  "name": "Djo Kéné (look par défaut : teint 3, twists hi-top)",
  "status": "Généré par gen_outfits.py — rendu 2D provisoire à valider",
  "frame": {
-  "w": 512,
-  "h": 768,
-  "format": "webp",
+  "w": 300,
+  "h": 640,
+  "format": "svg",
   "background": "transparent",
   "anchor": "pieds en bas, centré"
  },
@@ -20,8 +20,8 @@
    "ref": "12.5 (équipé)",
    "start": true,
    "images": {
-    "young": "young/v21b_OUTFIT_001.webp",
-    "mature": "mature/v21b_OUTFIT_001.webp"
+    "young": "young/v21b_OUTFIT_001.svg",
+    "mature": "mature/v21b_OUTFIT_001.svg"
    },
    "status": "disponible"
   },
@@ -35,8 +35,8 @@
    "ref": "12.5 (6 000)",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_002.webp",
-    "mature": "mature/v21b_OUTFIT_002.webp"
+    "young": "young/v21b_OUTFIT_002.svg",
+    "mature": "mature/v21b_OUTFIT_002.svg"
    },
    "status": "disponible"
   },
@@ -50,8 +50,8 @@
    "ref": "12.5 / 12.5b (18 000)",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_003.webp",
-    "mature": "mature/v21b_OUTFIT_003.webp"
+    "young": "young/v21b_OUTFIT_003.svg",
+    "mature": "mature/v21b_OUTFIT_003.svg"
    },
    "status": "disponible"
   },
@@ -65,8 +65,8 @@
    "ref": "12.5 (niveau 3, prix à confirmer)",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_004.webp",
-    "mature": "mature/v21b_OUTFIT_004.webp"
+    "young": "young/v21b_OUTFIT_004.svg",
+    "mature": "mature/v21b_OUTFIT_004.svg"
    },
    "status": "disponible"
   },
@@ -80,8 +80,8 @@
    "ref": "12.5 (acheté dans la maquette)",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_005.webp",
-    "mature": "mature/v21b_OUTFIT_005.webp"
+    "young": "young/v21b_OUTFIT_005.svg",
+    "mature": "mature/v21b_OUTFIT_005.svg"
    },
    "status": "disponible"
   },
@@ -95,8 +95,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_006.webp",
-    "mature": "mature/v21b_OUTFIT_006.webp"
+    "young": "young/v21b_OUTFIT_006.svg",
+    "mature": "mature/v21b_OUTFIT_006.svg"
    },
    "status": "disponible"
   },
@@ -110,8 +110,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_007.webp",
-    "mature": "mature/v21b_OUTFIT_007.webp"
+    "young": "young/v21b_OUTFIT_007.svg",
+    "mature": "mature/v21b_OUTFIT_007.svg"
    },
    "status": "disponible"
   },
@@ -125,8 +125,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_008.webp",
-    "mature": "mature/v21b_OUTFIT_008.webp"
+    "young": "young/v21b_OUTFIT_008.svg",
+    "mature": "mature/v21b_OUTFIT_008.svg"
    },
    "status": "disponible"
   },
@@ -140,8 +140,8 @@
    "ref": "catalogue v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_009.webp",
-    "mature": "mature/v21b_OUTFIT_009.webp"
+    "young": "young/v21b_OUTFIT_009.svg",
+    "mature": "mature/v21b_OUTFIT_009.svg"
    },
    "status": "disponible"
   },
@@ -155,8 +155,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_010.webp",
-    "mature": "mature/v21b_OUTFIT_010.webp"
+    "young": "young/v21b_OUTFIT_010.svg",
+    "mature": "mature/v21b_OUTFIT_010.svg"
    },
    "status": "disponible"
   },
@@ -170,8 +170,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_011.webp",
-    "mature": "mature/v21b_OUTFIT_011.webp"
+    "young": "young/v21b_OUTFIT_011.svg",
+    "mature": "mature/v21b_OUTFIT_011.svg"
    },
    "status": "disponible"
   },
@@ -185,8 +185,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_012.webp",
-    "mature": "mature/v21b_OUTFIT_012.webp"
+    "young": "young/v21b_OUTFIT_012.svg",
+    "mature": "mature/v21b_OUTFIT_012.svg"
    },
    "status": "disponible"
   },
@@ -200,8 +200,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_013.webp",
-    "mature": "mature/v21b_OUTFIT_013.webp"
+    "young": "young/v21b_OUTFIT_013.svg",
+    "mature": "mature/v21b_OUTFIT_013.svg"
    },
    "status": "disponible"
   },
@@ -215,8 +215,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_014.webp",
-    "mature": "mature/v21b_OUTFIT_014.webp"
+    "young": "young/v21b_OUTFIT_014.svg",
+    "mature": "mature/v21b_OUTFIT_014.svg"
    },
    "status": "disponible"
   },
@@ -230,8 +230,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_015.webp",
-    "mature": "mature/v21b_OUTFIT_015.webp"
+    "young": "young/v21b_OUTFIT_015.svg",
+    "mature": "mature/v21b_OUTFIT_015.svg"
    },
    "status": "disponible"
   },
@@ -245,8 +245,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_016.webp",
-    "mature": "mature/v21b_OUTFIT_016.webp"
+    "young": "young/v21b_OUTFIT_016.svg",
+    "mature": "mature/v21b_OUTFIT_016.svg"
    },
    "status": "disponible"
   },
@@ -260,8 +260,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_017.webp",
-    "mature": "mature/v21b_OUTFIT_017.webp"
+    "young": "young/v21b_OUTFIT_017.svg",
+    "mature": "mature/v21b_OUTFIT_017.svg"
    },
    "status": "disponible"
   },
@@ -275,8 +275,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_018.webp",
-    "mature": "mature/v21b_OUTFIT_018.webp"
+    "young": "young/v21b_OUTFIT_018.svg",
+    "mature": "mature/v21b_OUTFIT_018.svg"
    },
    "status": "disponible"
   },
@@ -290,8 +290,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_019.webp",
-    "mature": "mature/v21b_OUTFIT_019.webp"
+    "young": "young/v21b_OUTFIT_019.svg",
+    "mature": "mature/v21b_OUTFIT_019.svg"
    },
    "status": "disponible"
   },
@@ -305,8 +305,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_020.webp",
-    "mature": "mature/v21b_OUTFIT_020.webp"
+    "young": "young/v21b_OUTFIT_020.svg",
+    "mature": "mature/v21b_OUTFIT_020.svg"
    },
    "status": "disponible"
   },
@@ -320,8 +320,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_021.webp",
-    "mature": "mature/v21b_OUTFIT_021.webp"
+    "young": "young/v21b_OUTFIT_021.svg",
+    "mature": "mature/v21b_OUTFIT_021.svg"
    },
    "status": "disponible"
   },
@@ -335,8 +335,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_022.webp",
-    "mature": "mature/v21b_OUTFIT_022.webp"
+    "young": "young/v21b_OUTFIT_022.svg",
+    "mature": "mature/v21b_OUTFIT_022.svg"
    },
    "status": "disponible"
   },
@@ -350,8 +350,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_023.webp",
-    "mature": "mature/v21b_OUTFIT_023.webp"
+    "young": "young/v21b_OUTFIT_023.svg",
+    "mature": "mature/v21b_OUTFIT_023.svg"
    },
    "status": "disponible"
   },
@@ -365,8 +365,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_024.webp",
-    "mature": "mature/v21b_OUTFIT_024.webp"
+    "young": "young/v21b_OUTFIT_024.svg",
+    "mature": "mature/v21b_OUTFIT_024.svg"
    },
    "status": "disponible"
   },
@@ -380,8 +380,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_025.webp",
-    "mature": "mature/v21b_OUTFIT_025.webp"
+    "young": "young/v21b_OUTFIT_025.svg",
+    "mature": "mature/v21b_OUTFIT_025.svg"
    },
    "status": "disponible"
   },
@@ -395,8 +395,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_026.webp",
-    "mature": "mature/v21b_OUTFIT_026.webp"
+    "young": "young/v21b_OUTFIT_026.svg",
+    "mature": "mature/v21b_OUTFIT_026.svg"
    },
    "status": "disponible"
   },
@@ -410,8 +410,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_027.webp",
-    "mature": "mature/v21b_OUTFIT_027.webp"
+    "young": "young/v21b_OUTFIT_027.svg",
+    "mature": "mature/v21b_OUTFIT_027.svg"
    },
    "status": "disponible"
   },
@@ -425,8 +425,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_028.webp",
-    "mature": "mature/v21b_OUTFIT_028.webp"
+    "young": "young/v21b_OUTFIT_028.svg",
+    "mature": "mature/v21b_OUTFIT_028.svg"
    },
    "status": "disponible"
   },
@@ -440,8 +440,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_029.webp",
-    "mature": "mature/v21b_OUTFIT_029.webp"
+    "young": "young/v21b_OUTFIT_029.svg",
+    "mature": "mature/v21b_OUTFIT_029.svg"
    },
    "status": "disponible"
   },
@@ -455,8 +455,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_030.webp",
-    "mature": "mature/v21b_OUTFIT_030.webp"
+    "young": "young/v21b_OUTFIT_030.svg",
+    "mature": "mature/v21b_OUTFIT_030.svg"
    },
    "status": "disponible"
   },
@@ -470,8 +470,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_031.webp",
-    "mature": "mature/v21b_OUTFIT_031.webp"
+    "young": "young/v21b_OUTFIT_031.svg",
+    "mature": "mature/v21b_OUTFIT_031.svg"
    },
    "status": "disponible"
   },
@@ -485,8 +485,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_032.webp",
-    "mature": "mature/v21b_OUTFIT_032.webp"
+    "young": "young/v21b_OUTFIT_032.svg",
+    "mature": "mature/v21b_OUTFIT_032.svg"
    },
    "status": "disponible"
   },
@@ -500,8 +500,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_033.webp",
-    "mature": "mature/v21b_OUTFIT_033.webp"
+    "young": "young/v21b_OUTFIT_033.svg",
+    "mature": "mature/v21b_OUTFIT_033.svg"
    },
    "status": "disponible"
   },
@@ -515,8 +515,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_034.webp",
-    "mature": "mature/v21b_OUTFIT_034.webp"
+    "young": "young/v21b_OUTFIT_034.svg",
+    "mature": "mature/v21b_OUTFIT_034.svg"
    },
    "status": "disponible"
   },
@@ -530,8 +530,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_035.webp",
-    "mature": "mature/v21b_OUTFIT_035.webp"
+    "young": "young/v21b_OUTFIT_035.svg",
+    "mature": "mature/v21b_OUTFIT_035.svg"
    },
    "status": "disponible"
   },
@@ -545,8 +545,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_036.webp",
-    "mature": "mature/v21b_OUTFIT_036.webp"
+    "young": "young/v21b_OUTFIT_036.svg",
+    "mature": "mature/v21b_OUTFIT_036.svg"
    },
    "status": "disponible"
   },
@@ -560,8 +560,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_037.webp",
-    "mature": "mature/v21b_OUTFIT_037.webp"
+    "young": "young/v21b_OUTFIT_037.svg",
+    "mature": "mature/v21b_OUTFIT_037.svg"
    },
    "status": "disponible"
   },
@@ -575,8 +575,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_038.webp",
-    "mature": "mature/v21b_OUTFIT_038.webp"
+    "young": "young/v21b_OUTFIT_038.svg",
+    "mature": "mature/v21b_OUTFIT_038.svg"
    },
    "status": "disponible"
   },
@@ -590,8 +590,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_039.webp",
-    "mature": "mature/v21b_OUTFIT_039.webp"
+    "young": "young/v21b_OUTFIT_039.svg",
+    "mature": "mature/v21b_OUTFIT_039.svg"
    },
    "status": "disponible"
   },
@@ -605,8 +605,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_040.webp",
-    "mature": "mature/v21b_OUTFIT_040.webp"
+    "young": "young/v21b_OUTFIT_040.svg",
+    "mature": "mature/v21b_OUTFIT_040.svg"
    },
    "status": "disponible"
   },
@@ -620,8 +620,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_041.webp",
-    "mature": "mature/v21b_OUTFIT_041.webp"
+    "young": "young/v21b_OUTFIT_041.svg",
+    "mature": "mature/v21b_OUTFIT_041.svg"
    },
    "status": "disponible"
   },
@@ -635,8 +635,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_042.webp",
-    "mature": "mature/v21b_OUTFIT_042.webp"
+    "young": "young/v21b_OUTFIT_042.svg",
+    "mature": "mature/v21b_OUTFIT_042.svg"
    },
    "status": "disponible"
   },
@@ -650,8 +650,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_043.webp",
-    "mature": "mature/v21b_OUTFIT_043.webp"
+    "young": "young/v21b_OUTFIT_043.svg",
+    "mature": "mature/v21b_OUTFIT_043.svg"
    },
    "status": "disponible"
   },
@@ -665,8 +665,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_044.webp",
-    "mature": "mature/v21b_OUTFIT_044.webp"
+    "young": "young/v21b_OUTFIT_044.svg",
+    "mature": "mature/v21b_OUTFIT_044.svg"
    },
    "status": "disponible"
   },
@@ -680,8 +680,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_045.webp",
-    "mature": "mature/v21b_OUTFIT_045.webp"
+    "young": "young/v21b_OUTFIT_045.svg",
+    "mature": "mature/v21b_OUTFIT_045.svg"
    },
    "status": "disponible"
   },
@@ -695,8 +695,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_046.webp",
-    "mature": "mature/v21b_OUTFIT_046.webp"
+    "young": "young/v21b_OUTFIT_046.svg",
+    "mature": "mature/v21b_OUTFIT_046.svg"
    },
    "status": "disponible"
   },
@@ -710,8 +710,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_047.webp",
-    "mature": "mature/v21b_OUTFIT_047.webp"
+    "young": "young/v21b_OUTFIT_047.svg",
+    "mature": "mature/v21b_OUTFIT_047.svg"
    },
    "status": "disponible"
   },
@@ -725,8 +725,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_048.webp",
-    "mature": "mature/v21b_OUTFIT_048.webp"
+    "young": "young/v21b_OUTFIT_048.svg",
+    "mature": "mature/v21b_OUTFIT_048.svg"
    },
    "status": "disponible"
   },
@@ -740,8 +740,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_049.webp",
-    "mature": "mature/v21b_OUTFIT_049.webp"
+    "young": "young/v21b_OUTFIT_049.svg",
+    "mature": "mature/v21b_OUTFIT_049.svg"
    },
    "status": "disponible"
   },
@@ -755,8 +755,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_050.webp",
-    "mature": "mature/v21b_OUTFIT_050.webp"
+    "young": "young/v21b_OUTFIT_050.svg",
+    "mature": "mature/v21b_OUTFIT_050.svg"
    },
    "status": "disponible"
   },
@@ -770,8 +770,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_051.webp",
-    "mature": "mature/v21b_OUTFIT_051.webp"
+    "young": "young/v21b_OUTFIT_051.svg",
+    "mature": "mature/v21b_OUTFIT_051.svg"
    },
    "status": "disponible"
   },
@@ -785,8 +785,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_052.webp",
-    "mature": "mature/v21b_OUTFIT_052.webp"
+    "young": "young/v21b_OUTFIT_052.svg",
+    "mature": "mature/v21b_OUTFIT_052.svg"
    },
    "status": "disponible"
   },
@@ -800,8 +800,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_053.webp",
-    "mature": "mature/v21b_OUTFIT_053.webp"
+    "young": "young/v21b_OUTFIT_053.svg",
+    "mature": "mature/v21b_OUTFIT_053.svg"
    },
    "status": "disponible"
   },
@@ -815,8 +815,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_054.webp",
-    "mature": "mature/v21b_OUTFIT_054.webp"
+    "young": "young/v21b_OUTFIT_054.svg",
+    "mature": "mature/v21b_OUTFIT_054.svg"
    },
    "status": "disponible"
   },
@@ -830,8 +830,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_055.webp",
-    "mature": "mature/v21b_OUTFIT_055.webp"
+    "young": "young/v21b_OUTFIT_055.svg",
+    "mature": "mature/v21b_OUTFIT_055.svg"
    },
    "status": "disponible"
   },
@@ -845,8 +845,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_056.webp",
-    "mature": "mature/v21b_OUTFIT_056.webp"
+    "young": "young/v21b_OUTFIT_056.svg",
+    "mature": "mature/v21b_OUTFIT_056.svg"
    },
    "status": "disponible"
   },
@@ -860,8 +860,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_057.webp",
-    "mature": "mature/v21b_OUTFIT_057.webp"
+    "young": "young/v21b_OUTFIT_057.svg",
+    "mature": "mature/v21b_OUTFIT_057.svg"
    },
    "status": "disponible"
   },
@@ -875,8 +875,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_058.webp",
-    "mature": "mature/v21b_OUTFIT_058.webp"
+    "young": "young/v21b_OUTFIT_058.svg",
+    "mature": "mature/v21b_OUTFIT_058.svg"
    },
    "status": "disponible"
   },
@@ -890,8 +890,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_059.webp",
-    "mature": "mature/v21b_OUTFIT_059.webp"
+    "young": "young/v21b_OUTFIT_059.svg",
+    "mature": "mature/v21b_OUTFIT_059.svg"
    },
    "status": "disponible"
   },
@@ -905,8 +905,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_060.webp",
-    "mature": "mature/v21b_OUTFIT_060.webp"
+    "young": "young/v21b_OUTFIT_060.svg",
+    "mature": "mature/v21b_OUTFIT_060.svg"
    },
    "status": "disponible"
   },
@@ -920,8 +920,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_061.webp",
-    "mature": "mature/v21b_OUTFIT_061.webp"
+    "young": "young/v21b_OUTFIT_061.svg",
+    "mature": "mature/v21b_OUTFIT_061.svg"
    },
    "status": "disponible"
   },
@@ -935,8 +935,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_062.webp",
-    "mature": "mature/v21b_OUTFIT_062.webp"
+    "young": "young/v21b_OUTFIT_062.svg",
+    "mature": "mature/v21b_OUTFIT_062.svg"
    },
    "status": "disponible"
   },
@@ -950,8 +950,8 @@
    "ref": "bibliothèque v21",
    "start": false,
    "images": {
-    "young": "young/v21b_OUTFIT_063.webp",
-    "mature": "mature/v21b_OUTFIT_063.webp"
+    "young": "young/v21b_OUTFIT_063.svg",
+    "mature": "mature/v21b_OUTFIT_063.svg"
    },
    "status": "disponible"
   }

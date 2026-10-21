@@ -1,11 +1,10 @@
 # Génère les illustrations 2D de la garde-robe préfabriquée v21 (rapper_001, variantes jeune et mature).
 # Aucune composition en jeu : chaque fichier est une image complète du personnage dans une tenue.
+# Format SVG (comme tous les personnages du jeu) : le WebP ne s'affichait pas sur iPhone (Safari) dans le build web.
 import sys, os, json, io
 KIT = sys.argv[1]; OUT = sys.argv[2]
 sys.path.insert(0, os.path.join(KIT, 'tools', 'design'))
 import chars, cast
-from playwright.sync_api import sync_playwright
-from PIL import Image
 D = cast.CAST['djo']
 CAT = [
  dict(id='OUTFIT_001', cat='Street', n='Hoodie Néon', d='Le hoodie rose de tes débuts, patch BKM sur la poitrine.', price=0, rank=1, start=True, ref='12.5 (équipé)', of=dict(top='#F43F9D', pants='#2B2459', shoe='#F43F9D', accent='#FFC83D', kind='hoodie')),
@@ -76,20 +75,15 @@ VAR = {'young': dict(beard='stubble', mood='smile'), 'mature': dict(beard='full'
 def svg(o, v):
     return chars.figure(style='2d', view='front', skin=D['skin'], hair=D['hair'], hc=D['hc'], acc=o.get('acc', D['acc']), outfit=o['of'], crop='full', **VAR[v])
 man = {'character': 'rapper_001', 'name': 'Djo Kéné (look par défaut : teint 3, twists hi-top)', 'status': 'Généré par gen_outfits.py — rendu 2D provisoire à valider',
-       'frame': {'w': 512, 'h': 768, 'format': 'webp', 'background': 'transparent', 'anchor': 'pieds en bas, centré'}, 'outfits': []}
-with sync_playwright() as p:
-    b = p.chromium.launch(); pg = b.new_page(viewport={'width': 512, 'height': 768})
-    for o in CAT:
-        imgs = {}
-        for v in ('young', 'mature'):
-            s = svg(o, v).replace('<svg ', '<svg style="width:512px;height:768px;display:block" ', 1)
-            pg.set_content('<html><body style="margin:0;background:transparent">%s</body></html>' % s); pg.wait_for_timeout(80)
-            png = pg.screenshot(omit_background=True)
-            rel = '%s/v21b_%s.webp' % (v, o['id']); os.makedirs(os.path.join(OUT, v), exist_ok=True)
-            Image.open(io.BytesIO(png)).convert('RGBA').save(os.path.join(OUT, rel), 'WEBP', quality=88, method=6)
-            imgs[v] = rel
-        man['outfits'].append({k: o[k] for k in ('id', 'cat', 'n', 'd', 'price', 'rank', 'ref')} | {'start': bool(o.get('start')), 'images': imgs,
-                               'status': 'disponible' if imgs['young'] and imgs['mature'] else 'indisponible'})
-    b.close()
+       'frame': {'w': 300, 'h': 640, 'format': 'svg', 'background': 'transparent', 'anchor': 'pieds en bas, centré'}, 'outfits': []}
+for o in CAT:
+    imgs = {}
+    for v in ('young', 'mature'):
+        rel = '%s/v21b_%s.svg' % (v, o['id']); os.makedirs(os.path.join(OUT, v), exist_ok=True)
+        with open(os.path.join(OUT, rel), 'w', encoding='utf-8') as f:
+            f.write(svg(o, v))
+        imgs[v] = rel
+    man['outfits'].append({k: o[k] for k in ('id', 'cat', 'n', 'd', 'price', 'rank', 'ref')} | {'start': bool(o.get('start')), 'images': imgs,
+                           'status': 'disponible' if imgs['young'] and imgs['mature'] else 'indisponible'})
 json.dump(man, open(os.path.join(OUT, 'manifest.json'), 'w'), ensure_ascii=False, indent=1)
 print(json.dumps([(o['id'], o['status']) for o in man['outfits']]))

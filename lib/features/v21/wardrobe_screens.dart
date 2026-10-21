@@ -277,7 +277,7 @@ class TenueScreen extends ConsumerWidget {
       if (eq)
         const GameTag('Tenue équipée', style: GameTagStyle.accent)
       else if (own)
-        PrimaryButton(label: 'Équiper', onPressed: () => doAct(context, ref, 'oeqsel', null, null, 'Tenue équipée'))
+        PrimaryButton(label: 'Équiper', onPressed: () => doAct(context, ref, 'oeqsel', null, () => context.go('/profil/garde-robe'), 'Tenue équipée : ${o['n']}'))
       else if (ind)
         const GameHint(icon: 'info', text: 'Tenue indisponible : une illustration manque.', warn: true)
       else if (locked)
