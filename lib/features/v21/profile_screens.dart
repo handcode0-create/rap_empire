@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
+import '../../core/config/env.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/action_row.dart';
@@ -252,6 +253,8 @@ class ReglagesScreen extends ConsumerWidget {
             if (context.mounted) context.go('/univers');
           },
         ),
+        const SizedBox(height: 16),
+        Text('Version du ${Env.buildTime} (UTC) · 63 tenues · Réseau v21', textAlign: TextAlign.center, style: V20Text.bs()),
       ]);
 }
 
