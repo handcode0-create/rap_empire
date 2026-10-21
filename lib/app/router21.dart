@@ -16,6 +16,7 @@ import '../features/v21/qg_screens.dart';
 import '../features/v21/reserve_screens.dart';
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/wiki_screens.dart';
+import '../features/v21/festival_screens.dart';
 import '../features/v21/shell21.dart';
 import '../features/v21/studio_screens.dart';
 import '../features/v21/wardrobe_screens.dart';
@@ -148,6 +149,8 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'battle',
                         name: '06-3-Battle-v21',
                         builder: (_, __) => const Battle21Screen()),
+                    GoRoute(path: 'festivals', name: '21-F1-Festivals', builder: (_, __) => const FestivalsScreen21()),
+                    GoRoute(path: 'booking', name: '21-F2-Booking', builder: (_, __) => const BookingScreen21()),
                     GoRoute(
                         path: 'rivalites',
                         name: '06-3-Rivalites-v21',

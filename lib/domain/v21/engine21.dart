@@ -1962,6 +1962,69 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // Invitation à un festival : 'oui' (le joueur joue et touche le cachet) ou 'non' (refus poli, aucune pénalité).
+  'fest': (s, a) {
+    if (a is! List || a.length != 2) return _no(s, 'inconnu');
+    final id = '${a[0]}', yes = a[1] == 'oui';
+    final f = Reg21.festivals[id];
+    final inv = festivalInvite21(s, id);
+    if (f == null) return _no(s, 'inconnu');
+    if (inv == null) return _no(s, 'pasinvite');
+    final n = clone21(s);
+    final fi = _m(n['fi']);
+    final key = '${inv['k']}';
+    if (!yes) {
+      fi[key] = 'refuse';
+      _log(n, 'Invitation déclinée : ${f['n']}', 'scene');
+      return _ok(n);
+    }
+    final e = _spend(n, f['h'] as num, f['e'] as num);
+    if (e != null) return _no(s, e);
+    final fee = f['fee'] as num;
+    final cut = _cachet(n, fee, 'festival');
+    fi[key] = 'joue';
+    n['fans'] = _n(n['fans']) + (f['fans'] as num);
+    n['rep'] = _n(n['rep']) + (f['rep'] as num);
+    n['shows'] = _n(n['shows']) + 1;
+    n['pop'] = clamp21(_n(n['pop']) + 1, 0, 100);
+    _geoAdd(n, '${f['place']}', f['geo'] as num);
+    _addXp(n, 40 + (f['rep'] as int) * 10);
+    n['cc'] = {'g': 'F', 'tk': 0, 'gross': fee, 'cash': fee - cut, 'managerCut': cut, 'fans': f['fans'], 'rep': f['rep'], 'day': n['day'], 'tour': 1, 'lbl': '${f['n']}'};
+    _log(n, '${f['n']} : cachet ${fmt21(fee)} cauris, +${fmt21(f['fans'] as num)} fans', 'scene');
+    return _ok(n);
+  },
+
+  // Booking international : [marché, format]. Frais de voyage payés d'avance, cachets selon la notoriété locale.
+  'intl': (s, a) {
+    if (a is! List || a.length != 2) return _no(s, 'inconnu');
+    final mk = '${a[0]}', fm = '${a[1]}';
+    final f = Reg21.intlFormats[fm];
+    if (f == null || !Reg21.intlMarkets.containsKey(mk)) return _no(s, 'inconnu');
+    final lock = intlLock21(s, mk, fm);
+    if (lock != null) return _no(s, lock);
+    final n = clone21(s);
+    final e = _spend(n, f['h'] as num, f['e'] as num);
+    if (e != null) return _no(s, e);
+    final q = intlQuote21(s, mk, fm);
+    _pay(n, -(f['cost'] as num));
+    final cut = _cachet(n, q.fees, 'tournée internationale');
+    n['intlLast'] = n['day'];
+    n['fans'] = _n(n['fans']) + q.fans;
+    n['rep'] = _n(n['rep']) + 5;
+    n['shows'] = _n(n['shows']) + (f['dates'] as num);
+    n['pop'] = clamp21(_n(n['pop']) + 2, 0, 100);
+    _geoAdd(n, mk, f['geo'] as num);
+    _addXp(n, 150 + (f['dates'] as int) * 20);
+    final net = q.fees - cut - (f['cost'] as num);
+    n['cc'] = {'g': 'I', 'tk': 0, 'gross': q.fees, 'cash': net, 'managerCut': cut, 'fans': q.fans, 'rep': 5, 'day': n['day'], 'tour': 1,
+      'lbl': '${f['n']} à ${Reg21.intlMarkets[mk]!['n']}'};
+    final hist = n['intl'] is List ? _l(n['intl']) : <dynamic>[];
+    hist.insert(0, {'mk': mk, 'fm': fm, 'd': n['day'], 'net': net, 'fans': q.fans});
+    n['intl'] = hist;
+    _log(n, '${f['n']} à ${Reg21.intlMarkets[mk]!['n']} : ${f['dates']} dates, cachets ${fmt21(q.fees)}, frais ${fmt21(f['cost'] as num)}', 'scene');
+    return _ok(n);
+  },
+
   'tour': (s, a) {
     final t = Reg21.tour;
     if (_n(s['rank']) < (t['rank'] as num)) return _no(s, 'rang');
@@ -2715,6 +2778,7 @@ Res _endDay(J s) {
   }
   ev.addAll(_playlistsDay(n));
   ev.addAll(_awardsDay(n));
+  ev.addAll(_festivalsDay(n));
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {
@@ -3144,6 +3208,62 @@ String? trainLock21(J s, String id) {
   if (_n(s['rank']) < (t['rank'] as num)) return 'rang';
   if (s['trDay'] is Map && _n(_m(s['trDay'])[id]) == _n(s['day']) && _m(s['trDay'])[id] != null) return 'aujourdhui';
   return null;
+}
+
+/// Invitations de festival : chaque jour, si la semaine d'un festival commence et que le joueur y est éligible
+/// (rang et popularité), l'invitation s'ouvre jusqu'à la fin de la semaine. Rien ne change dans les stats.
+List<String> _festivalsDay(J n) {
+  final ev = <String>[];
+  if (!_t(n['created'])) return ev;
+  final fi = n['fi'] is Map ? _m(n['fi']) : <String, dynamic>{};
+  final day = _n(n['day']);
+  for (final id in Reg21.festivalOrder) {
+    final f = Reg21.festivals[id]!;
+    for (final w in _l(f['weeks'])) {
+      if (weekOf21(day) != w) continue;
+      final k = '${yearOf21(day)}-$id-$w';
+      if (fi[k] != null) continue;
+      if (_n(n['rank']) < (f['rank'] as num) || _n(n['pop']) < (f['pop'] as num)) continue;
+      fi[k] = 'invite';
+      ev.add('Invitation : ${f['n']} (${f['city']}) · cachet ${fmt21(f['fee'] as num)} cauris');
+    }
+  }
+  if (fi.isNotEmpty) n['fi'] = fi;
+  return ev;
+}
+
+/// Invitation ouverte pour ce festival cette semaine (k : clé), ou null.
+J? festivalInvite21(J s, String id) {
+  final f = Reg21.festivals[id];
+  if (f == null || s['fi'] is! Map) return null;
+  final day = _n(s['day']);
+  for (final w in _l(f['weeks'])) {
+    final k = '${yearOf21(day)}-$id-$w';
+    if (weekOf21(day) == w && _m(s['fi'])[k] == 'invite') return {'k': k, 'id': id, 'w': w};
+  }
+  return null;
+}
+
+/// Toutes les invitations ouvertes aujourd'hui.
+List<J> festivalInvites21(J s) => [for (final id in Reg21.festivalOrder) if (festivalInvite21(s, id) != null) festivalInvite21(s, id)!];
+
+/// Pourquoi une tournée internationale n'est pas possible (null : possible).
+String? intlLock21(J s, String mk, String fm) {
+  final f = Reg21.intlFormats[fm];
+  if (f == null) return 'inconnu';
+  if (_n(s['rank']) < Reg21.intlRank) return 'rang';
+  if (s['intlLast'] != null && _n(s['day']) - _n(s['intlLast']) < Reg21.intlEvery) return 'delai';
+  if (_n(_m(s['geo'])[mk]) < (f['needGeo'] as num)) return 'audience';
+  if (_n(s['cash']) < (f['cost'] as num)) return 'cash';
+  return null;
+}
+
+/// Devis d'une tournée internationale : cachets (par date × notoriété locale) et fans estimés.
+({int fees, int fans, int perDate}) intlQuote21(J s, String mk, String fm) {
+  final f = Reg21.intlFormats[fm]!;
+  final g = _n(_m(s['geo'])[mk]);
+  final perDate = jsRound((f['perDate'] as num) * (1 + g / 50));
+  return (fees: perDate * (f['dates'] as int), fans: jsRound((f['fans'] as num) * (1 + g / 100)), perDate: perDate);
 }
 
 String? jobLock21(J s, String id) {

@@ -28,6 +28,8 @@ ROUTES = [
     ('labels', '/business/labels/tous'),
     ('marketing', '/profil/reseau/marketing'),
     ('scene', '/scene'),
+    ('festivals', '/scene/festivals'),
+    ('booking', '/scene/booking'),
     ('studio', '/studio'),
     ('business', '/business'),
     ('feats', '/studio/feats'),

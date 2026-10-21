@@ -23,6 +23,7 @@ import 'shell21.dart';
 import 'wardrobe_screens.dart';
 import 'awards_screens.dart' show AwardNewsCard21;
 import 'cast21.dart';
+import 'festival_screens.dart';
 import 'widgets21.dart';
 
 /// QG du jour (21-Q1), journée (21-Q2), bilan (21-Q3), année (21-Q4), journal (21-J1) et événements (21-V1).
@@ -148,6 +149,7 @@ class QgScreen extends ConsumerWidget {
       else
         CareerMissionCard21(s),
       AwardNewsCard21(s),
+      FestivalNewsCard21(s),
       const SizedBox(height: 12),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

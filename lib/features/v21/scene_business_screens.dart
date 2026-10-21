@@ -25,6 +25,7 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'festival_screens.dart';
 import 'labels_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
@@ -100,8 +101,13 @@ class SceneScreen21 extends ConsumerWidget {
                     status: ('Prête', GameTagStyle.ok),
                     verb: 'Partir en tournée',
                     onTap: () => doAct(context, ref, 'tour', null, () => context.go('/scene/resultat')));
-    final festival = _Venue('Date à Tamarel Open Air', 'Festival international de 60 000 places (18.3)', 'assets/scenes/burst.svg',
-        lock: rank < Reg21.intlRank ? 'Débloquée au rang N${Reg21.intlRank}' : 'Date internationale : à venir', off: true);
+    final booking = _Venue('Booking international', 'Tamarel, Korvane, Aldéra : showcase, tournée ou grande tournée', 'assets/scenes/call.svg',
+        lock: rank < Reg21.intlRank ? 'Débloqué au rang N${Reg21.intlRank}' : null,
+        status: rank < Reg21.intlRank ? null : ('Agence', GameTagStyle.accent),
+        onTap: () => context.go('/scene/booking'));
+    final invites = festivalInvites21(s);
+    final festivals = _Venue('Calendrier des festivals', '${Reg21.festivals.length} festivals par an, du quartier à l’international', 'assets/scenes/burst.svg',
+        status: invites.isEmpty ? null : ('${invites.length} invitation(s)', GameTagStyle.ok), onTap: () => context.go('/scene/festivals'));
 
     // À l'affiche : la meilleure date jouable maintenant (une seule action principale à l'écran).
     final featured = [battle, concert, tour, openMic].whereType<_Venue>().where((v) => v.onTap != null).firstOrNull;
@@ -141,9 +147,12 @@ class SceneScreen21 extends ConsumerWidget {
         const SizedBox(height: 10),
       ],
       _VenueCard(concert),
-      const _SceneSection('Tournées et festivals', 'Sortir de Bakoma : Port-Ambre, Sélène, puis l’international.'),
+      const _SceneSection('Festivals', 'Les promoteurs t’invitent : accepte ou refuse.'),
+      for (final i in invites) FestivalInviteCard21(s, '${i['id']}'),
+      _VenueCard(festivals),
+      const _SceneSection('Tournées', 'Sortir de Bakoma : Port-Ambre, Sélène, puis l’international.'),
       _VenueCard(tour),
-      _VenueCard(festival),
+      _VenueCard(booking),
       const SizedBox(height: 8),
       _LastShow(cc),
       const SizedBox(height: 12),
@@ -312,7 +321,7 @@ class _LastShow extends StatelessWidget {
               ),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(c['tour'] == 1 ? 'Tournée régionale' : 'Concert au Parvis · note ${c['g']}', style: V20Text.nm()),
+                Text(c['lbl'] != null ? '${c['lbl']}' : c['tour'] == 1 ? 'Tournée régionale' : 'Concert au Parvis · note ${c['g']}', style: V20Text.nm()),
                 Text('${fmt21(c['fans'] as num)} fans · ${fmt21(c['cash'] as num)} cauris nets · réputation +${c['rep']}', style: V20Text.bs()),
                 if (_n(c['managerCut']) > 0) Text('Retenue manager : −${fmt21(_n(c['managerCut']))} cauris sur ${fmt21(_n(c['gross']))}', style: V20Text.bs()),
               ]),
@@ -363,7 +372,7 @@ class ConcertResultScreen extends ConsumerWidget {
           halo: false,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : 'LE PARVIS · NDOLO',
+            Text(cc['lbl'] != null ? '${cc['lbl']}'.toUpperCase() : cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : 'LE PARVIS · NDOLO',
                 style: V20Text.lab(color: V20.accText)),
             Text(cc['tour'] == 1 ? 'Tournée' : 'Note ${cc['g']}',
                 style: V20Text.dm(size: 30)),

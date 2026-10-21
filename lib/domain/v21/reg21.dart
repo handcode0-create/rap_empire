@@ -420,6 +420,36 @@ class Reg21 {
       'c': ['aldera']
     },
   };
+  /// Festivals de l'année (calendrier 18.3) : l'invitation arrive la semaine du festival si le rang et la popularité suffisent ;
+  /// le joueur accepte (il joue, touche un cachet fixe selon le niveau, R24) ou refuse. Cachets et effets provisoires (D-08).
+  static const festivals = <String, J>{
+    'ndolo': {'n': 'Scène Ouverte de Ndolo', 'lvl': 'Local', 'place': 'bakoma', 'city': 'Ndolo', 'weeks': [6, 30], 'cap': 400, 'fee': 3000, 'fans': 60, 'rep': 1, 'geo': 0.5, 'rank': 1, 'pop': 0, 'h': 4, 'e': 20, 'who': 'Bakary Fé'},
+    'mabaya': {'n': 'Nuits de Mabaya', 'lvl': 'Local', 'place': 'bakoma', 'city': 'Mabaya', 'weeks': [14], 'cap': 900, 'fee': 5000, 'fans': 120, 'rep': 2, 'geo': 0.8, 'rank': 1, 'pop': 5, 'h': 4, 'e': 20, 'who': 'Awa Liméa'},
+    'lumbe': {'n': 'Tremplin de Lumbé', 'lvl': 'Local', 'place': 'bakoma', 'city': 'Lumbé', 'weeks': [22], 'cap': 700, 'fee': 4500, 'fans': 100, 'rep': 2, 'geo': 0.8, 'rank': 2, 'pop': 8, 'h': 4, 'e': 20, 'who': 'Prof Mazé'},
+    'lagune': {'n': "Festival Lagune d'Ambre", 'lvl': 'Régional', 'place': 'portambre', 'city': 'Port-Ambre', 'weeks': [12], 'cap': 8000, 'fee': 12000, 'fans': 400, 'rep': 3, 'geo': 2, 'rank': 2, 'pop': 12, 'h': 6, 'e': 30, 'who': 'Kouassi Zamba'},
+    'sables': {'n': 'Carnaval des Sables', 'lvl': 'Régional', 'place': 'selene', 'city': 'Sélène', 'weeks': [36], 'cap': 8000, 'fee': 14000, 'fans': 450, 'rep': 3, 'geo': 2, 'rank': 3, 'pop': 15, 'h': 6, 'e': 30, 'who': 'Liv Sélou'},
+    'kotoro': {'n': 'Kôtoro Bass Fest', 'lvl': 'National', 'place': 'bakoma', 'city': 'Kôtoro', 'weeks': [20], 'cap': 18000, 'fee': 30000, 'fans': 900, 'rep': 4, 'geo': 1.5, 'rank': 3, 'pop': 25, 'h': 6, 'e': 35, 'who': 'Jonas Kré'},
+    'grandbk': {'n': 'Grand Bakoma Festival', 'lvl': 'National', 'place': 'bakoma', 'city': 'Stade de Lumbé', 'weeks': [40], 'cap': 40000, 'fee': 60000, 'fans': 1800, 'rep': 5, 'geo': 2, 'rank': 4, 'pop': 40, 'h': 8, 'e': 40, 'who': 'Kouassi Zamba'},
+    'tamarel': {'n': 'Tamarel Open Air', 'lvl': 'International', 'place': 'tamarel', 'city': 'Tamarel', 'weeks': [28], 'cap': 60000, 'fee': 120000, 'fans': 4000, 'rep': 6, 'geo': 4, 'rank': 5, 'pop': 55, 'h': 10, 'e': 45, 'who': 'Kofi Ndayé'},
+    'aldera': {'n': "Îles Sonores d'Aldéra", 'lvl': 'International', 'place': 'aldera', 'city': 'Aldéra', 'weeks': [33], 'cap': 25000, 'fee': 90000, 'fans': 2800, 'rep': 5, 'geo': 4, 'rank': 5, 'pop': 50, 'h': 10, 'e': 45, 'who': 'Kofi Ndayé'},
+    'korvane': {'n': 'Nuits Polaires de Korvane', 'lvl': 'International', 'place': 'korvane', 'city': 'Korvane', 'weeks': [48], 'cap': 45000, 'fee': 100000, 'fans': 3200, 'rep': 5, 'geo': 4, 'rank': 5, 'pop': 50, 'h': 10, 'e': 45, 'who': 'Kofi Ndayé'},
+  };
+  static const festivalOrder = ['ndolo', 'lagune', 'mabaya', 'kotoro', 'lumbe', 'tamarel', 'aldera', 'sables', 'grandbk', 'korvane'];
+
+  /// Booking international (agence de Désiré Kpan) : trois marchés étrangers, trois formats. Rang N5 requis ;
+  /// cachet par date selon la notoriété locale ; une tournée internationale toutes les 4 semaines. Provisoire (D-08).
+  static const intlMarkets = <String, J>{
+    'tamarel': {'n': 'Tamarel', 'd': 'Grandes salles, public trap et afro-fusion'},
+    'korvane': {'n': 'Korvane', 'd': 'Clubs du nord, scène électro-rap'},
+    'aldera': {'n': 'Aldéra', 'd': 'Îles, festivals de plage, public afro-soul'},
+  };
+  static const intlFormats = <String, J>{
+    'showcase': {'n': 'Showcase', 'dates': 3, 'h': 12, 'e': 45, 'cost': 60000, 'perDate': 25000, 'fans': 1500, 'geo': 3, 'needGeo': 0},
+    'tournee': {'n': 'Tournée', 'dates': 6, 'h': 14, 'e': 55, 'cost': 150000, 'perDate': 32000, 'fans': 4000, 'geo': 6, 'needGeo': 5},
+    'grande': {'n': 'Grande tournée', 'dates': 10, 'h': 16, 'e': 65, 'cost': 300000, 'perDate': 42000, 'fans': 9000, 'geo': 10, 'needGeo': 15},
+  };
+  static const intlEvery = 28;
+
   static const tour = <String, dynamic>{
     'n': 'Tournée régionale (Port-Ambre, Sélène)',
     'rank': 3,
