@@ -1,6 +1,6 @@
 # Captures d'écran du build web (CI) : charge un état de partie dans le stockage local, ouvre chaque route à 390 × 844
 # et enregistre une image PNG. Usage : python3 tool/screens/shoot.py build/web sortie/ [state.json]
-# Sert uniquement à vérifier visuellement les écrans (aucune donnée de jeu n'est modifiée).
+# Sert uniquement à vérifier visuellement les écrans (aucune donnée de jeu n'est modifiée). 
 import sys, os, json, threading, functools, http.server
 from playwright.sync_api import sync_playwright
 
