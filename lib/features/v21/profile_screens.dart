@@ -70,6 +70,7 @@ class ProfilScreen21 extends ConsumerWidget {
         ),
       ])),
       _Group('Carrière', [
+        _Item('trophy', 'Salle des trophées', '${certCount21(s)} certification(s) · ${awardWins21(s)} trophée(s) · ${awardNoms21(s)} nomination(s)', () => context.go('/profil/trophees')),
         _Item('trend', 'Rang de carrière', 'Conditions de promotion', () => context.go('/profil/rang')),
         _Item('mic', 'Catalogue des sons', 'Streams, ventes, crédits, EP et albums', () => context.go('/studio/catalogue')),
         _Item('flame', 'Popularité par ville', 'Bakoma, Port-Ambre, Sélène et l\'étranger', () => context.go('/scene/popularite')),
@@ -336,70 +337,6 @@ class RangScreen extends ConsumerWidget {
 // 21-R2 Classements
 // ---------------------------------------------------------------------------------------------------------------------
 
-class ClassementsScreen extends ConsumerWidget {
-  const ClassementsScreen({super.key});
-  static const _singles = [
-    ('Minuit Doré', 'Kaïra Nox', '12,4 M'),
-    ("Pluie d'Argent", 'Zaki Mbela', '11,8 M'),
-    ('Tonnerre Doux', 'Madame Orage', '10,9 M'),
-    ('Brume sur Ndo', 'Tito Brume', '9,7 M'),
-    ('Verre Bleu', 'Lazuli', '9,1 M'),
-  ];
-  static const _global = [
-    ('Kaïra Nox', '98,4'), ('Zaki Mbela', '95,1'), ('Madame Orage', '93,7'), ('Tito Brume', '90,2'), ('Lazuli', '88,9'),
-    ('Sôlo Vance', '85,0'), ('Nadia Kolo', '83,4'), ('Bako Flux', '80,6'), ('Dr. Sable', '78,8'), ('Yaya Cendre', '76,3'),
-  ];
-
-  Widget _row(String rank, String title, String sub, String value, {bool me = false}) => Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: me ? const Color.fromRGBO(244, 63, 157, .16) : null, borderRadius: BorderRadius.circular(12), border: me ? Border.all(color: Tk.acc, width: 1.5) : null),
-        child: Row(children: [
-          SizedBox(width: 44, child: Text(rank, style: V20Text.nm(color: me ? V20.accText : Tk.gold))),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: V20Text.nm()), if (sub.isNotEmpty) Text(sub, style: V20Text.bs())])),
-          Text(value, style: V20Text.nm(color: Tk.ink)),
-        ]),
-      );
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(game21Provider).valueOrNull;
-    if (s == null) return const SizedBox();
-    final best = bestSong(s);
-    final bl = best == null ? 0 : _n(best['L']);
-    final sr = singlesRank(s), ip = idxParts21(s), gr = globalRank(s);
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Classements', onBack: () => context.go('/profil')),
-      const SizedBox(height: 12),
-      GlassCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('TOP 100 SINGLES', style: V20Text.lab()), const GameTag('Écoutes, 7 j')]),
-          const SizedBox(height: 8),
-          for (var i = 0; i < _singles.length; i++) _row('${i + 1}', _singles[i].$1, _singles[i].$2, _singles[i].$3),
-          _row(sr == 0 ? '—' : '#$sr', best == null ? 'Aucun titre sorti' : best['title'] as String, 'Toi · meilleur titre', fmt21(bl), me: true),
-          Text(sr == 0 ? 'Non classé · entrée au Top 100 à partir de ${fmt21(Reg21.entry)} écoutes sur 7 jours (R25, D-16 A).' : 'Classé grâce à tes vraies écoutes.', style: V20Text.bs()),
-        ]),
-      ),
-      const SizedBox(height: 12),
-      GlassCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('TOP 10 GLOBAL ARTISTS', style: V20Text.lab()), const GameTag('Indice')]),
-          const SizedBox(height: 8),
-          for (var i = 0; i < _global.length; i++) _row('${i + 1}', _global[i].$1, '', _global[i].$2),
-          _row(gr == 0 ? '—' : '#$gr', playerName(s), 'Toi', d1(ip.i), me: true),
-          Text(gr == 0 ? 'Non classé · écart au #10 : ${d1(76.3 - ip.i)}' : 'Dans le Top 10 Global.', style: V20Text.bs()),
-        ]),
-      ),
-      const SizedBox(height: 12),
-      _projectBoardCard(s, 'Album', 'album', 'Crée un album de 8 titres ou plus'),
-      const SizedBox(height: 8),
-      _projectBoardCard(s, 'EP', 'EP', 'Crée un EP de 3 à 7 titres'),
-      const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Les rangs du joueur sont calculés à partir de ses vraies écoutes (loi R18) et de son indice (R10, normalisation provisoire D-17). Les autres lignes sont les valeurs existantes de 13.2 et 13.5.'),
-    ]);
-  }
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Réglages et démo
 // ---------------------------------------------------------------------------------------------------------------------
@@ -428,23 +365,4 @@ class ReglagesScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         Text('Version du ${Env.buildTime} (UTC) · 63 tenues · Réseau v21', textAlign: TextAlign.center, style: V20Text.bs()),
       ]);
-}
-
-/// Ligne Top 200 Albums / Top 50 EPs : le meilleur projet du joueur (vraies ventes), sinon une invitation à en créer un.
-Widget _projectBoardCard(J s, String type, String word, String invite) {
-  final p = bestProject(s, type);
-  return GlassCard(
-    child: Row(children: [
-      Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(projectBoard(type).toUpperCase(), style: V20Text.lab()),
-        const SizedBox(height: 4),
-        Text(p == null ? invite : 'Ton meilleur $word : ${p['title']} · ${fmt21(_n(p['sales']))} ventes', style: V20Text.bs()),
-        if (p != null && _n(p['rank']) == 0)
-          Text('Entrée à ${fmt21(Reg21.proj[type]!['entry'] as num)} ventes.', style: V20Text.bs()),
-      ])),
-      const SizedBox(width: 8),
-      Text(p == null ? 'Aucun $word' : projectRankLabel(p), style: V20Text.baloo(size: 22, line: 24)),
-    ]),
-  );
 }

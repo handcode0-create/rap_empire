@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
+import 'awards21.dart';
 import 'dialogues21.dart';
 import 'missions21.dart';
 import 'network21.dart';
@@ -9,6 +10,7 @@ import 'social21.dart';
 import 'reg21.dart';
 import 'wardrobe21.dart';
 
+export 'awards21.dart';
 export 'dialogues21.dart';
 export 'missions21.dart';
 export 'network21.dart';
@@ -106,6 +108,8 @@ J init21() {
     'ms2': <String, dynamic>{},
     'mc2': <String, dynamic>{},
     'pbd': 0,
+    'aw': <String, dynamic>{'done': <String, dynamic>{}, 'hist': <dynamic>[]},
+    'certSeen': <String, dynamic>{},
     'stock': <dynamic>[],
     'pendingProjects': <dynamic>[],
     'songSeq': 0,
@@ -2568,6 +2572,7 @@ Res _endDay(J s) {
     _releaseProject(n, p);
     ev.add('Sortie programmée : ${p['title']}');
   }
+  ev.addAll(_awardsDay(n));
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {
@@ -2817,6 +2822,53 @@ Res act21(J s, String name, [dynamic arg, int now = 0]) {
     r.s['t'] = now;
   }
   return r;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Certifications et cérémonies (awards21.dart), vérifiées à chaque nouvelle journée. Valeurs provisoires (D-02, D-08).
+// ---------------------------------------------------------------------------------------------------------------------
+
+List<String> _awardsDay(J n) {
+  final ev = <String>[];
+  final seen = _m(n['certSeen']);
+  for (final c in certs21(n)) {
+    if (c.level > _n(seen[c.id] ?? -1)) {
+      seen[c.id] = c.level;
+      ev.add('${c.name} : ${c.title}');
+      _log(n, 'Certification : ${c.name} pour ${c.title} (${fmt21(c.units)} unités)', 'carriere');
+    }
+  }
+  final day = _n(n['day']), y = yearOf21(day), w = weekOf21(day);
+  final aw = _m(n['aw']);
+  aw['done'] ??= <String, dynamic>{};
+  aw['hist'] ??= <dynamic>[];
+  for (final c in ceremonies21) {
+    final key = '$y-${c.id}';
+    if (w < c.week || _m(aw['done'])[key] != null) continue;
+    _m(aw['done'])[key] = day;
+    final res = ceremonyResults21(n, c);
+    var wins = 0, noms = 0;
+    for (final cat in c.cats) {
+      final r = res[cat.id];
+      if (r == null) continue;
+      _l(aw['hist']).add({'y': y, 'c': c.id, 'cat': cat.id, 'res': r, 'd': day});
+      if (r == 'win') {
+        wins++;
+        n['rep'] = _n(n['rep']) + 2 * c.prestige;
+        n['fans'] = _n(n['fans']) + 300 * c.prestige;
+        _addXp(n, 50 * c.prestige);
+        _log(n, '${c.n} : lauréat « ${cat.n} »', 'carriere');
+      } else {
+        noms++;
+        n['rep'] = _n(n['rep']) + 1;
+        n['fans'] = _n(n['fans']) + 80;
+        _log(n, '${c.n} : nommé « ${cat.n} »', 'carriere');
+      }
+    }
+    aw['last'] = {'c': c.id, 'y': y, 'wins': wins, 'noms': noms};
+    ev.add(wins > 0 ? '${c.n} : $wins trophée(s)' : noms > 0 ? '${c.n} : $noms nomination(s)' : '${c.n} : pas de nomination cette année');
+  }
+  return ev;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../features/v21/awards_screens.dart';
 import '../features/v21/catalogue_screens.dart';
 import '../features/v21/characters_screen.dart';
 import '../features/v21/dialogue_screens.dart';
@@ -224,6 +225,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
+                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen()),
                     GoRoute(
                         path: 'garde-robe',
                         name: '21-W1-Garde-robe',
