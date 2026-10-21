@@ -125,7 +125,7 @@ void main() {
     await tester.tap(navTab('Profil'));
     await tester.pumpAndSettle();
     await tapText(tester, 'Classements');
-    expect(txt('Top 100 Singles'), findsOneWidget);
+    expect(txt('Top 100 Singles'), findsWidgets); // onglet et en-tête du classement
   });
 
   testWidgets('journée : événement, boulot, bilan', (tester) async {
@@ -202,9 +202,9 @@ void main() {
     final p = (repo.current['projects'] as List).first as J;
     expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);
     await tapText(tester, 'Voir les classements');
-    await tester.scrollUntilVisible(txt('Top 50 EPs'), 300, scrollable: find.byType(Scrollable).first);
-    expect(txt('Top 50 EPs'), findsOneWidget);
-    expect(find.textContaining('Ton meilleur EP'), findsOneWidget);
+    await tapText(tester, 'Top 50 EPs'); // onglet du classement
+    expect(txt('TA POSITION'), findsOneWidget);
+    expect(find.textContaining('${p['title']}'), findsWidgets);
   });
 
   /// Touche le bouton « Choisir » de la n-ième réponse d'un dialogue.

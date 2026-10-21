@@ -334,7 +334,7 @@ class _MyPosition extends StatelessWidget {
         Text('TA POSITION', style: V20Text.lab(color: V20.accText)),
         const SizedBox(height: 8),
         Row(children: [
-          tab == 3 ? CastAvatar('Djo Kéné', size: 52) : _Cover(cover, 52),
+          tab == 3 ? const CastAvatar('Djo Kéné', size: 52) : _Cover(cover, 52),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
