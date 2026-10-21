@@ -7,6 +7,7 @@ from playwright.sync_api import sync_playwright
 WEB, OUT = sys.argv[1], sys.argv[2]
 STATE = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), 'state_star.json')
 ROUTES = [
+    ('profil', '/profil'),
     ('reseau', '/profil/reseau'),
     ('ondea', '/profil/reseau/ondea'),
     ('klipo', '/profil/reseau/klipo'),
