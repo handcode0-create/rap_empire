@@ -331,7 +331,6 @@ class OndeaArtistScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = platformTotals(s);
-    final disco = (s['disco'] as List).map((x) => x as J).toList();
     final share = Reg21.platforms['ondea']!['share'] as num;
     const pls = [('Drill de Bakoma', 7), ('Nuits de Lumbé', 13), ('Afro-soul Sélène', 6), ('Nouveaux talents', 21)];
     return _Ambience(colors: const [Color(0xFF123A55), Color(0xFF1E1650), Color(0xFF0E1230)], children: [
