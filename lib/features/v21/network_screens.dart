@@ -372,7 +372,7 @@ class OndeaArtistScreen extends ConsumerWidget {
         ]),
       ),
       Popular21(s, pfOndea),
-      LibSec21('Discographie', action: disco.isEmpty ? null : 'Tous les titres', onAction: () => context.go('/profil/reseau/ondea/titres')),
+      const LibSec21('Discographie'),
       Discography21(s, pfOndea),
       const _Sec('Auditeurs par ville', 'estimés'),
       GameCard(child: Column(children: [
@@ -814,12 +814,12 @@ class CauriPremiumScreen extends ConsumerWidget {
       _Kpis([('Écoutes', fmt21(t.cauri), null), ('Revenus', fmt21(t.revCauri), Tk.gold), ('Part', '${(share * 100).round()} %', null)]),
       const SizedBox(height: 8),
       _Kpis([
-        ('Ventes', fmt21(disco.fold<num>(0, (a, d) => a + _n(d['sales']))), null),
+        ('Ventes', fmt21([...disco, ...((s['projects'] as List?) ?? const []).map((x) => x as J)].fold<num>(0, (a, d) => a + _n(d['sales']))), null),
         ('Titres', '${disco.length}', null),
         ('Hi-Fi', 'Oui', Tk.gold),
       ]),
       Popular21(s, pfCauri),
-      LibSec21('Ta discographie', action: disco.isEmpty ? null : 'Tous les titres', onAction: () => context.go('/profil/reseau/cauri/titres')),
+      const LibSec21('Ta discographie'),
       Discography21(s, pfCauri),
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Cauri Music reçoit 30 % des écoutes audio (règle provisoire des plateformes).'),
