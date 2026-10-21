@@ -463,100 +463,136 @@ class PopulariteScreen extends ConsumerWidget {
 class BusinessScreen21 extends ConsumerWidget {
   const BusinessScreen21({super.key});
 
+  static const _jobArt = {
+    'livraison': 'street', 'maquis': 'street', 'mc': 'stage', 'assistant': 'studio', 'mariage': 'backstage',
+    'pubradio': 'call', 'atelierjeunes': 'office', 'jury': 'stage', 'plume': 'studio',
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final rank = rankOf(s);
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('BUSINESS', style: V20Text.dm()),
-        GameTag('Patrimoine ${_m(s['own']).length}')
-      ]),
-      const SizedBox(height: 8),
-      const GameHint(
-          icon: 'info',
-          text:
-              'Matériel et formation : écrans existants 09.1 et 09.3. Nouveau ici : petits boulots, entreprises, patrimoine, merch. Ces activités rapportent des cauris, pas de fans ni de rang.'),
-      const Lab21('Formation'),
-      ActionRow(
-        title: "Atelier d'écriture",
-        subtitle: '2 h · −20 énergie · Écriture +5 · mission 3',
-        trailing: Text('6 000', style: V20Text.nm(color: Tk.gold)),
-        onTap: () => doAct(context, ref, 'atelier', null, null,
-            'Écriture +5 · Atelier terminé'),
+    final biz = _m(s['biz']);
+    final active = Reg21.biz.keys.where((k) => biz[k] != null).toList();
+    final bizTotal = active.fold<num>(0, (a, k) => a + _n(_m(biz[k])['tot']));
+    final mgr = managerTier21(s);
+    final signed = _n(s['signed']) != 0;
+    final label = signed ? '${s['label'] ?? 'BSR'}' : null;
+
+    final jobs = [
+      for (final e in Reg21.jobs.entries)
+        () {
+          final lock = jobLock21(s, e.key) != null ? jobLockText21(s, e.key) ?? 'Indisponible' : null;
+          return _Venue(e.value['n'] as String, '${e.value['need']}', 'assets/scenes/${_jobArt[e.key] ?? 'street'}.svg',
+              meta: [('clock', '${e.value['h']} h'), ('zap', '−${(e.value['e'] as num) - moto}'), ('cash', '+${fmt21(e.value['cash'] as num)} cauris')],
+              lock: lock,
+              off: lock != null,
+              onTap: lock != null ? null : () => doAct(context, ref, 'job', e.key, () => context.go('/business/boulot')));
+        }(),
+    ];
+    // les boulots ouverts d'abord, puis les verrouillés (du plus proche au plus lointain)
+    jobs.sort((a, b) => (a.lock == null ? 0 : 1).compareTo(b.lock == null ? 0 : 1));
+
+    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+      SceneBanner(
+        kind: 'office',
+        height: 200,
+        role: 'BUSINESS · ${rankName(s).toUpperCase()}',
+        name: 'Ton empire',
+        subtitle: '${fmt21(_n(s['cash']))} cauris en caisse',
+        chars: const [BannerChar('djo', mood: 'poised', gesture: 'deal', crop: 'torso', width: 140, left: 206)],
+        top: Wrap(spacing: 6, runSpacing: 6, children: [
+          GameTag(signed ? 'Signé · $label' : 'Indépendant', style: GameTagStyle.accent),
+          if (mgr != null) GameTag('Manager ${mgr['n']}', style: GameTagStyle.outline),
+        ]),
       ),
-      const Lab21('Boulots · les plus rentables se débloquent avec le rang'),
-      for (final e in Reg21.jobs.entries) ...[
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: ActionRow(
-            title: e.value['n'] as String,
-            subtitle:
-                '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · ${e.value['need']}',
-            note: jobLockText21(s, e.key),
-            disabled: jobLock21(s, e.key) != null,
-            trailing: Text('+${fmt21(e.value['cash'] as num)}',
-                style: V20Text.nm(color: Tk.gold)),
-            onTap: () => doAct(context, ref, 'job', e.key,
-                () => context.go('/business/boulot')),
+      const SizedBox(height: 12),
+      KpiRow(children: [
+        StatKpi(label: 'Cash', value: fmt21(_n(s['cash'])), valueColor: Tk.gold),
+        StatKpi(label: 'Entreprises', value: '${active.length}/${Reg21.biz.length}'),
+        StatKpi(label: 'Patrimoine', value: '${_m(s['own']).length}'),
+      ]),
+      const SizedBox(height: 10),
+      GlassCard(
+        halo: false,
+        onTap: () => context.go('/business/labels'),
+        semanticLabel: 'Merchandising et label',
+        child: Row(children: [
+          if (label != null) LabelLogo21(label, size: 52) else Container(width: 52, height: 52, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(16)), child: const GameIcon('briefcase', color: Tk.acc4)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Merchandising et label', style: V20Text.baloo(size: 17, line: 20)),
+              Text(signed ? 'Sous contrat · merch, collection capsule' : (_n(s['fans']) >= 1000 ? 'T-shirts, collection capsule, contrat' : 'Débloqué avec la carrière'), style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+              const SizedBox(height: 6),
+              MeterBar(value: (_n(s['lbz']) / Reg21.lbzGate).clamp(0, 1).toDouble(), tone: MeterTone.gold, thin: true),
+              const SizedBox(height: 2),
+              Text(labelReady21(s) ? 'Les labels s’intéressent à toi' : 'Intérêt des labels ${_n(s['lbz']).toInt()} / ${Reg21.lbzGate}', style: V20Text.poppins(size: 11, line: 14, color: V20.hintGoldText)),
+            ]),
           ),
-        ),
-      ],
-      const Lab21('Entreprises · selon le rang'),
-      for (final e in Reg21.biz.entries) ...[
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: ActionRow(
-            title: e.value['n'] as String,
-            subtitle: _m(s['biz'])[e.key] != null
-                ? 'En activité · cumul ${fmt21(_n(_m(_m(s['biz'])[e.key])['tot']))} cauris'
-                : '${fmt21(e.value['cost'] as num)} cauris · revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} / jour',
-            note: _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num)
-                ? 'Débloqué au rang N${e.value['rank']}'
-                : null,
-            disabled:
-                _m(s['biz'])[e.key] == null && rank < (e.value['rank'] as num),
-            trailing: _m(s['biz'])[e.key] != null
-                ? const GameTag('Actif', style: GameTagStyle.ok)
-                : ActionRow.arrow(),
-            onTap: () => context.go('/business/entreprises'),
-          ),
-        ),
-      ],
-      const Lab21('Patrimoine et merchandising'),
-      ActionRow(
-          title: 'Patrimoine',
-          subtitle: '${_m(s['own']).length} bien(s) · effets',
-          trailing: ActionRow.arrow(),
-          onTap: () => context.go('/business/patrimoine')),
-      const SizedBox(height: 8),
-      ActionRow(
-          title: 'Merchandising et label',
-          subtitle: _n(s['fans']) >= 1000
-              ? 'T-shirts, collection capsule, contrat'
-              : 'Débloqué avec la carrière',
-          trailing: ActionRow.arrow(),
-          onTap: () => context.go('/business/labels')),
-      const SizedBox(height: 8),
-      ActionRow(
-          title: 'Équipe et manager',
-          subtitle: managerTier21(s) != null
-              ? '${managerTier21(s)!['n']} actif · ${((managerTier21(s)!['rate'] as num) * 100).round()} % des cachets'
-              : 'Aucun manager · optionnel',
-          trailing: ActionRow.arrow(),
-          onTap: () => context.go('/business/manager')),
-      const SizedBox(height: 8),
-      ActionRow(
-          title: 'Justice et détention',
-          subtitle: s['jail'] != null
-              ? 'Détention · ${jailDaysLeft(s)} jour(s) restant(s)'
-              : s['cas'] != null ? 'Affaire en cours' : 'Casier, avocat, procès',
-          trailing: ActionRow.arrow(),
-          onTap: () => context.go('/business/justice')),
+          ActionRow.arrow(),
+        ]),
+      ),
+      const _SceneSection('Petits boulots', 'Des cauris vite gagnés. Les plus rentables s’ouvrent avec le rang et les compétences.'),
+      for (final j in jobs) _VenueCard(j),
+      const _SceneSection('Formation', 'Progresser pour mieux écrire.'),
+      _VenueCard(_Venue("Atelier d'écriture", 'Écriture +5 · mission 3', 'assets/scenes/office.svg',
+          meta: const [('clock', '2 h'), ('zap', '−20'), ('cash', '−6 000 cauris')],
+          onTap: () => doAct(context, ref, 'atelier', null, null, 'Écriture +5 · Atelier terminé'))),
+      _SceneSection('Entreprises', active.isEmpty ? 'Des revenus chaque jour, selon le rang.' : 'Cumul de tes entreprises : ${fmt21(bizTotal)} cauris.'),
+      for (final e in Reg21.biz.entries)
+        _VenueCard(biz[e.key] != null
+            ? _Venue(e.value['n'] as String, 'En activité · cumul ${fmt21(_n(_m(biz[e.key])['tot']))} cauris', 'assets/scenes/office.svg',
+                status: ('Actif', GameTagStyle.ok), onTap: () => context.go('/business/entreprises'))
+            : rank < (e.value['rank'] as num)
+                ? _Venue(e.value['n'] as String, '${fmt21(e.value['cost'] as num)} cauris', 'assets/scenes/office.svg', lock: 'Débloqué au rang N${e.value['rank']}', off: true)
+                : _Venue(e.value['n'] as String, 'Revenu estimé ${fmt21(e.value['lo'] as num)} à ${fmt21(e.value['hi'] as num)} / jour', 'assets/scenes/office.svg',
+                    meta: [('cash', '${fmt21(e.value['cost'] as num)} cauris')], onTap: () => context.go('/business/entreprises'))),
+      const _SceneSection('Gestion', 'Biens, équipe et affaires.'),
+      Row(children: [
+        _BizTile('home', 'Patrimoine', '${_m(s['own']).length} bien(s) · effets', () => context.go('/business/patrimoine')),
+        const SizedBox(width: 10),
+        _BizTile('users', 'Équipe et manager', mgr != null ? '${mgr['n']} · ${((mgr['rate'] as num) * 100).round()} % des cachets' : 'Aucun manager · optionnel', () => context.go('/business/manager')),
+      ]),
+      const SizedBox(height: 10),
+      Row(children: [
+        _BizTile('lock', 'Justice et détention', s['jail'] != null ? 'Détention · ${jailDaysLeft(s)} jour(s) restant(s)' : s['cas'] != null ? 'Affaire en cours' : 'Casier, avocat, procès', () => context.go('/business/justice'),
+            alert: s['jail'] != null || s['cas'] != null),
+        const SizedBox(width: 10),
+        _BizTile('trend', 'Marketing et médias', 'Campagnes, partenaires de concert', () => context.go('/profil/reseau/marketing')),
+      ]),
+      const SizedBox(height: 12),
+      const GameHint(icon: 'info', text: 'Boulots, entreprises, patrimoine et merch rapportent des cauris, pas de fans ni de rang.'),
     ]);
   }
+}
+
+class _BizTile extends StatelessWidget {
+  final String icon, title, sub;
+  final VoidCallback onTap;
+  final bool alert;
+  const _BizTile(this.icon, this.title, this.sub, this.onTap, {this.alert = false});
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: GlassCard(
+          padding: const EdgeInsets.all(12),
+          halo: false,
+          accent: alert ? GlassAccent.gold : GlassAccent.none,
+          onTap: onTap,
+          semanticLabel: '$title, $sub',
+          child: SizedBox(
+            height: 108,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(width: 36, height: 36, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(12)), child: GameIcon(icon, size: 18, color: alert ? Tk.gold : Tk.acc4)),
+              const Spacer(),
+              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 15, line: 18)),
+              Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+            ]),
+          ),
+        ),
+      );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
