@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/domain/v21/view21.dart';
 
 /// Classements simulés semaine après semaine et playlists Ondéa avec leurs curateurs (valeurs provisoires).
 J _copy(J s) => jsonDecode(jsonEncode(s)) as J;

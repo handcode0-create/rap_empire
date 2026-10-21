@@ -203,6 +203,7 @@ void main() {
     expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);
     await tapText(tester, 'Voir les classements');
     await tapText(tester, 'Top 50 EPs'); // onglet du classement
+    await tester.scrollUntilVisible(txt('TA POSITION'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
     expect(txt('TA POSITION'), findsOneWidget);
     expect(find.textContaining('${p['title']}'), findsWidgets);
   });
