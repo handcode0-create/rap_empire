@@ -153,7 +153,9 @@ void main() {
     s['cash'] = 50000;
     final v0 = (s['sk'] as Map)['voix'] as num, c0 = s['cash'] as num, tr0 = (s['trained'] ?? 0) as num;
     s = _ok(s, 'train', 'coach');
-    expect([(s['sk'] as Map)['voix'], s['cash'], s['trained']], [v0 + 5, c0 - 9000, tr0 + 1]);
+    expect([(s['sk'] as Map)['voix'], s['trained']], [v0 + 5, tr0 + 1]);
+    expect((s['log'] as List).any((l) => '${(l as Map)['t']}'.startsWith('Coach vocal : Voix +5 (−9 000 cauris)')), isTrue);
+    expect(s['cash'] as num, lessThan(c0)); // la montée de rang éventuelle (XP) peut rendre une prime
     expect(act21(s, 'train', 'coach').err, 'aujourdhui');
     expect(trainLock21(s, 'residence'), 'rang');
     expect(act21(s, 'train', 'residence').err, 'rang');
