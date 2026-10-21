@@ -88,7 +88,15 @@ void main() {
     }
     s = must(s, 'prel');
     expect(l(s['stock']), isEmpty);
-    expect(l(s['disco']), isEmpty, reason: 'aucun single créé');
+    expect(l(s['disco']).length, 3, reason: 'les trois inédits deviennent des pistes de catalogue, sans sortie single');
+    for (final raw in l(s['disco'])) {
+      final track = m(raw);
+      expect(track['st'], 'sorti');
+      expect(track['L'], greaterThan(0));
+      expect(track['launchL'], track['L']);
+      expect(track['sales'], greaterThanOrEqualTo(0));
+      expect(m(track['platforms']), isNotEmpty);
+    }
     final p = m(l(s['projects'])[0]);
     expect(l(p['tracks']).length, 3);
     expect(l(p['inedits']).length, 3);
@@ -119,7 +127,9 @@ void main() {
     final p = m(l(s['projects']).first);
     expect(p['tracks'], [releasedId, unreleasedId, secondUnreleasedId]);
     expect(l(p['inedits']).length, 2);
-    expect(l(s['disco']).length, 1, reason: 'les inédits ne deviennent pas des singles');
+    expect(l(s['disco']).length, 3, reason: 'le single existant reste unique et les deux inédits rejoignent le catalogue');
+    expect(l(s['disco']).where((raw) => m(raw)['st'] == 'sorti').length, 3);
+    expect(l(s['disco']).map((raw) => m(raw)['id']).toSet().length, 3, reason: 'aucun identifiant dupliqué');
     expect(l(s['stock']), isEmpty);
     expect(p['promoName'], 'Réseaux sociaux');
   });
