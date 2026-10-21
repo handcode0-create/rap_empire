@@ -24,6 +24,8 @@ ROUTES = [
     ('ondea-sortie', '/profil/reseau/ondea/sortie?id=P1'),
     ('cauri-sortie', '/profil/reseau/cauri/sortie?id=P1'),
     ('garde-robe', '/profil/garde-robe'),
+    ('labels', '/business/labels/tous'),
+    ('marketing', '/profil/reseau/marketing'),
 ]
 os.makedirs(OUT, exist_ok=True)
 LIVE = WEB.startswith('http')  # adresse du site déployé : on le capture tel quel (aucun serveur local)
