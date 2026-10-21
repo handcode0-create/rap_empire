@@ -60,15 +60,25 @@ class Release21 {
 
 List<J> _disco(J s) => ((s['disco'] as List?) ?? const []).map((x) => x as J).toList();
 
-Track21 _single(J t, Pf21 pf) => Track21('${t['id']}', '${t['title']}', jsRound(platformListens(t) * pf.share),
-    feat: ((t['feats'] as List?) ?? const []).isNotEmpty, clip: t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie');
+/// Inédits des projets (id du titre → titre du projet) : ils ont leurs écoutes et leurs ventes, mais ne sont pas des singles.
+Map<String, String> _ineditOf(J s) => {
+      for (final x in ((s['projects'] as List?) ?? const []))
+        for (final i in (((x as Map)['inedits'] as List?) ?? const [])) '${(i as Map)['id']}': '${x['title']}',
+    };
 
-/// Titres sortis en single, du plus écouté au moins écouté.
-List<Track21> popular21(J s, Pf21 pf) => _disco(s).map((t) => _single(t, pf)).toList()..sort((a, b) => (b.listens ?? 0).compareTo(a.listens ?? 0));
+Track21 _single(J t, Pf21 pf, [String? project]) => Track21('${t['id']}', '${t['title']}', jsRound(platformListens(t) * pf.share),
+    project: project, feat: ((t['feats'] as List?) ?? const []).isNotEmpty, clip: t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie');
+
+/// Tous les titres sortis (singles et inédits de projets), du plus écouté au moins écouté.
+List<Track21> popular21(J s, Pf21 pf) {
+  final ined = _ineditOf(s);
+  return _disco(s).map((t) => _single(t, pf, ined['${t['id']}'])).toList()..sort((a, b) => (b.listens ?? 0).compareTo(a.listens ?? 0));
+}
 
 /// Toutes les sorties, de la plus récente à la plus ancienne : projets (album, EP) puis singles.
 List<Release21> releases21(J s, Pf21 pf) {
   final disco = _disco(s);
+  final inedOf = _ineditOf(s);
   final out = <Release21>[];
   for (final x in ((s['projects'] as List?) ?? const [])) {
     final p = x as J;
@@ -77,14 +87,14 @@ List<Release21> releases21(J s, Pf21 pf) {
     for (final id in ((p['tracks'] as List?) ?? const [])) {
       final d = disco.where((t) => t['id'] == id).firstOrNull;
       if (d != null) {
-        tr.add(_single(d, pf));
+        tr.add(_single(d, pf, inedOf['$id']));
       } else {
         tr.add(Track21('$id', ined['$id'] ?? 'Titre $id', null, project: '${p['title']}'));
       }
     }
     out.add(Release21('${p['id']}', p['type'] == 'EP' ? 'EP' : 'Album', '${p['title']}', _n(p['day']).toInt(), tr, jsRound(_n(p['L']) * pf.share), _n(p['sales']).toInt()));
   }
-  for (final t in disco) {
+  for (final t in disco.where((t) => !inedOf.containsKey('${t['id']}'))) {
     final tr = _single(t, pf);
     out.add(Release21(tr.id, 'Single', tr.title, _n(t['day']).toInt(), [tr], tr.listens ?? 0, null));
   }
@@ -152,7 +162,7 @@ class TrackRow21 extends StatelessWidget {
   const TrackRow21(this.s, this.t, this.pf, {super.key, this.number});
   @override
   Widget build(BuildContext context) {
-    final sub = t.listens == null ? 'Inédit · ${t.project ?? 'projet'}' : '${fmt21(t.listens!)} ${pf.unit}';
+    final sub = t.listens == null ? 'Inédit · ${t.project ?? 'projet'}' : '${t.project != null ? 'Inédit · ${t.project} · ' : ''}${fmt21(t.listens!)} ${pf.unit}';
     return Semantics(
       label: '${t.title}, $sub',
       child: ConstrainedBox(
@@ -350,7 +360,7 @@ class _AllTracksState extends ConsumerState<AllTracksScreen> {
         const SizedBox(height: 12),
         GameHint(
             icon: 'info',
-            text: '${pf.name} reçoit ${(pf.share * 100).round()} % des écoutes audio (règle provisoire). Les inédits n\'existent que dans leur projet : leurs écoutes sont comptées avec le projet.'),
+            text: '${pf.name} reçoit ${(pf.share * 100).round()} % des écoutes audio (règle provisoire). Les inédits d\'un EP ou d\'un album ont leurs propres écoutes et ventes, comme les singles.'),
       ]),
     );
   }

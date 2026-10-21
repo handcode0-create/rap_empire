@@ -55,4 +55,19 @@ void main() {
     expect(releases21(s, pfOndea), isEmpty);
     expect(allTracks21(s, pfCauri), isEmpty);
   });
+
+  test('anciennes sauvegardes : les inédits d\'un projet reçoivent leurs écoutes et leurs ventes', () {
+    final s = norm21(star());
+    final x9 = (s['disco'] as List).cast<Map>().firstWhere((t) => t['id'] == 'X9');
+    expect(x9['L'] as num, greaterThan(0));
+    expect(x9['sales'] as num, greaterThan(0));
+    expect(x9['st'], 'sorti');
+    // une seule fois
+    expect((norm21(s)['disco'] as List).cast<Map>().where((t) => t['id'] == 'X9').length, 1);
+    // dans les plateformes : écoutes propres, étiqueté inédit, absent des singles de la discographie
+    final ep = releases21(s, pfOndea).firstWhere((r) => r.id == 'P1');
+    expect(ep.tracks.last.listens, isNotNull);
+    expect(ep.tracks.last.project, 'Ndo City');
+    expect(releases21(s, pfOndea).where((r) => r.kind == 'Single' && r.id == 'X9'), isEmpty);
+  });
 }
