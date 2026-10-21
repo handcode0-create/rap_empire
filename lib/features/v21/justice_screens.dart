@@ -145,7 +145,7 @@ class Justice21Screen extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('CASIER JUDICIAIRE', style: V20Text.lab()),
         if (casier.isEmpty) Text('Vierge', style: V20Text.nm()),
-        for (final c in casier) Text('J${c['day']} · ${c['ch']}', style: V20Text.bs(color: Tk.ink)),
+        for (final c in casier) Text('${dateLabel21(c['day'] as num)} · ${c['ch']}', style: V20Text.bs(color: Tk.ink)),
       ])),
     ]);
   }

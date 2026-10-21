@@ -70,6 +70,7 @@ class ProfilScreen21 extends ConsumerWidget {
         ),
       ])),
       _Group('Carrière', [
+        _Item('user', 'Bakopédia', 'Ton article : infos, discographie, distinctions, finances', () => context.go('/profil/wiki')),
         _Item('trophy', 'Salle des trophées', '${certCount21(s)} certification(s) · ${awardWins21(s)} trophée(s) · ${awardNoms21(s)} nomination(s)', () => context.go('/profil/trophees')),
         _Item('trend', 'Rang de carrière', 'Conditions de promotion', () => context.go('/profil/rang')),
         _Item('mic', 'Catalogue des sons', 'Streams, ventes, crédits, EP et albums', () => context.go('/studio/catalogue')),

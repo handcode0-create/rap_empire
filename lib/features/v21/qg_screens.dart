@@ -207,9 +207,9 @@ class _Hero extends StatelessWidget {
           kind: 'studio',
           height: 150,
           role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
-          name: 'Jour ${dayInYear(s)}',
+          name: 'Semaine ${weekOf21(_n(s['day']))}',
           nameSize: 30,
-          subtitle: "${hoursLeft(s)} h restantes aujourd'hui",
+          subtitle: "${const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][((_n(s['day']) - 1) % 7).toInt()]} · ${hoursLeft(s)} h restantes aujourd'hui",
         ),
         Positioned(right: 8, top: -40, child: IgnorePointer(child: EquippedAvatar(s, width: 100, height: 150, mood: isTired(s) ? 'worried' : 'smile'))),
       ]);
@@ -423,7 +423,7 @@ class JournalScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                SizedBox(width: 92, child: Text('J${_m(l)['d']} · ${_cats[_m(l)['c']] ?? 'Jeu'}', style: V20Text.bs())),
+                SizedBox(width: 92, child: Text('S${weekOf21(_m(l)['d'] as num)} ${weekDay21(_m(l)['d'] as num)} · ${_cats[_m(l)['c']] ?? 'Jeu'}', style: V20Text.bs())),
                 Expanded(child: Text(_m(l)['t'] as String, style: V20Text.bs(color: Tk.ink))),
               ]),
             ),

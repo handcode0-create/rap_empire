@@ -12,6 +12,7 @@ import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
+import '../../domain/v21/awards21.dart' show dateLabel21;
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'widgets21.dart';

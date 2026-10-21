@@ -461,7 +461,7 @@ class _ThreadPost extends StatelessWidget {
           Row(children: [
             Text(playerName(s), style: V20Text.nm()),
             const SizedBox(width: 6),
-            Expanded(child: Text('${handle21(s)} · J${p['day']}', overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 16, color: V20.ink2))),
+            Expanded(child: Text('${handle21(s)} · ${dateLabel21(p['day'] as num)}', overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 16, color: V20.ink2))),
             if (_n(p['polem']) == 1) const GameTag('Polémique', style: GameTagStyle.accent),
           ]),
           const SizedBox(height: 6),

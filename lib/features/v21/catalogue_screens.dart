@@ -100,7 +100,7 @@ class CatalogueScreen extends ConsumerWidget {
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['title'] as String, style: V20Text.nm()),
-              Text('${p['type']} · J${p['relDay']} · ${_l(p['tracks']).length} titres', style: V20Text.bs()),
+              Text('${p['type']} · ${dateLabel21(_n(p['relDay']))} · ${_l(p['tracks']).length} titres', style: V20Text.bs()),
               Text('Campagne : ${p['promoName'] ?? promos21[_n(p['promo']).toInt()]['n']}', style: V20Text.bs(color: Tk.gold)),
             ])),
             const GameTag('Programmé', style: GameTagStyle.accent),
@@ -177,7 +177,7 @@ class TitreScreen extends ConsumerWidget {
         Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text((t['title'] as String).toUpperCase(), style: V20Text.baloo(size: 24, line: 26)),
-          Text('Jour ${t['day']} · année ${t['year'] ?? 1 + ((_n(t['day']) - 1) / Reg21.daysPerYear).floor()}', style: V20Text.bs(color: Tk.ink)),
+          Text(dateLabel21(_n(t['day'])), style: V20Text.bs(color: Tk.ink)),
           Text('${t['labelAt'] ?? 'Indépendant'}', style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: Tk.ink)),
         ])),
       ]),
@@ -392,7 +392,7 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
       DropdownButtonFormField<int>(
         initialValue: _days,
         decoration: const InputDecoration(labelText: 'Délai dans le jeu'),
-        items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d jour${d > 1 ? 's' : ''} · J${_n(s['day']).toInt() + d}'))],
+        items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d jour${d > 1 ? 's' : ''} · ${dateLabel21(_n(s['day']).toInt() + d)}'))],
         onChanged: (v) { if (v != null) setState(() => _days = v); },
       ),
       const SizedBox(height: 8),

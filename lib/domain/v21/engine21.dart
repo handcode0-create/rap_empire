@@ -1219,7 +1219,7 @@ final Map<String, Action> actions21 = {
       _l(n['stock']).add(c);
       n['cur'] = null;
     }
-    _log(n, 'Sortie programmée : ${c['title']} · J${_n(c['relDay']).toInt()}${pc != 0 ? ' (promotion −${fmt21(pc)})' : ''}', 'musique');
+    _log(n, 'Sortie programmée : ${c['title']} · ${dateLabel21(_n(c['relDay']))}${pc != 0 ? ' (promotion −${fmt21(pc)})' : ''}', 'musique');
     return _ok(n);
   },
 
@@ -1344,7 +1344,7 @@ final Map<String, Action> actions21 = {
     _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
     ui['ptk'] = <dynamic>[];
     ui['ptitle'] = '';
-    _log(n, '$type programmé : $title · J${pending['relDay']} · campagne ${promos21[promo]['n']} · coût ${fmt21(total)} cauris', 'musique');
+    _log(n, '$type programmé : $title · ${dateLabel21(_n(pending['relDay']))} · campagne ${promos21[promo]['n']} · coût ${fmt21(total)} cauris', 'musique');
     return _ok(n);
   },
 

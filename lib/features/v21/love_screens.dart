@@ -345,7 +345,7 @@ class RelationScreen extends ConsumerWidget {
           for (final h in hist)
             Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('J${_m(h)['d']} · ${_m(h)['t']}',
+                child: Text('${dateLabel21(_m(h)['d'] as num)} · ${_m(h)['t']}',
                     style: V20Text.bs(color: Tk.ink))),
         ]),
       ),
@@ -680,7 +680,7 @@ class ConfirmationMariageScreen extends ConsumerWidget {
         Text('VOUS ÊTES MARIÉ(E)S', style: V20Text.dm(size: 28)),
         const SizedBox(height: 8),
         KeyVal('Avec', cands21[rom['off']]?['n'] as String? ?? '—'),
-        KeyVal('Jour du mariage', 'J${rom['wed']}'),
+        KeyVal('Jour du mariage', dateLabel21(rom['wed'] as num)),
         KeyVal('Relation', '${partner(s)?['g'] ?? 0}/100'),
         const SizedBox(height: 16),
         PrimaryGlowButton(
@@ -785,7 +785,7 @@ class SeparationScreen extends ConsumerWidget {
             for (final h in hist)
               Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text('J${_m(h)['d']} · ${_m(h)['t']}',
+                  child: Text('${dateLabel21(_m(h)['d'] as num)} · ${_m(h)['t']}',
                       style: V20Text.bs(color: Tk.ink))),
           ]),
         ),

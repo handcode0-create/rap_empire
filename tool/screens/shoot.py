@@ -10,6 +10,7 @@ ROUTES = [
     ('profil', '/profil'),
     ('classements', '/profil/classements'),
     ('trophees', '/profil/trophees'),
+    ('wiki', '/profil/wiki'),
     ('annonce', '/profil/trophees/annonce'),
     ('qg', '/'),
     ('reseau', '/profil/reseau'),

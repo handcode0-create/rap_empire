@@ -34,7 +34,7 @@ double xpFraction(J s) {
 String hourLabel(J s) => '${_n(s['hour']).toInt().toString().padLeft(2, '0')}:00';
 int dayInYear(J s) => ((_n(s['day']) - 1) % Reg21.daysPerYear).toInt() + 1;
 int yearOf(J s) => ((_n(s['day']) - 1) / Reg21.daysPerYear).floor() + 1;
-String timeLabel(J s) => 'J${dayInYear(s)} · ${hourLabel(s)}';
+String timeLabel(J s) => 'S${weekOf21(_n(s['day']))} ${weekDay21(_n(s['day']))} · ${hourLabel(s)}';
 int hoursLeft(J s) => Reg21.dayEnd - _n(s['hour']).toInt();
 String energyLabel(J s) => '${_n(s['en']).toInt()}/${enMax(s)}';
 bool isLate(J s) => _n(s['hour']) >= 22;
@@ -120,7 +120,7 @@ int salesOf(J t) => (t['sales'] ?? jsRound(_n(t['L']) * Reg21.singleSales)) as i
 int singleRankOf(J t) => _n(t['L']) >= Reg21.entry ? math.max(8, math.min(100, jsRound(7 * math.pow(_n(t['L']) / 8e6, -1 / 1.3)))) : 0;
 
 /// « J25 · Indépendant · Bon » : ligne de détail d'une ligne du catalogue.
-String titleMeta(J t) => 'J${t['day']} · ${t['labelAt'] ?? 'Indépendant'} · ${t['tier']}';
+String titleMeta(J t) => '${dateLabel21(_n(t['day']))} · ${t['labelAt'] ?? 'Indépendant'} · ${t['tier']}';
 
 /// Meilleur projet (le plus vendu) d'un type, ou null.
 J? bestProject(J s, String type) {
@@ -188,7 +188,7 @@ int platformListens(J t) => (_n(t['L']) + _n(t['clipL']) + _n(t['plL'])).toInt()
 }
 
 /// Date de jeu lisible : « J12 · An 1 ». C'est la date qui sert aux sorties programmées.
-String dateLabel21(num day) => 'J${((day - 1) % Reg21.daysPerYear).toInt() + 1} · An ${((day - 1) / Reg21.daysPerYear).floor() + 1}';
+
 
 /// « demain », « dans 3 jours », « aujourd'hui » par rapport au jour courant.
 String dueIn21(num relDay, num today) {

@@ -111,6 +111,13 @@ const ceremonies21 = <Ceremony21>[
 int weekOf21(num day) => (((day - 1) % Reg21.daysPerYear) / 7).floor() + 1;
 int yearOf21(num day) => ((day - 1) / Reg21.daysPerYear).floor() + 1;
 
+/// Le temps du jeu se lit en semaines : 7 jours (lundi à dimanche) par semaine, 52 semaines par an.
+const weekDays21 = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+String weekDay21(num day) => weekDays21[((day - 1) % 7).toInt()];
+
+/// Date lisible : « S12 · Mer · An 1 ».
+String dateLabel21(num day) => 'S${weekOf21(day)} · ${weekDay21(day)} · An ${yearOf21(day)}';
+
 /// Prochaine cérémonie et nombre de jours avant elle.
 (Ceremony21, int) nextCeremony21(J s) {
   final day = _n(s['day']).toInt();
