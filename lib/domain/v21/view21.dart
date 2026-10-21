@@ -202,3 +202,63 @@ List<J> stockSongs21(J s) {
   final dated = all.where((x) => x['relDay'] != null).toList()..sort((a, b) => _n(a['relDay']).compareTo(_n(b['relDay'])));
   return [...dated, ...all.where((x) => x['relDay'] == null)];
 }
+
+
+/// Ligne du joueur dans un classement de la semaine, placée parmi les autres artistes par sa valeur de la semaine
+/// (même échelle qu'eux) : singles = écoutes des 7 derniers jours, albums et EP = ventes de la semaine (ventes de sortie
+/// suivant la même courbe de vie que les autres sorties), Top 10 Global = indice. Rang 0 : non classé. Provisoire (D-08).
+({String title, num value, int rank, J? item})? myChart21(J s, String board) {
+  final day = _n(s['day']);
+  num value;
+  String title;
+  J? item;
+  if (board == 'global') {
+    value = (idxParts21(s).i * 10).round() / 10;
+    title = '${_m(s['p'])['name'] ?? 'Toi'}';
+  } else if (board == 'singles') {
+    J? best;
+    num bv = 0;
+    for (final t in _l(s['disco']).map((x) => _m(x))) {
+      final age = day - _n(t['day']);
+      final w = age < 7 ? _n(t['L']) : _n(t['lastDayL']) * 7;
+      if (best == null || w > bv) {
+        best = t;
+        bv = w;
+      }
+    }
+    if (best == null) return null;
+    item = best;
+    value = bv;
+    title = '${best['title']}';
+  } else {
+    final type = board == 'eps' ? 'EP' : 'Album';
+    J? best;
+    num bv = 0;
+    for (final p in _l(s['projects']).map((x) => _m(x)).where((p) => p['type'] == type)) {
+      final w = _n(p['sales']) * chartCurve21(((day - _n(p['day'])) / 7).floor() + 1);
+      if (best == null || w > bv) {
+        best = p;
+        bv = w;
+      }
+    }
+    if (best == null) return null;
+    item = best;
+    value = bv.round();
+    title = '${best['title']}';
+  }
+  final vals = chartValues21(board, day);
+  final above = vals.where((v) => v > value).length;
+  int rank;
+  if (above < 10) {
+    rank = above + 1;
+  } else if (board == 'global') {
+    rank = 0;
+  } else if (board == 'singles') {
+    rank = value >= Reg21.entry ? math.max(11, math.min(100, jsRound(7 * math.pow(value / 8e6, -1 / 1.3)))) : 0;
+  } else {
+    final p = Reg21.proj[board == 'eps' ? 'EP' : 'Album']!;
+    final top = p['top'] as num, entry = p['entry'] as num, k = p['k'] as num;
+    rank = value >= entry ? math.max(11, math.min(top, jsRound(top * math.pow(value / entry, -k)))).toInt() : 0;
+  }
+  return (title: title, value: value, rank: rank, item: item);
+}

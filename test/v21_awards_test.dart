@@ -146,4 +146,27 @@ void main() {
     final again = act21(s, 'endDay').s; // pas de seconde annonce la même année
     expect((again['awNews'] as List).where((x) => (x as Map)['k'] == 'nom').length, 1);
   });
+
+  test('classements : le joueur est placé parmi les autres artistes par sa valeur de la semaine', () {
+    final s = act21(init21(), 'preset', 'star').s;
+    final day = s['day'] as num;
+    // album sorti cette semaine avec des ventes de tête : 1er
+    s['projects'] = [
+      {'id': 'P1', 'type': 'Album', 'title': 'Grand album', 'day': day, 'sales': 5000000, 'L': 0, 'tracks': [], 'rank': 1},
+      {'id': 'P2', 'type': 'EP', 'title': 'Petit EP', 'day': day, 'sales': 10, 'L': 0, 'tracks': [], 'rank': 0},
+    ];
+    final al = myChart21(s, 'albums')!;
+    expect([al.rank, al.title], [1, 'Grand album']);
+    final vals = chartValues21('eps', day);
+    final ep = myChart21(s, 'eps')!;
+    expect(ep.rank, 0); // 10 ventes : non classé
+    // un EP entre deux valeurs du classement prend la place correspondante
+    s['projects'] = [
+      {'id': 'P2', 'type': 'EP', 'title': 'EP moyen', 'day': day, 'sales': ((vals[4] + vals[5]) / 2).round(), 'L': 0, 'tracks': [], 'rank': 6},
+    ];
+    expect(myChart21(s, 'eps')!.rank, 6);
+    // des semaines plus tard, la sortie redescend comme les autres
+    s['day'] = day + 70;
+    expect(myChart21(s, 'eps')!.value, lessThan(((vals[4] + vals[5]) / 2).round()));
+  });
 }

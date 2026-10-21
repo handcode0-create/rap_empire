@@ -29,12 +29,12 @@ import 'widgets21.dart';
 num _n(dynamic x) => (x ?? 0) as num;
 
 /// Une ligne de classement : rang, titre, artiste, valeur, évolution connue (null si non documentée).
-typedef _Entry = ({String t, String a, String v, String? mv});
+typedef _Entry = ({String t, String a, String v, String? mv, String? cover});
 
 /// Classement de l'univers de la semaine (charts21.dart : nouveaux titres chaque semaine, montée puis baisse).
 List<_Entry> _board(String board, num day) => [
       for (final r in chart21(board, day))
-        (t: r.t, a: board == 'global' ? 'Indice d\'artiste' : r.a, v: board == 'global' ? d1(r.value) : chartVal21(r.value), mv: r.mv),
+        (t: r.t, a: board == 'global' ? 'Indice d\'artiste' : r.a, v: board == 'global' ? d1(r.value) : chartVal21(r.value), mv: r.mv, cover: null),
     ];
 
 /// Miniature d'un artiste du catalogue : son premier clip Klipo, sinon une pochette fixe.
@@ -62,7 +62,9 @@ class _Cover extends StatelessWidget {
 
 Widget _move(String? mv) {
   if (mv == null) return const SizedBox(width: 30);
-  final (txt, c) = mv == 'NEW'
+  final (txt, c) = mv == 'TOI'
+      ? ('TOI', Tk.acc4)
+      : mv == 'NEW'
       ? ('NEW', Tk.cy)
       : mv == '='
       ? ('=', V20.ink2)
@@ -85,18 +87,31 @@ class ClassementsScreen extends ConsumerStatefulWidget {
 class _ClassementsState extends ConsumerState<ClassementsScreen> {
   int _tab = 0;
   static const _tabs = ['Top 100 Singles', 'Top 200 Albums', 'Top 50 EPs', 'Top 10 Global'];
+  static const _boards = ['singles', 'albums', 'eps', 'global'];
 
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final week = weekOf21(_n(s['day']));
-    final (List<_Entry> list, String unit, List<Color> bg, String artistOrGenre) = switch (_tab) {
+    final (List<_Entry> board, String unit, List<Color> bg, String artistOrGenre) = switch (_tab) {
       0 => (_board('singles', _n(s['day'])), 'écoutes, 7 j', const [Color(0xFF3B1236), Color(0xFF1F1942)], 'artist'),
       1 => (_board('albums', _n(s['day'])), 'ventes, 7 j', const [Color(0xFF12304A), Color(0xFF1F1942)], 'artist'),
       2 => (_board('eps', _n(s['day'])), 'ventes, 7 j', const [Color(0xFF2A1F08), Color(0xFF1F1942)], 'artist'),
       _ => (_board('global', _n(s['day'])), 'indice', const [Color(0xFF2B1659), Color(0xFF1F1942)], 'genre'),
     };
+    // la ligne du joueur prend sa place dans le Top 10 quand son rang de la semaine y est
+    final mine = myChart21(s, _boards[_tab]);
+    final me = mine == null || mine.rank < 1 || mine.rank > 10
+        ? null
+        : (
+            t: mine.title,
+            a: _tab == 3 ? 'Toi · indice d\'artiste' : playerName(s),
+            v: _tab == 3 ? d1(mine.value) : chartVal21(mine.value),
+            mv: 'TOI',
+            cover: _tab == 3 ? null : (_tab == 0 ? trackCover21(mine.item!) : projectCover21(mine.item!)),
+          );
+    final list = me == null ? board : ([...board]..insert(mine!.rank - 1, me)).take(10).toList();
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(children: [
         Expanded(child: BackHeader(title: 'Classements', step: 'R2', onBack: () => context.go('/profil'))),
@@ -152,7 +167,7 @@ class _ClassementsState extends ConsumerState<ClassementsScreen> {
                     top: i * 6.0,
                     child: _tab == 3
                         ? CastAvatar(list[i].t, size: 72 - i * 8.0, ring: Tk.gold)
-                        : _Cover(_artThumb(list[i].a), 72 - i * 8.0),
+                        : _Cover(list[i].cover ?? _artThumb(list[i].a), 72 - i * 8.0),
                   ),
               ]),
             ),
@@ -211,7 +226,7 @@ class _Podium extends StatelessWidget {
       Stack(clipBehavior: Clip.none, alignment: Alignment.topCenter, children: [
         Padding(
           padding: const EdgeInsets.only(top: 10),
-          child: artistTab ? CastAvatar(e.t, size: tall ? 84 : 68, ring: c) : _Cover(_artThumb(e.a), tall ? 84 : 68),
+          child: artistTab ? CastAvatar(e.mv == 'TOI' ? 'Djo Kéné' : e.t, size: tall ? 84 : 68, ring: c) : _Cover(e.cover ?? _artThumb(e.a), tall ? 84 : 68),
         ),
         Container(
           width: 26,
@@ -248,13 +263,16 @@ class _ChartRow extends StatelessWidget {
   final String sub;
   const _ChartRow({required this.rank, required this.e, required this.artistTab, required this.sub});
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: e.mv == 'TOI'
+            ? BoxDecoration(borderRadius: BorderRadius.circular(14), color: Tk.tint, border: Border.all(color: Tk.acc, width: 1.5))
+            : null,
         child: Row(children: [
           SizedBox(width: 30, child: Text('$rank', textAlign: TextAlign.center, style: V20Text.baloo(size: 18, line: 20, color: Tk.gold))),
           _move(e.mv),
           const SizedBox(width: 6),
-          artistTab ? CastAvatar(e.t, size: 44, ring: Tk.gold) : _Cover(_artThumb(e.a), 44),
+          artistTab ? CastAvatar(e.mv == 'TOI' ? 'Djo Kéné' : e.t, size: 44, ring: Tk.gold) : _Cover(e.cover ?? _artThumb(e.a), 44),
           const SizedBox(width: 10),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -277,33 +295,31 @@ class _MyPosition extends StatelessWidget {
     String title, rank, detail;
     double prog = 0;
     String cover = coverOf21(playerName(s));
+    final board = const ['singles', 'albums', 'eps', 'global'][tab];
+    final m = myChart21(s, board);
+    final r = m?.rank ?? 0;
+    rank = r == 0 ? 'Non classé' : '#$r';
     switch (tab) {
       case 0:
-        final b = bestSong(s);
-        final l = b == null ? 0 : _n(b['L']);
-        final r = singlesRank(s);
-        title = b == null ? 'Aucun titre sorti' : '${b['title']}';
-        if (b != null) cover = trackCover21(b);
-        rank = r == 0 ? 'Non classé' : '#$r';
+        title = m == null ? 'Aucun titre sorti' : m.title;
+        if (m != null) cover = trackCover21(m.item!);
+        final l = m?.value ?? 0;
         detail = r == 0 ? '${fmt21(l)} / ${fmt21(Reg21.entry)} écoutes sur 7 jours pour entrer au Top 100' : '${fmt21(l)} écoutes sur 7 jours';
-        prog = (l / Reg21.entry).clamp(0, 1).toDouble();
+        prog = r > 0 ? 1 : (l / Reg21.entry).clamp(0, 1).toDouble();
       case 1 || 2:
         final type = tab == 1 ? 'Album' : 'EP';
-        final p = bestProject(s, type);
         final entry = Reg21.proj[type]!['entry'] as num;
-        title = p == null ? (type == 'EP' ? 'Aucun EP' : 'Aucun album') : '${p['title']}';
-        if (p != null) cover = projectCover21(p);
-        rank = p == null ? '—' : projectRankLabel(p);
-        detail = p == null
+        title = m == null ? (type == 'EP' ? 'Aucun EP' : 'Aucun album') : m.title;
+        if (m != null) cover = projectCover21(m.item!);
+        detail = m == null
             ? (type == 'EP' ? 'Crée un EP de 3 à 7 titres au studio' : 'Crée un album de 8 titres ou plus au studio')
-            : '${fmt21(_n(p['sales']))} ventes${_n(p['rank']) == 0 ? ' · entrée à ${fmt21(entry)}' : ''}';
-        prog = p == null ? 0 : (_n(p['sales']) / entry).clamp(0, 1).toDouble();
+            : '${fmt21(m.value)} ventes cette semaine · ${_n(m.item!['rank']) > 0 ? 'entré à la ${projectRankLabel(m.item!)}' : 'pas entré au classement à sa sortie'}';
+        prog = m == null ? 0 : (r > 0 ? 1 : (m.value / entry).clamp(0, 1).toDouble());
       default:
-        final ip = idxParts21(s), gr = globalRank(s);
+        final ip = idxParts21(s);
         title = playerName(s);
-        rank = gr == 0 ? 'Non classé' : '#$gr';
-        detail = gr == 0 ? 'Indice ${d1(ip.i)} · le #10 est à 76,3 (écart ${d1(76.3 - ip.i)})' : 'Indice ${d1(ip.i)}';
-        prog = (ip.i / 76.3).clamp(0, 1).toDouble();
+        detail = r == 0 ? 'Indice ${d1(ip.i)} · le #10 est à ${d1(chartValues21('global', _n(s['day']))[9])}' : 'Indice ${d1(ip.i)}';
+        prog = r > 0 ? 1 : (ip.i / chartValues21('global', _n(s['day']))[9]).clamp(0, 1).toDouble();
     }
     return GlassCard(
       accent: GlassAccent.magenta,

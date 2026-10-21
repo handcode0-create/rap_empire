@@ -129,6 +129,16 @@ List<ChartRow21> chart21(String board, num day, {int top = 10}) {
   ];
 }
 
+/// Toutes les valeurs de la semaine (sans limite de rang), de la plus forte à la plus faible : sert à placer le joueur.
+List<double> chartValues21(String board, num day) {
+  final w = chartWeek21(day);
+  final rows = switch (board) { 'albums' => _projectsAt(w, false), 'eps' => _projectsAt(w, true), 'global' => _artistsAt(w), _ => _songsAt(w) };
+  return [for (final r in rows) board == 'global' ? (r.v * 10).round() / 10 : r.v.roundToDouble()];
+}
+
+/// Courbe de vie d'une sortie (semaine 0 : 72 %, semaine 1 : sommet, puis −12 % par semaine), commune à tous les artistes.
+double chartCurve21(int ageWeeks) => _curve(ageWeeks);
+
 /// Titres récents d'un ensemble d'artistes (pour remplir une playlist), du plus écouté au moins écouté.
 List<({String t, String a})> recentSongs21(num day, bool Function(String artist) keep, {int n = 6}) =>
     [for (final s in _songsAt(chartWeek21(day)).where((s) => keep(s.a)).take(n)) (t: s.t, a: s.a)];
