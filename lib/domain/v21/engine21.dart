@@ -267,22 +267,29 @@ J norm21(J s) {
 /// Anciennes sauvegardes : les inédits d'un projet sorti avant le 21/10/2026 n'avaient ni écoutes ni ventes propres.
 /// Ils entrent au catalogue avec leur part des écoutes du projet (au prorata de la qualité). Revenus passés non rejoués.
 void _migrateInedits(J s) {
-  final disco = _l(s['disco']);
+  List lst(dynamic x) => x is List ? x : const [];
+  final projects = lst(s['projects']);
+  if (projects.every((p) => lst(_m(p)['inedits']).isEmpty)) return;
+  final disco = List<dynamic>.of(lst(s['disco']));
   final ids = disco.map((x) => _m(x)['id']).toSet();
-  for (final p in _l(s['projects']).map(_m)) {
-    final ined = _l(p['inedits']).map(_m).where((i) => !ids.contains(i['id'])).toList();
+  var added = false;
+  for (final p in projects.map(_m)) {
+    final all = lst(p['inedits']).map(_m).toList();
+    final ined = all.where((i) => !ids.contains(i['id'])).toList();
     if (ined.isEmpty) continue;
-    final qs = _l(p['inedits']).map(_m).fold<num>(0, (a, i) => a + _n(i['Q'])) + _l(p['tracks']).where((id) => ids.contains(id)).length * _n(p['Q']);
+    final qs = all.fold<num>(0, (a, i) => a + _n(i['Q'])) + lst(p['tracks']).where((id) => ids.contains(id)).length * _n(p['Q']);
     for (final i in ined) {
       final st = jsRound(_n(p['L']) * (qs > 0 ? _n(i['Q']) / qs : 0));
-      disco.add({
+      disco.add(<String, dynamic>{
         'id': i['id'], 'title': i['title'], 'Q': i['Q'], 'st': 'sorti', 'day': p['day'],
         'L': st, 'launchL': st, 'sales': jsRound(st * Reg21.singleSales), 'rev': 0, 'streamRev': 0, 'salesRev': 0, 'cut': 0,
-        'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'tier': tierOf21(st), 'fg': 0, 'pg': 0, 'labelAt': p['labelAt'] ?? 'Indépendant',
+        'feats': <dynamic>[], 'clip': <String, dynamic>{'st': 'aucun'}, 'tier': tierOf21(st), 'fg': 0, 'pg': 0, 'labelAt': p['labelAt'] ?? 'Indépendant',
       });
       ids.add(i['id']);
+      added = true;
     }
   }
+  if (added) s['disco'] = disco;
 }
 
 void _log(J s, String t, [String cat = 'jeu']) {
