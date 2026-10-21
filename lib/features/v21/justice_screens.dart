@@ -388,8 +388,16 @@ class PrisonScreen extends ConsumerWidget {
       ]);
     }
     final left = jailDaysLeft(s);
+    final phone = _n(s['jphone']) != 0;
+    final current = s['cur'] as J?;
+    final busy = current != null && current['st'] != 'sorti';
     return ListView(padding: const EdgeInsets.all(16), children: [
-      back,
+      Row(children: [
+        const Icon(Icons.lock, color: Color(0xFFFF4DA6)),
+        const SizedBox(width: 10),
+        Expanded(child: Text('PRISON DE LUMBÉ', style: V20Text.dm(size: 22))),
+        const GameTag('ACCÈS RESTREINT', style: GameTagStyle.accent),
+      ]),
       const SizedBox(height: 12),
       _banner('decor-cellule', 'Cellule 12', const [BannerChar('djo', mood: 'worried', crop: 'torso', width: 92, left: 150)]),
       const SizedBox(height: 12),
@@ -397,7 +405,10 @@ class PrisonScreen extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Encore $left jour(s)', style: V20Text.dm(size: 26)),
         if (_n(jail['pre']) != 0) Text('Détention provisoire : tu sors le jour du procès.', style: V20Text.bs(color: Tk.ink)),
-        Text('Studio, scène, boulots et vie perso sont impossibles en prison.', style: V20Text.bs()),
+        Text('Tous les autres espaces sont verrouillés. Ici, tu peux écrire, enregistrer en qualité limitée, créer un RIO et bâtir ta réputation carcérale.', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        Row(children: [Expanded(child: Text('Réputation carcérale', style: V20Text.bs())), Text('${_n(s['jrep']).toInt()}', style: V20Text.baloo(size: 24, line: 26, color: const Color(0xFFFF4DA6)))]),
+        Row(children: [Expanded(child: Text('Téléphone satellite', style: V20Text.bs())), GameTag(phone ? 'ÉQUIPÉ' : 'NON ÉQUIPÉ', style: phone ? GameTagStyle.ok : GameTagStyle.accent)]),
       ])),
       const SizedBox(height: 10),
       GameCard(
@@ -406,6 +417,37 @@ class PrisonScreen extends ConsumerWidget {
         const Conseq21(ConsequenceKind.certain, 'Écriture +2 · une fois par jour'),
         const SizedBox(height: 6),
         PrimaryButton(label: 'Écrire', style: s['jw'] == s['day'] ? GameButtonStyle.disabled : GameButtonStyle.secondary, onPressed: s['jw'] == s['day'] ? null : () => doAct(context, ref, 'jw', null, null, 'Écriture +2')),
+      ])),
+      const SizedBox(height: 10),
+      GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Enregistrer en cellule', style: V20Text.nm()),
+        const SizedBox(height: 4),
+        Text(phone ? 'Téléphone satellite · qualité estimée 62/100' : 'Téléphone basique · qualité estimée 24/100', style: V20Text.bs()),
+        if (busy) Text('Projet en cours : ${current['title']} · tu le reprendras après ta libération.', style: V20Text.bs(color: V20.hintGoldText)),
+        const SizedBox(height: 8),
+        PrimaryGlowButton(label: 'Enregistrer un freestyle', onPressed: busy || s['jrec'] == s['day'] ? null : () => doAct(context, ref, 'jrecord', null, null, 'Freestyle enregistré en cellule')),
+      ])),
+      const SizedBox(height: 10),
+      GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Créer un RIO', style: V20Text.nm()),
+        Text('Un morceau-défi carcéral. Qualité faible sans téléphone satellite, réputation +2.', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        PrimaryButton(label: 'Lancer le RIO', style: GameButtonStyle.secondary, onPressed: busy || s['jrio'] == s['day'] ? null : () => doAct(context, ref, 'jrio', null, null, 'RIO créé')),
+      ])),
+      const SizedBox(height: 10),
+      GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Téléphone satellite', style: V20Text.nm()),
+        Text(phone ? 'Équipement acquis : les prochaines prises seront meilleures.' : 'Coût : 18 000 cauris · augmente la qualité des prochains enregistrements.', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        PrimaryButton(label: phone ? 'Déjà équipé' : 'Acheter · 18 000 cauris', style: phone ? GameButtonStyle.disabled : GameButtonStyle.secondary, onPressed: phone || _n(s['cash']) < 18000 ? null : () => doAct(context, ref, 'jphone', null, null, 'Téléphone satellite acheté')),
+        if (!phone && _n(s['cash']) < 18000) Text('Il te manque ${fmt21(18000 - _n(s['cash']))} cauris.', style: V20Text.bs(color: V20.hintGoldText)),
+      ])),
+      const SizedBox(height: 10),
+      GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Affronter un détenu', style: V20Text.nm()),
+        Text('Duel scénarisé automatique : victoire réputation +3, défaite réputation −1. Une tentative par jour.', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        PrimaryButton(label: 'Défier un détenu', style: s['jfight'] == s['day'] ? GameButtonStyle.disabled : GameButtonStyle.secondary, onPressed: s['jfight'] == s['day'] ? null : () => doAct(context, ref, 'jfight', null, null, 'Affrontement terminé')),
       ])),
       const SizedBox(height: 10),
       GameCard(

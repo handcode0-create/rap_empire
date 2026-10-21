@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
@@ -6,6 +7,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
 import '../../core/widgets/game_card.dart';
+import '../../core/widgets/character_view.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/primary_button.dart';
@@ -16,7 +18,7 @@ import 'start_screens.dart';
 import 'widgets21.dart';
 
 /// Garde-robe à tenues préfabriquées : liste (21-W1), fiche d'une tenue (21-W2), confirmation d'achat (21-W3).
-/// [PROPOSÉ, à valider] Illustrations de test. Aucun calcul ici : tout vient de wardrobe21.dart et des actions o* du moteur.
+/// [PROPOSÉ, à valider] Les aperçus utilisent le personnage 2D créé par le joueur (coiffure et teint conservés). Les règles d’achat restent dans wardrobe21.dart et le moteur.
 
 num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
@@ -27,20 +29,48 @@ class OutfitImage extends StatelessWidget {
   final String? path;
   final double width, height;
   final String label, mood;
-  const OutfitImage(this.s, {super.key, required this.path, required this.width, required this.height, required this.label, this.mood = 'smile'});
+  final String? outfitId;
+  const OutfitImage(this.s, {super.key, required this.path, required this.width, required this.height, required this.label, this.mood = 'smile', this.outfitId});
 
   @override
   Widget build(BuildContext context) {
-    Widget fallback() => PlayerAvatar(s, mood: mood, height: height * .8);
+    Widget fallback() {
+      final ap = _m(s['ap']);
+      final top = <String, String>{
+        'OUTFIT_001': 'hoodie', 'OUTFIT_002': 'hoodie', 'OUTFIT_003': 'bomber',
+        'OUTFIT_004': 'bomber', 'OUTFIT_005': 'hoodie', 'OUTFIT_006': 'hoodie',
+        'OUTFIT_007': 'bomber', 'OUTFIT_008': 'bomber', 'OUTFIT_009': 'hoodie',
+      }[outfitId] ?? (ap['top'] as String? ?? 'hoodie');
+      return CharacterView(who: 'me_${ap['hair'] ?? 'hitwist'}_${top}_${ap['skin'] ?? '3'}',
+        mood: mood == 'smile' ? 'smile' : 'cool', crop: 'torso', width: width * .94, height: height * .94);
+    }
     return SizedBox(
       width: width,
       height: height,
       child: path == null
-          ? Center(child: fallback())
-          : Image.asset(path!, fit: BoxFit.contain, alignment: Alignment.bottomCenter, semanticLabel: label, errorBuilder: (_, error, __) {
-                debugPrint('OutfitImage: chargement impossible de $path : $error');
-                return Center(child: fallback());
-              }),
+          ? Center(
+              child: outfitId != null
+                  ? fallback()
+                  : PlayerAvatar(s, mood: mood, height: height * .8),
+            )
+          : path!.toLowerCase().endsWith('.svg')
+              ? SvgPicture.asset(
+                  path!,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                  semanticsLabel: label,
+                  placeholderBuilder: (_) => Center(child: fallback()),
+                )
+              : Image.asset(
+                  path!,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                  semanticLabel: label,
+                  errorBuilder: (_, error, __) {
+                    debugPrint('OutfitImage: chargement impossible de $path : $error');
+                    return Center(child: fallback());
+                  },
+                ),
     );
   }
 }
@@ -55,7 +85,7 @@ class EquippedAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      OutfitImage(s, path: resolveLook21(s).path, width: width, height: height, label: 'Ton rappeur dans sa tenue équipée', mood: mood);
+      OutfitImage(s, path: resolveLook21(s).path, outfitId: resolveLook21(s).outfit, width: width, height: height, label: 'Ton rappeur dans sa tenue équipée', mood: mood);
 }
 
 String _price(Map<String, dynamic> o) => (o['price'] as num) == 0 ? 'Offerte' : '${fmt21(o['price'] as num)} cauris';
@@ -66,11 +96,18 @@ String _cond(Map<String, dynamic> o) => (o['rank'] as num) > 1 ? 'Rang N${o['ran
 // 21-W1 Garde-robe
 // ---------------------------------------------------------------------------------------------------------------------
 
-class GardeRobeScreen extends ConsumerWidget {
+class GardeRobeScreen extends ConsumerStatefulWidget {
   const GardeRobeScreen({super.key});
+  @override
+  ConsumerState<GardeRobeScreen> createState() => _GardeRobeState();
+}
+
+class _GardeRobeState extends ConsumerState<GardeRobeScreen> {
+  /// Filtre de catégorie (null = toutes) ; « Possédées » montre l'inventaire.
+  String? _cat;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final wd = _m(s['wd']);
@@ -81,7 +118,7 @@ class GardeRobeScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Garde-robe', step: 'W1', onBack: () => context.go('/profil')),
       const SizedBox(height: 12),
-      const Align(alignment: Alignment.centerLeft, child: GameTag('Illustrations de test · à valider', style: GameTagStyle.outline)),
+      const Align(alignment: Alignment.centerLeft, child: GameTag('Style 2D V21 · aperçus adaptés', style: GameTagStyle.outline)),
       const SizedBox(height: 8),
       GameCard(
         child: Column(children: [
@@ -108,12 +145,33 @@ class GardeRobeScreen extends ConsumerWidget {
         const GameHint(icon: 'info', text: 'Illustration manquante pour cette variante : avatar provisoire affiché.', warn: true),
       ],
       const SizedBox(height: 12),
-      Text('TENUES', style: V20Text.lab()),
+      Text('TENUES · ${Wardrobe21.outfits.length} PIÈCES', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      SizedBox(
+        height: 48,
+        child: ListView(scrollDirection: Axis.horizontal, children: [
+          for (final c in <String?>[null, 'Possédées', ...Wardrobe21.categories])
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(c ?? 'Toutes', style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: _cat == c ? Tk.bg : Tk.ink)),
+                selected: _cat == c,
+                selectedColor: Tk.gold,
+                backgroundColor: Tk.s1,
+                side: BorderSide(color: _cat == c ? Tk.gold : Tk.line),
+                showCheckmark: false,
+                onSelected: (_) => setState(() => _cat = c),
+              ),
+            ),
+        ]),
+      ),
       const SizedBox(height: 8),
       LayoutBuilder(builder: (context, c) {
         final w = (c.maxWidth - 8) / 2;
+        final list = Wardrobe21.outfits.where((o) => _cat == null || (_cat == 'Possédées' ? owned.contains(o['id']) : o['cat'] == _cat)).toList();
+        if (list.isEmpty) return Text('Aucune tenue dans cette catégorie pour l\'instant.', style: V20Text.bs());
         return Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final o in Wardrobe21.outfits) SizedBox(width: w, child: _OutfitCard(s, o)),
+          for (final o in list) SizedBox(width: w, child: _OutfitCard(s, o)),
         ]);
       }),
     ]);
@@ -151,7 +209,7 @@ class _OutfitCard extends ConsumerWidget {
           decoration: BoxDecoration(color: const Color.fromRGBO(255, 255, 255, .05), borderRadius: BorderRadius.circular(12)),
           child: Opacity(
             opacity: ind || locked ? .5 : 1,
-            child: OutfitImage(s, path: young == null ? null : Wardrobe21.base + young, width: 100, height: 150, label: o['n'] as String),
+            child: OutfitImage(s, path: young == null ? null : Wardrobe21.base + young, outfitId: id, width: 100, height: 150, label: o['n'] as String),
           ),
         ),
         const SizedBox(height: 8),
@@ -193,7 +251,7 @@ class TenueScreen extends ConsumerWidget {
                   color: const Color.fromRGBO(255, 255, 255, .05),
                   borderRadius: BorderRadius.circular(12),
                   border: cur == v ? Border.all(color: Tk.acc, width: 2) : null),
-              child: OutfitImage(s, path: img(v), width: 150, height: 230, label: '${o['n']}, $title'),
+              child: OutfitImage(s, path: img(v), outfitId: id, width: 150, height: 230, label: '${o['n']}, $title', mood: v == 'mature' ? 'cool' : 'smile'),
             ),
             const SizedBox(height: 4),
             Text(title, style: V20Text.bs()),
@@ -219,7 +277,7 @@ class TenueScreen extends ConsumerWidget {
       if (eq)
         const GameTag('Tenue équipée', style: GameTagStyle.accent)
       else if (own)
-        PrimaryButton(label: 'Équiper', onPressed: () => doAct(context, ref, 'oeqsel', null, null, 'Tenue équipée'))
+        PrimaryButton(label: 'Équiper', onPressed: () => doAct(context, ref, 'oeqsel', null, () => context.go('/profil/garde-robe'), 'Tenue équipée : ${o['n']}'))
       else if (ind)
         const GameHint(icon: 'info', text: 'Tenue indisponible : une illustration manque.', warn: true)
       else if (locked)

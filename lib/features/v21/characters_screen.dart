@@ -3,20 +3,31 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
+import '../../core/widgets/character_view.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 
-/// Galerie des personnages (21-K1) : 25 portraits 2D provisoires, extraits de la planche (assets/svg/galerie-*).
-/// Chaque personnage garde la même apparence partout (I-17). Aucune donnée de jeu : présentation seulement.
+/// Galerie v21. Les personnages du registre du générateur (tools/design/cast.py)
+/// utilisent les SVG exportés dans assets/characters/ via export_assets.py.
+/// Les portraits proposés hors de ce registre conservent leurs SVG dédiés jusqu'à
+/// leur intégration explicite dans le générateur. Les identités validées ne sont pas redessinées.
+
+const _generatedCastIds = <String>{
+  'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme',
+  'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
+  'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre',
+  'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo', 'solo',
+  'mika', 'tamsir', 'desire', 'naya',
+};
 
 const _newCast = <(String, String, String)>[
   ('kzer', "K-Zer d'Mabaya", 'Rappeur · rival de Mabaya'),
-  ('kaira', 'Kaïra Nox', 'Artiste n° 1 · Drill de Bakoma'),
-  ('tito', 'Tito Brume', 'Artiste n° 4 · rap conscient'),
-  ('lazuli', 'Lazuli', 'Artiste n° 5 · afro-soul (RCD)'),
-  ('nadia-kolo', 'Nadia Kolo', 'Chanteuse · featuring (08.3)'),
-  ('solo', 'Sôlo Vance', 'Artiste n° 6 · trap bakomaise'),
+  ('kaira', 'Kaïra Nox', 'Artiste · drill'),
+  ('tito', 'Tito Brume', 'Artiste · rap conscient'),
+  ('lazuli', 'Lazuli', 'Artiste · afro-soul'),
+  ('nadia-kolo', 'Nadia Kolo', 'Chanteuse · featuring'),
+  ('solo', 'Sôlo Vance', 'Artiste · trap'),
   ('sanko', 'Sanko Beats', 'Producteur · Pont des Griots'),
   ('woro', 'Mister Wôrô', "Producteur · Lagune d'Ambre"),
 ];
@@ -37,15 +48,40 @@ const _existing = <(String, String, String)>[
   ('kore', 'DJ Kôrô', 'Producteur · Studio Kôrô'),
   ('orage', 'Madame Orage', 'Directrice artistique · Bakoma Sound Records'),
   ('zaki', 'Zaki Mbela', 'Rappeur · rival de Ndolo'),
-  ('maya', 'Maya Tessé', 'Manager'),
+  ('nadia', 'Maya Tessé', 'Manager'),
   ('zamba', 'Kouassi Zamba', "Promoteur · Festival Lagune d'Ambre"),
   ('ayana', 'Ayana Dembé', 'Artiste · chanteuse afro-soul'),
   ('rosine', 'Rosine Adjoua', 'Manager · presse et crise'),
   ('anselme', 'Anselme Bayoko', 'Manager · négociation de contrats'),
+  ('mika', 'Mika Soro', 'Manager · développement et image'),
+  ('tamsir', 'Tamsir Koffi', 'Beatmaker · sonorités afro-drill'),
+  ('desire', 'Désiré Kpan', 'Road manager · logistique de tournée'),
+  ('naya', 'Naya Rêve', 'Artiste · rap mélodique et R&B'),
 ];
 
 class PersonnagesScreen extends StatelessWidget {
   const PersonnagesScreen({super.key});
+
+  Widget _portrait((String, String, String) p) {
+    final id = p.$1;
+    if (_generatedCastIds.contains(id)) {
+      return CharacterView(
+        who: id,
+        mood: 'cool',
+        crop: 'bust',
+        width: double.infinity,
+        height: 112,
+      );
+    }
+
+    // Portrait dédié conservé pour les personnages qui ne figurent pas encore
+    // dans CAST : ne pas les remplacer par un avatar générique.
+    return SvgPicture.asset(
+      'assets/svg/galerie-$id.svg',
+      fit: BoxFit.contain,
+      semanticsLabel: p.$2,
+    );
+  }
 
   Widget _section(String title, String tag, List<(String, String, String)> cast, {required bool isNew}) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SizedBox(height: 16),
@@ -66,7 +102,8 @@ class PersonnagesScreen extends StatelessWidget {
                     Container(
                       height: 112,
                       decoration: BoxDecoration(color: const Color.fromRGBO(255, 255, 255, .05), borderRadius: BorderRadius.circular(12)),
-                      child: SvgPicture.asset('assets/svg/galerie-${p.$1}.svg', fit: BoxFit.contain, semanticsLabel: p.$2),
+                      clipBehavior: Clip.antiAlias,
+                      child: _portrait(p),
                     ),
                     const SizedBox(height: 8),
                     Text(p.$2, style: V20Text.nm()),
@@ -88,8 +125,9 @@ class PersonnagesScreen extends StatelessWidget {
         BackHeader(title: 'Personnages', step: 'D-01', onBack: () => context.go('/profil')),
         const SizedBox(height: 12),
         const GameHint(
-            icon: 'info',
-            text: 'Rendu 2D provisoire, en attendant les portraits peints (planche « Assets personnage v1.0 »). Chaque personnage garde la même apparence partout (I-17).'),
+          icon: 'info',
+          text: 'Les portraits de cette galerie sont générés par le moteur 2D RAP EMPIRE : identité, coiffure, teint, accessoires et tenue sont définis dans tools/design/cast.py.',
+        ),
         _section('Nouveaux personnages', 'Proposé · à valider', _newCast, isNew: true),
         _section('Directeurs de label', 'Proposé · à valider', _directors, isNew: true),
         _section('Personnages existants', 'Existant · 16-1, 17-4', _existing, isNew: false),

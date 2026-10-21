@@ -36,7 +36,61 @@ class Reg21 {
       'e': 20,
       'cash': 6000,
       'cha': 8,
-      'need': 'Charisme 8'
+      'rank': 2,
+      'need': 'Rang N2 · charisme 8'
+    },
+    // boulots rentables débloqués avec la carrière (valeurs provisoires, D-08)
+    'assistant': {
+      'n': 'Assistant au Studio Kôrô',
+      'h': 4,
+      'e': 20,
+      'cash': 8000,
+      'rank': 2,
+      'need': 'Rang N2'
+    },
+    'mariage': {
+      'n': 'DJ de mariages à Lumbé',
+      'h': 4,
+      'e': 25,
+      'cash': 12000,
+      'cha': 12,
+      'rank': 3,
+      'need': 'Rang N3 · charisme 12'
+    },
+    'pubradio': {
+      'n': 'Voix de pub pour Radio Lagune FM',
+      'h': 2,
+      'e': 15,
+      'cash': 15000,
+      'voix': 15,
+      'rank': 3,
+      'need': 'Rang N3 · voix 15'
+    },
+    'atelierjeunes': {
+      'n': 'Atelier rap pour les jeunes de Mabaya',
+      'h': 3,
+      'e': 20,
+      'cash': 18000,
+      'rank': 4,
+      'need': 'Rang N4'
+    },
+    'jury': {
+      'n': 'Jury du Tremplin de Lumbé',
+      'h': 3,
+      'e': 15,
+      'cash': 22000,
+      'rep': 40,
+      'rank': 4,
+      'need': 'Rang N4 · réputation 40'
+    },
+    'plume': {
+      'n': "Plume pour un artiste d'Ambre Music Group",
+      'h': 4,
+      'e': 25,
+      'cash': 35000,
+      'ecr': 30,
+      'rank': 5,
+      'need': 'Rang N5 · écriture 30'
     },
   };
 
@@ -281,6 +335,14 @@ class Reg21 {
     },
   };
   static const labelRep = 30, labelAdvance = 150000;
+
+  /// Intérêt des labels (0 à 200) : il faut faire ses preuves avant la première offre (valeurs provisoires, D-08).
+  /// Gains : single +12 (+6 si qualité 70 ou plus), EP ou album +20, date sur scène +6, publication virale +8.
+  static const lbzGate = 100, lbzMax = 200;
+  static const lbzSingle = 12, lbzGoodSingle = 6, lbzProject = 20, lbzShow = 6, lbzViral = 8;
+
+  /// Problèmes de début de carrière : un à la fois, au plus un tous les [pbEvery] jours, jusqu'au rang [pbMaxRank].
+  static const pbEvery = 3, pbMaxRank = 3;
   static const ownLabelRep = 60, ownLabelCash = 500000;
   static const labelCut = 0.35;
   static const managerTiers = <String, J>{
@@ -742,7 +804,72 @@ const evt21 = <String, J>{
       {'id': 'b', 'n': "Refuser pour l'instant", 'c': "tu restes indépendant"},
     ],
   },
+  // Problèmes de début de carrière (effets génériques « e », appliqués par l'action evc). Valeurs provisoires (D-08).
+  'pb_faux': {
+    't': 'Un « label » trop pressé',
+    'who': 'Inconnu au téléphone',
+    'q': "« Ici Platine Prod. On a adoré ton single. Envoie 10 000 de frais d'inscription et on te signe demain. »",
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Payer les frais', 'c': '−10 000 cauris · aucun label réel derrière', 'k': 'r', 'e': {'cash': -10000}},
+      {'id': 'b', 'n': 'Raccrocher et prévenir le quartier', 'c': '+2 réputation · tu ne perds rien', 'e': {'rep': 2}},
+    ],
+  },
+  'pb_micro': {
+    't': 'Le micro de la cabine lâche',
+    'who': 'DJ Kôrô',
+    'q': '« Le micro grésille depuis ce matin. Je peux le faire réparer, ou on bricole avec le vieux. »',
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Payer la réparation', 'c': '−6 000 cauris · relation Kôrô +2', 'e': {'cash': -6000, 'rel': {'kore': 2}}},
+      {'id': 'b', 'n': 'Bricoler une soirée', 'c': '2 h · −15 énergie · +20 XP', 'e': {'h': 2, 'en': 15, 'xp': 20}},
+    ],
+  },
+  'pb_cachet': {
+    't': 'Cachet impayé',
+    'who': 'Gérant du Parvis',
+    'q': "« Ton cachet ? La caisse est vide ce soir, reviens la semaine prochaine… peut-être. »",
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Réclamer devant tout le monde', 'c': '+3 000 cauris · −1 réputation', 'e': {'cash': 3000, 'rep': -1}},
+      {'id': 'b', 'n': 'Laisser couler', 'c': '+1 réputation · tu passes pour un pro', 'e': {'rep': 1}},
+    ],
+  },
+  'pb_critique': {
+    't': 'Mauvaise critique dans Sôlo Mag',
+    'who': 'Sôlo Mag',
+    'q': '« Le nouveau de Ndolo ? Des refrains sans idée et un flow qui tourne en rond. Ndolo mérite mieux. »',
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Répondre publiquement', 'c': '+60 fans · −2 réputation · le clash fait parler', 'k': 'i', 'e': {'fans': 60, 'rep': -2, 'lbz': 4}},
+      {'id': 'b', 'n': 'Retourner travailler en studio', 'c': '2 h · −10 énergie · +40 XP', 'e': {'h': 2, 'en': 10, 'xp': 40}},
+      {'id': 'c', 'n': 'Ignorer', 'c': '−1 popularité', 'e': {'pop': -1}},
+    ],
+  },
+  'pb_fuite': {
+    't': 'Une maquette a fuité',
+    'who': "K-Zer d'Mabaya",
+    'q': "« Il paraît que ton prochain son traîne déjà sur les téléphones de Mabaya. Pas de chance, hein ? »",
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Assumer et en parler', 'c': '+80 fans · +2 popularité', 'k': 'i', 'e': {'fans': 80, 'pop': 2}},
+      {'id': 'b', 'n': 'Faire retirer les copies', 'c': '−4 000 cauris · +1 réputation', 'e': {'cash': -4000, 'rep': 1}},
+    ],
+  },
+  'pb_sono': {
+    't': 'Panne de sono en pleine date',
+    'who': 'Public du Parvis',
+    'q': "La sono coupe au deuxième titre. La salle attend de voir ce que tu fais.",
+    'pb': 1,
+    'ch': [
+      {'id': 'a', 'n': 'Finir a cappella', 'c': '−10 énergie · +3 réputation · +100 fans', 'k': 'i', 'e': {'en': 10, 'rep': 3, 'fans': 100}},
+      {'id': 'b', 'n': 'Arrêter le concert', 'c': '−2 popularité', 'e': {'pop': -2}},
+    ],
+  },
 };
+
+/// Ordre et conditions des problèmes de début de carrière (voir engine21 `_problems`).
+const problemOrder21 = ['pb_micro', 'pb_faux', 'pb_cachet', 'pb_critique', 'pb_fuite', 'pb_sono'];
 
 /// Événements familiaux à deux choix aux conséquences certaines.
 const fev21 = <String, J>{

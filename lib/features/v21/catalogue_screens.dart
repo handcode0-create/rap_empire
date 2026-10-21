@@ -67,6 +67,7 @@ class CatalogueScreen extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final disco = _l(s['disco']).map(_m).toList();
     final projects = _l(s['projects']).map(_m).toList();
+    final pendingProjects = _l(s['pendingProjects'] ?? const []).map(_m).toList();
     final ep = bestProject(s, 'EP'), al = bestProject(s, 'Album');
     Widget board(String title, J? p, String none, String hint) => _BoardTile(
           title,
@@ -89,6 +90,23 @@ class CatalogueScreen extends ConsumerWidget {
           sublabel: 'EP : 3 à 7 titres · album : 8 titres ou plus',
           onPressed: () => context.go('/studio/catalogue/projet')),
       const SizedBox(height: 12),
+      if (pendingProjects.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        const Lab21('SORTIES PROGRAMMÉES'),
+        for (final p in pendingProjects) ...[
+          const SizedBox(height: 8),
+          GameCard(child: Row(children: [
+            const GameIcon('calendar', color: Tk.acc),
+            const SizedBox(width: 10),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(p['title'] as String, style: V20Text.nm()),
+              Text('${p['type']} · J${p['relDay']} · ${_l(p['tracks']).length} titres', style: V20Text.bs()),
+              Text('Campagne : ${p['promoName'] ?? promos21[_n(p['promo']).toInt()]['n']}', style: V20Text.bs(color: Tk.gold)),
+            ])),
+            const GameTag('Programmé', style: GameTagStyle.accent),
+          ])),
+        ],
+      ],
       const Row(children: [
         Lab21('Singles sortis'),
         SizedBox(width: 8),
@@ -213,6 +231,27 @@ class ProjetScreen extends ConsumerStatefulWidget {
 
 class _ProjetScreenState extends ConsumerState<ProjetScreen> {
   final _title = TextEditingController();
+  int _promo = 0;
+  int _days = 3;
+
+  Future<void> _submitProject(BuildContext context, WidgetRef ref, {required bool schedule, required int totalCost}) async {
+    if (totalCost >= 15000) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Confirmer la sortie du projet'),
+          content: Text('Production et mastering, campagne comprise : ${fmt21(totalCost)} cauris.\nLa dépense sera débitée ${schedule ? 'maintenant, avant la date prévue' : 'à la publication'}. Continuer ?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Annuler')),
+            FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Confirmer la sortie')),
+          ],
+        ),
+      );
+      if (confirmed != true || !context.mounted) return;
+    }
+    await doAct(context, ref, schedule ? 'pschedule' : 'prel', schedule ? _days : null,
+      () => context.go(schedule ? '/studio/catalogue' : '/studio/catalogue/projet-sorti?i=0'));
+  }
 
   @override
   void dispose() {
@@ -236,6 +275,9 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
     final need = picked.length < min ? 'Encore ${min - picked.length} titre(s) à choisir' : (picked.length > max ? 'Trop de titres : $max au maximum' : 'Prêt à sortir');
     if (_title.text.isEmpty && (ui['ptitle'] ?? '') != '' && !FocusScope.of(context).hasFocus) _title.text = ui['ptitle'] as String;
     final hs = type == 'EP';
+    final promo = _n(ui['ppromo'] ?? _promo).toInt().clamp(0, promos21.length - 1).toInt();
+    final promoCost = (s['lperk'] == 'radio' && promo == 2) ? 0 : (promos21[promo]['c'] as num).toInt();
+    final totalCost = (P['cost'] as num).toInt() + promoCost;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Créer un projet', step: 'Existant · 05-5', onBack: () => context.go('/studio/catalogue')),
       const SizedBox(height: 12),
@@ -271,6 +313,12 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
         Text('TITRES · ${picked.length} CHOISI(S)', style: V20Text.lab()),
         Text('$min à $max', style: V20Text.bs()),
       ]),
+      const SizedBox(height: 4),
+      Text(
+        need,
+        key: const ValueKey('project-selection-status'),
+        style: V20Text.bs(color: ok ? Tk.ok : Tk.ink),
+      ),
       const SizedBox(height: 8),
       for (var i = 0; i < disco.length; i++) ...[
         if (i > 0) const SizedBox(height: 8),
@@ -314,14 +362,44 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
         ],
       ],
       const SizedBox(height: 12),
-      Conseq21(ConsequenceKind.certain, 'Mastering et pochette : ${fmt21(P['cost'] as num)} cauris · ${hs ? 'EP' : 'album'} ${P['h']} h −${P['e']} énergie'),
+      const SizedBox(height: 12),
+      const Lab21('CAMPAGNE MARKETING'),
+      for (var i = 0; i < promos21.length; i++) ...[
+        const SizedBox(height: 8),
+        GameCard(
+          selected: promo == i,
+          onTap: () { setState(() => _promo = i); ref.read(game21Provider.notifier).act('ppromo', i); },
+          child: Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(promos21[i]['n'] as String, style: V20Text.nm()),
+              Text(i == 0 ? 'Sortie organique' : (i == 1 ? 'Portée ×1,6 · campagne numérique fictive' : 'Portée ×3,2 · campagne média locale fictive'), style: V20Text.bs()),
+            ])),
+            Text((s['lperk'] == 'radio' && i == 2) || (promos21[i]['c'] as num) == 0 ? 'Gratuit' : '${fmt21(promos21[i]['c'] as num)} cauris', style: V20Text.nm(color: Tk.gold)),
+          ]),
+        ),
+      ],
+      Conseq21(ConsequenceKind.certain, 'Mastering et pochette : ${fmt21(P['cost'] as num)} cauris · marketing : ${fmt21(promoCost)} · total : ${fmt21(totalCost)} cauris · ${hs ? 'EP' : 'album'} ${P['h']} h −${P['e']} énergie'),
       Conseq21(ConsequenceKind.estimated,
           'Ventes selon tes fans et la qualité moyenne des titres ; entrée au Top ${Reg21.proj['EP']!['top']} EPs à ${fmt21(Reg21.proj['EP']!['entry'] as num)} ventes, au Top ${Reg21.proj['Album']!['top']} Albums à ${fmt21(Reg21.proj['Album']!['entry'] as num)}.'),
       const SizedBox(height: 12),
       PrimaryGlowButton(
         label: 'Sortir le projet',
-        sublabel: need,
-        onPressed: ok ? () => doAct(context, ref, 'prel', null, () => context.go('/studio/catalogue/projet-sorti?i=0')) : null,
+        sublabel: ok ? 'Maintenant · total ${fmt21(totalCost)} cauris' : need,
+        onPressed: ok ? () => _submitProject(context, ref, schedule: false, totalCost: totalCost) : null,
+      ),
+      const SizedBox(height: 12),
+      const Lab21('DATE DE SORTIE'),
+      DropdownButtonFormField<int>(
+        initialValue: _days,
+        decoration: const InputDecoration(labelText: 'Délai dans le jeu'),
+        items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d jour${d > 1 ? 's' : ''} · J${_n(s['day']).toInt() + d}'))],
+        onChanged: (v) { if (v != null) setState(() => _days = v); },
+      ),
+      const SizedBox(height: 8),
+      PrimaryButton(
+        label: 'Programmer la sortie',
+        style: GameButtonStyle.secondary,
+        onPressed: ok ? () => _submitProject(context, ref, schedule: true, totalCost: totalCost) : null,
       ),
     ]);
   }
@@ -366,6 +444,7 @@ class ProjetSortiScreen extends ConsumerWidget {
           Text('${type == 'EP' ? 'EP' : 'ALBUM'} SORTI', style: V20Text.lab(color: Colors.white)),
           Text((p['title'] as String).toUpperCase(), style: V20Text.baloo(size: 26, line: 28)),
           Text('$type · ${_l(p['tracks']).length} titres · ${p['labelAt']}', style: V20Text.bm),
+          Text('Sorti le jour J${p['day']} · Campagne : ${p['promoName'] ?? 'Aucune'}', style: V20Text.bs()),
         ]),
       ),
       const SizedBox(height: 8),

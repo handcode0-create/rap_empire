@@ -1,12 +1,15 @@
 import 'package:go_router/go_router.dart';
+import '../features/v21/awards_screens.dart';
 import '../features/v21/catalogue_screens.dart';
 import '../features/v21/characters_screen.dart';
 import '../features/v21/dialogue_screens.dart';
 import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
+import '../features/v21/library_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
-import '../features/v21/platform_screens.dart';
+import '../features/v21/network_screens.dart';
+import '../features/v21/social_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
 import '../features/v21/reserve_screens.dart';
@@ -71,6 +74,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
         StatefulShellRoute.indexedStack(
           builder: (_, state, shell) => Shell21(
               shell: shell,
+              location: state.matchedLocation,
               showNav: _rootPaths.contains(state.matchedLocation)),
           branches: [
             StatefulShellBranch(routes: [
@@ -221,6 +225,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
+                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen(), routes: [GoRoute(path: 'annonce', name: '21-T2-Annonce', builder: (_, __) => const AnnonceTropheeScreen())]),
                     GoRoute(
                         path: 'garde-robe',
                         name: '21-W1-Garde-robe',
@@ -229,14 +234,44 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                           GoRoute(path: 'tenue', name: '21-W2-Tenue', builder: (_, __) => const TenueScreen()),
                         ]),
                     GoRoute(path: 'personnages', name: '21-K1-Personnages', builder: (_, __) => const PersonnagesScreen()),
+                    // Anciennes plateformes (21-D1 à D4) remplacées par l'espace Réseau (21-N) : les anciens liens y mènent.
                     GoRoute(
                         path: 'plateformes',
-                        name: '21-D1-Plateformes',
-                        builder: (_, __) => const PlateformesScreen(),
+                        redirect: (_, __) => '/profil/reseau',
                         routes: [
-                          GoRoute(path: 'ondea', name: '21-D2-Ondea', builder: (_, __) => const OndeaScreen()),
-                          GoRoute(path: 'klipo', name: '21-D3-Klipo', builder: (_, __) => const KlipoScreen()),
-                          GoRoute(path: 'cauri', name: '21-D4-Cauri-Music', builder: (_, __) => const CauriMusicScreen()),
+                          GoRoute(path: 'ondea', redirect: (_, __) => '/profil/reseau/ondea'),
+                          GoRoute(path: 'klipo', redirect: (_, __) => '/profil/reseau/klipo'),
+                          GoRoute(path: 'cauri', redirect: (_, __) => '/profil/reseau/cauri'),
+                        ]),
+                    GoRoute(
+                        path: 'reseau',
+                        name: '21-N0-Reseau',
+                        builder: (_, __) => const ReseauScreen(),
+                        routes: [
+                          GoRoute(path: 'ondea', name: '21-N1-Ondea', builder: (_, __) => const OndeaArtistScreen(), routes: [
+                            GoRoute(path: 'titres', name: '21-N1b-Ondea-titres', builder: (_, __) => const AllTracksScreen('ondea')),
+                            GoRoute(path: 'sortie', name: '21-N1c-Ondea-sortie', builder: (_, st) => ReleaseScreen('ondea', st.uri.queryParameters['id'])),
+                          ]),
+                          GoRoute(
+                              path: 'klipo',
+                              name: '21-N2-Klipo',
+                              builder: (_, __) => const KlipoHomeScreen(),
+                              routes: [GoRoute(path: 'video', name: '21-N3-Klipo-lecteur', builder: (_, __) => const KlipoPlayerScreen())]),
+                          GoRoute(
+                              path: 'clips',
+                              name: '21-N4-Mes-clips',
+                              builder: (_, __) => const MyClipsScreen(),
+                              routes: [GoRoute(path: 'clip', name: '21-N5-Clip', builder: (_, __) => const ClipDetailScreen())]),
+                          GoRoute(path: 'cauri', name: '21-N6-Cauri-Music', builder: (_, __) => const CauriPremiumScreen(), routes: [
+                            GoRoute(path: 'titres', name: '21-N6b-Cauri-titres', builder: (_, __) => const AllTracksScreen('cauri')),
+                            GoRoute(path: 'sortie', name: '21-N6c-Cauri-sortie', builder: (_, st) => ReleaseScreen('cauri', st.uri.queryParameters['id'])),
+                          ]),
+                          GoRoute(path: 'marketing', name: '21-N7-Marketing', builder: (_, __) => const MarketingScreen()),
+                          GoRoute(
+                              path: 'social',
+                              name: '21-N9-Reseaux-sociaux',
+                              builder: (_, __) => const SocialHubScreen(),
+                              routes: [GoRoute(path: ':net', name: '21-N10-Reseau-social', builder: (_, st) => SocialNetScreen(net: st.pathParameters['net'] ?? ''))]),
                         ]),
                     GoRoute(
                         path: 'annee',

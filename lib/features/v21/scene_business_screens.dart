@@ -22,7 +22,9 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'labels_screens.dart';
+import 'network_screens.dart';
 import 'shell21.dart';
+import 'cast21.dart';
 import 'widgets21.dart';
 
 /// Scène (21-C1 à 21-C3) et Business (21-E1 à 21-E5, 21-L1).
@@ -102,6 +104,11 @@ class SceneScreen21 extends ConsumerWidget {
             onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat'))),
       row('Rivalités', 'Défie d’autres artistes en battle · 1 h · −15 énergie',
           onTap: () => context.go('/scene/rivalites')),
+      // [VALIDÉ 20/10] public visible : aperçu selon les billets estimés, média partenaire sur l'écran géant.
+      if (rank >= 3) ...[
+        CrowdStage(fill: (tk / Reg21.capacity).clamp(0, 1), media: mkSponsor21(s) == null ? null : media21[mkSponsor21(s)]!.n, fillLabel: 'Remplissage estimé'),
+        const SizedBox(height: 8),
+      ],
       if (rank < 3)
         row('Concert au Parvis', 'Débloqué au rang N3',
             off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
@@ -222,6 +229,14 @@ class ConcertResultScreen extends ConsumerWidget {
           ]),
         ),
         const SizedBox(height: 12),
+        CrowdStage(
+            fill: cc['tour'] == 1 ? 0.9 : (_n(cc['fill'] ?? jsRound(100 * _n(cc['tk']) / Reg21.capacity)) / 100).clamp(0, 1),
+            media: cc['media'] == null ? null : media21[cc['media']]?.n),
+        if (_n(cc['spon']) > 0) ...[
+          const SizedBox(height: 8),
+          Conseq21(ConsequenceKind.certain, 'Partenaire ${media21[cc['media']]?.n ?? ''} : bonus de cachet +${fmt21(_n(cc['spon']))} (inclus dans le gain)'),
+        ],
+        const SizedBox(height: 12),
         if (cc['tour'] != 1)
           GlassCard(
             child:
@@ -315,7 +330,6 @@ class BusinessScreen21 extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final rank = rankOf(s);
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
-    final cha = _n(_m(s['sk'])['cha']);
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('BUSINESS', style: V20Text.dm()),
@@ -334,7 +348,7 @@ class BusinessScreen21 extends ConsumerWidget {
         onTap: () => doAct(context, ref, 'atelier', null, null,
             'Écriture +5 · Atelier terminé'),
       ),
-      const Lab21('Petits boulots · dès le début'),
+      const Lab21('Boulots · les plus rentables se débloquent avec le rang'),
       for (final e in Reg21.jobs.entries) ...[
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -342,10 +356,8 @@ class BusinessScreen21 extends ConsumerWidget {
             title: e.value['n'] as String,
             subtitle:
                 '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · ${e.value['need']}',
-            note: e.value['cha'] != null && cha < (e.value['cha'] as num)
-                ? 'Charisme ${e.value['cha']} requis (tu as ${cha.toInt()})'
-                : null,
-            disabled: e.value['cha'] != null && cha < (e.value['cha'] as num),
+            note: jobLockText21(s, e.key),
+            disabled: jobLock21(s, e.key) != null,
             trailing: Text('+${fmt21(e.value['cash'] as num)}',
                 style: V20Text.nm(color: Tk.gold)),
             onTap: () => doAct(context, ref, 'job', e.key,
@@ -724,6 +736,7 @@ class LabelsScreen extends ConsumerWidget {
         }),
       ],
       const Lab21('Labels'),
+      if (s['signed'] != 1) ...[LabelInterestCard(s), const SizedBox(height: 12)],
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -736,7 +749,7 @@ class LabelsScreen extends ConsumerWidget {
             ])),
             s['signed'] == 1
                 ? const GameTag('Signé', style: GameTagStyle.ok)
-                : (rep >= Reg21.labelRep
+                : (rep >= Reg21.labelRep && labelReady21(s)
                     ? const GameTag('Offre')
                     : const GameTag('Rép. ${Reg21.labelRep}',
                         style: GameTagStyle.outline)),
@@ -803,10 +816,13 @@ class Manager21Screen extends ConsumerWidget {
       const SizedBox(height: 12),
       GameCard(
           child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        const SizedBox(
+        // Le manager affiché est celui de ton niveau (illustration si le personnage existe, sinon monogramme).
+        SizedBox(
             width: 96,
             height: 120,
-            child: CharacterView(who: 'nadia', mood: 'poised', crop: 'bust')),
+            child: castId21(tier['n'] as String) != null
+                ? CharacterView(who: castId21(tier['n'] as String)!, mood: 'poised', crop: 'bust')
+                : Center(child: CastAvatar(tier['n'] as String, size: 80))),
         const SizedBox(width: 12),
         Expanded(
             child:
@@ -993,7 +1009,7 @@ class Rivalites21Screen extends ConsumerWidget {
         const SizedBox(height: 8),
         GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const CircleAvatar(child: Icon(Icons.mic_external_on_outlined)),
+            CastAvatar(rival.key, size: 48, mood: 'smirk'),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(rival.value, style: V20Text.nm()),
@@ -1104,4 +1120,19 @@ class _AnswerPill extends StatelessWidget {
           ),
         ),
       );
+}
+
+
+/// Condition manquante d'un boulot, en clair (null s'il est accessible).
+String? jobLockText21(J s, String id) {
+  final j = Reg21.jobs[id]!;
+  final sk = _m(s['sk']);
+  return switch (jobLock21(s, id)) {
+    'rang' => 'Rang N${j['rank']} requis (tu es N${_n(s['rank']).toInt()})',
+    'charisme' => 'Charisme ${j['cha']} requis (tu as ${_n(sk['cha']).toInt()})',
+    'voix' => 'Voix ${j['voix']} requise (tu as ${_n(sk['voix']).toInt()})',
+    'ecriture' => 'Écriture ${j['ecr']} requise (tu as ${_n(sk['ecr']).toInt()})',
+    'rep' => 'Réputation ${j['rep']} requise (tu as ${_n(s['rep']).toInt()})',
+    _ => null,
+  };
 }

@@ -25,7 +25,7 @@ void main() {
     expect(r.err, isNull);
     s = must(s, 'job', 'livraison');
     r = run(s, 'job', 'mc');
-    expect(r.err, 'tard');
+    expect(r.err, 'rang'); // MC : rang N2 requis (boulots rentables plus tard)
     s = must(s, 'endDay');
     expect([s['day'], s['hour'], s['en']], [2, 8, 100]);
     expect(m(s['bil'])['cash'], 3500 + 3000 + 4500 + 3500);

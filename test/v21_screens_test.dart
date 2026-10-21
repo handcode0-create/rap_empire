@@ -125,7 +125,7 @@ void main() {
     await tester.tap(navTab('Profil'));
     await tester.pumpAndSettle();
     await tapText(tester, 'Classements');
-    expect(txt('Top 100 Singles'), findsOneWidget);
+    expect(txt('Top 100 Singles'), findsWidgets); // onglet et en-tête du classement
   });
 
   testWidgets('journée : événement, boulot, bilan', (tester) async {
@@ -195,13 +195,16 @@ void main() {
     }
     expect(txt('Prêt à sortir'), findsOneWidget);
     await tapText(tester, 'Sortir le projet');
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Confirmer la sortie');
+    await tester.pumpAndSettle();
     expect(txt('Projet sorti'), findsOneWidget);
     final p = (repo.current['projects'] as List).first as J;
     expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);
     await tapText(tester, 'Voir les classements');
-    await tester.scrollUntilVisible(txt('Top 50 EPs'), 300, scrollable: find.byType(Scrollable).first);
-    expect(txt('Top 50 EPs'), findsOneWidget);
-    expect(find.textContaining('Ton meilleur EP'), findsOneWidget);
+    await tapText(tester, 'Top 50 EPs'); // onglet du classement
+    expect(txt('TA POSITION'), findsOneWidget);
+    expect(find.textContaining('${p['title']}'), findsWidgets);
   });
 
   /// Touche le bouton « Choisir » de la n-ième réponse d'un dialogue.
@@ -240,6 +243,7 @@ void main() {
       {'id': 'T1', 'title': 'Gbaka', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 5000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Discret', 'promo': 0, 'vir': 30, 'day': 1},
     ];
     st['dseen'] = {'kore': 'x', 'mgr': 'x'};
+    st['lbz'] = Reg21.lbzGate; // les labels s'intéressent enfin au joueur
     st = act21(st, 'setui', 'th=amour').s; // déclenche les scènes
     expect((st['dlg'] as J)['id'], 'lb_AUB');
     final repo = await pump21(tester, st, location: '/dialogue');
@@ -289,7 +293,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo3.current['cas'], isNull);
     expect(repo3.current['verdict'], isNotNull);
-    expect(find.textContaining('Coupable'), findsWidgets);
+    // Le verdict peut condamner à la prison : dans ce cas, le verrou V21 redirige immédiatement
+    // l'interface vers la cellule. Vérifier le verdict dans l'état plutôt que chercher le texte hors prison.
+    expect((repo3.current['verdict'] as J)['txt'], contains('Coupable'));
     expect((repo3.current['casier'] as List).length, 1);
     final prison = clone21(repo3.current);
     prison['jail'] = {'until': (prison['day'] as num) + 2, 'days': 2};
@@ -406,7 +412,7 @@ void main() {
     expect(repo.current['cash'], 54000);
     await tapText(tester, 'Équiper');
     expect((repo.current['wd'] as J)['eq'], 'OUTFIT_002');
-    await tapText(tester, 'Retour à la garde-robe');
+    // après « Équiper », retour direct à la garde-robe
     await tapText(tester, 'Veste Brume');
     await tapText(tester, 'Acheter · 18 000 cauris');
     expect(txt("Confirmer l'achat"), findsOneWidget);
@@ -467,7 +473,10 @@ void main() {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/trophees/annonce', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
+      '/profil/reseau', '/profil/reseau/ondea', '/profil/reseau/klipo', '/profil/reseau/klipo/video', '/profil/reseau/clips', '/profil/reseau/clips/clip', '/profil/reseau/cauri', '/profil/reseau/marketing',
+      '/profil/reseau/ondea/titres', '/profil/reseau/ondea/sortie', '/profil/reseau/cauri/titres', '/profil/reseau/cauri/sortie',
+      '/profil/reseau/social', '/profil/reseau/social/lueur', '/profil/reseau/social/bakoz', '/profil/reseau/social/griot', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',
