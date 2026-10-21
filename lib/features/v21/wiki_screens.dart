@@ -145,7 +145,7 @@ class WikiScreen21 extends ConsumerWidget {
       _Info('Top 10 Global Artists', _rk(global)),
       const _H('Carrière scénique'),
       _Info('Dates jouées', '${_n(s['shows']).toInt()}'),
-      _Info('Popularité à Bakoma', '${_n(_m(s['geo'])['bakoma']).toStringAsFixed(1)}'),
+      _Info('Popularité à Bakoma', _n(_m(s['geo'])['bakoma']).toStringAsFixed(1)),
       _Info('Port-Ambre · Sélène', '${_n(_m(s['geo'])['portambre']).toStringAsFixed(1)} · ${_n(_m(s['geo'])['selene']).toStringAsFixed(1)}'),
       const _H('Finances'),
       _Info('En caisse', '${fmt21(_n(s['cash']))} cauris'),

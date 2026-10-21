@@ -6,7 +6,6 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/core/widgets/back_header.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
-import 'package:rap_empire/domain/v21/view21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
@@ -81,7 +80,7 @@ void main() {
     expect((repo.current['p'] as J)['origin'], 'tamarel');
     expect((repo.current['ap'] as J)['hair'], 'afro');
     expect((repo.current['p'] as J)['goal'], 'label');
-    expect(txt('JOUR 1'), findsOneWidget);
+    expect(txt('SEMAINE 1'), findsOneWidget);
     expect(txt("K-Zer d'Mabaya te défie"), findsOneWidget);
 
     // défi de K-Zer : la carte du QG ouvre l'événement, la battle se joue en 3 rounds
@@ -162,7 +161,7 @@ void main() {
     expect(txt('Bilan de la journée'), findsOneWidget);
     expect(repo.current['day'], 2);
     await tapText(tester, 'Commencer la journée');
-    expect(txt('JOUR 2'), findsOneWidget);
+    expect(txt('SEMAINE 1'), findsOneWidget);
   });
 
   testWidgets('catalogue accepte les plateformes immuables des anciennes sauvegardes', (tester) async {

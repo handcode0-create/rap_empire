@@ -391,8 +391,9 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
       const Lab21('DATE DE SORTIE'),
       DropdownButtonFormField<int>(
         initialValue: _days,
+        isExpanded: true,
         decoration: const InputDecoration(labelText: 'Délai dans le jeu'),
-        items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d jour${d > 1 ? 's' : ''} · ${dateLabel21(_n(s['day']).toInt() + d)}'))],
+        items: [for (var d = 1; d <= Reg21.relMaxDays; d++) DropdownMenuItem(value: d, child: Text('Dans $d j · ${dateLabel21(_n(s['day']).toInt() + d)}', maxLines: 1, overflow: TextOverflow.ellipsis))],
         onChanged: (v) { if (v != null) setState(() => _days = v); },
       ),
       const SizedBox(height: 8),
