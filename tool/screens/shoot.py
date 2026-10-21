@@ -36,6 +36,8 @@ with sync_playwright() as p:
         pg.goto(BASE + '/')
         pg.wait_for_timeout(4000)
         pg.evaluate('s => localStorage.setItem("flutter.save_v21", JSON.stringify(s))', json.dumps(state))
+        pg.reload()
+        pg.wait_for_timeout(6000 if LIVE else 3000)
         for name, route in ROUTES:
             pg.goto(BASE + '/#' + route)
             pg.wait_for_timeout(9000 if LIVE else 6000)
