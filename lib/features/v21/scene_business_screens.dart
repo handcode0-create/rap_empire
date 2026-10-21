@@ -510,7 +510,7 @@ class BusinessScreen21 extends ConsumerWidget {
       ),
       const SizedBox(height: 12),
       KpiRow(children: [
-        StatKpi(label: 'Cash', value: fmt21(_n(s['cash'])), valueColor: Tk.gold),
+        StatKpi(label: 'Boulots', value: '${jobs.where((j) => j.lock == null).length}/${jobs.length}', valueColor: Tk.gold),
         StatKpi(label: 'Entreprises', value: '${active.length}/${Reg21.biz.length}'),
         StatKpi(label: 'Patrimoine', value: '${_m(s['own']).length}'),
       ]),
