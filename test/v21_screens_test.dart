@@ -412,7 +412,7 @@ void main() {
     expect(repo.current['cash'], 54000);
     await tapText(tester, 'Équiper');
     expect((repo.current['wd'] as J)['eq'], 'OUTFIT_002');
-    await tapText(tester, 'Retour à la garde-robe');
+    // après « Équiper », retour direct à la garde-robe
     await tapText(tester, 'Veste Brume');
     await tapText(tester, 'Acheter · 18 000 cauris');
     expect(txt("Confirmer l'achat"), findsOneWidget);

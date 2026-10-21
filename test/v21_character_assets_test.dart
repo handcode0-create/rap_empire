@@ -44,10 +44,11 @@ void main() {
     }
   });
 
-  test('les nouvelles tenues disposent des variantes jeune et mature en SVG', () {
-    for (final id in ['OUTFIT_006', 'OUTFIT_007', 'OUTFIT_008', 'OUTFIT_009']) {
+  test('les 63 tenues disposent des variantes jeune et mature en SVG (affichables sur iPhone)', () {
+    for (var i = 1; i <= 63; i++) {
+      final id = 'OUTFIT_${i.toString().padLeft(3, '0')}';
       for (final age in ['young', 'mature']) {
-        final file = File('assets/characters/rapper_001/$age/$id.svg');
+        final file = File('assets/characters/rapper_001/$age/v21b_$id.svg');
         expect(file.existsSync(), isTrue, reason: '$id / $age');
         expect(file.readAsStringSync(), contains('<svg'), reason: '$id / $age');
       }
