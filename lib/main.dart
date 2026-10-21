@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/router21.dart';
 import 'core/config/env.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/svg_precache.dart';
 
 Future<void> main() async {
   runZonedGuarded(() async {
@@ -30,6 +31,11 @@ Future<void> main() async {
     // ignore: deprecated_member_use
     if (Env.hasSupabase) await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
     runApp(const ProviderScope(child: RapEmpireApp()));
+    // Pochettes et miniatures de Klipo, Ondéa et Cauri Music : préchargées pour éviter les cases vides.
+    unawaited(precacheSvgs([
+      for (var i = 1; i <= 8; i++) 'assets/klipo/mine/M$i.svg',
+      for (var i = 1; i <= 50; i++) 'assets/klipo/thumbs/T${i.toString().padLeft(3, '0')}.svg',
+    ]));
   }, (e, st) => debugPrint('ZONE_ERROR $e\n$st'));
 }
 

@@ -15,6 +15,7 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
+import '../../core/widgets/svg_precache.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
@@ -67,7 +68,7 @@ class _Thumb extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Stack(fit: StackFit.expand, children: [
-            SvgPicture.asset(path, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF171323))),
+            SvgPicture.asset(path, fit: BoxFit.cover, placeholderBuilder: (_) => const SvgLoadingPlaceholder(radius: 0), errorBuilder: (_, __, ___) => const SvgLoadingPlaceholder(radius: 0)),
             if (play)
               Center(
                 child: Container(

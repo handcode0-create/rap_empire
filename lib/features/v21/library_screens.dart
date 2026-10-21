@@ -9,6 +9,7 @@ import '../../core/widgets/back_header.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/svg_precache.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
@@ -118,7 +119,7 @@ class Cover21 extends StatelessWidget {
         child: SizedBox(
             width: size,
             height: size,
-            child: SvgPicture.asset(path, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const ColoredBox(color: Tk.s2))),
+            child: SvgPicture.asset(path, fit: BoxFit.cover, placeholderBuilder: (_) => const SvgLoadingPlaceholder(), errorBuilder: (_, __, ___) => const SvgLoadingPlaceholder())),
       );
 }
 
