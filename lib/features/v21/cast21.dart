@@ -8,7 +8,7 @@ import '../../core/widgets/portrait.dart';
 const castIllustrated21 = <String>{
   'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme', 'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
   'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo',
-  'solo', 'mika', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane',
+  'solo', 'mika', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane', 'bako', 'sable', 'yaya',
 };
 
 /// Nom affiché → identifiant du personnage, avec son poste.
@@ -47,6 +47,9 @@ const castByName21 = <String, (String, String)>{
   'Malik Ebo': ('malik', 'Curateur Ondéa · Nuits de Lumbé'),
   'Yélé Dossou': ('yele', 'Curatrice Ondéa · Afro-soul Sélène'),
   'Tidjane Bah': ('tidjane', 'Curateur Ondéa · Nouveaux talents'),
+  'Bako Flux': ('bako', 'Artiste · rap technique'),
+  'Dr. Sable': ('sable', 'Artiste et producteur · afro-trap'),
+  'Yaya Cendre': ('yaya', 'Chanteuse · soul'),
 };
 
 /// Identifiant illustré d'un nom (ou d'un identifiant), sinon null.

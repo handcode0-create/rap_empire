@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
@@ -11,6 +12,7 @@ import '../../core/widgets/character_view.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
+import '../../core/widgets/game_icon.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
@@ -47,138 +49,275 @@ class SceneScreen21 extends ConsumerWidget {
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
     final car = _m(s['own'])['voiture'] != null ? 5 : 0;
     final day = _n(s['day']);
-    final cWait = (Reg21.concertEvery - (day - _n(s['lastConcert'])))
-        .clamp(0, 999)
-        .toInt();
-    final tWait =
-        (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
+    final cWait = (Reg21.concertEvery - (day - _n(s['lastConcert']))).clamp(0, 999).toInt();
+    final tWait = (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
     final aud = tourAudience(s);
     final tk = tickets21(s);
     final mgrTier = managerTier21(s);
     final hasManager = mgrTier != null;
-    final fee = (Reg21.tour['fee'] as num) +
-        jsRound((Reg21.tour['feeGeo'] as num) *
-            (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
+    final fee = (Reg21.tour['fee'] as num) + jsRound((Reg21.tour['feeGeo'] as num) * (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
     final cc = s['cc'] as J?;
+    final sponsor = mkSponsor21(s) == null ? null : media21[mkSponsor21(s)];
 
-    Widget row(String title, String sub,
-            {Widget? tag,
-            String? note,
-            VoidCallback? onTap,
-            bool off = false}) =>
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: ActionRow(
-              title: title,
-              subtitle: sub,
-              note: note,
-              disabled: off,
-              trailing: tag ?? ActionRow.arrow(disabled: off),
-              onTap: onTap),
-        );
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('SCÈNE', style: V20Text.dm()),
-        GameTag('${s['shows']} date(s)')
-      ]),
+    // --- les lieux (règles inchangées : mêmes conditions, mêmes actions, mêmes textes de coût) ---
+    final battle = s['btq'] == null
+        ? null
+        : _Venue("Battle contre K-Zer d'Mabaya", 'Défi accepté · 3 rounds face au rival de Mabaya', 'assets/scenes/street.svg',
+            meta: const [('clock', '1 h'), ('zap', '−15')], status: ('En attente', GameTagStyle.ok), verb: 'Entrer dans la battle', onTap: () => context.go('/scene/battle'));
+    final omPlayed = _n(s['omDay']) == day;
+    final omNet = hasManager ? '+${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net' : '+3 000';
+    final openMic = omPlayed
+        ? const _Venue('Open mic de Ndolo', 'Déjà joué aujourd’hui · reviens demain', 'assets/scenes/street.svg', status: ('Demain', GameTagStyle.outline), off: true)
+        : _Venue('Open mic de Ndolo',
+            'Jusqu’à +${jsRound(Reg21.omFans * openMicEffect(s) / 100)} fans si énergie ≥ 40 · effet actuel ${openMicEffect(s)} % (baisse si tu y retournes souvent)', 'assets/scenes/street.svg',
+            meta: [('clock', '1 h'), ('zap', '−${15 - moto}'), ('cash', omNet)],
+            status: ('Ouvert', GameTagStyle.ok),
+            verb: 'Monter sur scène',
+            onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat')));
+    final rivals = _Venue('Rivalités', 'Défie d’autres artistes de Bakoma en battle', 'assets/scenes/backstage.svg',
+        meta: const [('clock', '1 h'), ('zap', '−15')], onTap: () => context.go('/scene/rivalites'));
+    final concert = rank < 3
+        ? const _Venue('Concert au Parvis', 'Salle de Ndolo · billetterie à ton nom', 'assets/scenes/stage.svg', lock: 'Débloqué au rang N3', off: true)
+        : cWait > 0
+            ? _Venue('Concert au Parvis', 'Une date par semaine : prochaine possible dans $cWait j', 'assets/scenes/stage.svg', status: ('Dans $cWait j', GameTagStyle.outline), off: true)
+            : _Venue('Concert au Parvis (${Reg21.capacity} places)', 'Billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4', 'assets/scenes/stage.svg',
+                meta: [('clock', '4 h'), ('zap', '−${35 - moto - car}'), ('cash', '${fmt21(tk * Reg21.ticketPrice)} brut')],
+                status: ('Prêt', GameTagStyle.ok),
+                verb: 'Jouer le concert',
+                onTap: () => doAct(context, ref, 'concert', null, () => context.go('/scene/resultat')));
+    const tourName = 'Tournée régionale (Port-Ambre, Sélène)';
+    final tour = rank < 3
+        ? const _Venue(tourName, 'Trois dates hors de Bakoma', 'assets/scenes/call.svg', lock: 'Débloquée au rang N3', off: true)
+        : aud < Reg21.tourAudience
+            ? _Venue(tourName, 'La promo radio y fait monter ta notoriété.', 'assets/scenes/call.svg',
+                lock: 'Public régional ${aud.toStringAsFixed(1)} / ${Reg21.tourAudience} de notoriété moyenne', progress: (aud / Reg21.tourAudience).clamp(0, 1).toDouble(), off: true)
+            : tWait > 0
+                ? _Venue(tourName, 'Une tournée toutes les 4 semaines : encore $tWait j', 'assets/scenes/call.svg', status: ('Dans $tWait j', GameTagStyle.outline), off: true)
+                : _Venue(tourName, 'Frais ${fmt21(Reg21.tour['cost'] as num)} · cachets ${fmt21(fee)} · +${Reg21.tour['fans']} fans', 'assets/scenes/call.svg',
+                    meta: [('clock', '10 h'), ('zap', '−${(Reg21.tour['e'] as num) - moto - car}'), ('cash', '${fmt21(fee)} cachets')],
+                    status: ('Prête', GameTagStyle.ok),
+                    verb: 'Partir en tournée',
+                    onTap: () => doAct(context, ref, 'tour', null, () => context.go('/scene/resultat')));
+    final festival = _Venue('Date à Tamarel Open Air', 'Festival international de 60 000 places (18.3)', 'assets/scenes/burst.svg',
+        lock: rank < Reg21.intlRank ? 'Débloquée au rang N${Reg21.intlRank}' : 'Date internationale : à venir', off: true);
+
+    // À l'affiche : la meilleure date jouable maintenant (une seule action principale à l'écran).
+    final featured = [battle, concert, tour, openMic].whereType<_Venue>().where((v) => v.onTap != null).firstOrNull;
+
+    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+      SceneBanner(
+        kind: 'stage',
+        height: 216,
+        role: 'SCÈNE · ${rankName(s).toUpperCase()}',
+        name: 'Le live',
+        subtitle: '${s['shows']} date(s) jouée(s) · ${fmt21(s['fans'] as num)} fans',
+        chars: const [BannerChar('djo', mood: 'sing', gesture: 'micup', crop: 'torso', width: 150, left: 196)],
+        top: Wrap(spacing: 6, runSpacing: 6, children: [
+          GameTag('N$rank', style: GameTagStyle.accent),
+          if (sponsor != null) GameTag('Partenaire ${sponsor.n}', style: GameTagStyle.outline),
+        ]),
+      ),
       const SizedBox(height: 12),
       KpiRow(children: [
         StatKpi(label: 'Fans', value: fmt21(s['fans'] as num)),
-        StatKpi(label: 'Popularité', value: '${s['pop']}')
+        StatKpi(label: 'Popularité', value: '${s['pop']}'),
+        StatKpi(label: 'Billets estimés', value: rank < 3 ? '—' : '$tk', valueColor: Tk.gold),
       ]),
-      const SizedBox(height: 12),
-      const GameHint(
-          icon: 'info',
-          text:
-              'Battle : jouable depuis le défi de K-Zer (21.B1). Concert et tournée : billetterie et résultats en 21.C3. Open mic : une fois par jour, effet réduit si tu y retournes souvent.'),
-      const SizedBox(height: 12),
-      if (s['btq'] != null)
-        row("Battle contre K-Zer d'Mabaya", 'Défi accepté · 1 h · −15 énergie · 3 rounds',
-            tag: const GameTag('En attente', style: GameTagStyle.ok), onTap: () => context.go('/scene/battle')),
-      if (_n(s['omDay']) == day)
-        row('Open mic de Ndolo', 'Déjà joué aujourd’hui · reviens demain', off: true, tag: const GameTag('Demain', style: GameTagStyle.outline))
-      else
-        row('Open mic de Ndolo',
-            '1 h · −${15 - moto} énergie · +${hasManager ? '${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} net (manager)' : '3 000'} · jusqu’à +${jsRound(Reg21.omFans * openMicEffect(s) / 100)} fans si énergie ≥ 40 · effet actuel ${openMicEffect(s)} % (baisse si tu y retournes souvent)',
-            tag: const GameTag('Ouvert', style: GameTagStyle.ok),
-            onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat'))),
-      row('Rivalités', 'Défie d’autres artistes en battle · 1 h · −15 énergie',
-          onTap: () => context.go('/scene/rivalites')),
-      // [VALIDÉ 20/10] public visible : aperçu selon les billets estimés, média partenaire sur l'écran géant.
-      if (rank >= 3) ...[
-        CrowdStage(fill: (tk / Reg21.capacity).clamp(0, 1), media: mkSponsor21(s) == null ? null : media21[mkSponsor21(s)]!.n, fillLabel: 'Remplissage estimé'),
+      const SizedBox(height: 16),
+      if (featured != null) ...[
+        _Featured(featured),
         const SizedBox(height: 8),
+      ] else
+        const GameHint(icon: 'moon', text: 'Aucune date jouable maintenant : repose-toi, prépare un son ou reviens demain pour l’open mic.'),
+      _SceneSection('Petites scènes', 'Le quartier te jauge : open mic et battles.'),
+      if (battle != null) _VenueCard(battle),
+      _VenueCard(openMic),
+      _VenueCard(rivals),
+      _SceneSection('Concerts', 'Le Parvis de Ndolo, ${Reg21.capacity} places.'),
+      if (rank >= 3) ...[
+        CrowdStage(fill: (tk / Reg21.capacity).clamp(0, 1), media: sponsor?.n, fillLabel: 'Remplissage estimé'),
+        const SizedBox(height: 10),
       ],
-      if (rank < 3)
-        row('Concert au Parvis', 'Débloqué au rang N3',
-            off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
-      else if (cWait > 0)
-        row('Concert au Parvis',
-            'Une date par semaine : prochaine possible dans $cWait j',
-            off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
-      else
-        row('Concert au Parvis (${Reg21.capacity} places)',
-            '4 h · −${35 - moto - car} énergie · billetterie estimée : $tk billets × ${Reg21.ticketPrice} = ${fmt21(tk * Reg21.ticketPrice)} · Bakoma +4',
-            tag: const GameTag('Prêt', style: GameTagStyle.ok),
-            onTap: () => doAct(context, ref, 'concert', null,
-                () => context.go('/scene/resultat'))),
-      const Lab21('Tournées'),
-      if (rank < 3)
-        row('Tournée régionale (Port-Ambre, Sélène)', 'Débloquée au rang N3',
-            off: true, tag: const GameTag('N3', style: GameTagStyle.outline))
-      else if (aud < Reg21.tourAudience)
-        row('Tournée régionale (Port-Ambre, Sélène)',
-            'Public régional insuffisant : ${aud.toStringAsFixed(1)} / ${Reg21.tourAudience} de notoriété moyenne à Port-Ambre et Sélène. La promo radio y fait monter ta notoriété.',
-            off: true,
-            tag: const GameTag('Public', style: GameTagStyle.outline))
-      else if (tWait > 0)
-        row('Tournée régionale (Port-Ambre, Sélène)',
-            'Une tournée toutes les 4 semaines : encore $tWait j',
-            off: true, tag: const GameTag('Délai', style: GameTagStyle.outline))
-      else
-        row('Tournée régionale (Port-Ambre, Sélène)',
-            '10 h · −${(Reg21.tour['e'] as num) - moto - car} énergie · frais ${fmt21(Reg21.tour['cost'] as num)} · cachets ${fmt21(fee)} · +${Reg21.tour['fans']} fans',
-            tag: const GameTag('Prête', style: GameTagStyle.ok),
-            onTap: () => doAct(context, ref, 'tour', null,
-                () => context.go('/scene/resultat'))),
-      row(
-          'Date à Tamarel Open Air',
-          rank < Reg21.intlRank
-              ? 'Débloquée au rang N5 · festival de 60 000 places (18.3)'
-              : 'Date internationale : à venir',
-          off: true,
-          tag:
-              const GameTag('N${Reg21.intlRank}', style: GameTagStyle.outline)),
-      const SizedBox(height: 4),
-      GlassCard(
+      _VenueCard(concert),
+      _SceneSection('Tournées et festivals', 'Sortir de Bakoma : Port-Ambre, Sélène, puis l’international.'),
+      _VenueCard(tour),
+      _VenueCard(festival),
+      const SizedBox(height: 8),
+      _LastShow(cc),
+      const SizedBox(height: 12),
+      ActionRow(title: 'Voir la popularité par ville', subtitle: 'Effets des dates sur chaque territoire', trailing: ActionRow.arrow(), onTap: () => context.go('/scene/popularite')),
+    ]);
+  }
+}
+
+/// Un lieu de la scène : décor, coûts, état, action. Présentation seulement.
+class _Venue {
+  final String title, sub, art;
+  final List<(String, String)> meta; // (icône clock|zap|cash, valeur)
+  final (String, GameTagStyle)? status;
+  final String? lock, verb;
+  final double? progress;
+  final bool off;
+  final VoidCallback? onTap;
+  const _Venue(this.title, this.sub, this.art, {this.meta = const [], this.status, this.lock, this.verb, this.progress, this.off = false, this.onTap});
+}
+
+class _SceneSection extends StatelessWidget {
+  final String title, sub;
+  const _SceneSection(this.title, this.sub);
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(2, 16, 2, 10),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('DERNIERS RÉSULTATS', style: V20Text.lab()),
-          const SizedBox(height: 4),
-          if (cc == null)
-            Text('Aucune date aujourd’hui.', style: V20Text.bs())
-          else ...[
-            Text(
-                cc['tour'] == 1
-                    ? 'Tournée régionale'
-                    : 'Concert au Parvis · note ${cc['g']}',
-                style: V20Text.nm()),
-            Text(
-                '${fmt21(cc['fans'] as num)} fans · ${fmt21(cc['cash'] as num)} cauris nets · réputation +${cc['rep']}',
-                style: V20Text.bs()),
-            if (_n(cc['managerCut']) > 0)
-              Text(
-                  'Retenue manager : −${fmt21(_n(cc['managerCut']))} cauris sur ${fmt21(_n(cc['gross']))}',
-                  style: V20Text.bs()),
-          ],
+          Text(title.toUpperCase(), style: V20Text.baloo(size: 18, line: 22)),
+          Text(sub, style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+        ]),
+      );
+}
+
+Widget _metaChip((String, String) m) {
+  final (icon, v) = m;
+  final col = icon == 'zap' ? Tk.cy : icon == 'cash' ? Tk.gold : Tk.ink;
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(color: col.withValues(alpha: .10), borderRadius: BorderRadius.circular(999), border: Border.all(color: col.withValues(alpha: .35))),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      if (icon != 'cash') ...[GameIcon(icon, size: 12, color: col), const SizedBox(width: 4)],
+      Text(icon == 'cash' ? '$v cauris' : v, style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: col)),
+    ]),
+  );
+}
+
+Widget _art(String asset, double size, {bool dim = false}) => ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: SizedBox.square(
+        dimension: size,
+        child: Stack(fit: StackFit.expand, children: [
+          SvgPicture.asset(asset, fit: BoxFit.cover, placeholderBuilder: (_) => const ColoredBox(color: Tk.deep)),
+          if (dim) const ColoredBox(color: Color(0x990C0820)),
         ]),
       ),
-      const SizedBox(height: 8),
-      ActionRow(
-          title: 'Voir la popularité par ville',
-          subtitle: 'Effets des dates sur chaque territoire',
-          trailing: ActionRow.arrow(),
-          onTap: () => context.go('/scene/popularite')),
-    ]);
+    );
+
+/// Carte « À l'affiche » : la date jouable maintenant, avec le seul bouton principal de l'écran.
+class _Featured extends StatelessWidget {
+  final _Venue v;
+  const _Featured(this.v);
+  @override
+  Widget build(BuildContext context) => GlassCard(
+        accent: GlassAccent.magenta,
+        semanticLabel: '${v.title}, ${v.sub}',
+        onTap: v.onTap,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('À L’AFFICHE MAINTENANT', style: V20Text.lab(color: Tk.acc4)),
+          const SizedBox(height: 10),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _art(v.art, 84),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(v.title, style: V20Text.baloo(size: 20, line: 23)),
+                const SizedBox(height: 6),
+                Wrap(spacing: 6, runSpacing: 6, children: [for (final m in v.meta) _metaChip(m)]),
+              ]),
+            ),
+          ]),
+          const SizedBox(height: 10),
+          Text(v.sub, style: V20Text.poppins(size: 12, line: 17, color: V20.ink2)),
+          const SizedBox(height: 12),
+          PrimaryGlowButton(label: v.verb ?? 'Y aller', onPressed: v.onTap),
+        ]),
+      );
+}
+
+class _VenueCard extends StatelessWidget {
+  final _Venue v;
+  const _VenueCard(this.v);
+  @override
+  Widget build(BuildContext context) {
+    final locked = v.lock != null;
+    final ready = v.onTap != null && v.status?.$2 == GameTagStyle.ok;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Semantics(
+        button: v.onTap != null,
+        label: '${v.title}. ${v.lock ?? v.sub}',
+        excludeSemantics: true,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: v.onTap,
+            child: Ink(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Tk.s1.withValues(alpha: v.off ? .6 : .9),
+                border: Border.all(color: ready ? Tk.ok.withValues(alpha: .7) : Colors.white.withValues(alpha: .10), width: ready ? 1.5 : 1),
+              ),
+              child: Row(children: [
+                Stack(children: [
+                  _art(v.art, 72, dim: v.off),
+                  if (locked) const Positioned.fill(child: Center(child: GameIcon('lock', size: 22, color: V20.lockedIcon))),
+                ]),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(v.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 16, line: 19, color: v.off ? V20.ink2 : Tk.ink)),
+                    const SizedBox(height: 2),
+                    if (locked)
+                      Text(v.lock!, style: V20Text.poppins(size: 12, line: 16, weight: FontWeight.w600, color: V20.hintGoldText))
+                    else
+                      Text(v.sub, style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                    if (v.progress != null) ...[const SizedBox(height: 6), MeterBar(value: v.progress!, tone: MeterTone.gold)],
+                    if (v.meta.isNotEmpty) ...[const SizedBox(height: 6), Wrap(spacing: 6, runSpacing: 6, children: [for (final m in v.meta) _metaChip(m)])],
+                  ]),
+                ),
+                const SizedBox(width: 8),
+                if (v.status != null) GameTag(v.status!.$1, style: v.status!.$2) else if (v.onTap != null) ActionRow.arrow(),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dernière date jouée, avec sa note.
+class _LastShow extends StatelessWidget {
+  final J? cc;
+  const _LastShow(this.cc);
+  @override
+  Widget build(BuildContext context) {
+    final c = cc;
+    return GlassCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('DERNIERS RÉSULTATS', style: V20Text.lab()),
+        const SizedBox(height: 8),
+        if (c == null)
+          Text('Aucune date aujourd’hui.', style: V20Text.bs())
+        else
+          Row(children: [
+            if (c['tour'] != 1)
+              Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: const LinearGradient(colors: [Tk.acc, Tk.violet])),
+                child: Text('${c['g']}', style: V20Text.baloo(size: 24, line: 24, color: Tk.bg)),
+              ),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(c['tour'] == 1 ? 'Tournée régionale' : 'Concert au Parvis · note ${c['g']}', style: V20Text.nm()),
+                Text('${fmt21(c['fans'] as num)} fans · ${fmt21(c['cash'] as num)} cauris nets · réputation +${c['rep']}', style: V20Text.bs()),
+                if (_n(c['managerCut']) > 0) Text('Retenue manager : −${fmt21(_n(c['managerCut']))} cauris sur ${fmt21(_n(c['gross']))}', style: V20Text.bs()),
+              ]),
+            ),
+          ]),
+      ]),
+    );
   }
 }
 

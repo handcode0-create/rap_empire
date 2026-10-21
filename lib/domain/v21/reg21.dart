@@ -244,6 +244,17 @@ class Reg21 {
       'boost': 1.3,
       'needRival': true
     },
+    // Artistes invités ajoutés (Top 10 et scène de Bakoma). Cachets, rôles et effets : proposés, provisoires (D-08).
+    'naya': {'n': 'Naya Rêve', 'role': 'Refrain mélodique', 'cost': 5000, 'q': 2, 'vir': 5, 'boost': 1.10},
+    'tamsir': {'n': 'Tamsir Koffi', 'role': 'Prod et gimmick afro-drill', 'cost': 6000, 'q': 3, 'vir': 5, 'boost': 1.10},
+    'kzer': {'n': "K-Zer d'Mabaya", 'role': 'Couplet clash', 'cost': 9000, 'q': 3, 'vir': 10, 'boost': 1.15, 'needPop': 10},
+    'yaya': {'n': 'Yaya Cendre', 'role': 'Refrain soul', 'cost': 12000, 'q': 3, 'vir': 6, 'boost': 1.15, 'needPop': 15},
+    'bako': {'n': 'Bako Flux', 'role': 'Couplet technique', 'cost': 15000, 'q': 4, 'vir': 7, 'boost': 1.18, 'needPop': 20},
+    'lazuli': {'n': 'Lazuli', 'role': 'Refrain afro-soul', 'cost': 30000, 'q': 5, 'vir': 10, 'boost': 1.22, 'needPop': 35},
+    'sable': {'n': 'Dr. Sable', 'role': 'Production et couplet', 'cost': 35000, 'q': 6, 'vir': 8, 'boost': 1.22, 'needPop': 40},
+    'tito': {'n': 'Tito Brume', 'role': 'Couplet conscient', 'cost': 45000, 'q': 5, 'vir': 12, 'boost': 1.28, 'needPop': 45},
+    'solo': {'n': 'Sôlo Vance', 'role': 'Couplet trap', 'cost': 70000, 'q': 6, 'vir': 14, 'boost': 1.35, 'needPop': 60},
+    'kaira': {'n': 'Kaïra Nox', 'role': 'Couplet de la n° 1', 'cost': 120000, 'q': 7, 'vir': 18, 'boost': 1.45, 'needPop': 75},
   };
   static const maxFeats = 2;
   static const tiers = [

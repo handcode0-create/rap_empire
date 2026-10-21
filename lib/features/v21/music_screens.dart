@@ -66,18 +66,35 @@ class FeatsScreen extends ConsumerWidget {
             icon: 'info',
             text:
                 'Écris d’abord un titre : un featuring s’ajoute à un titre en cours, jamais à un titre déjà sorti.'),
-      for (final e in Reg21.feats.entries) ...[
-        const SizedBox(height: 12),
-        _FeatCard(id: e.key, f: e.value, s: s, added: on.contains(e.key)),
+      // Trois cercles d'artistes, du plus accessible au plus exigeant (popularité requise, puis cachet).
+      for (final tier in _featTiers) ...[
+        const SizedBox(height: 16),
+        Lab21(tier.$1),
+        Text(tier.$2, style: V20Text.bs()),
+        for (final e in _featsOf(tier.$3, tier.$4)) ...[
+          const SizedBox(height: 12),
+          _FeatCard(id: e.key, f: e.value, s: s, added: on.contains(e.key)),
+        ],
       ],
       const SizedBox(height: 12),
       const GameHint(
           icon: 'info',
           text:
-              'Artistes et conditions existants (08.3, 16-G). Rôles et effets chiffrés : proposés.'),
+              'Nadia Kolo, Ayana Dembé, Madame Orage et Zaki Mbela : existants (08.3, 16-G). Autres artistes, cachets, rôles et effets chiffrés : proposés, provisoires.'),
     ]);
   }
 }
+
+const _featTiers = [
+  ('Scène de Bakoma', 'Accessibles dès maintenant ou presque.', 0, 19),
+  ('Têtes d\'affiche', 'Popularité de 20 à 50 requise.', 20, 50),
+  ('Stars du Top 10', 'Les plus grands noms : popularité 60 et plus.', 51, 1000),
+];
+
+num _need(J f) => f['needRival'] == true ? 50 : _n(f['needPop']);
+
+List<MapEntry<String, J>> _featsOf(num lo, num hi) => Reg21.feats.entries.where((e) => _need(e.value) >= lo && _need(e.value) <= hi).toList()
+  ..sort((a, b) => _need(a.value) != _need(b.value) ? _need(a.value).compareTo(_need(b.value)) : _n(a.value['cost']).compareTo(_n(b.value['cost'])));
 
 class _FeatCard extends ConsumerWidget {
   final String id;
@@ -122,7 +139,7 @@ class _FeatCard extends ConsumerWidget {
         Conseq21(ConsequenceKind.estimated,
             'Qualité +${f['q']} · viralité +${f['vir']} · écoutes ×${(f['boost'] as num).toString().replaceAll('.', ',')}'),
         if (popLock)
-          Text('Popularité ${f['needPop']} requise',
+          Text('Popularité ${f['needPop']} requise · tu as ${s['pop']}',
               style: V20Text.poppins(
                   size: 11,
                   line: 14,
