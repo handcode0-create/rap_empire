@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
@@ -22,6 +23,8 @@ import '../../domain/minigame.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'cast21.dart';
+import 'library_screens.dart' show coverAmbs21, coverThemes21, trackCover21;
 import 'widgets21.dart';
 
 /// Studio v21 : création (21-M1), instru (21-M6), cabine (21-M7) et mix (21-M8).
@@ -41,28 +44,94 @@ String _feats(J song) {
   return f.isEmpty ? 'Aucun' : f.map((k) => '${Reg21.feats[k]!['n']} (${Reg21.feats[k]!['role']})').join(' · ');
 }
 
-/// Bandeau d'étapes de la planche M1 : Création, Production, Sortie, Résultats.
-class _StudioSteps extends StatelessWidget {
-  final int done;
-  const _StudioSteps(this.done);
+/// Chaîne de fabrication d'un titre : Texte, Instru, Cabine, Mix, Sortie. Étape faite en vert, étape en cours en magenta.
+class _StudioPipeline extends StatelessWidget {
+  final int done; // nombre d'étapes faites (0 à 4)
+  const _StudioPipeline(this.done);
+  static const _steps = [('Texte', 'music'), ('Instru', 'trend'), ('Cabine', 'mic'), ('Mix', 'check'), ('Sortie', 'flame')];
   @override
-  Widget build(BuildContext context) => Row(children: [
-        for (var i = 0; i < 4; i++) ...[
-          if (i > 0) const SizedBox(width: 6),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget build(BuildContext context) => Semantics(
+        label: 'Étapes du titre : $done sur 5 faites',
+        excludeSemantics: true,
+        child: Row(children: [
+          for (var i = 0; i < _steps.length; i++) ...[
+            if (i > 0)
+              Expanded(
+                child: Container(height: 3, margin: const EdgeInsets.only(bottom: 18), decoration: BoxDecoration(borderRadius: BorderRadius.circular(99), color: i <= done ? Tk.ok : Colors.white.withValues(alpha: .14))),
+              ),
+            Column(mainAxisSize: MainAxisSize.min, children: [
               Container(
-                  height: 6,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(99),
-                      color: i < done ? Tk.ok : const Color.fromRGBO(255, 255, 255, .14))),
+                width: 38,
+                height: 38,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i < done ? Tk.ok : (i == done ? Tk.tint : Tk.s1),
+                  border: Border.all(color: i < done ? Tk.ok : (i == done ? Tk.acc : Tk.line), width: 2),
+                  boxShadow: i == done ? [BoxShadow(color: Tk.acc.withValues(alpha: .45), blurRadius: 14)] : null,
+                ),
+                child: GameIcon(i < done ? 'check' : _steps[i].$2, size: 18, color: i < done ? Tk.bg : (i == done ? Tk.acc4 : V20.ink2)),
+              ),
               const SizedBox(height: 4),
-              Text(['Création', 'Production', 'Sortie', 'Résultats'][i].toUpperCase(),
-                  style: V20Text.poppins(size: 10, line: 12, weight: FontWeight.w700, color: V20.ink2, spacing: .4)),
+              Text(_steps[i].$1, style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: i <= done ? Tk.ink : V20.ink2)),
+            ]),
+          ],
+        ]),
+      );
+}
+
+/// Pochette carrée (générée par tools/design/gen_covers.py).
+Widget _cover(String path, double size) => ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SvgPicture.asset(path, width: size, height: size, fit: BoxFit.cover, placeholderBuilder: (_) => SizedBox.square(dimension: size, child: const ColoredBox(color: Tk.deep))),
+    );
+
+/// Petit indicateur chiffré de la fiche du titre en cours.
+class _Stat extends StatelessWidget {
+  final String label, value;
+  final Color color;
+  const _Stat(this.label, this.value, {this.color = Tk.ink});
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: .05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withValues(alpha: .08))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 10, line: 12, weight: FontWeight.w700, color: V20.ink2, spacing: .4)),
+            Text(value, style: V20Text.baloo(size: 20, line: 24, color: color)),
+          ]),
+        ),
+      );
+}
+
+/// Tuile de l'atelier : featurings, clip, sorties à venir, catalogue.
+class _AtelierTile extends StatelessWidget {
+  final String icon, title, sub;
+  final Widget? extra;
+  final VoidCallback onTap;
+  const _AtelierTile(this.icon, this.title, this.sub, this.onTap, {this.extra});
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: GlassCard(
+          padding: const EdgeInsets.all(12),
+          halo: false,
+          onTap: onTap,
+          semanticLabel: '$title, $sub',
+          child: SizedBox(
+            height: 112,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Container(width: 36, height: 36, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(12)), child: GameIcon(icon, size: 18, color: Tk.acc4)),
+                const Spacer(),
+                if (extra != null) extra!,
+              ]),
+              const Spacer(),
+              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 15, line: 18)),
+              Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
             ]),
           ),
-        ],
-      ]);
+        ),
+      );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -92,77 +161,113 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
     final cur = s['cur'] as J?;
     final th = (ui['th'] ?? 'quartier') as String, am = (ui['am'] ?? 'sombre') as String;
     final st = cur?['st'] as String?;
-    final steps = st == 'ecrit' ? 1 : (st == 'enregistre' ? 2 : 0);
+    final steps = st == 'ecrit' ? 1 : (st == 'enregistre' ? 4 : 0);
     final hs = _m(s['own'])['homestudio'] != null;
     final nothingYet = _l(s['disco']).isEmpty && cur == null;
+    final feats = _l(cur?['feats']).cast<String>();
+    final lowEnergy = _n(s['en']) < 20;
     Future<void> set(String name, String id) => ref.read(game21Provider.notifier).act(name, id);
     if (_title.text.isEmpty && (ui['title'] ?? '') != '' && !FocusScope.of(context).hasFocus) {
       _title.text = ui['title'] as String;
     }
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('STUDIO', style: V20Text.dm()),
-        GameTag('${_l(s['disco']).length} sorti(s)'),
-      ]),
-      const SizedBox(height: 12),
-      _StudioSteps(steps),
-      const SizedBox(height: 12),
+    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+      SceneBanner(
+        kind: 'studio',
+        height: 200,
+        role: hs ? 'STUDIO · HOME STUDIO' : 'STUDIO · CABINE DE NDOLO',
+        name: cur == null ? 'Nouveau son' : '${cur['title']}',
+        nameSingleLine: true,
+        subtitle: '${_l(s['disco']).length} titre(s) sorti(s) · ${_l(s['stock']).length} en réserve',
+        chars: const [BannerChar('djo', mood: 'serious', gesture: 'mic', crop: 'torso', width: 140, left: 206)],
+        top: Wrap(spacing: 6, runSpacing: 6, children: [
+          GameTag(cur == null ? 'Prêt à écrire' : (st == 'ecrit' ? 'Texte écrit' : 'Enregistré'), style: GameTagStyle.accent),
+          if (hs) const GameTag('Cabine −10 énergie', style: GameTagStyle.outline),
+        ]),
+      ),
+      const SizedBox(height: 16),
+      _StudioPipeline(steps),
+      const SizedBox(height: 16),
       if (cur == null) ...[
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Flexible(child: Text('NOUVEAU TITRE · CRÉATION MANUELLE', style: V20Text.lab())),
-          const SizedBox(width: 8),
-          const GameTag('Validé D-G03', style: GameTagStyle.ok),
-        ]),
-        const SizedBox(height: 8),
-        const Lab21('Thème'),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final e in Reg21.themes.entries) Chip21(e.value['n'] as String, selected: th == e.key, onTap: () => set('th', e.key)),
-        ]),
-        const SizedBox(height: 8),
-        const Lab21('Ambiance'),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final e in Reg21.ambs.entries) Chip21(e.value['n'] as String, selected: am == e.key, onTap: () => set('am', e.key)),
-        ]),
-        const SizedBox(height: 8),
-        Conseq21(ConsequenceKind.certain, '1 h · −20 énergie${_n(s['en']) < 20 ? ' (énergie insuffisante : termine la journée)' : ''}'),
-        const Conseq21(ConsequenceKind.estimated, 'Le thème et l’ambiance modifient la note du texte et la viralité.'),
-        const SizedBox(height: 8),
-        const Lab21('Titre du morceau (facultatif)'),
-        TextField(
-          controller: _title,
-          maxLength: 30,
-          onChanged: (v) => ref.read(game21Provider.notifier).act('setui', 'title=$v'),
-          style: V20Text.nm(),
-          decoration: InputDecoration(
-            counterText: '',
-            hintText: 'LAISSE VIDE : UN TITRE DU THÈME',
-            hintStyle: V20Text.nm(color: V20.ink2.withValues(alpha: .5)),
-            filled: true,
-            fillColor: Tk.s1,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
-          ),
+        GlassCard(
+          accent: GlassAccent.magenta,
+          halo: false,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text('NOUVEAU TITRE · CRÉATION MANUELLE', style: V20Text.lab(color: V20.accText))),
+              const GameTag('Validé D-G03', style: GameTagStyle.ok),
+            ]),
+            const SizedBox(height: 12),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(children: [
+                _cover('assets/covers/s_${coverThemes21.contains(th) ? th : 'autre'}_${coverAmbs21.contains(am) ? am : 'sombre'}_0.svg', 92),
+                const SizedBox(height: 4),
+                Text('Aperçu', style: V20Text.poppins(size: 10, line: 12, color: V20.ink2)),
+              ]),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('${Reg21.themes[th]?['n'] ?? th}', style: V20Text.baloo(size: 20, line: 23)),
+                  Text('Ambiance ${(Reg21.ambs[am]?['n'] ?? am).toString().toLowerCase()}', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                  const SizedBox(height: 8),
+                  Wrap(spacing: 6, runSpacing: 6, children: [
+                    _chip('clock', '1 h', Tk.ink),
+                    _chip('zap', '−20', Tk.cy),
+                  ]),
+                ]),
+              ),
+            ]),
+            const SizedBox(height: 12),
+            const Lab21('Thème'),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final e in Reg21.themes.entries) Chip21(e.value['n'] as String, selected: th == e.key, onTap: () => set('th', e.key)),
+            ]),
+            const SizedBox(height: 8),
+            const Lab21('Ambiance'),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final e in Reg21.ambs.entries) Chip21(e.value['n'] as String, selected: am == e.key, onTap: () => set('am', e.key)),
+            ]),
+            const SizedBox(height: 8),
+            const Lab21('Titre du morceau (facultatif)'),
+            TextField(
+              controller: _title,
+              maxLength: 30,
+              onChanged: (v) => ref.read(game21Provider.notifier).act('setui', 'title=$v'),
+              style: V20Text.nm(),
+              decoration: InputDecoration(
+                counterText: '',
+                hintText: 'LAISSE VIDE : UN TITRE DU THÈME',
+                hintStyle: V20Text.nm(color: V20.ink2.withValues(alpha: .5)),
+                filled: true,
+                fillColor: Tk.deep,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Chip21('Titre aléatoire', onTap: () {
+                _title.clear();
+                set('rtitle', '');
+              }),
+            ),
+            const SizedBox(height: 8),
+            Conseq21(ConsequenceKind.certain, '1 h · −20 énergie${lowEnergy ? ' (énergie insuffisante : termine la journée)' : ''}'),
+            const Conseq21(ConsequenceKind.estimated, 'Le thème et l’ambiance modifient la note du texte et la viralité.'),
+            const SizedBox(height: 12),
+            PrimaryGlowButton(label: 'Écrire le texte', sublabel: 'Création manuelle', onPressed: () => doAct(context, ref, 'create', null, _title.clear)),
+          ]),
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Chip21('Titre aléatoire', onTap: () {
-            _title.clear();
-            set('rtitle', '');
-          }),
-        ),
-        const SizedBox(height: 12),
-        PrimaryGlowButton(
-          label: 'Écrire le texte',
-          sublabel: 'Création manuelle',
-          onPressed: () => doAct(context, ref, 'create', null, _title.clear),
-        ),
-        const SizedBox(height: 12),
-        GameCard(
+        const SizedBox(height: 10),
+        GlassCard(
+          halo: false,
           onTap: () => doAct(context, ref, 'create', 'random', _title.clear),
+          semanticLabel: 'Inspiration aléatoire',
           child: Row(children: [
+            Container(width: 40, height: 40, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(12)), child: const GameIcon('zap', size: 20, color: Tk.gold)),
+            const SizedBox(width: 12),
             Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Inspiration aléatoire', style: V20Text.nm()),
@@ -177,84 +282,65 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
           halo: false,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(st == 'ecrit' ? 'TEXTE ÉCRIT · CHOISIS UNE INSTRU' : 'ENREGISTRÉ · PRÊT À SORTIR', style: V20Text.lab(color: V20.accText)),
-            const SizedBox(height: 4),
-            Text(cur['title'] as String, style: V20Text.baloo(size: 24, line: 26)),
+            const SizedBox(height: 10),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _cover(trackCover21(cur), 92),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(cur['title'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 22, line: 25)),
+                  Text('${Reg21.themes[cur['theme']]?['n'] ?? ''} · ${Reg21.ambs[cur['amb']]?['n'] ?? ''}', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                  if (st == 'enregistre') Text('${instName21(cur)} · prises ${_l(cur['takes']).join(' · ')}', maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 15, color: V20.ink2)),
+                  if (feats.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(children: [for (final f in feats) Padding(padding: const EdgeInsets.only(right: 4), child: CastAvatar(Reg21.feats[f]!['n'] as String, size: 28))]),
+                  ],
+                ]),
+              ),
+            ]),
+            const SizedBox(height: 12),
+            Row(children: [
+              _Stat('Texte', '${cur['tx']}'),
+              const SizedBox(width: 6),
+              _Stat('Production', st == 'enregistre' ? '${cur['prod']}' : '—'),
+              const SizedBox(width: 6),
+              _Stat('Qualité', st == 'enregistre' ? '${cur['Q']}' : '—', color: Tk.gold),
+              const SizedBox(width: 6),
+              _Stat('Viralité', '${virOf21(cur, _n(ui['promo']).toInt())}', color: Tk.cy),
+            ]),
             const SizedBox(height: 8),
-            KeyVal('Thème · ambiance', '${Reg21.themes[cur['theme']]!['n']} · ${Reg21.ambs[cur['amb']]!['n']}'),
-            KeyVal('Note du texte', '${cur['tx']}'),
-            if (st == 'enregistre') ...[
-              KeyVal('Instru', '${instName21(cur)} · production ${cur['prod']}'),
-              KeyVal('Prises', _l(cur['takes']).join(' · ')),
-            ],
-            KeyVal('Qualité (après enregistrement)', st == 'enregistre' ? '${cur['Q']}' : '—'),
-            KeyVal('Viralité estimée', '${virOf21(cur, _n(ui['promo']).toInt())}'),
             KeyVal('Featurings', _feats(cur)),
+            const SizedBox(height: 12),
+            if (st == 'ecrit')
+              PrimaryGlowButton(
+                  label: 'Choisir l’instru, puis la cabine',
+                  sublabel: 'Instru (04.3) · cabine 2 h · −${hs ? 15 : 25} énergie (−15 avec home studio)',
+                  onPressed: () => context.go('/studio/instru')),
+            if (st == 'enregistre') ...[
+              PrimaryGlowButton(label: 'Préparer la sortie', sublabel: 'Promo · prévision', onPressed: () => context.go('/studio/sortie')),
+              const SizedBox(height: 8),
+              PrimaryButton(label: 'Voir le mix', style: GameButtonStyle.secondary, onPressed: () => context.go('/studio/mix')),
+            ],
           ]),
         ),
-        const SizedBox(height: 12),
-        if (st == 'ecrit')
-          PrimaryGlowButton(
-              label: 'Choisir l’instru, puis la cabine',
-              sublabel: 'Instru (04.3) · cabine 2 h · −${hs ? 15 : 25} énergie (−15 avec home studio)',
-              onPressed: () => context.go('/studio/instru')),
-        if (st == 'enregistre') ...[
-          PrimaryGlowButton(label: 'Préparer la sortie', sublabel: 'Promo · prévision', onPressed: () => context.go('/studio/sortie')),
-          const SizedBox(height: 8),
-          PrimaryButton(label: 'Voir le mix', style: GameButtonStyle.secondary, onPressed: () => context.go('/studio/mix')),
-        ],
       ],
-      const SizedBox(height: 12),
-      GameCard(
-        onTap: () => context.go('/studio/reserve'),
-        child: Row(children: [
-          const GameIcon('clock', color: Tk.cy),
-          const SizedBox(width: 12),
-          Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Sorties à venir', style: V20Text.nm()),
-            Text(_l(s['stock']).isEmpty ? 'Programme la sortie d\'un titre ou garde-le pour un EP / album' : '${_l(s['stock']).length} titre(s) en attente de sortie', style: V20Text.bs()),
-          ])),
-          const GameIcon('arrow', color: Tk.ink),
-        ]),
-      ),
-      const SizedBox(height: 8),
-      GameCard(
-        onTap: () => context.go('/studio/catalogue'),
-        child: Row(children: [
-          const GameIcon('music', color: Tk.cy),
-          const SizedBox(width: 12),
-          Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Catalogue, EP et album', style: V20Text.nm()),
-            Text('${_l(s['disco']).length} titre(s) sorti(s) · fiches, crédits, projets', style: V20Text.bs()),
-          ])),
-          const GameIcon('arrow', color: Tk.ink),
-        ]),
-      ),
-      const SizedBox(height: 8),
-      GameCard(
-        onTap: () => context.go('/studio/feats'),
-        child: Row(children: [
-          Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Featurings', style: V20Text.nm()),
-            Text('${_l(cur?['feats']).length}/${Reg21.maxFeats} artistes', style: V20Text.bs()),
-          ])),
-          const GameIcon('arrow', color: Tk.ink),
-        ]),
-      ),
-      const SizedBox(height: 8),
-      GameCard(
-        onTap: () => context.go('/studio/clip'),
-        child: Row(children: [
-          Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Clip', style: V20Text.nm()),
-            Text('À préparer avant la sortie', style: V20Text.bs()),
-          ])),
-          const GameIcon('arrow', color: Tk.ink),
-        ]),
-      ),
+      const SizedBox(height: 20),
+      Text('L’ATELIER', style: V20Text.baloo(size: 18, line: 22)),
+      Text('Tout ce qui entoure tes titres.', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+      const SizedBox(height: 10),
+      Row(children: [
+        _AtelierTile('users', 'Featurings', cur == null ? '${Reg21.feats.length} artistes · écris d’abord un titre' : '${feats.length}/${Reg21.maxFeats} sur ce titre', () => context.go('/studio/feats'),
+            extra: feats.isEmpty ? null : GameTag('${feats.length}', style: GameTagStyle.ok)),
+        const SizedBox(width: 10),
+        _AtelierTile('trend', 'Clip', 'À préparer avant la sortie', () => context.go('/studio/clip')),
+      ]),
+      const SizedBox(height: 10),
+      Row(children: [
+        _AtelierTile('clock', 'Sorties à venir', _l(s['stock']).isEmpty ? 'Programme une sortie ou garde un titre pour un projet' : '${_l(s['stock']).length} titre(s) en attente', () => context.go('/studio/reserve'),
+            extra: _l(s['stock']).isEmpty ? null : GameTag('${_l(s['stock']).length}')),
+        const SizedBox(width: 10),
+        _AtelierTile('music', 'Catalogue, EP et album', '${_l(s['disco']).length} titre(s) sorti(s) · projets', () => context.go('/studio/catalogue')),
+      ]),
       const SizedBox(height: 12),
       GameHint(
           icon: 'info',
@@ -264,6 +350,16 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
     ]);
   }
 }
+
+Widget _chip(String icon, String v, Color col) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: col.withValues(alpha: .10), borderRadius: BorderRadius.circular(999), border: Border.all(color: col.withValues(alpha: .35))),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        GameIcon(icon, size: 12, color: col),
+        const SizedBox(width: 4),
+        Text(v, style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: col)),
+      ]),
+    );
 
 // ---------------------------------------------------------------------------------------------------------------------
 // 21-M6 Instru

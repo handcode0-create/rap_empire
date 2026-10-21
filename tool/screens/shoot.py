@@ -27,6 +27,7 @@ ROUTES = [
     ('labels', '/business/labels/tous'),
     ('marketing', '/profil/reseau/marketing'),
     ('scene', '/scene'),
+    ('studio', '/studio'),
     ('feats', '/studio/feats'),
 ]
 os.makedirs(OUT, exist_ok=True)
