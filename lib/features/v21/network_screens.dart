@@ -19,6 +19,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'cast21.dart';
+import 'library_screens.dart';
 import 'social_screens.dart';
 import 'widgets21.dart';
 
@@ -370,27 +371,9 @@ class OndeaArtistScreen extends ConsumerWidget {
           _Kpis([('Écoutes', fmt21(t.ondea), null), ('Revenus', fmt21(t.revOndea), Tk.gold), ('Part', '${(share * 100).round()} %', null)]),
         ]),
       ),
-      const _Sec('Titres populaires', 'écoutes Ondéa'),
-      if (disco.isEmpty)
-        const GameCard(child: Text('Aucun titre sorti. Sors un single pour apparaître sur Ondéa.'))
-      else
-        for (var i = 0; i < disco.length && i < 5; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(children: [
-              SizedBox(width: 22, child: Text('${i + 1}', textAlign: TextAlign.center, style: V20Text.baloo(size: 16, line: 16, color: const Color(0xFF7FE7FF)))),
-              const SizedBox(width: 10),
-              ClipRRect(borderRadius: BorderRadius.circular(12), child: SizedBox(width: 52, height: 52, child: SvgPicture.asset('assets/klipo/mine/M${i + 1}.svg', fit: BoxFit.cover))),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('${disco[i]['title']}', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm()),
-                  Text('${fmt21(jsRound(platformListens(disco[i]) * share))} écoutes · ${playerName(s)}', style: V20Text.bs()),
-                ]),
-              ),
-              const Icon(Icons.music_note_rounded, color: V20.ink2, size: 20),
-            ]),
-          ),
+      Popular21(s, pfOndea),
+      LibSec21('Discographie', action: disco.isEmpty ? null : 'Tous les titres', onAction: () => context.go('/profil/reseau/ondea/titres')),
+      Discography21(s, pfOndea),
       const _Sec('Auditeurs par ville', 'estimés'),
       GameCard(child: Column(children: [
         for (final c in Reg21.cities.entries)
@@ -488,10 +471,76 @@ class _Rail extends StatelessWidget {
 
 List<int> _cat(List<String> kinds) => [for (var i = 0; i < klipo21.length; i++) if (kinds.contains(klipo21[i]['k'])) i];
 
-class KlipoHomeScreen extends ConsumerWidget {
+/// Filtres de la planche 21-N2 : Tout, Clips, Live, Freestyle, Battles, Coulisses.
+const _klipoFilters = <(String, List<String>)>[
+  ('Tout', []),
+  ('Clips', ['Clip officiel']),
+  ('Live', ['Live']),
+  ('Freestyle', ['Freestyle']),
+  ('Battles', ['Battle']),
+  ('Coulisses', ['Coulisses', 'Visualizer']),
+];
+
+class KlipoHomeScreen extends ConsumerStatefulWidget {
   const KlipoHomeScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<KlipoHomeScreen> createState() => _KlipoHomeState();
+}
+
+class _KlipoHomeState extends ConsumerState<KlipoHomeScreen> {
+  int _f = 0;
+
+  Widget _chips() => SizedBox(
+        height: 48,
+        child: ListView(scrollDirection: Axis.horizontal, children: [
+          for (var i = 0; i < _klipoFilters.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(_klipoFilters[i].$1, style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: _f == i ? Tk.bg : Tk.ink)),
+                selected: _f == i,
+                selectedColor: _klpGold,
+                backgroundColor: Colors.white.withValues(alpha: .07),
+                side: BorderSide(color: _f == i ? _klpGold : Colors.white.withValues(alpha: .14)),
+                showCheckmark: false,
+                onSelected: (_) => setState(() => _f = i),
+              ),
+            ),
+        ]),
+      );
+
+  /// Fil vertical d'une catégorie : grandes miniatures, titre, artiste et vues.
+  List<Widget> _feed(List<int> idx) => [
+        for (final i in idx)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Semantics(
+              button: true,
+              label: 'Vidéo ${klipo21[i]['t']} de ${klipo21[i]['a']}',
+              child: GestureDetector(
+                onTap: () => doAct(context, ref, 'kv', i, () => context.go('/profil/reseau/klipo/video')),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _Thumb(_thumbOf(i), dur: klipo21[i]['du'] as String, kind: klipo21[i]['k'] as String, radius: 16),
+                  const SizedBox(height: 8),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    CastAvatar(klipo21[i]['a'] as String, size: 36, ring: _klpGold),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(klipo21[i]['t'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 15, line: 19, weight: FontWeight.w700)),
+                        Text('${klipo21[i]['a']} · ${fmtK21(klipo21[i]['v'] as num)} vues · il y a ${klipo21[i]['age']} j',
+                            style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                      ]),
+                    ),
+                  ]),
+                ]),
+              ),
+            ),
+          ),
+      ];
+
+  @override
+  Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = platformTotals(s);
@@ -505,7 +554,14 @@ class KlipoHomeScreen extends ConsumerWidget {
       ]),
       const SizedBox(height: 8),
       const Align(alignment: Alignment.centerLeft, child: GameTag('50 vidéos · démo', style: GameTagStyle.outline)),
+      const SizedBox(height: 8),
+      _chips(),
       const SizedBox(height: 12),
+      if (_f != 0) ...[
+        Text('${_cat(_klipoFilters[_f].$2).length} vidéo(s) · ${_klipoFilters[_f].$1}', style: V20Text.bs()),
+        const SizedBox(height: 10),
+        ..._feed(_cat(_klipoFilters[_f].$2)),
+      ] else ...[
       Semantics(
         button: true,
         label: 'À la une : ${h['t']}',
@@ -532,6 +588,7 @@ class KlipoHomeScreen extends ConsumerWidget {
       _Rail('Live et festivals', _cat(['Live'])),
       _Rail('Freestyles et battles', _cat(['Freestyle', 'Battle'])),
       _Rail('Coulisses et visualizers', _cat(['Coulisses', 'Visualizer'])),
+      ],
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Catalogue de démonstration : 50 vidéos d\'artistes fictifs. Les vues sont des données d\'univers, pas des écoutes du joueur.'),
     ]);
@@ -761,23 +818,9 @@ class CauriPremiumScreen extends ConsumerWidget {
         ('Titres', '${disco.length}', null),
         ('Hi-Fi', 'Oui', Tk.gold),
       ]),
-      const _Sec('Ta discographie', 'écoute premium'),
-      if (disco.isEmpty) const GameCard(child: Text('Aucun titre sorti.')),
-      for (var i = 0; i < disco.length && i < 5; i++)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(children: [
-            ClipRRect(borderRadius: BorderRadius.circular(8), child: SizedBox(width: 52, height: 52, child: SvgPicture.asset('assets/klipo/mine/M${8 - i}.svg', fit: BoxFit.cover))),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('${disco[i]['title']}', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm()),
-                Text('${fmt21(jsRound(platformListens(disco[i]) * share))} écoutes premium', style: V20Text.bs()),
-              ]),
-            ),
-            prem('Hi-Fi'),
-          ]),
-        ),
+      Popular21(s, pfCauri),
+      LibSec21('Ta discographie', action: disco.isEmpty ? null : 'Tous les titres', onAction: () => context.go('/profil/reseau/cauri/titres')),
+      Discography21(s, pfCauri),
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Cauri Music reçoit 30 % des écoutes audio (règle provisoire des plateformes).'),
     ]);

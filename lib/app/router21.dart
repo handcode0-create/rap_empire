@@ -4,6 +4,7 @@ import '../features/v21/characters_screen.dart';
 import '../features/v21/dialogue_screens.dart';
 import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
+import '../features/v21/library_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
@@ -245,7 +246,10 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         name: '21-N0-Reseau',
                         builder: (_, __) => const ReseauScreen(),
                         routes: [
-                          GoRoute(path: 'ondea', name: '21-N1-Ondea', builder: (_, __) => const OndeaArtistScreen()),
+                          GoRoute(path: 'ondea', name: '21-N1-Ondea', builder: (_, __) => const OndeaArtistScreen(), routes: [
+                            GoRoute(path: 'titres', name: '21-N1b-Ondea-titres', builder: (_, __) => const AllTracksScreen('ondea')),
+                            GoRoute(path: 'sortie', name: '21-N1c-Ondea-sortie', builder: (_, st) => ReleaseScreen('ondea', st.uri.queryParameters['id'])),
+                          ]),
                           GoRoute(
                               path: 'klipo',
                               name: '21-N2-Klipo',
@@ -256,7 +260,10 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                               name: '21-N4-Mes-clips',
                               builder: (_, __) => const MyClipsScreen(),
                               routes: [GoRoute(path: 'clip', name: '21-N5-Clip', builder: (_, __) => const ClipDetailScreen())]),
-                          GoRoute(path: 'cauri', name: '21-N6-Cauri-Music', builder: (_, __) => const CauriPremiumScreen()),
+                          GoRoute(path: 'cauri', name: '21-N6-Cauri-Music', builder: (_, __) => const CauriPremiumScreen(), routes: [
+                            GoRoute(path: 'titres', name: '21-N6b-Cauri-titres', builder: (_, __) => const AllTracksScreen('cauri')),
+                            GoRoute(path: 'sortie', name: '21-N6c-Cauri-sortie', builder: (_, st) => ReleaseScreen('cauri', st.uri.queryParameters['id'])),
+                          ]),
                           GoRoute(path: 'marketing', name: '21-N7-Marketing', builder: (_, __) => const MarketingScreen()),
                           GoRoute(
                               path: 'social',

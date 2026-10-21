@@ -13,6 +13,9 @@ ROUTES = [
     ('klipo-video', '/profil/reseau/klipo/video'),
     ('clips', '/profil/reseau/clips'),
     ('cauri', '/profil/reseau/cauri'),
+    ('ondea-titres', '/profil/reseau/ondea/titres'),
+    ('ondea-sortie', '/profil/reseau/ondea/sortie?id=P1'),
+    ('cauri-sortie', '/profil/reseau/cauri/sortie?id=P1'),
     ('garde-robe', '/profil/garde-robe'),
 ]
 os.makedirs(OUT, exist_ok=True)
