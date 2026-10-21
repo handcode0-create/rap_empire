@@ -10,6 +10,8 @@ ROUTES = [
     ('profil', '/profil'),
     ('classements', '/profil/classements'),
     ('trophees', '/profil/trophees'),
+    ('annonce', '/profil/trophees/annonce'),
+    ('qg', '/'),
     ('reseau', '/profil/reseau'),
     ('ondea', '/profil/reseau/ondea'),
     ('klipo', '/profil/reseau/klipo'),

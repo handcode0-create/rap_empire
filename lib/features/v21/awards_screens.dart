@@ -12,6 +12,8 @@ import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
+import '../../core/widgets/primary_glow_button.dart';
+import '../../core/widgets/reward_burst.dart';
 import '../../core/widgets/svg_precache.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
@@ -331,7 +333,10 @@ class _MyPosition extends StatelessWidget {
       accent: GlassAccent.magenta,
       halo: false,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('TA POSITION', style: V20Text.lab(color: V20.accText)),
+        Row(children: [
+          Expanded(child: Text('TA POSITION', style: V20Text.lab(color: V20.accText))),
+          Text(rank, style: V20Text.baloo(size: 22, line: 24, color: rank.startsWith('#') ? Tk.gold : V20.ink2)),
+        ]),
         const SizedBox(height: 8),
         Row(children: [
           tab == 3 ? const CastAvatar('Djo Kéné', size: 52) : _Cover(cover, 52),
@@ -342,8 +347,6 @@ class _MyPosition extends StatelessWidget {
               Text(detail, style: V20Text.bs()),
             ]),
           ),
-          const SizedBox(width: 8),
-          Text(rank, style: V20Text.baloo(size: 22, line: 24, color: rank.startsWith('#') ? Tk.gold : V20.ink2)),
         ]),
         const SizedBox(height: 10),
         MeterBar(value: prog, tone: MeterTone.gold),
@@ -554,5 +557,130 @@ class _HistRow extends StatelessWidget {
         ]),
       ),
     );
+  }
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Annonce : nouvelle certification ou résultat d'une cérémonie (moment de célébration, sortie unique)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Carte du QG : une annonce de la salle des trophées attend d'être vue.
+class AwardNewsCard21 extends StatelessWidget {
+  final J s;
+  const AwardNewsCard21(this.s, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    final news = (s['awNews'] as List?) ?? const [];
+    if (news.isEmpty) return const SizedBox.shrink();
+    final it = news.first as Map;
+    final cert = it['k'] == 'cert';
+    final c = cert ? null : ceremonies21.firstWhere((x) => x.id == it['c'], orElse: () => ceremonies21.first);
+    final img = cert ? 'assets/awards/plaque_${certLevels21[(it['lv'] as num).toInt()]}.svg' : c!.trophy;
+    final title = cert ? certNames21[certLevels21[(it['lv'] as num).toInt()]]! : c!.n;
+    final sub = cert ? '${it['t']} · ${it['kind']}' : _cerLine(it);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: GlassCard(
+        accent: GlassAccent.gold,
+        onTap: () => context.go('/profil/trophees/annonce'),
+        semanticLabel: '$title, $sub',
+        child: Row(children: [
+          SizedBox(width: 48, height: 62, child: SvgPicture.asset(img)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(cert ? 'NOUVELLE CERTIFICATION' : 'RÉSULTATS DE LA CÉRÉMONIE', style: V20Text.lab(color: V20.hintGoldText)),
+              Text(title, style: V20Text.nm()),
+              Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.bs()),
+            ]),
+          ),
+          if (news.length > 1) GameTag('+${news.length - 1}', style: GameTagStyle.accent),
+        ]),
+      ),
+    );
+  }
+}
+
+String _cerLine(Map it) {
+  final w = (it['wins'] as num?) ?? 0, nm = (it['noms'] as num?) ?? 0;
+  if (w > 0) return '$w trophée(s)${nm > 0 ? ' et $nm nomination(s)' : ''}';
+  if (nm > 0) return '$nm nomination(s)';
+  return 'Pas de nomination cette année';
+}
+
+class AnnonceTropheeScreen extends ConsumerWidget {
+  const AnnonceTropheeScreen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const Center(child: CircularProgressIndicator());
+    final news = (s['awNews'] as List?) ?? const [];
+    if (news.isEmpty) {
+      return ListView(padding: const EdgeInsets.all(16), children: [
+        BackHeader(title: 'Annonce', step: 'T2', onBack: () => context.go('/profil/trophees')),
+        const SizedBox(height: 12),
+        const GameCard(child: Text('Aucune annonce en attente.')),
+      ]);
+    }
+    final it = news.first as Map;
+    final cert = it['k'] == 'cert';
+    final c = cert ? null : ceremonies21.firstWhere((x) => x.id == it['c'], orElse: () => ceremonies21.first);
+    final lv = cert ? certLevels21[(it['lv'] as num).toInt()] : null;
+    final won = !cert && ((it['wins'] as num?) ?? 0) > 0;
+    final celebrate = cert || won || ((it['noms'] as num?) ?? 0) > 0;
+    final cats = cert ? const <Map>[] : ((it['cats'] as List?) ?? const []).cast<Map>();
+    return Stack(children: [
+      ListView(padding: const EdgeInsets.fromLTRB(16, 24, 16, 16), children: [
+        Text(cert ? 'NOUVELLE CERTIFICATION' : c!.n.toUpperCase(), textAlign: TextAlign.center, style: V20Text.lab(color: V20.hintGoldText)),
+        const SizedBox(height: 8),
+        Center(
+          child: Container(
+            decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: Tk.gold.withValues(alpha: celebrate ? .35 : .08), blurRadius: 60, spreadRadius: 6)]),
+            child: SizedBox(height: 240, child: AspectRatio(aspectRatio: cert ? 240 / 300 : 220 / 300, child: SvgPicture.asset(cert ? 'assets/awards/plaque_$lv.svg' : (celebrate ? c!.trophy : 'assets/awards/trophee_vide.svg')))),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(cert ? certNames21[lv]!.toUpperCase() : (won ? 'LAURÉAT' : (celebrate ? 'NOMMÉ' : 'PAS CETTE ANNÉE')),
+            textAlign: TextAlign.center, style: V20Text.baloo(size: 34, line: 36, color: celebrate ? Tk.gold : Tk.ink)),
+        const SizedBox(height: 4),
+        Text(cert ? '« ${it['t']} » · ${it['kind']}' : '${c!.place} · année ${it['y']}', textAlign: TextAlign.center, style: V20Text.poppins(size: 15, line: 20, weight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        if (cert)
+          GlassCard(
+            child: Column(children: [
+              Text('${fmt21(it['u'] as num)} unités', style: V20Text.baloo(size: 26, line: 28, color: Tk.gold)),
+              Text(it['kind'] == 'Single' ? 'ventes + écoutes cumulées ÷ 10' : 'ventes + écoutes du projet ÷ 100', style: V20Text.bs()),
+              const SizedBox(height: 8),
+              const Conseq21(ConsequenceKind.certain, 'Une certification n\'est jamais retirée. Elle rejoint ta vitrine.'),
+            ]),
+          )
+        else
+          GlassCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (cats.isEmpty) Text('Ton travail n\'a pas encore été retenu par le jury. Sors des titres, monte sur scène, et reviens l\'an prochain.', style: V20Text.bs()),
+              for (final x in cats)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(children: [
+                    Expanded(child: Text('${x['n']}', style: V20Text.nm())),
+                    GameTag(x['res'] == 'win' ? 'Lauréat' : 'Nommé', style: x['res'] == 'win' ? GameTagStyle.ok : GameTagStyle.outline),
+                  ]),
+                ),
+              if (celebrate) ...[
+                const SizedBox(height: 8),
+                Conseq21(ConsequenceKind.certain,
+                    'Réputation et fans en hausse : victoire +${2 * c!.prestige} réputation et +${300 * c.prestige} fans, nomination +1 réputation et +80 fans.'),
+              ],
+            ]),
+          ),
+        const SizedBox(height: 16),
+        PrimaryGlowButton(
+          label: news.length > 1 ? 'Annonce suivante' : 'Voir la salle des trophées',
+          onPressed: () => doAct(context, ref, 'awseen', null, () => context.go(news.length > 1 ? '/profil/trophees/annonce' : '/profil/trophees')),
+        ),
+      ]),
+      if (celebrate) const IgnorePointer(child: Align(alignment: Alignment.topCenter, child: RewardBurst(height: 320))),
+    ]);
   }
 }

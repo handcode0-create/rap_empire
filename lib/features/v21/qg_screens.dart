@@ -21,6 +21,7 @@ import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'shell21.dart';
 import 'wardrobe_screens.dart';
+import 'awards_screens.dart' show AwardNewsCard21;
 import 'cast21.dart';
 import 'widgets21.dart';
 
@@ -146,6 +147,7 @@ class QgScreen extends ConsumerWidget {
         )
       else
         CareerMissionCard21(s),
+      AwardNewsCard21(s),
       const SizedBox(height: 12),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

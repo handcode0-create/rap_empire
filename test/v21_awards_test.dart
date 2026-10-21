@@ -98,4 +98,17 @@ void main() {
     expect(s['rep'], r0 + gain);
     expect(awardWins21(s) + awardNoms21(s), hist.length);
   });
+
+  test('annonces : une par certification ou cérémonie, retirées une à une (awseen)', () {
+    var s = act21(init21(), 'preset', 'star').s;
+    expect(act21(s, 'awseen').err, 'rien');
+    ((s['disco'] as List).first as J)['L'] = 3000000;
+    s = act21(s, 'endDay').s;
+    final news = s['awNews'] as List;
+    expect(news, isNotEmpty);
+    expect((news.first as Map)['k'], 'cert');
+    final n0 = news.length;
+    s = act21(s, 'awseen').s;
+    expect((s['awNews'] as List).length, n0 - 1);
+  });
 }

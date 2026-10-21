@@ -110,6 +110,7 @@ J init21() {
     'pbd': 0,
     'aw': <String, dynamic>{'done': <String, dynamic>{}, 'hist': <dynamic>[]},
     'certSeen': <String, dynamic>{},
+    'awNews': <dynamic>[],
     'stock': <dynamic>[],
     'pendingProjects': <dynamic>[],
     'songSeq': 0,
@@ -644,7 +645,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim'
+  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -2294,6 +2295,14 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  /// Annonce de certification ou de cérémonie vue : elle quitte la file.
+  'awseen': (s, a) {
+    if (_l(s['awNews']).isEmpty) return _no(s, 'rien');
+    final n = clone21(s);
+    _l(n['awNews']).removeAt(0);
+    return _ok(n);
+  },
+
   'mclaim': (s, id) {
     final m = mission21('$id');
     if (m == null) return _no(s, 'inconnu');
@@ -2828,6 +2837,16 @@ Res act21(J s, String name, [dynamic arg, int now = 0]) {
 // Certifications et cérémonies (awards21.dart), vérifiées à chaque nouvelle journée. Valeurs provisoires (D-02, D-08).
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// Annonce à célébrer (salle des trophées) : 8 au plus, la plus ancienne d'abord.
+void _awNews(J n, J item) {
+  n['awNews'] ??= <dynamic>[];
+  final l = _l(n['awNews']);
+  l.add(item);
+  while (l.length > 8) {
+    l.removeAt(0);
+  }
+}
+
 List<String> _awardsDay(J n) {
   final ev = <String>[];
   final seen = _m(n['certSeen']);
@@ -2836,6 +2855,7 @@ List<String> _awardsDay(J n) {
       seen[c.id] = c.level;
       ev.add('${c.name} : ${c.title}');
       _log(n, 'Certification : ${c.name} pour ${c.title} (${fmt21(c.units)} unités)', 'carriere');
+      _awNews(n, {'k': 'cert', 'id': c.id, 't': c.title, 'kind': c.kind, 'lv': c.level, 'u': c.units, 'd': n['day']});
     }
   }
   final day = _n(n['day']), y = yearOf21(day), w = weekOf21(day);
@@ -2866,6 +2886,10 @@ List<String> _awardsDay(J n) {
       }
     }
     aw['last'] = {'c': c.id, 'y': y, 'wins': wins, 'noms': noms};
+    _awNews(n, {
+      'k': 'cer', 'c': c.id, 'y': y, 'wins': wins, 'noms': noms, 'd': day,
+      'cats': [for (final cat in c.cats) if (res[cat.id] != null) {'n': cat.n, 'res': res[cat.id]}],
+    });
     ev.add(wins > 0 ? '${c.n} : $wins trophée(s)' : noms > 0 ? '${c.n} : $noms nomination(s)' : '${c.n} : pas de nomination cette année');
   }
   return ev;

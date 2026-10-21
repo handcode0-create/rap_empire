@@ -225,7 +225,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         path: 'classements',
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
-                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen()),
+                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen(), routes: [GoRoute(path: 'annonce', name: '21-T2-Annonce', builder: (_, __) => const AnnonceTropheeScreen())]),
                     GoRoute(
                         path: 'garde-robe',
                         name: '21-W1-Garde-robe',
