@@ -19,7 +19,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'cast21.dart';
-import 'library_screens.dart' show coverOf21;
+import 'library_screens.dart' show coverOf21, projectCover21, trackCover21;
 import 'widgets21.dart';
 
 /// Classements officiels (21-R2, refonte façon plateforme de streaming), salle des trophées (certifications et cérémonies).
@@ -283,7 +283,7 @@ class _MyPosition extends StatelessWidget {
         final l = b == null ? 0 : _n(b['L']);
         final r = singlesRank(s);
         title = b == null ? 'Aucun titre sorti' : '${b['title']}';
-        if (b != null) cover = coverOf21('${b['id']}');
+        if (b != null) cover = trackCover21(b);
         rank = r == 0 ? 'Non classé' : '#$r';
         detail = r == 0 ? '${fmt21(l)} / ${fmt21(Reg21.entry)} écoutes sur 7 jours pour entrer au Top 100' : '${fmt21(l)} écoutes sur 7 jours';
         prog = (l / Reg21.entry).clamp(0, 1).toDouble();
@@ -292,7 +292,7 @@ class _MyPosition extends StatelessWidget {
         final p = bestProject(s, type);
         final entry = Reg21.proj[type]!['entry'] as num;
         title = p == null ? (type == 'EP' ? 'Aucun EP' : 'Aucun album') : '${p['title']}';
-        if (p != null) cover = coverOf21('${p['id']}');
+        if (p != null) cover = projectCover21(p);
         rank = p == null ? '—' : projectRankLabel(p);
         detail = p == null
             ? (type == 'EP' ? 'Crée un EP de 3 à 7 titres au studio' : 'Crée un album de 8 titres ou plus au studio')

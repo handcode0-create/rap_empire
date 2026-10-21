@@ -34,6 +34,7 @@ flutter:
     - assets/klipo/crowd/
     - assets/patrimoine/
     - assets/awards/
+    - assets/covers/
   fonts:
     - family: Poppins
       fonts:

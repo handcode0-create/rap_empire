@@ -35,8 +35,25 @@ const pfOndea = Pf21('ondea', 'Ondéa', 'écoutes', Tk.cy, [Color(0xFF123A55), C
 const pfCauri = Pf21('cauri', 'Cauri Music', 'écoutes premium', Tk.acc4, [Color(0xFF3B1236), Color(0xFF1A0A1F), Color(0xFF12081A)]);
 Pf21 pf21(String key) => key == 'cauri' ? pfCauri : pfOndea;
 
-/// Pochette fixe d'un titre ou d'une sortie : toujours la même image pour le même identifiant.
-String coverOf21(String id) => 'assets/klipo/mine/M${id.codeUnits.fold<int>(0, (a, c) => a + c) % myThumbs21 + 1}.svg';
+// Pochettes générées par tools/design/gen_covers.py (assets/covers) : toujours la même image pour le même son.
+const coverThemes21 = ['quartier', 'galere', 'ambition', 'amour', 'rue', 'argent', 'fete', 'ego', 'introspection', 'identite', 'trap', 'gloire', 'autre'];
+const coverAmbs21 = ['sombre', 'fiere', 'legere'];
+const projectCovers21 = 8;
+int _h21(String id) => id.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) & 0x3fffffff);
+
+/// Pochette d'un single : le motif suit le thème du texte, les couleurs l'ambiance, la variante l'identifiant.
+String trackCover21(Map t) {
+  final id = '${t['id']}', h = _h21(id);
+  final th = coverThemes21.contains(t['theme']) ? '${t['theme']}' : coverThemes21[h % coverThemes21.length];
+  final amb = coverAmbs21.contains(t['amb']) ? '${t['amb']}' : coverAmbs21[(h ~/ 13) % 3];
+  return 'assets/covers/s_${th}_${amb}_${(h ~/ 39) % 3}.svg';
+}
+
+/// Pochette d'un album (Djo Kéné en couleur) ou d'un EP (Djo Kéné en silhouette).
+String projectCover21(Map p) => 'assets/covers/${p['type'] == 'EP' ? 'ep' : 'al'}_${_h21('${p['id']}|${p['title']}') % projectCovers21 + 1}.svg';
+
+/// Pochette fixe pour un identifiant seul (titres des autres artistes, données sans thème).
+String coverOf21(String id) => trackCover21({'id': id});
 
 /// Un titre tel que l'affiche une plateforme.
 class Track21 {
@@ -44,7 +61,9 @@ class Track21 {
   final int? listens; // null : inédit sorti uniquement dans un projet (pas d'écoutes séparées)
   final String? project;
   final bool feat, clip;
-  const Track21(this.id, this.title, this.listens, {this.project, this.feat = false, this.clip = false});
+  final String? coverPath;
+  const Track21(this.id, this.title, this.listens, {this.project, this.feat = false, this.clip = false, this.coverPath});
+  String get cover => coverPath ?? coverOf21(id);
 }
 
 /// Une sortie : album, EP ou single.
@@ -54,8 +73,8 @@ class Release21 {
   final List<Track21> tracks;
   final int listens;
   final int? sales;
-  const Release21(this.id, this.kind, this.title, this.day, this.tracks, this.listens, this.sales);
-  String get cover => coverOf21(id);
+  final String cover;
+  const Release21(this.id, this.kind, this.title, this.day, this.tracks, this.listens, this.sales, this.cover);
 }
 
 List<J> _disco(J s) => ((s['disco'] as List?) ?? const []).map((x) => x as J).toList();
@@ -66,13 +85,19 @@ Map<String, String> _ineditOf(J s) => {
         for (final i in (((x as Map)['inedits'] as List?) ?? const [])) '${(i as Map)['id']}': '${x['title']}',
     };
 
-Track21 _single(J t, Pf21 pf, [String? project]) => Track21('${t['id']}', '${t['title']}', jsRound(platformListens(t) * pf.share),
-    project: project, feat: ((t['feats'] as List?) ?? const []).isNotEmpty, clip: t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie');
+/// Pochette des inédits : celle de leur projet.
+Map<String, String> _ineditCover(J s) => {
+      for (final x in ((s['projects'] as List?) ?? const []))
+        for (final i in (((x as Map)['inedits'] as List?) ?? const [])) '${(i as Map)['id']}': projectCover21(x),
+    };
+
+Track21 _single(J t, Pf21 pf, [String? project, String? cover]) => Track21('${t['id']}', '${t['title']}', jsRound(platformListens(t) * pf.share),
+    project: project, feat: ((t['feats'] as List?) ?? const []).isNotEmpty, clip: t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie', coverPath: cover ?? trackCover21(t));
 
 /// Tous les titres sortis (singles et inédits de projets), du plus écouté au moins écouté.
 List<Track21> popular21(J s, Pf21 pf) {
-  final ined = _ineditOf(s);
-  return _disco(s).map((t) => _single(t, pf, ined['${t['id']}'])).toList()..sort((a, b) => (b.listens ?? 0).compareTo(a.listens ?? 0));
+  final ined = _ineditOf(s), covers = _ineditCover(s);
+  return _disco(s).map((t) => _single(t, pf, ined['${t['id']}'], covers['${t['id']}'])).toList()..sort((a, b) => (b.listens ?? 0).compareTo(a.listens ?? 0));
 }
 
 /// Toutes les sorties, de la plus récente à la plus ancienne : projets (album, EP) puis singles.
@@ -87,16 +112,16 @@ List<Release21> releases21(J s, Pf21 pf) {
     for (final id in ((p['tracks'] as List?) ?? const [])) {
       final d = disco.where((t) => t['id'] == id).firstOrNull;
       if (d != null) {
-        tr.add(_single(d, pf, inedOf['$id']));
+        tr.add(_single(d, pf, inedOf['$id'], inedOf.containsKey('$id') ? projectCover21(p) : null));
       } else {
-        tr.add(Track21('$id', ined['$id'] ?? 'Titre $id', null, project: '${p['title']}'));
+        tr.add(Track21('$id', ined['$id'] ?? 'Titre $id', null, project: '${p['title']}', coverPath: projectCover21(p)));
       }
     }
-    out.add(Release21('${p['id']}', p['type'] == 'EP' ? 'EP' : 'Album', '${p['title']}', _n(p['day']).toInt(), tr, jsRound(_n(p['L']) * pf.share), _n(p['sales']).toInt()));
+    out.add(Release21('${p['id']}', p['type'] == 'EP' ? 'EP' : 'Album', '${p['title']}', _n(p['day']).toInt(), tr, jsRound(_n(p['L']) * pf.share), _n(p['sales']).toInt(), projectCover21(p)));
   }
   for (final t in disco.where((t) => !inedOf.containsKey('${t['id']}'))) {
     final tr = _single(t, pf);
-    out.add(Release21(tr.id, 'Single', tr.title, _n(t['day']).toInt(), [tr], tr.listens ?? 0, null));
+    out.add(Release21(tr.id, 'Single', tr.title, _n(t['day']).toInt(), [tr], tr.listens ?? 0, null, tr.cover));
   }
   out.sort((a, b) => b.day.compareTo(a.day));
   return out;
@@ -171,7 +196,7 @@ class TrackRow21 extends StatelessWidget {
           if (number != null)
             SizedBox(width: 26, child: Text('$number', textAlign: TextAlign.center, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700, color: V20.ink2)))
           else
-            Cover21(coverOf21(t.id)),
+            Cover21(t.cover),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

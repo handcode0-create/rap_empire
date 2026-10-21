@@ -19,7 +19,7 @@ import '../../core/widgets/svg_precache.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import 'cast21.dart';
-import 'library_screens.dart' show coverOf21;
+import 'library_screens.dart' show coverOf21, trackCover21;
 import 'widgets21.dart';
 
 /// Playlists éditoriales d'Ondéa (21-N1d, 21-N1e) : chaque playlist a son curateur ; le joueur lui fait écouter un single.
@@ -145,7 +145,7 @@ class PlaylistScreen extends ConsumerWidget {
             accent: GlassAccent.cyan,
             halo: false,
             child: Row(children: [
-              _cover(coverOf21('${mine['id']}'), 52, r: 10),
+              _cover(trackCover21(mine), 52, r: 10),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -167,7 +167,7 @@ class PlaylistScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         Text('DANS LA PLAYLIST', style: V20Text.lab()),
         const SizedBox(height: 6),
-        if (plc != null && mine != null) _songRow(coverOf21('${mine['id']}'), '${mine['title']}', 'Toi', me: true),
+        if (plc != null && mine != null) _songRow(trackCover21(mine), '${mine['title']}', 'Toi', me: true),
         for (final x in songs) _songRow(_artThumb(x.a), x.t, x.a),
         const SizedBox(height: 12),
         GameHint(
@@ -274,7 +274,7 @@ class _PitchState extends ConsumerState<PitchScreen> {
                       border: Border.all(color: sel ? Tk.acc : Colors.white.withValues(alpha: .1), width: sel ? 2 : 1),
                     ),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _cover(coverOf21('${x['id']}'), 98, r: 10),
+                      _cover(trackCover21(x), 98, r: 10),
                       const SizedBox(height: 4),
                       Text('${x['title']}', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 15, weight: FontWeight.w700)),
                       Text('Qualité ${x['Q']}', style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),

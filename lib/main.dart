@@ -35,6 +35,7 @@ Future<void> main() async {
     unawaited(precacheSvgs([
       for (var i = 1; i <= 8; i++) 'assets/klipo/mine/M$i.svg',
       for (var i = 1; i <= 50; i++) 'assets/klipo/thumbs/T${i.toString().padLeft(3, '0')}.svg',
+      for (var i = 1; i <= 8; i++) ...['assets/covers/al_$i.svg', 'assets/covers/ep_$i.svg'],
     ]));
   }, (e, st) => debugPrint('ZONE_ERROR $e\n$st'));
 }

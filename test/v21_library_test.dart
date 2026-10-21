@@ -70,4 +70,33 @@ void main() {
     expect(ep.tracks.last.project, 'Ndo City');
     expect(releases21(s, pfOndea).where((r) => r.kind == 'Single' && r.id == 'X9'), isEmpty);
   });
+
+  test('pochettes : une par thème et ambiance, projets avec leur propre pochette, fichiers présents', () {
+    for (final th in coverThemes21) {
+      for (final amb in coverAmbs21) {
+        for (var i = 0; i < 40; i++) {
+          final path = trackCover21({'id': 'T$i', 'theme': th, 'amb': amb});
+          expect(path, startsWith('assets/covers/s_${th}_$amb'));
+          expect(File(path).existsSync(), isTrue, reason: path);
+        }
+      }
+    }
+    expect(File(trackCover21({'id': 'sans-theme'})).existsSync(), isTrue);
+    expect(File(coverOf21('Kaïra Nox')).existsSync(), isTrue);
+    for (var i = 0; i < 30; i++) {
+      final al = projectCover21({'id': 'P$i', 'type': 'Album', 'title': 'Projet $i'});
+      final ep = projectCover21({'id': 'P$i', 'type': 'EP', 'title': 'Projet $i'});
+      expect(al, contains('/al_'));
+      expect(ep, contains('/ep_'));
+      expect(File(al).existsSync() && File(ep).existsSync(), isTrue);
+    }
+    // variété : plusieurs sons d'un même thème n'ont pas tous la même pochette
+    expect({for (var i = 0; i < 20; i++) trackCover21({'id': 'S$i', 'theme': 'amour', 'amb': 'fiere'})}.length, greaterThan(1));
+    final s = star();
+    final ep = releases21(s, pfOndea).firstWhere((r) => r.kind == 'EP');
+    expect(ep.cover, contains('/ep_'));
+    expect(ep.tracks.last.cover, ep.cover); // l'inédit garde la pochette de son projet
+    final single = releases21(s, pfOndea).firstWhere((r) => r.kind == 'Single');
+    expect(single.cover, startsWith('assets/covers/s_'));
+  });
 }
