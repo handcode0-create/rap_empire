@@ -50,12 +50,12 @@ void main() {
 
     s = must(s, 'oeq', 'OUTFIT_002');
     var look = resolveLook21(s);
-    expect([look.path, look.variant], ['${Wardrobe21.base}young/OUTFIT_002.webp', 'young']);
+    expect([look.path, look.variant], ['${Wardrobe21.base}young/v21b_OUTFIT_002.webp', 'young']);
 
     s['rank'] = Wardrobe21.matureRank;
     s = must(s, 'endDay');
     look = resolveLook21(s);
-    expect([look.variant, look.outfit, look.path], ['mature', 'OUTFIT_002', '${Wardrobe21.base}mature/OUTFIT_002.webp']);
+    expect([look.variant, look.outfit, look.path], ['mature', 'OUTFIT_002', '${Wardrobe21.base}mature/v21b_OUTFIT_002.webp']);
     expect(((s['wd'] as J)['owned'] as List).length, 2);
 
     final saved = jsonDecode(jsonEncode(s)) as J;
@@ -79,7 +79,7 @@ void main() {
     // le look choisi à la création ne bloque pas l'affichage des tenues
     final other = must(start(), 'ap', 'hair=afro');
     final look = resolveLook21(other);
-    expect([look.path, look.fallback], ['${Wardrobe21.base}young/OUTFIT_001.webp', null]);
+    expect([look.path, look.fallback], ['${Wardrobe21.base}young/v21b_OUTFIT_001.webp', null]);
   });
 
   test('en prison : sélection et annulation restent possibles, pas l\'achat', () {
