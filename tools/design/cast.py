@@ -40,6 +40,11 @@ CAST = {
  'tamsir': dict(name='Tamsir Koffi', role='Beatmaker · sonorités afro-drill', skin=SKINS[4], hair='cornrows', hc='#14102B', beard='goatee', acc=('phones',), outfit=dict(top='#F43F9D', pants='#14102B', shoe='#3CD6F2', accent='#FFC83D', kind='tee', logo=False)),
  'desire': dict(name='Désiré Kpan', role='Road manager · logistique de tournée', skin=SKINS[6], hair='bald', hc='#14102B', beard='full', acc=('glasses',), outfit=dict(top='#3DDC97', pants='#14102B', shoe='#FFC83D', accent='#F43F9D', kind='bomber', logo=False)),
  'naya': dict(name='Naya Rêve', role='Artiste · rap mélodique et R&B', skin=SKINS[1], hair='afro', hc='#21162D', beard='none', acc=('fem', 'ring'), outfit=dict(top='#F43F9D', pants='#2B2459', shoe='#F8F7FF', accent='#3CD6F2', kind='hoodie', logo=False)),
+ # curateurs des playlists éditoriales d'Ondéa (identité fixe, comme tout le cast)
+ 'sadia': dict(name='Sadia Kouamé', role='Curatrice Ondéa · Drill de Bakoma', skin=SKINS[4], hair='cornrows', hc='#14102B', beard='none', acc=('fem', 'phones'), outfit=dict(top='#14102B', pants='#2B2459', shoe='#F43F9D', accent='#F43F9D', kind='bomber', logo=False)),
+ 'malik': dict(name='Malik Ebo', role='Curateur Ondéa · Nuits de Lumbé', skin=SKINS[6], hair='locks', hc='#21162D', beard='full', acc=('ring',), outfit=dict(top='#8B5CF6', pants='#14102B', shoe='#F8F7FF', accent='#FFC83D', kind='blazer', logo=False)),
+ 'yele': dict(name='Yélé Dossou', role='Curatrice Ondéa · Afro-soul Sélène', skin=SKINS[2], hair='knots', hc='#3A1B52', beard='none', acc=('fem', 'ring'), outfit=dict(top='#3DDC97', pants='#14102B', shoe='#FFC83D', accent='#FFC83D', kind='tee', logo=False)),
+ 'tidjane': dict(name='Tidjane Bah', role='Curateur Ondéa · Nouveaux talents', skin=SKINS[3], hair='fade', hc='#14102B', beard='goatee', acc=('glasses', 'cap'), outfit=dict(top='#3CD6F2', pants='#2B2459', shoe='#F8F7FF', accent='#14102B', kind='hoodie', logo=False)),
 }
 
 def _arm(x1, y1, x2, y2, top, skin, w=22):

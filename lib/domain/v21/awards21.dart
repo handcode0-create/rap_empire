@@ -44,7 +44,7 @@ class Cert21 {
 /// Écoutes cumulées d'un single (même règle que le catalogue : 7 premiers jours, puis +35 % par semaine pendant 12 semaines).
 int _streams(J s, J t) {
   final wk = ((_n(s['day']) - _n(t['day'])) / 7).floor();
-  return ((_n(t['L']) * (1 + math.min(math.max(wk, 0), 12) * 0.35)) + _n(t['clipL'])).round();
+  return ((_n(t['L']) * (1 + math.min(math.max(wk, 0), 12) * 0.35)) + _n(t['clipL']) + _n(t['plL'])).round();
 }
 
 int _level(String kind, int units) {

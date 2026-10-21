@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
 import 'awards21.dart';
+import 'charts21.dart';
+import 'playlists21.dart';
 import 'dialogues21.dart';
 import 'missions21.dart';
 import 'network21.dart';
@@ -11,6 +13,8 @@ import 'reg21.dart';
 import 'wardrobe21.dart';
 
 export 'awards21.dart';
+export 'charts21.dart';
+export 'playlists21.dart';
 export 'dialogues21.dart';
 export 'missions21.dart';
 export 'network21.dart';
@@ -110,6 +114,7 @@ J init21() {
     'pbd': 0,
     'aw': <String, dynamic>{'done': <String, dynamic>{}, 'hist': <dynamic>[]},
     'certSeen': <String, dynamic>{},
+    'pl': <String, dynamic>{'plc': <String, dynamic>{}, 'cool': <String, dynamic>{}, 'last': null},
     'awNews': <dynamic>[],
     'stock': <dynamic>[],
     'pendingProjects': <dynamic>[],
@@ -2303,6 +2308,40 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  /// Proposer un single à une playlist Ondéa : [id de playlist, id du titre, approche]. 1 h, −5 énergie.
+  'plpitch': (s, arg) {
+    if (arg is! List || arg.length != 3) return _no(s, 'inconnu');
+    final p = playlist21('${arg[0]}');
+    final ap = '${arg[2]}';
+    if (p == null || !pitchApproaches21.containsKey(ap)) return _no(s, 'inconnu');
+    final t = _l(s['disco']).map(_m).where((x) => x['id'] == arg[1]).firstOrNull;
+    if (t == null) return _no(s, 'pasdetitre');
+    if (placement21(s, p.id) != null) return _no(s, 'deja');
+    if (cooldown21(s, p.id) != null) return _no(s, 'delai');
+    final cost = pitchApproaches21[ap]!.cost;
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
+    final n = clone21(s);
+    final err = _spend(n, 1, 5);
+    if (err != null) return _no(s, err);
+    if (cost > 0) _pay(n, -cost);
+    final sc = pitchScore21(s, p, t, ap);
+    final ok = sc.total >= p.threshold;
+    final pl = _m(n['pl']);
+    pl['plc'] ??= <String, dynamic>{};
+    pl['cool'] ??= <String, dynamic>{};
+    final rel = _m(n['rel']);
+    if (ok) {
+      _m(pl['plc'])[p.id] = {'tid': t['id'], 'from': n['day'], 'until': _n(n['day']) + playlistDays21};
+      rel[p.curator] = _n(rel[p.curator]) + 3;
+    } else {
+      _m(pl['cool'])[p.id] = _n(n['day']) + playlistCooldown21;
+      rel[p.curator] = _n(rel[p.curator]) - 1;
+    }
+    pl['last'] = {'id': p.id, 'tid': t['id'], 't': t['title'], 'ok': ok ? 1 : 0, 'score': sc.total.round(), 'th': p.threshold, 'ap': ap, 'daily': playlistDaily21(p, t), 'd': n['day']};
+    _log(n, ok ? '« ${t['title']} » entre dans la playlist ${p.n} ($playlistDays21 jours)' : '${p.curatorName} refuse « ${t['title']} » pour ${p.n}', 'musique');
+    return _ok(n);
+  },
+
   'mclaim': (s, id) {
     final m = mission21('$id');
     if (m == null) return _no(s, 'inconnu');
@@ -2581,6 +2620,7 @@ Res _endDay(J s) {
     _releaseProject(n, p);
     ev.add('Sortie programmée : ${p['title']}');
   }
+  ev.addAll(_playlistsDay(n));
   ev.addAll(_awardsDay(n));
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
@@ -2831,6 +2871,31 @@ Res act21(J s, String name, [dynamic arg, int now = 0]) {
     r.s['t'] = now;
   }
   return r;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Playlists Ondéa : écoutes quotidiennes des titres placés, fin des placements (valeurs provisoires, D-08)
+// ---------------------------------------------------------------------------------------------------------------------
+
+List<String> _playlistsDay(J n) {
+  final ev = <String>[];
+  final plc = _m(_m(n['pl'])['plc']);
+  for (final p in playlists21) {
+    final x = plc[p.id];
+    if (x is! Map) continue;
+    final t = _l(n['disco']).map(_m).where((d) => d['id'] == x['tid']).firstOrNull;
+    if (t != null && _n(x['until']) >= _n(n['day'])) {
+      final g = playlistDaily21(p, t);
+      t['plL'] = _n(t['plL']) + g;
+      n['fans'] = _n(n['fans']) + (g / 100).round();
+    }
+    if (_n(x['until']) <= _n(n['day'])) {
+      plc.remove(p.id);
+      ev.add('Fin de « ${t?['title'] ?? '?'} » dans ${p.n}');
+      _log(n, '« ${t?['title'] ?? '?'} » quitte la playlist ${p.n}', 'musique');
+    }
+  }
+  return ev;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

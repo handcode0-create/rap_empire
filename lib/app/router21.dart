@@ -9,6 +9,7 @@ import '../features/v21/library_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
+import '../features/v21/playlist_screens.dart';
 import '../features/v21/social_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
@@ -251,6 +252,11 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                           GoRoute(path: 'ondea', name: '21-N1-Ondea', builder: (_, __) => const OndeaArtistScreen(), routes: [
                             GoRoute(path: 'titres', name: '21-N1b-Ondea-titres', builder: (_, __) => const AllTracksScreen('ondea')),
                             GoRoute(path: 'sortie', name: '21-N1c-Ondea-sortie', builder: (_, st) => ReleaseScreen('ondea', st.uri.queryParameters['id'])),
+                            GoRoute(
+                                path: 'playlist',
+                                name: '21-N1d-Playlist',
+                                builder: (_, st) => PlaylistScreen(st.uri.queryParameters['id']),
+                                routes: [GoRoute(path: 'pitch', name: '21-N1e-Rencontre-curateur', builder: (_, st) => PitchScreen(st.uri.queryParameters['id']))]),
                           ]),
                           GoRoute(
                               path: 'klipo',

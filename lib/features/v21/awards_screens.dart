@@ -23,7 +23,7 @@ import 'library_screens.dart' show coverOf21;
 import 'widgets21.dart';
 
 /// Classements officiels (21-R2, refonte façon plateforme de streaming), salle des trophées (certifications et cérémonies).
-/// Les lignes des autres artistes reprennent les valeurs existantes de 13.2 à 13.5 ; les lignes du joueur sont calculées
+/// Les lignes des autres artistes sont simulées chaque semaine (charts21.dart) ; les lignes du joueur sont calculées
 /// à partir de ses vraies écoutes et ventes. Certifications et cérémonies : propositions 18.4 et 18.5, valeurs provisoires.
 
 num _n(dynamic x) => (x ?? 0) as num;
@@ -31,37 +31,11 @@ num _n(dynamic x) => (x ?? 0) as num;
 /// Une ligne de classement : rang, titre, artiste, valeur, évolution connue (null si non documentée).
 typedef _Entry = ({String t, String a, String v, String? mv});
 
-const _singles = <_Entry>[
-  (t: 'Minuit Doré', a: 'Kaïra Nox', v: '12,4 M', mv: '='),
-  (t: "Pluie d'Argent", a: 'Zaki Mbela', v: '11,8 M', mv: '+2'),
-  (t: 'Tonnerre Doux', a: 'Madame Orage', v: '10,9 M', mv: null),
-  (t: 'Brume sur Ndo', a: 'Tito Brume', v: '9,7 M', mv: null),
-  (t: 'Verre Bleu', a: 'Lazuli', v: '9,1 M', mv: null),
-  (t: 'Rives Lentes', a: 'Sôlo Vance', v: '8,6 M', mv: null),
-  (t: 'Douce Lagune', a: 'Nadia Kolo', v: '8,0 M', mv: null),
-];
-const _albums = <_Entry>[
-  (t: "Nuit d'Ambre", a: 'Kaïra Nox', v: '1,9 M', mv: '='),
-  (t: 'Rivages', a: 'Zaki Mbela', v: '1,6 M', mv: '+1'),
-  (t: 'Orage Intérieur', a: 'Madame Orage', v: '—', mv: null),
-];
-const _eps = <_Entry>[
-  (t: 'Sable Chaud', a: 'Dr. Sable', v: '420 k', mv: '+1'),
-  (t: 'Cendres', a: 'Yaya Cendre', v: '388 k', mv: '='),
-  (t: 'Ndo Sessions', a: 'Bako Flux', v: '—', mv: null),
-];
-const _global = <_Entry>[
-  (t: 'Kaïra Nox', a: 'Drill', v: '98,4', mv: '='),
-  (t: 'Zaki Mbela', a: 'Rap', v: '95,1', mv: '+2'),
-  (t: 'Madame Orage', a: 'Rap', v: '93,7', mv: '-1'),
-  (t: 'Tito Brume', a: 'Rap conscient', v: '90,2', mv: '-1'),
-  (t: 'Lazuli', a: 'Afro-soul', v: '88,9', mv: null),
-  (t: 'Sôlo Vance', a: 'Trap', v: '85,0', mv: null),
-  (t: 'Nadia Kolo', a: 'Chant', v: '83,4', mv: null),
-  (t: 'Bako Flux', a: 'Rap', v: '80,6', mv: null),
-  (t: 'Dr. Sable', a: 'Rap', v: '78,8', mv: null),
-  (t: 'Yaya Cendre', a: 'Rap', v: '76,3', mv: null),
-];
+/// Classement de l'univers de la semaine (charts21.dart : nouveaux titres chaque semaine, montée puis baisse).
+List<_Entry> _board(String board, num day) => [
+      for (final r in chart21(board, day))
+        (t: r.t, a: board == 'global' ? 'Indice d\'artiste' : r.a, v: board == 'global' ? d1(r.value) : chartVal21(r.value), mv: r.mv),
+    ];
 
 /// Miniature d'un artiste du catalogue : son premier clip Klipo, sinon une pochette fixe.
 String _artThumb(String artist) {
@@ -88,7 +62,9 @@ class _Cover extends StatelessWidget {
 
 Widget _move(String? mv) {
   if (mv == null) return const SizedBox(width: 30);
-  final (txt, c) = mv == '='
+  final (txt, c) = mv == 'NEW'
+      ? ('NEW', Tk.cy)
+      : mv == '='
       ? ('=', V20.ink2)
       : mv.startsWith('-')
           ? ('▼${mv.substring(1)}', Tk.acc4)
@@ -116,10 +92,10 @@ class _ClassementsState extends ConsumerState<ClassementsScreen> {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final week = weekOf21(_n(s['day']));
     final (List<_Entry> list, String unit, List<Color> bg, String artistOrGenre) = switch (_tab) {
-      0 => (_singles, 'écoutes, 7 j', const [Color(0xFF3B1236), Color(0xFF1F1942)], 'artist'),
-      1 => (_albums, 'ventes, 7 j', const [Color(0xFF12304A), Color(0xFF1F1942)], 'artist'),
-      2 => (_eps, 'ventes, 7 j', const [Color(0xFF2A1F08), Color(0xFF1F1942)], 'artist'),
-      _ => (_global, 'indice', const [Color(0xFF2B1659), Color(0xFF1F1942)], 'genre'),
+      0 => (_board('singles', _n(s['day'])), 'écoutes, 7 j', const [Color(0xFF3B1236), Color(0xFF1F1942)], 'artist'),
+      1 => (_board('albums', _n(s['day'])), 'ventes, 7 j', const [Color(0xFF12304A), Color(0xFF1F1942)], 'artist'),
+      2 => (_board('eps', _n(s['day'])), 'ventes, 7 j', const [Color(0xFF2A1F08), Color(0xFF1F1942)], 'artist'),
+      _ => (_board('global', _n(s['day'])), 'indice', const [Color(0xFF2B1659), Color(0xFF1F1942)], 'genre'),
     };
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(children: [
@@ -217,7 +193,7 @@ class _ClassementsState extends ConsumerState<ClassementsScreen> {
       const SizedBox(height: 12),
       const GameHint(
           icon: 'info',
-          text: 'Les autres artistes : valeurs existantes des planches 13.2 à 13.5 (évolution affichée seulement quand elle est documentée). '
+          text: 'Les autres artistes sont simulés semaine après semaine : de nouveaux titres sortent, montent puis redescendent (NEW = nouvelle entrée). '
               'Ta ligne est calculée à partir de tes vraies écoutes et ventes (R18, R10, R25). Quatre classements officiels, aucun autre.'),
     ]);
   }

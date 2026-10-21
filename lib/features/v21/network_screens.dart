@@ -21,6 +21,7 @@ import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'cast21.dart';
 import 'library_screens.dart';
+import 'playlist_screens.dart';
 import 'social_screens.dart';
 import 'widgets21.dart';
 
@@ -333,7 +334,6 @@ class OndeaArtistScreen extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = platformTotals(s);
     final share = Reg21.platforms['ondea']!['share'] as num;
-    const pls = [('Drill de Bakoma', 7), ('Nuits de Lumbé', 13), ('Afro-soul Sélène', 6), ('Nouveaux talents', 21)];
     return _Ambience(colors: const [Color(0xFF123A55), Color(0xFF1E1650), Color(0xFF0E1230)], children: [
       Row(children: [
         Expanded(child: BackHeader(title: 'Ondéa', step: 'N1', onBack: () => context.go('/profil/reseau'))),
@@ -388,30 +388,8 @@ class OndeaArtistScreen extends ConsumerWidget {
             ]),
           ),
       ])),
-      const Row(children: [
-        Expanded(child: _Sec('Playlists éditoriales')),
-        Padding(padding: EdgeInsets.only(top: 12), child: GameTag('Démo', style: GameTagStyle.outline)),
-      ]),
-      GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        children: [
-          for (final p in pls)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Stack(fit: StackFit.expand, children: [
-                SvgPicture.asset(_thumbOf(p.$2), fit: BoxFit.cover),
-                const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00000000), Color(0xBF000000)], stops: [.4, 1]))),
-                Positioned(left: 10, right: 10, bottom: 10, child: Text(p.$1, style: V20Text.baloo(size: 16, line: 17))),
-              ]),
-            ),
-        ],
-      ),
-      const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Playlists de démonstration : le placement en playlist n\'est pas encore une règle du jeu (à concevoir).'),
+      const _Sec('Playlists éditoriales', 'proposer un titre'),
+      PlaylistGrid21(s),
     ]);
   }
 }

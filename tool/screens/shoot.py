@@ -14,6 +14,8 @@ ROUTES = [
     ('qg', '/'),
     ('reseau', '/profil/reseau'),
     ('ondea', '/profil/reseau/ondea'),
+    ('playlist', '/profil/reseau/ondea/playlist?id=drill'),
+    ('pitch', '/profil/reseau/ondea/playlist/pitch?id=drill'),
     ('klipo', '/profil/reseau/klipo'),
     ('klipo-video', '/profil/reseau/klipo/video'),
     ('clips', '/profil/reseau/clips'),

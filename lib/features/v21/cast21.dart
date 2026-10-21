@@ -8,7 +8,7 @@ import '../../core/widgets/portrait.dart';
 const castIllustrated21 = <String>{
   'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme', 'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
   'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo',
-  'solo', 'mika', 'tamsir', 'desire', 'naya',
+  'solo', 'mika', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane',
 };
 
 /// Nom affiché → identifiant du personnage, avec son poste.
@@ -43,6 +43,10 @@ const castByName21 = <String, (String, String)>{
   'Prof Mazé': ('maze', 'Fondateur · Lyrik Atelier'),
   'Bénédicte Kassi': ('benedicte', 'Présidente · Ambre Music Group'),
   'Kofi Ndayé': ('kofi', 'Directeur export · Rythme Cardinal'),
+  'Sadia Kouamé': ('sadia', 'Curatrice Ondéa · Drill de Bakoma'),
+  'Malik Ebo': ('malik', 'Curateur Ondéa · Nuits de Lumbé'),
+  'Yélé Dossou': ('yele', 'Curatrice Ondéa · Afro-soul Sélène'),
+  'Tidjane Bah': ('tidjane', 'Curateur Ondéa · Nouveaux talents'),
 };
 
 /// Identifiant illustré d'un nom (ou d'un identifiant), sinon null.

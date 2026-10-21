@@ -164,8 +164,8 @@ int openMicEffect(J s) {
 // Plateformes fictives (21-D1 à D4) : répartition des écoutes déjà calculées, aucun revenu ni écoute en plus.
 // ---------------------------------------------------------------------------------------------------------------------
 
-/// Écoutes d'un titre vues par les plateformes : écoutes de lancement + écoutes apportées par le clip.
-int platformListens(J t) => (_n(t['L']) + _n(t['clipL'])).toInt();
+/// Écoutes d'un titre vues par les plateformes : écoutes de lancement + clip + playlists Ondéa.
+int platformListens(J t) => (_n(t['L']) + _n(t['clipL']) + _n(t['plL'])).toInt();
 
 /// Totaux par plateforme sur tout le catalogue.
 ({int total, int ondea, int cauri, int listeners, int followers, int klipoViews, int clips, int revOndea, int revCauri}) platformTotals(J s) {
