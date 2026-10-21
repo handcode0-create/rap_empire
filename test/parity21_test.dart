@@ -84,7 +84,10 @@ void main() {
         }
         final out = st['out'] as Map<String, dynamic>;
         for (final w in watch) {
-          final d = diff(out[w], at(s, w), w);
+          var got = at(s, w);
+          // Problèmes de début de carrière : absents de engine21.js, retirés de la comparaison.
+          if (w == 'evDone' && got is Map) got = {for (final e in got.entries) if (!problemOrder21.contains(e.key)) e.key: e.value};
+          final d = diff(out[w], got, w);
           expect(d, isNull, reason: '$label · $d');
         }
       }
