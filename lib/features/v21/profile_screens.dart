@@ -48,7 +48,8 @@ class ProfilScreen21 extends ConsumerWidget {
       const SizedBox(height: 12),
       _StatStrip(s),
       const SizedBox(height: 12),
-      Row(children: [
+      IntrinsicHeight(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Expanded(
           child: GlassTile(
             icon: 'check',
@@ -67,7 +68,7 @@ class ProfilScreen21 extends ConsumerWidget {
             onTap: () => context.go('/profil/classements'),
           ),
         ),
-      ]),
+      ])),
       _Group('Carrière', [
         _Item('trend', 'Rang de carrière', 'Conditions de promotion', () => context.go('/profil/rang')),
         _Item('mic', 'Catalogue des sons', 'Streams, ventes, crédits, EP et albums', () => context.go('/studio/catalogue')),
@@ -123,7 +124,7 @@ class _ProfileHero extends StatelessWidget {
           gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep]),
         ),
         child: Stack(children: [
-          Positioned.fill(child: Opacity(opacity: .35, child: SvgPicture.asset('assets/scenes/backstage.svg', fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()))),
+          Positioned.fill(child: Opacity(opacity: .22, child: SvgPicture.asset('assets/scenes/backstage.svg', fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()))),
           const Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0x00000000), Color(0xCC14102B)], stops: [.25, .7])),
