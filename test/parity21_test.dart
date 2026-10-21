@@ -65,6 +65,10 @@ void main() {
     test('parité · ${sc['name']}', () {
       J s = sc['start'] == 'init' ? init21() : act21(init21(), 'preset', sc['start']).s;
       (sc['patch'] as Map<String, dynamic>).forEach((k, v) => put(s, k, v));
+      // Systèmes ajoutés après engine21.js (intérêt des labels, problèmes de début de carrière) : neutralisés ici
+      // pour comparer les règles communes. Ils ont leurs propres tests (v21_career_test.dart).
+      s['lbz'] = Reg21.lbzMax;
+      s['evDone'] = <String, dynamic>{...(s['evDone'] as Map<String, dynamic>? ?? const {}), for (final p in problemOrder21) p: 'parite'};
       final watch = (sc['watch'] as List).cast<String>();
       var i = 0;
       for (final st in (sc['steps'] as List).cast<Map<String, dynamic>>()) {

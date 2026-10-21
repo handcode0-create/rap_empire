@@ -82,6 +82,10 @@ class LabelsAllScreen extends ConsumerWidget {
             'Part : ${signed ? _pct(_n(s['lcut']) == 0 ? Reg21.labelCut : _n(s['lcut']).toDouble()) : '—'} · avantage : ${signed ? perk21[s['lperk']] ?? '—' : '—'}',
             style: V20Text.bs()),
       ])),
+      if (!signed) ...[
+        const SizedBox(height: 12),
+        LabelInterestCard(s),
+      ],
       const SizedBox(height: 12),
       const GameHint(
           icon: 'info',
@@ -165,4 +169,34 @@ class LabelsAllScreen extends ConsumerWidget {
   Widget _director(String who) => castIllustrated21.contains(who)
       ? CharacterView(who: who, mood: 'poised', crop: 'head')
       : SvgPicture.asset('assets/svg/portrait-$who-bust.svg', fit: BoxFit.cover, alignment: Alignment.topCenter);
+}
+
+
+/// Intérêt des labels : la jauge à remplir avant la première offre, et ce qui la fait monter.
+class LabelInterestCard extends StatelessWidget {
+  final J s;
+  const LabelInterestCard(this.s, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    final v = _n(s['lbz']).toInt();
+    final ready = labelReady21(s);
+    return GlassCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text('INTÉRÊT DES LABELS', style: V20Text.lab())),
+          GameTag(ready ? 'Les offres peuvent arriver' : 'Fais tes preuves', style: ready ? GameTagStyle.ok : GameTagStyle.outline),
+        ]),
+        const SizedBox(height: 4),
+        Text('${v.clamp(0, Reg21.lbzGate)} / ${Reg21.lbzGate}', style: V20Text.baloo(size: 28, line: 30, color: ready ? Tk.ok : Tk.ink)),
+        const SizedBox(height: 6),
+        MeterBar(value: (v / Reg21.lbzGate).clamp(0, 1).toDouble(), tone: ready ? MeterTone.ok : MeterTone.gold),
+        const SizedBox(height: 8),
+        Text(
+            ready
+                ? 'Les labels te suivent. Chaque offre a aussi sa propre condition (réputation, style, ville).'
+                : 'Aucun label ne signe un inconnu. Single +${Reg21.lbzSingle} (+${Reg21.lbzGoodSingle} si qualité 70) · EP ou album +${Reg21.lbzProject} · date sur scène +${Reg21.lbzShow} · publication virale +${Reg21.lbzViral}.',
+            style: V20Text.bs()),
+      ]),
+    );
+  }
 }

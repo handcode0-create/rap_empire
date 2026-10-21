@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'dart:math' as math;
 import '../music_catalog.dart' show generateTitle, themeById;
 import 'dialogues21.dart';
+import 'missions21.dart';
 import 'network21.dart';
 import 'social21.dart';
 import 'reg21.dart';
 import 'wardrobe21.dart';
 
 export 'dialogues21.dart';
+export 'missions21.dart';
 export 'network21.dart';
 export 'social21.dart';
 export 'wardrobe21.dart';
@@ -100,6 +102,10 @@ J init21() {
     'soc': initSocial21(),
     'kv': 0,
     'mcl': 0,
+    'lbz': 0,
+    'ms2': <String, dynamic>{},
+    'mc2': <String, dynamic>{},
+    'pbd': 0,
     'stock': <dynamic>[],
     'pendingProjects': <dynamic>[],
     'songSeq': 0,
@@ -222,6 +228,10 @@ J dayStart21(J s) {
 /// Complète une ancienne sauvegarde avec les champs ajoutés depuis (comme norm du prototype).
 J norm21(J s) {
   final d = init21();
+  // Anciennes sauvegardes sans intérêt des labels : on le reconstitue à partir de la carrière déjà faite.
+  if (!s.containsKey('lbz') && s.containsKey('disco')) {
+    s['lbz'] = math.min(Reg21.lbzMax, _l(s['disco']).length * Reg21.lbzSingle + _l(s['projects']).length * Reg21.lbzProject + _n(s['shows']) * Reg21.lbzShow);
+  }
   for (final k in d.keys) {
     s.putIfAbsent(k, () => d[k]);
   }
@@ -630,7 +640,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel'
+  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -1901,9 +1911,8 @@ final Map<String, Action> actions21 = {
   'job': (s, id) {
     final j = Reg21.jobs[id];
     if (j == null) return _no(s, 'inconnu');
-    if (j['cha'] != null && _n(_m(s['sk'])['cha']) < (j['cha'] as num)) {
-      return _no(s, 'charisme');
-    }
+    final lock = jobLock21(s, id as String);
+    if (lock != null) return _no(s, lock);
     final n = clone21(s);
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
     final e = _spend(n, j['h'] as num, (j['e'] as num) - moto);
@@ -2267,12 +2276,31 @@ final Map<String, Action> actions21 = {
     final e = evt21[id]!;
     final c = _l(e['ch']).map(_m).where((x) => x['id'] == ch).toList();
     if (c.isEmpty) return _no(s, 'inconnu');
+    final fx = c.first['e'];
+    if (fx is Map) {
+      final err = _evFx(n, fx);
+      if (err != null) return _no(s, err);
+    }
     _m(n['evDone'])[id] = ch;
     n['evLast'] = {'t': e['t'], 'ch': c.first['n'], 'c': c.first['c']};
     final q = _l(n['evq']);
     q.removeWhere((queued) => queued == id);
     n['ev'] = q.isEmpty ? null : q.removeAt(0);
     _log(n, '${e['t']} : ${c.first['n']} (${c.first['c']})', 'evenement');
+    return _ok(n);
+  },
+
+  'mclaim': (s, id) {
+    final m = mission21('$id');
+    if (m == null) return _no(s, 'inconnu');
+    if (_m(s['ms2'])[m.id] == null) return _no(s, 'pasfaite');
+    if (_m(s['mc2'])[m.id] != null) return _no(s, 'deja');
+    final n = clone21(s);
+    final (cash, xp) = missionReward21(m);
+    _m(n['mc2'])[m.id] = n['day'];
+    _pay(n, cash);
+    _addXp(n, xp);
+    _log(n, 'Mission récupérée : ${m.t} (+${fmt21(cash)} cauris, +$xp XP)', 'mission');
     return _ok(n);
   },
 
@@ -2741,7 +2769,8 @@ Res _preset(J s, dynamic id) {
   if (id == 'debut') {
     x['ev'] = 'kzer';
   } else {
-    x['evDone'] = {..._m(x['evDone']), 'kzer': 'b'};
+    x['evDone'] = {..._m(x['evDone']), 'kzer': 'b', for (final p in problemOrder21) p: 'preset'};
+    x['lbz'] = math.max(_n(x['lbz']), Reg21.lbzGate);
     _m(x['dseen'])['kore'] = 'Accord à 35 % (préréglage)';
     final kc = _m(x['kc']);
     if (!_t(kc['st'])) x['kc'] = {'st': 'Accord à 35 %, mix signé', 'bonus': 12, 'left': 0, 'rel': 8};
@@ -2776,12 +2805,99 @@ Res act21(J s, String name, [dynamic arg, int now = 0]) {
   if (cas != null && _m(cas)['stage'] == 'garde' && !const {'bail', 'detention', 'lawyer', 'ctk'}.contains(name) && !jailOk21.contains(name)) {
     return _no(st, 'garde');
   }
+  final before = (singles: _l(st['disco']).map((x) => _m(x)['id']).toSet(), projects: _l(st['projects']).length, shows: _n(st['shows']), viral: _n(_m(st['soc'])['viral']));
   final r = f(st, arg);
   if (r.err == null && !identical(r.s, st)) {
     norm21(r.s);
+    if (name != 'preset') _labelInterest(r.s, before);
     _missions(r.s);
+    _missions2(r.s);
+    _problems(r.s);
     _triggers(r.s);
     r.s['t'] = now;
   }
   return r;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Intérêt des labels, problèmes de début de carrière, missions de carrière, boulots (valeurs provisoires, D-08)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Les labels s'intéressent au joueur au fil de ses sorties, de ses dates et de ses publications virales.
+void _labelInterest(J n, ({Set singles, int projects, num shows, num viral}) b) {
+  if (!_t(n['created'])) return;
+  var g = 0;
+  for (final x in _l(n['disco']).map(_m)) {
+    if (!b.singles.contains(x['id'])) g += Reg21.lbzSingle + (_n(x['Q']) >= 70 ? Reg21.lbzGoodSingle : 0);
+  }
+  g += math.max(0, _l(n['projects']).length - b.projects) * Reg21.lbzProject;
+  g += math.max(0, _n(n['shows']) - b.shows).toInt() * Reg21.lbzShow;
+  g += math.max(0, _n(_m(n['soc'])['viral']) - b.viral).toInt() * Reg21.lbzViral;
+  if (g > 0) n['lbz'] = math.min(Reg21.lbzMax, _n(n['lbz']) + g);
+}
+
+/// Un problème de début de carrière à la fois, espacés de quelques jours, tant que le joueur n'a pas percé.
+void _problems(J n) {
+  if (!_t(n['created']) || n['ev'] != null || _n(n['rank']) > Reg21.pbMaxRank || _n(n['day']) < _n(n['pbd'])) return;
+  final done = _m(n['evDone']);
+  final singles = _l(n['disco']).length, shows = _n(n['shows']), day = _n(n['day']);
+  final cond = <String, bool>{
+    'pb_micro': singles >= 1 && day >= 3,
+    'pb_faux': singles >= 1 && day >= 5 && !_t(n['signed']),
+    'pb_cachet': shows >= 1 && day >= 4,
+    'pb_critique': singles >= 2 && day >= 6,
+    'pb_fuite': singles >= 3 || (singles >= 2 && n['cur'] != null),
+    'pb_sono': shows >= 2,
+  };
+  for (final id in problemOrder21) {
+    if (done[id] == null && cond[id] == true) {
+      _queueEv(n, id);
+      n['pbd'] = day + Reg21.pbEvery;
+      return;
+    }
+  }
+}
+
+/// Effets génériques d'un choix d'événement : coût d'abord vérifié, puis appliqué.
+String? _evFx(J n, Map fx) {
+  final cash = fx['cash'] as num?;
+  if (cash != null && cash < 0 && _n(n['cash']) < -cash) return 'cash';
+  if (_t(fx['h']) || _t(fx['en'])) {
+    final er = _spend(n, _n(fx['h']), _n(fx['en']));
+    if (er != null) return er;
+  }
+  if (cash != null) _pay(n, cash);
+  for (final k in const ['fans', 'rep']) {
+    if (fx[k] != null) n[k] = math.max(0, _n(n[k]) + (fx[k] as num));
+  }
+  if (fx['pop'] != null) n['pop'] = clamp21(_n(n['pop']) + (fx['pop'] as num), 0, 100);
+  if (fx['lbz'] != null) n['lbz'] = math.min(Reg21.lbzMax, _n(n['lbz']) + (fx['lbz'] as num));
+  if (fx['xp'] != null) _addXp(n, fx['xp'] as num);
+  if (fx['rel'] is Map) {
+    (fx['rel'] as Map).forEach((k, v) => _m(n['rel'])[k] = _n(_m(n['rel'])[k]) + (v as num));
+  }
+  return null;
+}
+
+/// Missions de carrière : elles se terminent seules ; la récompense attend la récupération (action mclaim).
+void _missions2(J n) {
+  if (!_t(n['created'])) return;
+  final done = _m(n['ms2']);
+  for (final m in missions21) {
+    if (done[m.id] == null && missionMetric21(n, m.metric) >= m.goal) {
+      done[m.id] = n['day'];
+    }
+  }
+}
+
+/// Condition manquante d'un boulot (code d'erreur) ou null s'il est accessible.
+String? jobLock21(J s, String id) {
+  final j = Reg21.jobs[id];
+  if (j == null) return 'inconnu';
+  if (j['rank'] != null && _n(s['rank']) < (j['rank'] as num)) return 'rang';
+  if (j['cha'] != null && _n(_m(s['sk'])['cha']) < (j['cha'] as num)) return 'charisme';
+  if (j['voix'] != null && _n(_m(s['sk'])['voix']) < (j['voix'] as num)) return 'voix';
+  if (j['ecr'] != null && _n(_m(s['sk'])['ecr']) < (j['ecr'] as num)) return 'ecriture';
+  if (j['rep'] != null && _n(s['rep']) < (j['rep'] as num)) return 'rep';
+  return null;
 }

@@ -243,6 +243,7 @@ void main() {
       {'id': 'T1', 'title': 'Gbaka', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 5000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Discret', 'promo': 0, 'vir': 30, 'day': 1},
     ];
     st['dseen'] = {'kore': 'x', 'mgr': 'x'};
+    st['lbz'] = Reg21.lbzGate; // les labels s'intéressent enfin au joueur
     st = act21(st, 'setui', 'th=amour').s; // déclenche les scènes
     expect((st['dlg'] as J)['id'], 'lb_AUB');
     final repo = await pump21(tester, st, location: '/dialogue');

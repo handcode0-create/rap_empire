@@ -58,7 +58,7 @@ class ProfilScreen21 extends ConsumerWidget {
       const SizedBox(height: 8),
       KpiRow(children: [StatKpi(label: 'Réputation', value: '${s['rep']}'), StatKpi(label: 'Titres sortis', value: '${(s['disco'] as List).length}')]),
       const SizedBox(height: 12),
-      ActionRow(title: 'Journal et missions', subtitle: '${missionsDone(s)} / ${Reg21.missions.length} missions faites', trailing: ActionRow.arrow(), onTap: () => context.go('/journal')),
+      ActionRow(title: 'Journal et missions', subtitle: '${missionsDone(s)} / ${Reg21.missions.length} missions de départ · ${missionsClaimed21(s)} / ${missions21.length} de carrière${missionsToClaim21(s) > 0 ? ' · ${missionsToClaim21(s)} à récupérer' : ''}', trailing: ActionRow.arrow(), onTap: () => context.go('/journal')),
       const SizedBox(height: 8),
       ActionRow(title: 'Classements', subtitle: 'Singles · ${sr == 0 ? 'Non classé' : '#$sr'} · Global · ${gr == 0 ? 'Non classé' : '#$gr'}', trailing: ActionRow.arrow(), onTap: () => context.go('/profil/classements')),
       const SizedBox(height: 8),

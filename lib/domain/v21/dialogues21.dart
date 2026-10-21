@@ -62,6 +62,9 @@ class Lbl {
       required this.cl, required this.q1, required this.q2, required this.alt, this.risk = false});
 }
 
+/// Les offres de label n'arrivent qu'une fois l'intérêt des labels suffisant (D-08).
+bool labelReady21(J s) => _n(s['lbz']) >= Reg21.lbzGate;
+
 bool _seen(J s, String k) => _m(s['dseen'])[k] != null && _m(s['dseen'])[k] != 0;
 int _disco(J s) => _l(s['disco']).length;
 
@@ -160,7 +163,7 @@ Dlg _lblDlg(String code, Lbl L) {
   final rt = L.risk ? ' · Risque : label en difficulté, soutien incertain' : '';
   return Dlg(
       t: 'Offre · ${L.n}', ref: '18-1 · $code', place: L.place, who: L.who, role: L.role,
-      cond: (s) => !_t(s['signed']) && L.cond(s), cl: L.cl, lbl: code,
+      cond: (s) => !_t(s['signed']) && labelReady21(s) && L.cond(s), cl: '${L.cl} · intérêt des labels ${Reg21.lbzGate}', lbl: code,
       nodes: {
         'n1': DlgNode('poised', L.q1, [
           DlgChoice('a', 'Signer', '+${_fmt(L.adv)} cauris · ${p(L.cut)} des écoutes · ${L.dur} · ${perk21[L.perk]}$rt',
@@ -249,7 +252,7 @@ final Map<String, Dlg> dlg21 = {
   ),
   'label': Dlg(
     t: 'Contrat de label', ref: '16-B · 08-2', place: 'office', who: 'orage', role: 'Directrice artistique · Bakoma Sound Records',
-    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']), cl: 'Réputation 30',
+    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']) && labelReady21(s), cl: 'Réputation 30 · intérêt des labels ${Reg21.lbzGate}',
     nodes: {
       'n1': const DlgNode('poised', '« Bakoma Sound Records te propose six mois, 150 000 d\'avance, 35 % sur tes écoutes et deux sons par trimestre. On signe ? »', [
         DlgChoice('a', 'Signer', '+150 000 cauris · 35 % des écoutes au label · 6 mois',

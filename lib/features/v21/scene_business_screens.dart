@@ -330,7 +330,6 @@ class BusinessScreen21 extends ConsumerWidget {
     if (s == null) return const Center(child: CircularProgressIndicator());
     final rank = rankOf(s);
     final moto = _m(s['own'])['moto'] != null ? 5 : 0;
-    final cha = _n(_m(s['sk'])['cha']);
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('BUSINESS', style: V20Text.dm()),
@@ -349,7 +348,7 @@ class BusinessScreen21 extends ConsumerWidget {
         onTap: () => doAct(context, ref, 'atelier', null, null,
             'Écriture +5 · Atelier terminé'),
       ),
-      const Lab21('Petits boulots · dès le début'),
+      const Lab21('Boulots · les plus rentables se débloquent avec le rang'),
       for (final e in Reg21.jobs.entries) ...[
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -357,10 +356,8 @@ class BusinessScreen21 extends ConsumerWidget {
             title: e.value['n'] as String,
             subtitle:
                 '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · ${e.value['need']}',
-            note: e.value['cha'] != null && cha < (e.value['cha'] as num)
-                ? 'Charisme ${e.value['cha']} requis (tu as ${cha.toInt()})'
-                : null,
-            disabled: e.value['cha'] != null && cha < (e.value['cha'] as num),
+            note: jobLockText21(s, e.key),
+            disabled: jobLock21(s, e.key) != null,
             trailing: Text('+${fmt21(e.value['cash'] as num)}',
                 style: V20Text.nm(color: Tk.gold)),
             onTap: () => doAct(context, ref, 'job', e.key,
@@ -739,6 +736,7 @@ class LabelsScreen extends ConsumerWidget {
         }),
       ],
       const Lab21('Labels'),
+      if (s['signed'] != 1) ...[LabelInterestCard(s), const SizedBox(height: 12)],
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -751,7 +749,7 @@ class LabelsScreen extends ConsumerWidget {
             ])),
             s['signed'] == 1
                 ? const GameTag('Signé', style: GameTagStyle.ok)
-                : (rep >= Reg21.labelRep
+                : (rep >= Reg21.labelRep && labelReady21(s)
                     ? const GameTag('Offre')
                     : const GameTag('Rép. ${Reg21.labelRep}',
                         style: GameTagStyle.outline)),
@@ -1122,4 +1120,19 @@ class _AnswerPill extends StatelessWidget {
           ),
         ),
       );
+}
+
+
+/// Condition manquante d'un boulot, en clair (null s'il est accessible).
+String? jobLockText21(J s, String id) {
+  final j = Reg21.jobs[id]!;
+  final sk = _m(s['sk']);
+  return switch (jobLock21(s, id)) {
+    'rang' => 'Rang N${j['rank']} requis (tu es N${_n(s['rank']).toInt()})',
+    'charisme' => 'Charisme ${j['cha']} requis (tu as ${_n(sk['cha']).toInt()})',
+    'voix' => 'Voix ${j['voix']} requise (tu as ${_n(sk['voix']).toInt()})',
+    'ecriture' => 'Écriture ${j['ecr']} requise (tu as ${_n(sk['ecr']).toInt()})',
+    'rep' => 'Réputation ${j['rep']} requise (tu as ${_n(s['rep']).toInt()})',
+    _ => null,
+  };
 }
