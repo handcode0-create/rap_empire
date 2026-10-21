@@ -812,6 +812,27 @@ class CauriPremiumScreen extends ConsumerWidget {
 String _mono(String n) => n.split(RegExp(r'[\s\-]+')).where((w) => w.isNotEmpty && RegExp(r'[A-Za-zÀ-ÿ]').hasMatch(w[0])).map((w) => w[0]).take(3).join().toUpperCase();
 String _fx(Media21 m) => m.geo.entries.map((e) => '${geoName21[e.key]} +${_dec(e.value)}/j').join(' · ');
 
+/// Logo d'un média : dessiné par tools/design/gen_logos.py (assets/logos) ; repli sur le sigle si le fichier manque.
+class MediaLogo21 extends StatelessWidget {
+  final Media21 m;
+  final double size;
+  const MediaLogo21(this.m, {super.key, this.size = 44});
+  @override
+  Widget build(BuildContext context) {
+    Widget mono() => Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: Color(m.col), borderRadius: BorderRadius.circular(size * .27)),
+        child: Text(_mono(m.n), style: V20Text.baloo(size: size * .32, line: size * .32, color: Tk.bg)));
+    return Semantics(
+      label: 'Logo ${m.n}',
+      excludeSemantics: true,
+      child: SvgPicture.asset('assets/logos/media_${m.id}.svg', width: size, height: size, placeholderBuilder: (_) => SizedBox.square(dimension: size), errorBuilder: (_, __, ___) => mono()),
+    );
+  }
+}
+
 class MarketingScreen extends ConsumerWidget {
   const MarketingScreen({super.key});
   @override
@@ -865,7 +886,6 @@ class _MediaCard extends ConsumerWidget {
     final on = mkActive21(s).where((c) => c['id'] == m.id).firstOrNull;
     final e = mkCheck21(s, m.id);
     final locked = _n(s['rank']) < m.rank;
-    final col = Color(m.col);
     return Opacity(
       opacity: locked ? .72 : 1,
       child: Container(
@@ -878,12 +898,7 @@ class _MediaCard extends ConsumerWidget {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: col, borderRadius: BorderRadius.circular(12)),
-                child: Text(_mono(m.n), style: V20Text.baloo(size: 14, line: 14, color: Tk.bg))),
+            MediaLogo21(m, size: 48),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

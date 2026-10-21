@@ -35,6 +35,7 @@ flutter:
     - assets/patrimoine/
     - assets/awards/
     - assets/covers/
+    - assets/logos/
   fonts:
     - family: Poppins
       fonts:

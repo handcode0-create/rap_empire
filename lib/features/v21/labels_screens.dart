@@ -37,7 +37,7 @@ const _dir = <String, (String, int, String, Color)>{
   'VAG': ('Port-Ambre · Ex-influent en difficulté', 30, 'marius', Color(0xFF1F1942)),
 };
 
-/// Logo d'un label (SVG extrait de la planche). flutter_svg n'affiche pas le texte SVG : les trois lettres sont posées par-dessus.
+/// Logo d'un label : emblème et sigle dessinés par tools/design/gen_logos.py (assets/logos).
 class LabelLogo21 extends StatelessWidget {
   final String code;
   final double size;
@@ -46,15 +46,8 @@ class LabelLogo21 extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
         label: 'Logo $code',
         excludeSemantics: true,
-        child: SizedBox.square(
-          dimension: size,
-          child: Stack(alignment: Alignment.center, children: [
-            SvgPicture.asset('assets/svg/logo-$code.svg', width: size, height: size),
-            Align(
-                alignment: const Alignment(0, .22),
-                child: Text(code, style: V20Text.baloo(size: size * 19 / 64, line: size * 19 / 64, color: _dir[code]!.$4))),
-          ]),
-        ),
+        child: SvgPicture.asset('assets/logos/label_$code.svg', width: size, height: size,
+            placeholderBuilder: (_) => SizedBox.square(dimension: size), errorBuilder: (_, __, ___) => SizedBox.square(dimension: size)),
       );
 }
 
