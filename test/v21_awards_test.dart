@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/domain/v21/view21.dart' show myChart21;
 
 /// Certifications et cérémonies (propositions 18.4 et 18.5, valeurs provisoires).
 J _copy(J s) => jsonDecode(jsonEncode(s)) as J;
