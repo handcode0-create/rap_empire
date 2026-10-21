@@ -21,12 +21,13 @@ const certNames21 = {
   'diamant': 'Disque de diamant',
 };
 
-/// Seuils en unités (même grille que 18.4, divisée pour l'échelle du jeu). Single : ventes + écoutes cumulées ÷ 10.
-/// EP et album : ventes + écoutes du projet ÷ 100.
+/// Seuils en unités, identiques pour single, EP et album : Disque d'or à 50 000 (validé par Smith le 21/10/2026),
+/// puis platine 100 000, double 200 000, triple 300 000, diamant 500 000 (provisoires).
+/// Unités : ventes + équivalent streaming (single : écoutes cumulées ÷ 10 ; EP et album : écoutes du projet ÷ 100).
 const certThresholds21 = <String, List<int>>{
-  'Single': [15000, 30000, 60000, 100000, 250000],
-  'EP': [5000, 10000, 20000, 35000, 75000],
-  'Album': [8000, 16000, 32000, 56000, 120000],
+  'Single': [50000, 100000, 200000, 300000, 500000],
+  'EP': [50000, 100000, 200000, 300000, 500000],
+  'Album': [50000, 100000, 200000, 300000, 500000],
 };
 
 class Cert21 {
