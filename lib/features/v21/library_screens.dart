@@ -8,7 +8,6 @@ import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
-import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
