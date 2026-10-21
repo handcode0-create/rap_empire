@@ -34,7 +34,7 @@ double xpFraction(J s) {
 String hourLabel(J s) => '${_n(s['hour']).toInt().toString().padLeft(2, '0')}:00';
 int dayInYear(J s) => ((_n(s['day']) - 1) % Reg21.daysPerYear).toInt() + 1;
 int yearOf(J s) => ((_n(s['day']) - 1) / Reg21.daysPerYear).floor() + 1;
-String timeLabel(J s) => 'S${weekOf21(_n(s['day']))} ${weekDay21(_n(s['day']))} · ${hourLabel(s)}';
+String timeLabel(J s) => 'S${weekOf21(_n(s['day']))} ${weekDay21(_n(s['day']))} ${hourLabel(s)}';
 int hoursLeft(J s) => Reg21.dayEnd - _n(s['hour']).toInt();
 String energyLabel(J s) => '${_n(s['en']).toInt()}/${enMax(s)}';
 bool isLate(J s) => _n(s['hour']) >= 22;
