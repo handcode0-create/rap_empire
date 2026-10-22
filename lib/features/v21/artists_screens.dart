@@ -13,10 +13,11 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/artists21.dart';
-import '../../domain/v21/engine21.dart' show fmt21, labelAdvance21, labelArtistDay21, labelSlots21;
+import '../../domain/v21/engine21.dart' show fmt21, labelAdvance21, labelArtistDay21, labelSlots21, ownLabelName21;
 import '../../domain/v21/reg21.dart';
 import 'cast21.dart';
 import 'labels_screens.dart' show LabelLogo21;
+import 'own_label_screens.dart' show OwnLogo21;
 import 'start_screens.dart' show confirmSheet;
 import 'widgets21.dart';
 
@@ -203,13 +204,28 @@ class _Stat extends StatelessWidget {
       );
 }
 
-class _ArtistRow extends StatelessWidget {
+/// Logo du label chez qui l'artiste est signé : celui de ton label (logo choisi) s'il est dans ton écurie, sinon celui du label du catalogue.
+Widget _labelLogo(J? s, Artist21 a, double size) {
+  final ol = s?['olabel'];
+  final mine = ol is Map && (ol['roster'] as List? ?? const []).any((r) => r is Map && r['id'] == a.id);
+  if (mine) return OwnLogo21('${ol['logo'] ?? ''}', size: size);
+  return a.label == null ? SizedBox.square(dimension: size) : LabelLogo21(a.label!, size: size);
+}
+
+bool _inMyRoster(J? s, Artist21 a) {
+  final ol = s?['olabel'];
+  return ol is Map && (ol['roster'] as List? ?? const []).any((r) => r is Map && r['id'] == a.id);
+}
+
+class _ArtistRow extends ConsumerWidget {
   final Artist21 a;
   final Directory21 d;
   final VoidCallback onTap;
   const _ArtistRow(this.a, this.d, this.onTap);
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Semantics(
           button: true,
@@ -232,7 +248,7 @@ class _ArtistRow extends StatelessWidget {
                   ]),
                 ),
                 const SizedBox(width: 8),
-                if (a.label != null) ...[LabelLogo21(a.label!, size: 28), const SizedBox(width: 10)],
+                if (a.label != null || _inMyRoster(s, a)) ...[_labelLogo(s, a, 28), const SizedBox(width: 10)],
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                   Text('#${a.rang}', style: V20Text.nm(color: Tk.gold)),
                   Text(_trend(a), semanticsLabel: a.tendance, style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w800, color: _trendColor(a))),
@@ -241,7 +257,8 @@ class _ArtistRow extends StatelessWidget {
             ),
           ),
         ),
-      );
+    );
+  }
 }
 
 class _ArtistSheet extends ConsumerWidget {
@@ -368,7 +385,14 @@ class _ArtistSheet extends ConsumerWidget {
       ]),
       const SizedBox(height: 10),
       MeterBar(value: (a.popularite / 100).clamp(0, 1).toDouble()),
-      if (lab != null) ...[
+      if (_inMyRoster(game, a)) ...[
+        const SizedBox(height: 12),
+        Row(children: [
+          _labelLogo(game, a, 36),
+          const SizedBox(width: 10),
+          Expanded(child: Text('Signé chez ${ownLabelName21(game!)}', style: V20Text.bs(color: Tk.ink))),
+        ]),
+      ] else if (lab != null) ...[
         const SizedBox(height: 12),
         Row(children: [
           LabelLogo21(a.label!, size: 36),

@@ -11,6 +11,7 @@ import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 import 'package:rap_empire/domain/v21/artists21.dart' show parseDirectory21;
 import 'package:rap_empire/features/v21/day_clock21.dart';
+import 'package:rap_empire/features/v21/own_label_screens.dart' show OwnLogo21;
 import 'package:rap_empire/features/v21/artists_screens.dart' show directory21Provider;
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
@@ -880,6 +881,19 @@ void main() {
     await tester.tap(txt('Kaïra Nox'));
     await tester.pumpAndSettle();
     expect(txt('Superstar internationale'), findsWidgets);
+  });
+
+  testWidgets('réseau artistique : un artiste signé chez ton label affiche le logo de ton label', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel', {'name': 'Étoile Noire', 'logo': 'etoile'}).s;
+    s = act21(s, 'lsignart', {'id': 'ART-0005', 'nom': 'Tempo', 'palier': 'Débutant', 'genre': 'Rap', 'ville': 'Ndolo', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    await pump21(tester, s, location: '/scene/rivalites');
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('annuaire-recherche')), 300, scrollable: list);
+    await tester.enterText(find.byKey(const ValueKey('annuaire-recherche')), 'tempo');
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('artiste-ART-0005')), 200, scrollable: list);
+    expect(find.descendant(of: find.byKey(const ValueKey('artiste-ART-0005')), matching: find.byType(OwnLogo21)), findsOneWidget);
   });
 
   testWidgets('scène de fin de journée : la nuit tombe, la journée se termine, le bilan s\'ouvre', (tester) async {
