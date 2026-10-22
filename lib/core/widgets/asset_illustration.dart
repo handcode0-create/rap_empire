@@ -21,6 +21,12 @@ class AssetIllustration extends StatelessWidget {
     'diamant': 'assets/patrimoine/diamant.jpg',
   };
 
+  /// Illustrations originales (tools/design/gen_patrimoine.py), pour les biens sans photo.
+  static const _vectors = {
+    'studiomeuble', 'villa', 'penthouse', 'local', 'immeuble', 'scooter', 'suv',
+    'berline', 'chaine', 'bracelet', 'diamantrose', 'cabinepro', 'regie',
+  };
+
   static const _art = <String, String>{
     'moto':
         '<circle cx="25" cy="68" r="13" fill="none" stroke="#FFC83D" stroke-width="5"/><circle cx="77" cy="68" r="13" fill="none" stroke="#FFC83D" stroke-width="5"/><path d="M25 68 42 42h17l18 26H48l-8-16m18-10 9-9h9" fill="none" stroke="#F43F9D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 42h18" stroke="#3CD6F2" stroke-width="5" stroke-linecap="round"/>',
@@ -82,7 +88,9 @@ class AssetIllustration extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         child: SizedBox.square(
           dimension: size,
-          child: _photos[id] == null
+          child: _vectors.contains(id)
+              ? SvgPicture.asset('assets/patrimoine/$id.svg', fit: BoxFit.cover, semanticsLabel: 'Illustration du bien')
+              : _photos[id] == null
               ? _fallback()
               : Image.asset(
                   _photos[id]!,

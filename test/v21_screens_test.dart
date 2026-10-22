@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,8 @@ import 'package:rap_empire/core/widgets/back_header.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/domain/v21/artists21.dart' show parseDirectory21;
+import 'package:rap_empire/features/v21/artists_screens.dart' show directory21Provider;
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
 import 'support.dart' show navTab, tapText, txt;
@@ -28,7 +32,10 @@ Future<FakeRepo21> pump21(WidgetTester tester, J start, {String location = '/', 
   final repo = FakeRepo21(start);
   await tester.pumpWidget(ProviderScope(
     key: UniqueKey(),
-    overrides: [save21RepoProvider.overrideWithValue(repo)],
+    overrides: [
+      save21RepoProvider.overrideWithValue(repo),
+      directory21Provider.overrideWith((_) async => parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync())),
+    ],
     child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter21(initialLocation: location)),
   ));
   if (location == '/studio/cabine') {

@@ -16,3 +16,7 @@ Photos téléchargées depuis Unsplash et utilisées localement dans l’applica
 | `diamant.jpg` | Diamant / bague sertie | One91creative | [Unsplash](https://unsplash.com/photos/diamond-engagement-ring-on-stone-T5VcQom6uAc) |
 
 Licence : [Unsplash License](https://unsplash.com/license). Les photos de bijoux montrent un diamant monté ou serti, plutôt qu’une pierre isolée.
+
+## Illustrations originales (sans photo)
+
+Treize biens n'ont pas de photo libre de droits : aucun téléchargement n'était possible depuis l'environnement de travail. Leurs vignettes sont des illustrations vectorielles originales, générées par `tools/design/gen_patrimoine.py` (aucune source externe, aucun droit à créditer) : studiomeuble, villa, penthouse, local, immeuble, scooter, suv, berline, chaine, bracelet, diamantrose, cabinepro, regie. Une photo libre pourra les remplacer en l'ajoutant dans `_photos` (elle prime sur le SVG).

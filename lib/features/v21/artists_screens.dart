@@ -63,7 +63,7 @@ class _Rivalites21ScreenState extends ConsumerState<Rivalites21Screen> {
       BackHeader(title: 'Réseau artistique', onBack: () => context.go('/scene')),
       const SizedBox(height: 12),
       dir.when(
-        loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
+        loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('Chargement du réseau…'))),
         error: (e, _) => const GameHint(icon: 'info', warn: true, text: 'Annuaire indisponible pour le moment.'),
         data: (d) => _Hero(d),
       ),
