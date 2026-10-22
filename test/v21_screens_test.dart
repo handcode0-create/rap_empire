@@ -451,6 +451,7 @@ void main() {
     s = act21(s, 'record').s;
     s = act21(s, 'shelve').s;
     await pump21(tester, s, location: '/studio/catalogue/projet');
+    await tester.scrollUntilVisible(txt('Inédit'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
     expect(txt('Inédit'), findsOneWidget);
   });
 
