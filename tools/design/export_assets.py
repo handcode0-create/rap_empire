@@ -72,6 +72,21 @@ def main():
                     svg = clean(figure(STYLE, 'front', skin=kd['skin'], hair=kd['hair'], hc=kd['hc'], beard='none', mood=mood, outfit={**base, **kd['outfit']}, acc=kd['acc'], crop=crop, kid=sc))
                     fn = 'kid_%s_%s_%s_%s.svg' % (who, st, mood, crop)
                     open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
+    # avatars des artistes du catalogue (v21, label du joueur et annuaire) : un portrait par fiche, d'après son champ « portrait »
+    # (teint, coiffure, couleur, barbe, accessoires) ; tenue choisie par graine stable sur l'identifiant. art<numéro>_smile_head.svg.
+    # Les artistes nommés (Top 10, Ayana Dembé, DJ Kôrô…) gardent leur illustration dédiée du cast.
+    cat = json.load(open(os.path.join(ROOT, 'assets', 'data', 'artistes-demo.json'), encoding='utf-8'))['artistes']
+    named = {v['name'] for v in CAST.values()}
+    kinds = ['hoodie', 'tee', 'bomber', 'blazer']
+    tcols = ['#F43F9D', '#3CD6F2', '#8B5CF6', '#3DDC97', '#FFC83D', '#3A3270', '#F8F7FF', '#C21E78', '#0E7C86', '#1B2A5C']
+    for a in cat:
+        if a['nom'] in named: continue
+        num = int(a['id'].split('-')[1]); pt = a['portrait']
+        k = kinds[(num * 7) % 4]; tc = tcols[(num * 13) % len(tcols)]
+        outfit = dict(top=tc, pants='#14102B' if num % 2 else '#2B2459', shoe=tcols[(num * 5) % len(tcols)], accent=tcols[(num * 3 + 4) % len(tcols)], kind=k, logo=False)
+        svg = clean(figure(STYLE, 'front', skin=SKINS[pt['peau']], hair=pt['coiffure'], hc=pt['couleur'], beard=pt['barbe'], mood='smile', outfit=outfit, acc=tuple(pt['accessoires']), crop='head'))
+        fn = 'art%04d_smile_head.svg' % num
+        open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
     json.dump({'style': STYLE, 'cast': {k: v['name'] for k, v in CAST.items()}, 'files': files}, open(os.path.join(OUT_C, 'manifest.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     for kind, f in scenes.BGS.items():
         open(os.path.join(OUT_S, kind + '.svg'), 'w', encoding='utf-8').write(clean(f()))

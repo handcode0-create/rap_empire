@@ -223,7 +223,7 @@ class _ArtistRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(color: Tk.s1, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0x1FFFFFFF))),
               child: Row(children: [
-                CastAvatar(a.nom, size: 44),
+                CastAvatar(a.nom, size: 44, artistId: a.id),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -339,7 +339,7 @@ class _ArtistSheet extends ConsumerWidget {
 
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(children: [
-        a.nom.isEmpty ? const SizedBox() : CastAvatar(a.nom, size: 64),
+        a.nom.isEmpty ? const SizedBox() : CastAvatar(a.nom, size: 64, artistId: a.id),
         const SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

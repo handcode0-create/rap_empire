@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rap_empire/features/v21/cast21.dart';
 
 void main() {
 
@@ -53,5 +55,25 @@ void main() {
         expect(file.readAsStringSync(), contains('<svg'), reason: '$id / $age');
       }
     }
+  });
+
+  test('chaque artiste du catalogue a son avatar généré (sauf les artistes nommés, qui gardent leur illustration)', () {
+    final cat = (jsonDecode(File('assets/data/artistes-demo.json').readAsStringSync())['artistes'] as List).cast<Map>();
+    final seen = <String>{};
+    var generated = 0;
+    for (final a in cat) {
+      final id = artistAvatarId21(a['id'] as String);
+      expect(id, matches(RegExp(r'^art\d{4}$')));
+      if (castId21(a['nom'] as String) != null) continue;
+      final f = File('assets/characters/${id}_smile_head.svg');
+      expect(f.existsSync(), isTrue, reason: '${a['id']} ${a['nom']}');
+      seen.add(f.readAsStringSync());
+      generated++;
+    }
+    expect(generated, greaterThan(900));
+    expect(seen.length, greaterThan(generated * 0.95), reason: 'portraits distincts');
+    expect(artistAvatarId21('ART-0501'), 'art0501');
+    expect(artistAvatarId21(null), isNull);
+    expect(artistAvatarId21('djo'), isNull);
   });
 }

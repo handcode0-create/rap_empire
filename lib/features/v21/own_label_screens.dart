@@ -284,7 +284,7 @@ class _ArtistCard extends ConsumerWidget {
       key: ValueKey('ecurie-${a['id']}'),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          CastAvatar(a['nom'] as String, size: 48),
+          CastAvatar(a['nom'] as String, size: 48, artistId: a['id'] as String?),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

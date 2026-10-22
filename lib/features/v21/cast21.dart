@@ -73,6 +73,13 @@ String? castId21(String nameOrId) {
   return hit != null && castIllustrated21.contains(hit.$1) ? hit.$1 : null;
 }
 
+/// Identifiant d'avatar d'un artiste du catalogue (`ART-0501` → `art0501`) : un portrait généré par fiche (tools/design/export_assets.py).
+/// Les artistes nommés gardent leur illustration dédiée du cast ; sans identifiant de catalogue, null.
+String? artistAvatarId21(String? id) {
+  final m = id == null ? null : RegExp(r'^ART-(\d{4})$').firstMatch(id);
+  return m == null ? null : 'art${m.group(1)}';
+}
+
 String castRole21(String name) => castByName21[name.trim()]?.$2 ?? '';
 
 String _initials(String n) => n.split(RegExp(r"[\s'’-]+")).where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join().toUpperCase();
@@ -83,10 +90,12 @@ class CastAvatar extends StatelessWidget {
   final double size;
   final String mood;
   final Color ring;
-  const CastAvatar(this.name, {super.key, this.size = 48, this.mood = 'smile', this.ring = Tk.acc});
+  /// Identifiant de fiche du catalogue (`ART-0501`) : donne un portrait propre à un artiste qui n'a pas d'illustration nommée.
+  final String? artistId;
+  const CastAvatar(this.name, {super.key, this.size = 48, this.mood = 'smile', this.ring = Tk.acc, this.artistId});
   @override
   Widget build(BuildContext context) {
-    final id = castId21(name);
+    final id = castId21(name) ?? artistAvatarId21(artistId);
     if (id == null) return Portrait(_initials(name), size: size);
     return Semantics(
       image: true,

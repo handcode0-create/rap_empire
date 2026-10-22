@@ -172,7 +172,7 @@ class _Hero extends StatelessWidget {
         decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep])),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            CastAvatar(a['nom'] as String, size: 72),
+            CastAvatar(a['nom'] as String, size: 72, artistId: a['id'] as String?),
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
