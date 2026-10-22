@@ -21,11 +21,25 @@ class AssetIllustration extends StatelessWidget {
     'diamant': 'assets/patrimoine/diamant.jpg',
   };
 
-  /// Illustrations originales (tools/design/gen_patrimoine.py), pour les biens sans photo.
-  static const _vectors = {
-    'studiomeuble', 'villa', 'penthouse', 'local', 'immeuble', 'scooter', 'suv',
-    'berline', 'chaine', 'bracelet', 'diamantrose', 'cabinepro', 'regie',
+  /// Photos Unsplash affichées par lien direct (licence Unsplash) ; l'illustration originale
+  /// (tools/design/gen_patrimoine.py) sert de chargement et de secours hors ligne.
+  static const _remote = <String, String>{
+    'studiomeuble': '1702014859908-d48b9b844240',
+    'villa': '1757524492552-d47a66a2b63e',
+    'penthouse': '1776362355123-ca966d36e29c',
+    'local': '1564227503787-ad186f508e6f',
+    'immeuble': '1760235674447-fe0cc115b697',
+    'scooter': '1554223789-df81106a45ed',
+    'suv': '1757922589576-129377dadac9',
+    'berline': '1674719645138-c3fd1aaf8307',
+    'chaine': '1635767798638-3e25273a8236',
+    'bracelet': '1639065643006-e217c4fee12e',
+    'diamantrose': '1772047678465-b786569c7c64',
+    'cabinepro': '1544719576-0b52abab3d03',
+    'regie': '1762952805560-130ccc74c3fa',
   };
+
+  Widget _vector() => SvgPicture.asset('assets/patrimoine/$id.svg', fit: BoxFit.cover, semanticsLabel: 'Illustration du bien');
 
   static const _art = <String, String>{
     'moto':
@@ -88,8 +102,13 @@ class AssetIllustration extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         child: SizedBox.square(
           dimension: size,
-          child: _vectors.contains(id)
-              ? SvgPicture.asset('assets/patrimoine/$id.svg', fit: BoxFit.cover, semanticsLabel: 'Illustration du bien')
+          child: _remote.containsKey(id)
+              ? Image.network(
+                  'https://images.unsplash.com/photo-${_remote[id]}?w=640&q=70&fit=crop&auto=format',
+                  fit: BoxFit.cover,
+                  loadingBuilder: (_, child, p) => p == null ? child : _vector(),
+                  errorBuilder: (_, __, ___) => _vector(),
+                )
               : _photos[id] == null
               ? _fallback()
               : Image.asset(
