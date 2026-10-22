@@ -608,6 +608,22 @@ class Reg21 {
     'studio': {'n': "L'emmener au studio", 'l': 8, 'h': 2, 'e': 10, 'min': 6},
   };
 
+  /// Espace enfant (provisoire, D-08) : chaque moment partagé développe une facette (0 à 100), la garde coûte par jour
+  /// et dépend de l'âge ; l'école fait progresser le savoir de [schoolDaily] point par jour.
+  static const kidDev = <String, J>{
+    'jouer': {'k': 'eveil', 'v': 4},
+    'histoire': {'k': 'savoir', 'v': 3},
+    'devoirs': {'k': 'savoir', 'v': 5},
+    'studio': {'k': 'musique', 'v': 6},
+  };
+  static const kidDevNames = <String, String>{'eveil': 'Éveil', 'savoir': 'Savoir', 'musique': 'Oreille musicale'};
+  static const kidGardes = <String, J>{
+    'Au foyer': {'cost': 0, 'min': 0, 'max': 99},
+    'Nounou': {'cost': 800, 'min': 0, 'max': 5},
+    'École': {'cost': 500, 'min': 3, 'max': 17},
+  };
+  static const schoolDaily = 1, kidMemMax = 8;
+
   // création de l'artiste
   static const nameMin = 2, nameMax = 18, ageMin = 18, ageMax = 30;
   static const origins = <String, String>{

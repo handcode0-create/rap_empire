@@ -402,6 +402,24 @@ void main() {
     expect(r2.current['hour'], 9);
   });
 
+  testWidgets('espace enfant : hero, développement, changer de garde, souvenirs', (tester) async {
+    final repo = await pump21(tester, preset('parent'), location: '/famille/enfant');
+    expect(find.byKey(const ValueKey('enfant-hero')), findsOneWidget);
+    expect(txt('DÉVELOPPEMENT'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('garde-Nounou')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('garde-Nounou')));
+    await tester.pumpAndSettle();
+    expect((((repo.current['fam'] as J)['kids'] as List)[0] as J)['garde'], 'Nounou');
+  });
+
+  testWidgets('famille : la carte de l’enfant ouvre son espace', (tester) async {
+    await pump21(tester, preset('parent'), location: '/famille');
+    await tester.tap(find.byKey(const ValueKey('enfant-0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('enfant-hero')), findsOneWidget);
+  });
+
   testWidgets('création : le nom apparaît en direct, look et origine se choisissent en tuiles', (tester) async {
     final repo = await pump21(tester, init21(), location: '/artiste/identite');
     expect(txt('TON NOM DE SCÈNE'), findsWidgets);

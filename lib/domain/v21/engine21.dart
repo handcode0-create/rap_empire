@@ -116,6 +116,16 @@ String stageOf(int age) {
   return n;
 }
 
+/// Ajoute un souvenir à l'enfant (les [Reg21.kidMemMax] plus récents).
+void _kidMem(J k, num day, String text) {
+  final m = _lz(k, 'mem');
+  m.insert(0, <String, dynamic>{'d': day, 't': text});
+  if (m.length > Reg21.kidMemMax) m.removeRange(Reg21.kidMemMax, m.length);
+}
+
+/// Coût par jour de la garde d'un enfant (hors charges du foyer).
+int kidGardeCost21(J k) => (Reg21.kidGardes[k['garde']]?['cost'] as num? ?? 0).toInt();
+
 int kidAge(J s, J k) =>
     ((_n(s['day']) - _n(k['born'])) / Reg21.daysPerYear).floor();
 
@@ -2748,7 +2758,31 @@ final Map<String, Action> actions21 = {
     final kk = _m(_l(_m(n['fam'])['kids'])[i]);
     kk['l'] = clamp21(_n(kk['l']) + (a['l'] as num), 0, 100);
     kk['today'] = 1;
+    final dv = Reg21.kidDev[l[1]];
+    if (dv != null) {
+      final d = (kk['dev'] ??= <String, dynamic>{}) as J;
+      d[dv['k']] = clamp21(_n(d[dv['k']]) + (dv['v'] as num), 0, 100);
+    }
+    _kidMem(kk, n['day'], '${a['n']} · lien +${a['l']}');
     _log(n, '${a['n']} avec ${kk['n']} : lien +${a['l']}', 'perso');
+    return _ok(n);
+  },
+
+  'kgarde': (s, arg) {
+    final l = arg as List;
+    final i = int.tryParse('${l[0]}') ?? -1;
+    final g = Reg21.kidGardes[l[1]];
+    final kids = _l(_m(s['fam'])['kids']);
+    if (i < 0 || i >= kids.length || g == null) return _no(s, 'inconnu');
+    final k = _m(kids[i]);
+    if (k['garde'] == l[1]) return _no(s, 'deja');
+    final age = kidAge(s, k);
+    if (age < (g['min'] as num) || age > (g['max'] as num)) return _no(s, 'age');
+    final n = clone21(s);
+    final kk = _m(_l(_m(n['fam'])['kids'])[i]);
+    kk['garde'] = l[1];
+    _kidMem(kk, n['day'], 'Garde : ${l[1]}');
+    _log(n, '${kk['n']} : garde « ${l[1]} »', 'perso');
     return _ok(n);
   },
 
@@ -3259,6 +3293,9 @@ Res _endDay(J s) {
   }
   if (_m(n['rom'])['off'] != null) cost += Reg21.coupleCost;
   cost += _l(_m(n['fam'])['kids']).length * Reg21.kidCost;
+  for (final k in _l(_m(n['fam'])['kids'])) {
+    cost += kidGardeCost21(_m(k));
+  }
   if (cost != 0) {
     _pay(n, -cost);
     ev.add('Charges du foyer : ${sg21(-cost)}');
@@ -3293,7 +3330,7 @@ Res _endDay(J s) {
       kids.length < Reg21.maxKids &&
       rng21(n, 3) < Reg21.kidChance) {
     final nm = kidNames21[kids.length];
-    kids.add({'n': nm, 'born': _n(n['day']) + 1, 'l': 50, 'garde': 'Au foyer'});
+    kids.add(<String, dynamic>{'n': nm, 'born': _n(n['day']) + 1, 'l': 50, 'garde': 'Au foyer', 'dev': <String, dynamic>{}, 'mem': <dynamic>[<String, dynamic>{'d': _n(n['day']) + 1, 't': 'Naissance'}]});
     fam['proj'] = 0;
     ev.add('Naissance : $nm est arrivé(e) au foyer');
     _l(rom['hist']).add({'d': _n(n['day']) + 1, 't': 'Naissance de $nm'});
@@ -3330,6 +3367,10 @@ Res _endDay(J s) {
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {
     _m(k)['today'] = 0;
+    if (_m(k)['garde'] == 'École') {
+      final d = (_m(k)['dev'] ??= <String, dynamic>{}) as J;
+      d['savoir'] = clamp21(_n(d['savoir']) + Reg21.schoolDaily, 0, 100);
+    }
   }
   final y1 = ((_n(n['day']) - 1) / Reg21.daysPerYear).floor();
   Map<String, dynamic>? aged;

@@ -18,6 +18,7 @@ import '../features/v21/cover_screens.dart';
 import '../features/v21/reserve_screens.dart';
 import '../features/v21/artists_screens.dart' show Rivalites21Screen;
 import '../features/v21/artist_space_screens.dart';
+import '../features/v21/child_space_screens.dart';
 import '../features/v21/own_label_screens.dart';
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/wiki_screens.dart';
@@ -386,7 +387,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
               GoRoute(
                   path: 'enfant',
                   name: '21-12-Parent-enfant',
-                  builder: (_, __) => const ParentEnfantScreen()),
+                  builder: (_, st) => ParentEnfantScreen(index: int.tryParse(st.uri.queryParameters['i'] ?? '') ?? 0)),
               GoRoute(
                   path: 'evenement',
                   name: '21-13-Evenements',
