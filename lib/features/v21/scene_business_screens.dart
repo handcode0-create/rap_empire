@@ -1245,6 +1245,21 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
           ],
         ]),
       const SizedBox(height: 12),
+      if (!_done) ...[
+        GlassCard(
+          key: const ValueKey('battle-guide'),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('COMMENT RÉPONDRE', style: V20Text.lab()),
+            const SizedBox(height: 4),
+            Text('Agressif : il attaque de front, te provoque ou hausse le ton.', style: V20Text.bs()),
+            Text('Malin : il ironise, critique ton texte ou ton parcours, ou cherche une réponse originale.', style: V20Text.bs()),
+            Text('Cool : il se détend, attend une réponse posée ou te tend le micro.', style: V20Text.bs()),
+            const SizedBox(height: 4),
+            Text('Lis le ton de l\'attaque : une mauvaise réponse perd le round.', style: V20Text.bs(color: Tk.ink)),
+          ]),
+        ),
+        const SizedBox(height: 12),
+      ],
       Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +$prime cauris. Sinon : +12 fans.'),
       if (_done) ...[
         const SizedBox(height: 12),
