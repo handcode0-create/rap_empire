@@ -453,6 +453,41 @@ void main() {
     expect(((repo.current['olabel'] as J)['roster'] as List), isEmpty);
   });
 
+  testWidgets('espace artiste : demande de sortie, accepter, statistiques', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    for (var i = 0; i < 8 && ((s['olabel'] as J)['roster'] as List)[0]['req'] == null; i++) {
+      s = act21(s, 'endDay').s;
+    }
+    final repo = await pump21(tester, s, location: '/business/mon-label/artiste/ART-9');
+    expect(find.byKey(const ValueKey('artiste-hero')), findsOneWidget);
+    expect(find.byKey(const ValueKey('artiste-demande')), findsOneWidget);
+    expect(txt('STATISTIQUES'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('demande-accepter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('demande-accepter')));
+    await tester.pumpAndSettle();
+    final a = ((repo.current['olabel'] as J)['roster'] as List)[0] as J;
+    expect(a['req'], isNull);
+    expect((a['rel'] as List).length, 1);
+    expect(find.byKey(const ValueKey('artiste-boost')), findsOneWidget);
+    expect(txt('DISCOGRAPHIE · 1 SORTIE'), findsOneWidget);
+  });
+
+  testWidgets('ton label : le bouton ouvre l’espace de l’artiste', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    await pump21(tester, s, location: '/business/mon-label');
+    await tester.ensureVisible(find.byKey(const ValueKey('espace-ART-9')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('espace-ART-9')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('artiste-hero')), findsOneWidget);
+    expect(find.byKey(const ValueKey('artiste-commande')), findsOneWidget);
+  });
+
   testWidgets('ton label : embaucher un profil de l’équipe', (tester) async {
     var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
     s = act21(s, 'olabel').s;

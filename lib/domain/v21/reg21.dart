@@ -444,6 +444,24 @@ class Reg21 {
   /// Chaque semaine depuis la signature, écoutes et fans progressent de (talent − 45) ÷ 400, borné entre −2 % et +6 %.
   static const lbStream = 1.0, lbConcertEvery = 8, lbConcertK = 120, lbMerchK = 0.4, lbUpkeepDiv = 30;
   static const labelCut = 0.35;
+
+  /// Sorties des artistes signés (provisoire, D-08). Par format : budget de base, délai avant la demande suivante,
+  /// gain d'écoutes (part des écoutes 7 j, ajoutée par jour pendant `days` jours), fans gagnés (part des fans) ;
+  /// le budget est multiplié par le coefficient du palier. Cycle des demandes : single, single, EP, single, single, album.
+  static const relKinds = <String, J>{
+    'single': {'n': 'Single', 'cost': 8000, 'every': 10, 'boost': .30, 'days': 14, 'fans': .010},
+    'ep': {'n': 'EP', 'cost': 30000, 'every': 21, 'boost': .55, 'days': 24, 'fans': .025},
+    'album': {'n': 'Album', 'cost': 90000, 'every': 42, 'boost': .90, 'days': 40, 'fans': .050},
+  };
+  static const relCycle = <String>['single', 'single', 'ep', 'single', 'single', 'album'];
+  static const relPalierK = <String, double>{'Débutant': .6, 'Talent émergent': .8, 'Déclin et retour': .9, 'Confirmé': 1.2, 'Star nationale': 2.0};
+  /// Première demande [relFirst] jours après la signature ; une demande sans réponse expire après [relExpire] jours.
+  /// Négocier réduit le budget de [relNegoCut] ; humeur de départ [moodStart], accepter +[moodAccept], négocier −[moodNego], refuser −[moodDecline].
+  static const relFirst = 3, relExpire = 10, relNegoCut = .30, moodStart = 60, moodAccept = 6, moodNego = 2, moodDecline = 8, moodFail = 6;
+  static const relTitles = <String>[
+    'Minuit sur Lumbé', 'Cauris dans la poche', 'Nuit de Ndolo', 'Bakoma ne dort pas', 'Lagune rouge', 'Fumée d’ambre',
+    'Grand frère', 'Gbaka de nuit', 'Quartier haut', 'Cent pour cent Ndo', 'Toits de Mabaya', 'Sel et soleil',
+  ];
   /// Rupture d'un contrat de label (D-08, provisoire) : rachat de l'avance + 20 % (planche 18.1), relation avec le directeur −15, popularité −3.
   static const labelBreakRate = 1.2, labelBreakRel = 15, labelBreakPop = 3;
   static const managerTiers = <String, J>{

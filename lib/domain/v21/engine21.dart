@@ -46,6 +46,8 @@ num clamp21(num x, num a, num b) => math.max(a, math.min(b, x));
 J clone21(J s) => jsonDecode(jsonEncode(s)) as J;
 List<dynamic> _l(dynamic x) => x as List<dynamic>;
 J _m(dynamic x) => x as J;
+/// Liste stockée sous [k], créée si absente (anciennes parties sans historique d'artiste).
+List<dynamic> _lz(J a, String k) => (a[k] ??= <dynamic>[]) as List<dynamic>;
 num _n(dynamic x) => (x ?? 0) as num;
 bool _t(dynamic x) => x != null && x != 0 && x != false && x != '';
 
@@ -689,12 +691,59 @@ int labelAdvance21(J s, J tier) => jsRound((tier['adv'] as num) * labelMods21(s[
 Map<String, int> labelArtistDay21(J a, [dynamic staff]) {
   final cut = _n(a['cut']);
   final k = labelMods21(staff);
-  final s = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']!);
+  final s = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']! * (1 + _boostM(a)));
   final c = jsRound(_labelConcert21(a) / Reg21.lbConcertEvery * cut * k['c']!);
   final m = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut * k['m']!);
   final f = -jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv * k['f']!);
   return {'s': s, 'c': c, 'm': m, 'f': f, 'net': s + c + m + f};
 }
+
+/// Humeur de l'artiste signé (0 à 100) : sa confiance envers ton label.
+num labelMood21(J a) => _n(a['mood'] ?? Reg21.moodStart);
+
+/// Gain d'écoutes en cours grâce à une sortie récente (part des écoutes 7 j), 0 sans sortie active.
+num _boostM(J a) => a['boost'] is Map && _n(_m(a['boost'])['d']) > 0 ? _n(_m(a['boost'])['m']) : 0;
+
+/// Budget d'une sortie pour cet artiste : base du format × coefficient du palier, remise de la comptabilité ; −30 % si négocié.
+int labelRelCost21(J a, String kind, dynamic staff, [bool nego = false]) {
+  final base = (Reg21.relKinds[kind]!['cost'] as num) * (Reg21.relPalierK[a['palier']] ?? 1) * labelMods21(staff)['f']!;
+  return jsRound(base * (nego ? 1 - Reg21.relNegoCut : 1));
+}
+
+/// Qualité estimée de la sortie : talent × 0,7 + 25, bornée de 20 à 98 ; −6 si le budget a été négocié.
+int labelRelQuality21(J a, [bool nego = false]) => (_n(a['talent']) * 0.7 + 25 - (nego ? 6 : 0)).round().clamp(20, 98);
+
+/// Chances que l'artiste accepte un budget réduit (humeur et talent) : bornées de 15 % à 90 %.
+double labelNegoChance21(J a) => ((labelMood21(a) + _n(a['talent'])) / 160).clamp(0.15, 0.9).toDouble();
+
+/// Niveau de risque affiché pour la négociation (jamais de pourcentage isolé) : Faible, Moyen, Élevé.
+String labelNegoRisk21(J a) {
+  final c = labelNegoChance21(a);
+  return c >= .7 ? 'Faible' : (c >= .45 ? 'Moyen' : 'Élevé');
+}
+
+/// Format de la prochaine demande, selon le nombre de sorties déjà faites (cycle de [Reg21.relCycle]).
+String labelNextKind21(J a) => Reg21.relCycle[_lz(a, 'rel').length % Reg21.relCycle.length];
+
+String _relTitle(J n, J a, String kind) {
+  final h = (a['id'] as String).codeUnits.fold<int>(0, (t, c) => t + c);
+  final i = (h + _n(n['day']).toInt() + _lz(a, 'rel').length * 5) % Reg21.relTitles.length;
+  return kind == 'single' ? Reg21.relTitles[i] : '${Reg21.relTitles[i]} · ${Reg21.relKinds[kind]!['n']}';
+}
+
+/// Lance la sortie : paiement fait par l'appelant. Écoutes en hausse pendant `days` jours, fans gagnés tout de suite.
+void _startRelease(J n, J a, String kind, String titre, int cost, bool nego) {
+  final kd = Reg21.relKinds[kind]!;
+  final q = labelRelQuality21(a, nego);
+  final mood = labelMood21(a);
+  final mf = mood >= 75 ? 1.1 : (mood < 25 ? 0.8 : 1.0);
+  a['boost'] = <String, dynamic>{'m': (kd['boost'] as num) * (0.5 + q / 100) * mf, 'd': kd['days']};
+  final gain = jsRound(_n(a['fans']) * (kd['fans'] as num) * q / 70);
+  a['fans'] = _n(a['fans']) + gain;
+  _lz(a, 'rel').insert(0, <String, dynamic>{'kind': kind, 'titre': titre, 'day': n['day'], 'q': q, 'cost': cost, 'fans': gain, 'rev': 0});
+  a['nxt'] = _n(n['day']) + (kd['every'] as num);
+}
+
 
 num _labelConcert21(J a) => math.sqrt(_n(a['fans'])) * Reg21.lbConcertK * (0.6 + _n(a['pop']) / 100);
 
@@ -711,19 +760,33 @@ int ownLabelTick21(J n, List<String> ev) {
   for (var i = 0; i < roster.length; i++) {
     final a = roster[i] as J;
     final cut = _n(a['cut']);
-    final st = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']!);
+    final base = _n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']!;
+    final st = jsRound(base);
+    final bm = _boostM(a);
+    final bst = jsRound(base * bm);
     final mm = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut * k['m']!);
     final cc = (_n(n['day']).toInt() + i) % Reg21.lbConcertEvery == 0 ? jsRound(_labelConcert21(a) * cut * k['c']!) : 0;
     final up = jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv * k['f']!);
-    s += st; m += mm; c += cc; f += up;
+    s += st + bst; m += mm; c += cc; f += up;
     final t = _m(a['tot']);
-    t['s'] = _n(t['s']) + st; t['c'] = _n(t['c']) + cc; t['m'] = _n(t['m']) + mm; t['f'] = _n(t['f']) + up;
+    t['s'] = _n(t['s']) + st + bst;
+    if (bm > 0) {
+      final b = _m(a['boost']);
+      b['d'] = _n(b['d']) - 1;
+      if (_n(b['d']) <= 0) a.remove('boost');
+      final rl = _lz(a, 'rel');
+      if (rl.isNotEmpty) _m(rl.first)['rev'] = _n(_m(rl.first)['rev']) + bst;
+    } t['c'] = _n(t['c']) + cc; t['m'] = _n(t['m']) + mm; t['f'] = _n(t['f']) + up;
     final age = _n(n['day']) - _n(a['since']);
     if (age > 0 && age % 7 == 0) {
       final g = ((_n(a['talent']) - 45) / 400).clamp(-0.02, 0.06);
       a['eco'] = jsRound(_n(a['eco']) * (1 + g));
       a['fans'] = jsRound(_n(a['fans']) * (1 + g));
+      final ser = _lz(a, 'ser');
+      ser.add(<String, dynamic>{'d': n['day'], 'e': a['eco'], 'f': a['fans']});
+      if (ser.length > 12) ser.removeAt(0);
     }
+    _labelRequest21(n, a, ev);
   }
   final tot = _m(ol['tot']);
   tot['s'] = _n(tot['s']) + s; tot['c'] = _n(tot['c']) + c; tot['m'] = _n(tot['m']) + m; tot['f'] = _n(tot['f']) + f;
@@ -733,6 +796,29 @@ int ownLabelTick21(J n, List<String> ev) {
   if (f > 0) ev.add('Ton label · frais : ${sg21(-f)}');
   if (wage > 0) ev.add('Ton label · équipe : ${sg21(-wage)}');
   return s + c + m - f - wage;
+}
+
+/// Demande de sortie d'un artiste signé : créée quand le délai est passé et qu'aucune sortie n'est en cours ;
+/// sans réponse après [Reg21.relExpire] jours, l'artiste se lasse (humeur −[Reg21.moodFail]).
+void _labelRequest21(J n, J a, List<String> ev) {
+  final day = _n(n['day']);
+  final req = a['req'];
+  if (req is Map) {
+    if (day - _n(req['day']) >= Reg21.relExpire) {
+      a['req'] = null;
+      a['mood'] = (labelMood21(a) - Reg21.moodFail).clamp(0, 100);
+      a['nxt'] = day + 7;
+      a['note'] = 'Sans réponse de ta part, ${a['nom']} a remis sa sortie à plus tard.';
+      ev.add('${a['nom']} se lasse : demande de sortie sans réponse');
+    }
+    return;
+  }
+  if (_boostM(a) > 0) return;
+  if (day < _n(a['nxt'] ?? (_n(a['since']) + Reg21.relFirst))) return;
+  final kind = labelNextKind21(a);
+  a['req'] = <String, dynamic>{'kind': kind, 'titre': _relTitle(n, a, kind), 'day': n['day']};
+  _log(n, '${a['nom']} te demande une sortie : ${Reg21.relKinds[kind]!['n']}', 'business');
+  ev.add('${a['nom']} demande une sortie : ${Reg21.relKinds[kind]!['n']}');
 }
 
 int labelBreakCost21(J n) {
@@ -2395,8 +2481,75 @@ final Map<String, Action> actions21 = {
       'id': a['id'], 'nom': a['nom'], 'palier': a['palier'], 'genre': a['genre'], 'ville': a['ville'],
       'fans': _n(a['fans']), 'eco': _n(a['ecoutes']), 'pop': _n(a['pop']), 'talent': _n(a['talent']),
       'cut': tier['cut'], 'adv': tier['adv'], 'since': n['day'], 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0},
+      'mood': Reg21.moodStart, 'nxt': _n(n['day']) + Reg21.relFirst, 'req': null, 'rel': <dynamic>[],
+      'ser': <dynamic>[<String, dynamic>{'d': n['day'], 'e': _n(a['ecoutes']), 'f': _n(a['fans'])}],
     });
     _log(n, '${a['nom']} signe chez ton label', 'business');
+    return _ok(n);
+  },
+  'lreply': (s, a) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    if (a is! Map || a['id'] is! String || !['accept', 'negotiate', 'decline'].contains(a['ch'])) return _no(s, 'inconnu');
+    final roster = _l(_m(s['olabel'])['roster']);
+    final i = roster.indexWhere((x) => (x as Map)['id'] == a['id']);
+    if (i < 0) return _no(s, 'inconnu');
+    if ((roster[i] as Map)['req'] is! Map) return _no(s, 'pasdedemande');
+    final n = clone21(s);
+    final ol = _m(n['olabel']);
+    final art = _m(_l(ol['roster'])[i]);
+    final req = _m(art['req']);
+    final kind = req['kind'] as String;
+    final ch = a['ch'] as String;
+    final kd = Reg21.relKinds[kind]!;
+    final nom = art['nom'];
+    final mood = labelMood21(art);
+    if (ch == 'decline') {
+      art['req'] = null;
+      art['mood'] = (mood - Reg21.moodDecline).clamp(0, 100);
+      art['nxt'] = _n(n['day']) + 14;
+      art['note'] = 'Tu as refusé ${req['titre']} : $nom est déçu et reviendra dans 14 jours.';
+      _log(n, '$nom : sortie refusée', 'business');
+      return _ok(n);
+    }
+    final nego = ch == 'negotiate';
+    if (nego && rng21(n, 301 + _n(i)) >= labelNegoChance21(art)) {
+      art['req'] = null;
+      art['mood'] = (mood - Reg21.moodFail).clamp(0, 100);
+      art['nxt'] = _n(n['day']) + 7;
+      art['note'] = '$nom refuse de baisser le budget et retire sa demande pour 7 jours.';
+      _log(n, '$nom refuse de négocier', 'business');
+      return _ok(n);
+    }
+    final cost = labelRelCost21(art, kind, ol['staff'], nego);
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
+    _pay(n, -cost);
+    _startRelease(n, art, kind, req['titre'] as String, cost, nego);
+    art['req'] = null;
+    art['mood'] = (mood + (nego ? -Reg21.moodNego : Reg21.moodAccept)).clamp(0, 100);
+    art['note'] = '${req['titre']} (${kd['n']}) est lancé${nego ? ' avec un budget réduit' : ''}.';
+    _log(n, '$nom sort « ${req['titre']} »', 'business');
+    return _ok(n);
+  },
+  'lrelease': (s, a) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    if (a is! Map || a['id'] is! String || !Reg21.relKinds.containsKey(a['kind'])) return _no(s, 'inconnu');
+    final roster = _l(_m(s['olabel'])['roster']);
+    final i = roster.indexWhere((x) => (x as Map)['id'] == a['id']);
+    if (i < 0) return _no(s, 'inconnu');
+    final cur = _m(roster[i]);
+    if (cur['req'] is Map || _boostM(cur) > 0) return _no(s, 'sortieencours');
+    final n = clone21(s);
+    final ol = _m(n['olabel']);
+    final art = _m(_l(ol['roster'])[i]);
+    final kind = a['kind'] as String;
+    final cost = labelRelCost21(art, kind, ol['staff']);
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
+    _pay(n, -cost);
+    final titre = _relTitle(n, art, kind);
+    _startRelease(n, art, kind, titre, cost, false);
+    art['mood'] = (labelMood21(art) + 3).clamp(0, 100);
+    art['note'] = '$titre (${Reg21.relKinds[kind]!['n']}) est sorti à ta demande.';
+    _log(n, '${art['nom']} sort « $titre »', 'business');
     return _ok(n);
   },
   'lrelart': (s, id) {

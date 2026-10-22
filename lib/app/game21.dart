@@ -17,6 +17,8 @@ const err21 = {
   'pasdelabel': 'Fonde d’abord ton label',
   'ecurie': 'Plus de place dans ton écurie : monte de rang ou libère un artiste',
   'contratactif': 'Romps d’abord ton contrat de label',
+  'pasdedemande': 'Aucune demande de sortie en attente',
+  'sortieencours': 'Une sortie est déjà en cours ou en attente pour cet artiste',
   'merchencours': 'Une production de merch est déjà en vente',
   'pasdetexte': "Écris d'abord le texte",
   'pasenregistre': "Enregistre d'abord le titre",

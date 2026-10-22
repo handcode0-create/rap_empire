@@ -218,4 +218,159 @@ void main() {
       expect(act21(s, 'lrelart', 'A').err, 'inconnu');
     });
   });
+
+  group('sorties des artistes signés', () {
+    J art(String id) =>
+        {'id': id, 'nom': 'Artiste $id', 'palier': 'Talent émergent', 'genre': 'Rap', 'ville': 'Ndolo', 'statut': 'indépendant', 'fans': 4000, 'ecoutes': 28000, 'pop': 30, 'talent': 55};
+
+    J ros(J s) => ((s['olabel'] as J)['roster'] as List)[0] as J;
+
+    /// Label fondé avec un artiste signé, puis avance jusqu'à sa première demande de sortie.
+    J withRequest() {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['rank'] = 4;
+      s['cash'] = 2000000;
+      s['signed'] = 0;
+      s = must(s, 'olabel');
+      s = must(s, 'lsignart', art('A'));
+      for (var i = 0; i < 8 && ros(s)['req'] == null; i++) {
+        s = must(s, 'endDay');
+      }
+      return s;
+    }
+
+    test('signature : humeur, historique et première courbe', () {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['rank'] = 4;
+      s['cash'] = 2000000;
+      s['signed'] = 0;
+      s = must(must(s, 'olabel'), 'lsignart', art('A'));
+      final a = ros(s);
+      expect(a['mood'], Reg21.moodStart);
+      expect(a['req'], isNull);
+      expect(a['rel'], isEmpty);
+      expect((a['ser'] as List).length, 1);
+    });
+
+    test('l’artiste demande un single, puis le cycle single, single, EP', () {
+      final s = withRequest();
+      final req = ros(s)['req'] as J;
+      expect(req['kind'], 'single');
+      expect(req['titre'], isNotEmpty);
+      final a = ros(s);
+      (a['rel'] as List).addAll([{'kind': 'single'}, {'kind': 'single'}]);
+      expect(labelNextKind21(a), 'ep');
+      (a['rel'] as List).addAll([{'kind': 'ep'}, {'kind': 'single'}, {'kind': 'single'}]);
+      expect(labelNextKind21(a), 'album');
+    });
+
+    test('accepter : budget payé, sortie lancée, écoutes en hausse, humeur +6', () {
+      var s = withRequest();
+      final cash = s['cash'] as num;
+      final fans = ros(s)['fans'] as num;
+      final cost = labelRelCost21(ros(s), 'single', (s['olabel'] as J)['staff']);
+      expect(cost, jsRound(8000 * .8));
+      final base = labelArtistDay21(ros(s))['s']!;
+      s = must(s, 'lreply', {'id': 'A', 'ch': 'accept'});
+      final a = ros(s);
+      expect(s['cash'], cash - cost);
+      expect(a['req'], isNull);
+      expect((a['rel'] as List).length, 1);
+      expect(((a['rel'] as List)[0] as J)['q'], labelRelQuality21(a));
+      expect(a['mood'], Reg21.moodStart + Reg21.moodAccept);
+      expect(a['boost'], isNotNull);
+      expect(a['fans'] as num, greaterThan(fans));
+      expect(labelArtistDay21(a)['s']!, greaterThan(base));
+      final paid = (a['tot'] as J)['s'] as num;
+      s = must(s, 'endDay');
+      expect(((ros(s)['tot'] as J)['s'] as num), greaterThan(paid));
+      expect((((ros(s)['rel'] as List)[0]) as J)['rev'] as num, greaterThan(0));
+    });
+
+    test('la sortie finit après sa durée et libère la demande suivante', () {
+      var s = withRequest();
+      s = must(s, 'lreply', {'id': 'A', 'ch': 'accept'});
+      final days = Reg21.relKinds['single']!['days'] as int;
+      for (var i = 0; i < days; i++) {
+        expect(ros(s)['boost'], isNotNull);
+        s = must(s, 'endDay');
+      }
+      expect(ros(s)['boost'], isNull);
+    });
+
+    test('refuser : humeur −8, nouvelle demande dans 14 jours, rien de payé', () {
+      var s = withRequest();
+      final cash = s['cash'];
+      s = must(s, 'lreply', {'id': 'A', 'ch': 'decline'});
+      final a = ros(s);
+      expect(s['cash'], cash);
+      expect(a['mood'], Reg21.moodStart - Reg21.moodDecline);
+      expect(a['req'], isNull);
+      expect(a['nxt'], (s['day'] as num) + 14);
+      expect(a['rel'], isEmpty);
+      expect(act21(s, 'lreply', {'id': 'A', 'ch': 'accept'}).err, 'pasdedemande');
+    });
+
+    test('négocier : budget −30 % si l’artiste accepte, sinon demande retirée', () {
+      var s = withRequest();
+      final cash = s['cash'] as num;
+      final costN = labelRelCost21(ros(s), 'single', (s['olabel'] as J)['staff'], true);
+      s = must(s, 'lreply', {'id': 'A', 'ch': 'negotiate'});
+      final a = ros(s);
+      expect(a['req'], isNull);
+      if ((a['rel'] as List).isNotEmpty) {
+        expect(s['cash'], cash - costN);
+        expect(a['mood'], Reg21.moodStart - Reg21.moodNego);
+      } else {
+        expect(s['cash'], cash);
+        expect(a['mood'], Reg21.moodStart - Reg21.moodFail);
+      }
+      expect(['Faible', 'Moyen', 'Élevé'], contains(labelNegoRisk21(a)));
+    });
+
+    test('cash insuffisant bloque l’acceptation', () {
+      final s = withRequest();
+      s['cash'] = 100;
+      expect(act21(s, 'lreply', {'id': 'A', 'ch': 'accept'}).err, 'cash');
+    });
+
+    test('sans réponse, la demande expire : humeur −6', () {
+      var s = withRequest();
+      for (var i = 0; i < Reg21.relExpire + 1 && ros(s)['req'] != null; i++) {
+        s = must(s, 'endDay');
+      }
+      expect(ros(s)['req'], isNull);
+      expect(ros(s)['mood'], Reg21.moodStart - Reg21.moodFail);
+      expect(ros(s)['note'], contains('remis sa sortie'));
+    });
+
+    test('commander une sortie soi-même : coût du palier, une seule à la fois', () {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['rank'] = 4;
+      s['cash'] = 2000000;
+      s['signed'] = 0;
+      s = must(must(s, 'olabel'), 'lsignart', art('A'));
+      final cash = s['cash'] as num;
+      expect(act21(s, 'lrelease', {'id': 'A', 'kind': 'inconnu'}).err, 'inconnu');
+      s = must(s, 'lrelease', {'id': 'A', 'kind': 'album'});
+      expect(s['cash'], cash - labelRelCost21(ros(s), 'album', null));
+      expect(labelRelCost21(ros(s), 'album', null), jsRound(90000 * .8));
+      expect(((ros(s)['rel'] as List)[0] as J)['kind'], 'album');
+      expect(act21(s, 'lrelease', {'id': 'A', 'kind': 'single'}).err, 'sortieencours');
+    });
+
+    test('un album rapporte plus qu’un single (gain d’écoutes et fans)', () {
+      J run(String kind) {
+        var s = act21(init21(), 'preset', 'carriere').s;
+        s['rank'] = 4;
+        s['cash'] = 2000000;
+        s['signed'] = 0;
+        s = must(must(s, 'olabel'), 'lsignart', art('A'));
+        return must(s, 'lrelease', {'id': 'A', 'kind': kind});
+      }
+      final single = ros(run('single')), album = ros(run('album'));
+      expect(((album['boost'] as J)['m'] as num), greaterThan((single['boost'] as J)['m'] as num));
+      expect(album['fans'] as num, greaterThan(single['fans'] as num));
+    });
+  });
 }

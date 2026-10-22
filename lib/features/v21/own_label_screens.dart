@@ -88,6 +88,10 @@ class OwnLabelScreen extends ConsumerWidget {
           ]),
         ),
       ],
+      if (roster.any((a) => a['req'] is Map)) ...[
+        const SizedBox(height: 12),
+        GameHint(icon: 'bell', text: '${roster.where((a) => a['req'] is Map).length} demande(s) de sortie à trancher : ouvre l’espace de l’artiste pour répondre.'),
+      ],
       const SizedBox(height: 16),
       Text('ÉCURIE', style: V20Text.lab()),
       const SizedBox(height: 8),
@@ -160,6 +164,18 @@ class _ArtistCard extends ConsumerWidget {
         KeyVal('Part de ton label', '${(_n(a['cut']) * 100).round()} %'),
         KeyVal('Net par jour (estimé)', _signed(day['net']!), color: day['net']! >= 0 ? Tk.ok : Tk.acc4),
         KeyVal('Encaissé depuis la signature', _signed(earned)),
+        if (a['req'] is Map) ...[
+          const SizedBox(height: 4),
+          Conseq21(ConsequenceKind.uncertain, 'Demande de sortie en attente : ${Reg21.relKinds[_m(a['req'])['kind']]!['n']} « ${_m(a['req'])['titre']} »'),
+        ],
+        const SizedBox(height: 8),
+        PrimaryButton(
+          key: ValueKey('espace-${a['id']}'),
+          label: a['req'] is Map ? 'Répondre à sa demande' : 'Ouvrir son espace',
+          compact: true,
+          style: a['req'] is Map ? GameButtonStyle.primary : GameButtonStyle.secondary,
+          onPressed: () => context.go('/business/mon-label/artiste/${a['id']}'),
+        ),
         const SizedBox(height: 8),
         PrimaryButton(
           label: 'Libérer l’artiste',
