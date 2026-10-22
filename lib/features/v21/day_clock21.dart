@@ -10,7 +10,7 @@ bool clockPaused21(String path) =>
     const ['/demarrer', '/nouvelle-partie', '/univers', '/artiste', '/demo', '/fin-journee', '/bilan', '/dialogue', '/evenement', '/famille/evenement', 'cabine', 'battle']
         .any(path.contains);
 
-/// Horloge en temps réel (une journée ≈ 45 s) : l'heure avance toute seule ; à minuit, la scène de fin de journée s'ouvre.
+/// Horloge en temps réel (une journée ≈ 1 min 30) : l'heure avance toute seule ; à minuit, la scène de fin de journée s'ouvre.
 class DayClock21 extends ConsumerStatefulWidget {
   final GoRouter router;
   final Widget child;
