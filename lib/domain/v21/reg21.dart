@@ -289,16 +289,16 @@ class Reg21 {
     {
       'n': 'Star de Bakoma',
       'xp': 6000,
-      'fans': 10000,
+      'fans': 500000,
       'bon': 1,
-      'cl': '10 000 fans et 1 titre « Bon »'
+      'cl': '500 000 fans et 1 titre « Bon »'
     },
     {
       'n': 'Légende',
       'xp': 12000,
-      'fans': 100000,
+      'fans': 2500000,
       'hit': 1,
-      'cl': '100 000 fans et 1 hit'
+      'cl': '2 500 000 fans et 1 hit'
     },
   ];
 
