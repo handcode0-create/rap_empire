@@ -728,7 +728,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
+  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'ccancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -1889,6 +1889,77 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // Coiffures et tatouages de la garde-robe. L'achat équipe tout de suite ; confirmation dès Wardrobe21.confirmAt.
+  'cask': (s, id) {
+    if (id is! String) return _no(s, 'inconnu');
+    final e = cosmeticCheck21(s, id);
+    if (e != null) return _no(s, e);
+    final n = clone21(s);
+    _m(n['wd'])['cask'] = id;
+    return _ok(n);
+  },
+
+  'cbuy': (s, id) {
+    if (id is! String) return _no(s, 'inconnu');
+    final e = cosmeticCheck21(s, id);
+    if (e != null) return _no(s, e);
+    final o = cosmetic21(id)!;
+    final price = o['price'] as num;
+    if (price >= Wardrobe21.confirmAt && _m(s['wd'])['cask'] != id) return _no(s, 'confirm');
+    final n = clone21(s);
+    final wd = _m(n['wd']);
+    _pay(n, -price);
+    wd['cask'] = null;
+    if (isHair21(id)) {
+      wd['hairs'] = [...hairsOwned21(n), id];
+      wd['hair'] = id;
+    } else {
+      wd['tats'] = [...tattoosOwned21(n), id];
+      wd['tat'] = {...tattoosOf21(n), o['zone'] as String: id};
+    }
+    _log(n, '${isHair21(id) ? 'Coiffure' : 'Tatouage'} : ${o['n']}${price != 0 ? ' (−${fmt21(price)})' : ''}', 'eco');
+    return _ok(n);
+  },
+
+  'cconfirm': (s, a) {
+    final ask = _m(s['wd'])['cask'];
+    return ask == null ? _no(s, 'rien') : actions21['cbuy']!(s, ask);
+  },
+
+  'ccancel': (s, a) {
+    final n = clone21(s);
+    _m(n['wd'])['cask'] = null;
+    return _ok(n);
+  },
+
+  'ceq': (s, id) {
+    final o = id is String ? cosmetic21(id) : null;
+    if (o == null) return _no(s, 'inconnu');
+    if (!cosmeticOwned21(s, id as String)) return _no(s, 'pasachete');
+    if (cosmeticEquipped21(s, id)) return _ok(s);
+    final n = clone21(s);
+    final wd = _m(n['wd']);
+    if (isHair21(id)) {
+      wd['hairs'] = hairsOwned21(n);
+      wd['hair'] = id;
+    } else {
+      wd['tat'] = {...tattoosOf21(n), o['zone'] as String: id};
+    }
+    _log(n, '${isHair21(id) ? 'Coiffure' : 'Tatouage'} équipé : ${o['n']}', 'jeu');
+    return _ok(n);
+  },
+
+  /// Retire le tatouage d'une zone (sans remboursement ; il reste possédé).
+  'tclear': (s, zone) {
+    if (zone is! String || !Wardrobe21.tattooZones.containsKey(zone)) return _no(s, 'inconnu');
+    final cur = tattoosOf21(s);
+    if (!cur.containsKey(zone)) return _ok(s);
+    final n = clone21(s);
+    _m(n['wd'])['tat'] = {...cur}..remove(zone);
+    _log(n, 'Tatouage masqué : ${Wardrobe21.tattooZones[zone]}', 'jeu');
+    return _ok(n);
+  },
+
   'atelier': (s, a) {
     final t = Reg21.atelier;
     if (_n(s['cash']) < (t['cost'] as num)) return _no(s, 'cash');
@@ -2368,6 +2439,12 @@ final Map<String, Action> actions21 = {
     final p = '$arg'.split('=');
     final n = clone21(s);
     _m(n['ap'])[p[0]] = p[1];
+    if (p[0] == 'hair' && hair21(p[1]) != null) {
+      // Le créateur de personnage offre sa coiffure : elle devient la coiffure équipée et possédée.
+      final wd = _m(n['wd']);
+      wd['hair'] = p[1];
+      wd['hairs'] = {...hairsOwned21(n), p[1]}.toList();
+    }
     return _ok(n);
   },
 

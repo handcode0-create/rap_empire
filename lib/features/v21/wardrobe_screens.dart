@@ -30,7 +30,10 @@ class OutfitImage extends StatelessWidget {
   final double width, height;
   final String label, mood;
   final String? outfitId;
-  const OutfitImage(this.s, {super.key, required this.path, required this.width, required this.height, required this.label, this.mood = 'smile', this.outfitId});
+  /// Aperçu d'une autre coiffure ou d'autres tatouages que ceux du joueur (null = ceux du joueur).
+  final String? hair;
+  final Map<String, String>? tats;
+  const OutfitImage(this.s, {super.key, required this.path, required this.width, required this.height, required this.label, this.mood = 'smile', this.outfitId, this.hair, this.tats});
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +46,30 @@ class OutfitImage extends StatelessWidget {
       }[outfitId] ?? (ap['top'] as String? ?? 'hoodie');
       return CharacterView(who: 'me_${ap['hair'] ?? 'hitwist'}_${top}_${ap['skin'] ?? '3'}',
         mood: mood == 'smile' ? 'smile' : 'cool', crop: 'torso', width: width * .94, height: height * .94);
+    }
+    // Illustration en calques : corps de la tenue, coiffure, tatouages, accessoires de tête. L'image complète reste le secours.
+    final layers = outfitId == null || path == null || !path!.toLowerCase().endsWith('.svg')
+        ? null
+        : layerPaths21(s, outfitId: outfitId, variant: path!.contains('/mature/') ? 'mature' : 'young', hair: hair, tats: tats);
+    if (layers != null) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: Semantics(
+          label: label,
+          image: true,
+          child: ExcludeSemantics(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(width: 300, height: 640, child: Stack(fit: StackFit.expand, children: [
+                for (var i = 0; i < layers.length; i++)
+                  SvgPicture.asset(layers[i], fit: BoxFit.contain, alignment: Alignment.bottomCenter, placeholderBuilder: i == 0 ? (_) => Center(child: fallback()) : null),
+              ])),
+            ),
+          ),
+        ),
+      );
     }
     return SizedBox(
       width: width,
@@ -153,6 +180,8 @@ class GardeRobeScreen extends ConsumerStatefulWidget {
 class _GardeRobeState extends ConsumerState<GardeRobeScreen> {
   /// Filtre de catégorie (null = toutes) ; « Possédées » montre l'inventaire.
   String? _cat;
+  /// Onglet : 0 tenues, 1 coiffures, 2 tatouages.
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -193,6 +222,11 @@ class _GardeRobeState extends ConsumerState<GardeRobeScreen> {
         const GameHint(icon: 'info', text: 'Illustration manquante pour cette variante : avatar provisoire affiché.', warn: true),
       ],
       const SizedBox(height: 12),
+      _WardrobeTabs(_tab, (i) => setState(() => _tab = i)),
+      const SizedBox(height: 12),
+      if (_tab == 1) _CosmeticsTab(s, tattoo: false, key: const ValueKey('coiffures'))
+      else if (_tab == 2) _CosmeticsTab(s, tattoo: true, key: const ValueKey('tatouages'))
+      else ...[
       Text('TENUES · ${Wardrobe21.outfits.length} PIÈCES', style: V20Text.lab()),
       const SizedBox(height: 8),
       SizedBox(
@@ -222,7 +256,281 @@ class _GardeRobeState extends ConsumerState<GardeRobeScreen> {
           for (final o in list) SizedBox(width: w, child: _OutfitCard(s, o)),
         ]);
       }),
+      ],
     ]);
+  }
+}
+
+class _WardrobeTabs extends StatelessWidget {
+  final int tab;
+  final ValueChanged<int> onTab;
+  const _WardrobeTabs(this.tab, this.onTab);
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        for (final (i, l) in const ['Tenues', 'Coiffures', 'Tatouages'].indexed)
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: i == 2 ? 0 : 8),
+              child: Semantics(
+                button: true,
+                selected: tab == i,
+                label: l,
+                child: GestureDetector(
+                  key: ValueKey('onglet-$l'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onTab(i),
+                  child: Container(
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: tab == i ? Tk.tint : Tk.s1,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: tab == i ? Tk.acc : Tk.line, width: 2),
+                    ),
+                    child: Text(l.toUpperCase(), style: V20Text.poppins(size: 12, line: 16, weight: FontWeight.w800, color: tab == i ? Tk.ink : Tk.ink2)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ]);
+}
+
+/// Zone de l'image 300 × 640 à montrer pour chaque aperçu (x, y, largeur, hauteur).
+const _cropHead = Rect.fromLTWH(60, -14, 180, 214);
+const _cropFace = Rect.fromLTWH(78, 14, 144, 170);
+const _cropHands = Rect.fromLTWH(18, 318, 264, 128);
+
+/// Aperçu recadré du rappeur, avec la coiffure et les tatouages demandés (ceux du joueur par défaut).
+class LookCrop21 extends StatelessWidget {
+  final J s;
+  final Rect crop;
+  final double width, height;
+  final String? hair;
+  final Map<String, String>? tats;
+  final String label;
+  const LookCrop21(this.s, {super.key, required this.crop, required this.width, required this.height, this.hair, this.tats, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final look = resolveLook21(s);
+    return SizedBox(
+      width: width,
+      height: height,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: crop.width,
+          height: crop.height,
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.topLeft,
+              minWidth: 0,
+              minHeight: 0,
+              maxWidth: 300,
+              maxHeight: 640,
+              child: Transform.translate(
+                offset: Offset(-crop.left, -crop.top),
+                child: OutfitImage(s,
+                    path: look.path, outfitId: look.outfit, width: 300, height: 640, label: label, hair: hair, tats: tats),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _cosCond(Map<String, dynamic> o) => (o['rank'] as num) > 1 ? 'Rang N${o['rank']} requis' : 'Aucune condition';
+
+/// Onglets Coiffures et Tatouages : aperçu sur le rappeur avant achat, achat (confirmation dès 15 000 cauris), équipement.
+class _CosmeticsTab extends ConsumerStatefulWidget {
+  final J s;
+  final bool tattoo;
+  const _CosmeticsTab(this.s, {super.key, required this.tattoo});
+  @override
+  ConsumerState<_CosmeticsTab> createState() => _CosmeticsTabState();
+}
+
+class _CosmeticsTabState extends ConsumerState<_CosmeticsTab> {
+  String? _sel;
+  /// Zone de tatouage filtrée (null = toutes).
+  String? _zone;
+
+  List<Map<String, dynamic>> get _items => widget.tattoo ? Wardrobe21.tattoos : Wardrobe21.hairs;
+
+  Rect _cropOf(Map<String, dynamic> o) => !widget.tattoo ? _cropHead : (o['zone'] == 'mains' ? _cropHands : _cropFace);
+
+  /// Apparence montrée pour [o] : la coiffure choisie, ou le tatouage ajouté à ceux du joueur.
+  (String?, Map<String, String>?) _look(Map<String, dynamic> o) =>
+      widget.tattoo ? (null, {...tattoosOf21(widget.s), o['zone'] as String: o['id'] as String}) : (o['id'] as String, null);
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.s;
+    final id = _sel ?? (widget.tattoo ? Wardrobe21.tattoos.first['id'] : hairOf21(s)) as String;
+    final o = cosmetic21(id)!;
+    final own = cosmeticOwned21(s, id), eq = cosmeticEquipped21(s, id);
+    final locked = !own && rankOf(s) < (o['rank'] as num);
+    final poor = !own && !locked && _n(s['cash']) < (o['price'] as num);
+    final price = (o['price'] as num) == 0 ? 'Offerte' : '${fmt21(o['price'] as num)} cauris';
+    final (h, t) = _look(o);
+    final list = _items.where((e) => !widget.tattoo || _zone == null || e['zone'] == _zone).toList();
+    final countOwned = widget.tattoo ? tattoosOwned21(s).length : hairsOwned21(s).length;
+    final kind = widget.tattoo ? 'tatouage' : 'coiffure';
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      GameCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                color: const Color.fromRGBO(255, 255, 255, .05),
+                child: LookCrop21(s,
+                    key: const ValueKey('apercu-look'),
+                    crop: _cropOf(o),
+                    width: 300,
+                    height: widget.tattoo && o['zone'] == 'mains' ? 150 : 250,
+                    hair: h,
+                    tats: t,
+                    label: 'Aperçu : ${o['n']}'),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(o['n'] as String, style: V20Text.dm(size: 22)),
+          const SizedBox(height: 4),
+          Text(o['d'] as String, style: V20Text.bs(color: Tk.ink)),
+          const SizedBox(height: 8),
+          if (widget.tattoo) KeyVal('Zone', Wardrobe21.tattooZones[o['zone']]!),
+          KeyVal('Prix', price),
+          KeyVal('Condition', _cosCond(o)),
+          if (!own) KeyVal('Cash après achat', '${fmt21(_n(s['cash']) - (o['price'] as num))} cauris'),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      if (eq && !widget.tattoo)
+        const GameTag('Coiffure équipée', style: GameTagStyle.accent)
+      else if (eq)
+        PrimaryButton(
+            label: 'Retirer ce tatouage',
+            style: GameButtonStyle.ghost,
+            onPressed: () => doAct(context, ref, 'tclear', o['zone'], null, 'Tatouage masqué'))
+      else if (own)
+        PrimaryButton(label: 'Équiper', onPressed: () => doAct(context, ref, 'ceq', id, null, '${kind[0].toUpperCase()}${kind.substring(1)} équipé${widget.tattoo ? '' : 'e'} : ${o['n']}'))
+      else if (locked)
+        GameHint(icon: 'lock', text: '${_cosCond(o)} · tu es N${rankOf(s)}.', warn: true)
+      else ...[
+        PrimaryButton(label: 'Acheter · $price', onPressed: poor ? null : () => _buy(context, s, o)),
+        if (poor) ...[
+          const SizedBox(height: 8),
+          const GameHint(icon: 'info', text: 'Cash insuffisant', warn: true),
+        ],
+      ],
+      const SizedBox(height: 16),
+      Text(widget.tattoo ? 'TATOUAGES · $countOwned / ${Wardrobe21.tattoos.length}' : 'COIFFURES · $countOwned / ${Wardrobe21.hairs.length}', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      if (widget.tattoo) ...[
+        SizedBox(
+          height: 48,
+          child: ListView(scrollDirection: Axis.horizontal, children: [
+            for (final z in <String?>[null, ...Wardrobe21.tattooZones.keys])
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(z == null ? 'Toutes' : Wardrobe21.tattooZones[z]!, style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: _zone == z ? Tk.bg : Tk.ink)),
+                  selected: _zone == z,
+                  selectedColor: Tk.gold,
+                  backgroundColor: Tk.s1,
+                  side: BorderSide(color: _zone == z ? Tk.gold : Tk.line),
+                  showCheckmark: false,
+                  onSelected: (_) => setState(() => _zone = z),
+                ),
+              ),
+          ]),
+        ),
+        const SizedBox(height: 8),
+      ],
+      LayoutBuilder(builder: (context, c) {
+        final w = (c.maxWidth - 8) / 2;
+        return Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final e in list)
+            SizedBox(width: w, child: _CosmeticCard(s, e, selected: e['id'] == id, preview: _look(e), crop: _cropOf(e), onTap: () => setState(() => _sel = e['id'] as String))),
+        ]);
+      }),
+    ]);
+  }
+
+  /// En dessous de 15 000 cauris l'achat est direct ; au-delà, feuille de confirmation comme pour les tenues.
+  Future<void> _buy(BuildContext context, J s, Map<String, dynamic> o) async {
+    final id = o['id'] as String;
+    final what = widget.tattoo ? 'Tatouage' : 'Coiffure';
+    final ok = '$what acheté${widget.tattoo ? '' : 'e'} et équipé${widget.tattoo ? '' : 'e'} : ${o['n']}';
+    if ((o['price'] as num) < Wardrobe21.confirmAt) {
+      await doAct(context, ref, 'cbuy', id, null, ok);
+      return;
+    }
+    final notifier = ref.read(game21Provider.notifier);
+    final e = await notifier.act('cask', id);
+    if (!context.mounted) return;
+    if (e != null) return toastErr(context, e);
+    final yes = await confirmSheet(context,
+        title: o['n'] as String,
+        body: 'Prix : ${fmt21(o['price'] as num)} cauris. Cash après achat : ${fmt21(_n(s['cash']) - (o['price'] as num))} cauris.',
+        action: 'Confirmer l\'achat');
+    if (!context.mounted) return;
+    if (!yes) {
+      await notifier.act('ccancel');
+      return;
+    }
+    await doAct(context, ref, 'cconfirm', null, null, ok);
+  }
+}
+
+class _CosmeticCard extends StatelessWidget {
+  final J s;
+  final Map<String, dynamic> o;
+  final bool selected;
+  final (String?, Map<String, String>?) preview;
+  final Rect crop;
+  final VoidCallback onTap;
+  const _CosmeticCard(this.s, this.o, {required this.selected, required this.preview, required this.crop, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final id = o['id'] as String;
+    final own = cosmeticOwned21(s, id), eq = cosmeticEquipped21(s, id);
+    final locked = !own && rankOf(s) < (o['rank'] as num);
+    final (tag, style) = eq
+        ? ('Équipé', GameTagStyle.accent)
+        : own
+            ? ('Possédé', GameTagStyle.ok)
+            : locked
+                ? ('Rang N${o['rank']}', GameTagStyle.outline)
+                : ((o['price'] as num) == 0 ? 'Offerte' : '${fmt21(o['price'] as num)} cauris', GameTagStyle.normal);
+    return GameCard(
+      key: ValueKey('cos-$id'),
+      padding: const EdgeInsets.all(8),
+      selected: selected,
+      onTap: onTap,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Opacity(
+            opacity: locked ? .5 : 1,
+            child: LookCrop21(s, crop: crop, width: double.infinity, height: 110, hair: preview.$1, tats: preview.$2, label: o['n'] as String),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(o['n'] as String, style: V20Text.nm()),
+        const SizedBox(height: 4),
+        GameTag(tag, style: style),
+      ]),
+    );
   }
 }
 

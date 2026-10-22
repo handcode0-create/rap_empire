@@ -81,10 +81,53 @@ class Wardrobe21 {
   static const categories = ['Street', 'Sport', 'Studio', 'Scène', 'Chic', 'Luxe', 'Bijoux'];
 
   static const startId = 'OUTFIT_001';
+
+  /// Coiffures du joueur (calques assets/characters/rapper_001/layers/hairfront et hairback, générés par tools/design/gen_wardrobe_layers.py).
+  /// Prix et rangs : [PROPOSÉ], provisoires comme tout l'équilibrage (D-08). Les trois coiffures du créateur de personnage sont offertes au départ.
+  static const hairs = <Map<String, dynamic>>[
+    {'id': 'hitwist', 'n': 'Twists hi-top', 'd': 'Ta coiffure de départ : des twists courts, montés haut.', 'price': 0, 'rank': 1},
+    {'id': 'bald', 'n': 'Rasé', 'd': 'Crâne net, aucune excuse.', 'price': 1000, 'rank': 1},
+    {'id': 'fade', 'n': 'Dégradé', 'd': 'Côtés rasés, dessus ras : propre et sobre.', 'price': 1500, 'rank': 1},
+    {'id': 'cornrows', 'n': 'Nattes collées', 'd': 'Cinq nattes plaquées vers l\'arrière.', 'price': 2500, 'rank': 1},
+    {'id': 'twists', 'n': 'Twists courts', 'd': 'Petits twists dressés, texture visible.', 'price': 3500, 'rank': 1},
+    {'id': 'afro', 'n': 'Afro', 'd': 'Volume naturel, présence immédiate.', 'price': 4000, 'rank': 1},
+    {'id': 'hightop', 'n': 'Hi-top fade', 'd': 'Dessus carré, côtés dégradés : la coupe des années rap.', 'price': 5000, 'rank': 2},
+    {'id': 'puffs', 'n': 'Afro puffs', 'd': 'Deux touffes rondes de chaque côté.', 'price': 6000, 'rank': 2},
+    {'id': 'knots', 'n': 'Bantu knots', 'd': 'Nœuds de cheveux enroulés en couronne.', 'price': 8000, 'rank': 2},
+    {'id': 'mohawk', 'n': 'Crête', 'd': 'Une bande centrale, les côtés rasés. Pour les grandes scènes.', 'price': 9000, 'rank': 3},
+    {'id': 'braids', 'n': 'Tresses longues', 'd': 'Tresses fines qui tombent sur les épaules.', 'price': 12000, 'rank': 3},
+    {'id': 'locks', 'n': 'Locks', 'd': 'Locks longues, des années de patience.', 'price': 20000, 'rank': 4},
+  ];
+
+  /// Zones de tatouage : un seul tatouage équipé par zone, retirable à tout moment.
+  static const tattooZones = <String, String>{'visage': 'Visage', 'cou': 'Cou', 'mains': 'Mains'};
+
+  /// Tatouages (calques layers/tat). Motifs inspirés du monde du jeu (cauris, soleil de Bakoma) ; aucun symbole réel.
+  static const tattoos = <Map<String, dynamic>>[
+    {'id': 'main_phalanges', 'zone': 'mains', 'n': 'Phalanges', 'd': 'Quatre points sur chaque main, le signe des débuts.', 'price': 3000, 'rank': 1},
+    {'id': 'cou_bande', 'zone': 'cou', 'n': 'Bande en zigzag', 'd': 'Un zigzag fin à la base du cou.', 'price': 4000, 'rank': 1},
+    {'id': 'vis_ligne', 'zone': 'visage', 'n': 'Double trait', 'd': 'Deux traits sur la tempe droite.', 'price': 5000, 'rank': 2},
+    {'id': 'main_cauri', 'zone': 'mains', 'n': 'Cauri', 'd': 'Un cauri sur le dos de chaque main : la monnaie de Bakoma.', 'price': 6000, 'rank': 2},
+    {'id': 'cou_cauris', 'zone': 'cou', 'n': 'Trois cauris', 'd': 'Trois cauris alignés sous la mâchoire.', 'price': 8000, 'rank': 2},
+    {'id': 'main_soleil', 'zone': 'mains', 'n': 'Soleil de Bakoma', 'd': 'Un soleil rayonnant sur chaque main.', 'price': 9000, 'rank': 3},
+    {'id': 'vis_tempe', 'zone': 'visage', 'n': 'Marques de tempe', 'd': 'Trois traits de chaque côté du visage.', 'price': 12000, 'rank': 3},
+    {'id': 'vis_etoile', 'zone': 'visage', 'n': 'Étoile de pommette', 'd': 'Une étoile à quatre branches sous l\'œil gauche.', 'price': 15000, 'rank': 3},
+    {'id': 'cou_soleil', 'zone': 'cou', 'n': 'Soleil du cou', 'd': 'Un soleil gravé au creux du cou, pour les légendes.', 'price': 18000, 'rank': 4},
+  ];
 }
 
 /// État de départ de la garde-robe : Hoodie Néon possédé et équipé.
-Map<String, dynamic> initWardrobe21() => {'owned': [Wardrobe21.startId], 'eq': Wardrobe21.startId, 'sel': Wardrobe21.startId, 'ask': null};
+Map<String, dynamic> initWardrobe21() => {
+      'owned': [Wardrobe21.startId],
+      'eq': Wardrobe21.startId,
+      'sel': Wardrobe21.startId,
+      'ask': null,
+      'hair': 'hitwist',
+      'hairs': ['hitwist'],
+      'tat': <String, dynamic>{},
+      'tats': <String>[],
+      'cask': null,
+    };
 
 Map<String, dynamic>? outfit21(String? id) {
   for (final o in Wardrobe21.outfits) {
@@ -134,3 +177,97 @@ String? _wCheck(J s, Map<String, dynamic>? o) {
 
 // Les actions o* (osel, oask, obuy, oeq, …) sont dans engine21.dart ; les règles de contrôle sont ici pour rester testables.
 String? outfitCheck21(J s, String id) => _wCheck(s, outfit21(id));
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Coiffures et tatouages. Les anciennes sauvegardes n'ont pas ces clés : chaque lecture a une valeur par défaut.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Coiffure équipée (par défaut celle du créateur de personnage).
+String hairOf21(J s) {
+  final wd = s['wd'] as J?;
+  final h = wd?['hair'];
+  if (h is String && hair21(h) != null) return h;
+  final ap = (s['ap'] as J?)?['hair'];
+  return ap is String && hair21(ap) != null ? ap : 'hitwist';
+}
+
+List<String> hairsOwned21(J s) {
+  final l = ((s['wd'] as J?)?['hairs'] as List?)?.cast<String>() ?? const <String>[];
+  return {'hitwist', hairOf21(s), ...l}.toList();
+}
+
+/// Tatouages équipés, par zone.
+Map<String, String> tattoosOf21(J s) {
+  final m = (s['wd'] as J?)?['tat'];
+  if (m is! Map) return const {};
+  return {for (final e in m.entries) if (e.value is String && tattoo21(e.value as String) != null) e.key as String: e.value as String};
+}
+
+List<String> tattoosOwned21(J s) => (((s['wd'] as J?)?['tats'] as List?) ?? const []).cast<String>();
+
+Map<String, dynamic>? hair21(String? id) {
+  for (final h in Wardrobe21.hairs) {
+    if (h['id'] == id) return h;
+  }
+  return null;
+}
+
+Map<String, dynamic>? tattoo21(String? id) {
+  for (final t in Wardrobe21.tattoos) {
+    if (t['id'] == id) return t;
+  }
+  return null;
+}
+
+/// Une coiffure ou un tatouage, par identifiant (les deux catalogues n'ont aucun identifiant commun).
+Map<String, dynamic>? cosmetic21(String? id) => hair21(id) ?? tattoo21(id);
+
+bool isHair21(String id) => hair21(id) != null;
+
+bool cosmeticOwned21(J s, String id) => isHair21(id) ? hairsOwned21(s).contains(id) : tattoosOwned21(s).contains(id);
+
+bool cosmeticEquipped21(J s, String id) {
+  if (isHair21(id)) return hairOf21(s) == id;
+  final t = tattoo21(id);
+  return t != null && tattoosOf21(s)[t['zone']] == id;
+}
+
+/// Code d'erreur d'un achat de coiffure ou de tatouage, ou null s'il est possible.
+String? cosmeticCheck21(J s, String id) {
+  final o = cosmetic21(id);
+  if (o == null) return 'inconnu';
+  if (cosmeticOwned21(s, id)) return 'deja';
+  if ((s['rank'] as num) < (o['rank'] as num)) return 'rang';
+  if ((s['cash'] as num) < (o['price'] as num)) return 'cash';
+  return null;
+}
+
+/// Chemins des calques à empiler pour l'apparence demandée, de l'arrière vers l'avant :
+/// corps, cheveux arrière, tête, tatouages, cheveux avant, accessoires de tête de la tenue.
+/// [variant] : 'young' ou 'mature'. [hair] et [tats] : null = ceux du joueur.
+/// Une tenue sans calque de corps (ou sans identifiant) donne null : l'appelant garde l'illustration complète.
+List<String>? layerPaths21(J s, {String? outfitId, String? variant, String? hair, Map<String, String>? tats, bool? hasTop}) {
+  final o = outfit21(outfitId ?? (s['wd'] as J)['eq'] as String?);
+  if (o == null) return null;
+  final v = variant ?? ageVariant21(s), h = hair ?? hairOf21(s), tt = tats ?? tattoosOf21(s);
+  const base = '${Wardrobe21.base}layers/';
+  const noBack = {'hitwist', 'fade', 'cornrows', 'knots', 'bald', 'twists', 'hightop', 'mohawk', 'puffs'};
+  return [
+    '${base}body/${o['id']}.svg',
+    if (!noBack.contains(h)) '${base}hairback/${h}_$v.svg',
+    '${base}head/$v.svg',
+    for (final id in tt.values) '${base}tat/${id}_$v.svg',
+    '${base}hairfront/${h}_$v.svg',
+    if (hasTop ?? outfitHasTop21(o['id'] as String)) '${base}top/${o['id']}_$v.svg',
+  ];
+}
+
+/// Tenues qui portent lunettes, casque, casquette ou boucles d'oreille : elles ont un calque « top » au-dessus de la coiffure.
+/// Construit à partir de gen_outfits.py (acc contenant glasses, phones, cap ou ring).
+const _topOutfits = {
+  'OUTFIT_016', 'OUTFIT_017', 'OUTFIT_024', 'OUTFIT_028', 'OUTFIT_029', 'OUTFIT_030', 'OUTFIT_031', 'OUTFIT_033', 'OUTFIT_035', 'OUTFIT_036',
+  'OUTFIT_037', 'OUTFIT_038', 'OUTFIT_039', 'OUTFIT_041', 'OUTFIT_042', 'OUTFIT_044', 'OUTFIT_046', 'OUTFIT_048', 'OUTFIT_049', 'OUTFIT_050',
+  'OUTFIT_051', 'OUTFIT_052', 'OUTFIT_053', 'OUTFIT_054', 'OUTFIT_055', 'OUTFIT_056', 'OUTFIT_057', 'OUTFIT_058', 'OUTFIT_059', 'OUTFIT_060',
+  'OUTFIT_061', 'OUTFIT_062', 'OUTFIT_063',
+};
+bool outfitHasTop21(String id) => _topOutfits.contains(id);

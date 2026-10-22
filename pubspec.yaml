@@ -26,6 +26,12 @@ flutter:
     - assets/characters/rapper_001/
     - assets/characters/rapper_001/young/
     - assets/characters/rapper_001/mature/
+    - assets/characters/rapper_001/layers/body/
+    - assets/characters/rapper_001/layers/head/
+    - assets/characters/rapper_001/layers/hairback/
+    - assets/characters/rapper_001/layers/hairfront/
+    - assets/characters/rapper_001/layers/tat/
+    - assets/characters/rapper_001/layers/top/
     - assets/scenes/
     - assets/svg/
     - assets/klipo/

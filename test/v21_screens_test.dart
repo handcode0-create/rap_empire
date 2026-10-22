@@ -434,6 +434,34 @@ void main() {
     expect(((repo.current['wd'] as J)['owned'] as List), contains('OUTFIT_003'));
   });
 
+  testWidgets('garde-robe : onglets Coiffures et Tatouages, achat et équipement', (tester) async {
+    final s = preset('carriere')..['cash'] = 60000;
+    final repo = await pump21(tester, s, location: '/profil/garde-robe');
+    await tester.tap(find.byKey(const ValueKey('onglet-Coiffures')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('apercu-look')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cos-fade')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('cos-fade')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cos-fade')));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Acheter · 1 500 cauris');
+    expect((repo.current['wd'] as J)['hair'], 'fade');
+    expect(repo.current['cash'], 58500);
+
+    await tester.tap(find.byKey(const ValueKey('onglet-Tatouages')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('cos-main_phalanges')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cos-main_phalanges')));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Acheter · 3 000 cauris');
+    expect(((repo.current['wd'] as J)['tat'] as Map)['mains'], 'main_phalanges');
+    expect(repo.current['cash'], 55500);
+    await tapText(tester, 'Retirer ce tatouage');
+    expect(((repo.current['wd'] as J)['tat'] as Map).containsKey('mains'), isFalse);
+  });
+
   testWidgets('sortie programmée : date choisie, réserve, titre sorti le jour venu', (tester) async {
     var s = preset('carriere');
     s = act21(s, 'create', ['ambition', 'fiere']).s;
