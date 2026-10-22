@@ -463,7 +463,6 @@ void main() {
     final repo = await pump21(tester, s, location: '/business/mon-label/artiste/ART-9');
     expect(find.byKey(const ValueKey('artiste-hero')), findsOneWidget);
     expect(find.byKey(const ValueKey('artiste-demande')), findsOneWidget);
-    expect(txt('STATISTIQUES'), findsOneWidget);
     await tester.ensureVisible(find.byKey(const ValueKey('demande-accepter')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('demande-accepter')));

@@ -376,7 +376,7 @@ class _RequestCard extends ConsumerWidget {
         Conseq21(ConsequenceKind.estimated, 'Qualité ≈ $q · écoutes ≈ +$gain % pendant ${kd['days']} jours · fans ≈ +${fmt21(fans)}'),
         Conseq21(ConsequenceKind.certain, 'Négocier : budget réduit à ${fmt21(costN)} cauris (−${(Reg21.relNegoCut * 100).round()} %), qualité ≈ $qN'),
         Conseq21(ConsequenceKind.risk, 'Risque ${labelNegoRisk21(a)} : l’artiste peut refuser et retirer sa demande (humeur −${Reg21.moodFail})'),
-        Conseq21(ConsequenceKind.certain, 'Refuser : humeur −${Reg21.moodDecline}, nouvelle demande dans 14 jours'),
+        const Conseq21(ConsequenceKind.certain, 'Refuser : humeur −${Reg21.moodDecline}, nouvelle demande dans 14 jours'),
         const SizedBox(height: 10),
         PrimaryButton(
           key: const ValueKey('demande-accepter'),
