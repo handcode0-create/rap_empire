@@ -17,6 +17,8 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'cover_screens.dart';
+import 'library_screens.dart';
 import 'widgets21.dart';
 
 /// Catalogue (21-A0), fiche d'un titre (21-A0b), création d'un EP ou d'un album (21-A1) et résultats d'un projet (21-A2).
@@ -30,6 +32,18 @@ J _m(dynamic x) => x is Map<String, dynamic>
         : <String, dynamic>{};
 List _l(dynamic x) => x is List ? x : const [];
 
+/// Pochette vivante : elle se fond en douceur quand le joueur en change (Studio > Pochettes), sans animation si le système le demande.
+class _LiveCover extends StatelessWidget {
+  final String path;
+  final double size;
+  const _LiveCover(this.path, this.size);
+  @override
+  Widget build(BuildContext context) => AnimatedSwitcher(
+        duration: MediaQuery.of(context).disableAnimations ? Duration.zero : const Duration(milliseconds: 250),
+        child: Cover21(path, key: ValueKey(path), size: size, radius: size > 60 ? 16 : 10),
+      );
+}
+
 /// Ligne de titre : pochette, nom, détail, streams et ventes.
 class _TitleRow extends StatelessWidget {
   final int index;
@@ -41,7 +55,7 @@ class _TitleRow extends StatelessWidget {
   Widget build(BuildContext context) => GameCard(
         onTap: onTap,
         child: Row(children: [
-          Pochette21(index),
+          _LiveCover(trackCover21(t), 52),
           const SizedBox(width: 12),
           Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -96,8 +110,8 @@ class CatalogueScreen extends ConsumerWidget {
         for (final p in pendingProjects) ...[
           const SizedBox(height: 8),
           GameCard(child: Row(children: [
-            const GameIcon('calendar', color: Tk.acc),
-            const SizedBox(width: 10),
+            _LiveCover(projectCover21(p), 52),
+            const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['title'] as String, style: V20Text.nm()),
               Text('${p['type']} · ${dateLabel21(_n(p['relDay']))} · ${_l(p['tracks']).length} titres', style: V20Text.bs()),
@@ -127,6 +141,8 @@ class CatalogueScreen extends ConsumerWidget {
           GameCard(
             onTap: () => context.go('/studio/catalogue/projet-sorti?i=$i'),
             child: Row(children: [
+              _LiveCover(projectCover21(projects[i]), 52),
+              const SizedBox(width: 12),
               Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('${projects[i]['title']}', style: V20Text.nm()),
@@ -159,7 +175,6 @@ class TitreScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final t = selectedTitle(s);
-    final idx = t == null ? 0 : _l(s['disco']).indexWhere((x) => _m(x)['id'] == t['id']);
     final back = BackHeader(title: 'Fiche du titre', onBack: () => context.go('/studio/catalogue'));
     if (t == null) {
       return ListView(padding: const EdgeInsets.all(16), children: [back, const SizedBox(height: 12), const GlassCard(child: Text('Aucun titre sorti.'))]);
@@ -172,7 +187,13 @@ class TitreScreen extends ConsumerWidget {
       back,
       const SizedBox(height: 12),
       Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Pochette21(idx, size: 84),
+        GestureDetector(
+          onTap: () => pickCover(context, ref, t),
+          child: Stack(children: [
+            _LiveCover(trackCover21(t), 84),
+            Positioned(right: 4, bottom: 4, child: Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Tk.deep.withValues(alpha: .8), shape: BoxShape.circle), child: const GameIcon('music', size: 14, color: Tk.ink))),
+          ]),
+        ),
         const SizedBox(width: 12),
         Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -345,7 +366,7 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
           selected: picked.contains(disco[i]['id']),
           onTap: () => ref.read(game21Provider.notifier).act('ptki', i),
           child: Row(children: [
-            Pochette21(i, size: 40),
+            _LiveCover(trackCover21(disco[i]), 40),
             const SizedBox(width: 12),
             Expanded(child: Text('${disco[i]['title']} · qualité ${disco[i]['Q']}', style: V20Text.nm())),
             const SizedBox(width: 8),
@@ -368,7 +389,7 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
             selected: picked.contains(stock[i]['id']),
             onTap: () => ref.read(game21Provider.notifier).act('ptk', stock[i]['id']),
             child: Row(children: [
-              Pochette21(disco.length + i, size: 40),
+              _LiveCover(trackCover21(stock[i]), 40),
               const SizedBox(width: 12),
               Expanded(child: Text('${stock[i]['title']} · qualité ${stock[i]['Q']}', style: V20Text.nm())),
               const SizedBox(width: 8),
@@ -460,11 +481,15 @@ class ProjetSortiScreen extends ConsumerWidget {
       Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(gradient: V20.objective, borderRadius: BorderRadius.circular(24)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          _LiveCover(projectCover21(p), 84),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('${type == 'EP' ? 'EP' : 'ALBUM'} SORTI', style: V20Text.lab(color: Colors.white)),
           Text((p['title'] as String).toUpperCase(), style: V20Text.baloo(size: 26, line: 28)),
           Text('$type · ${_l(p['tracks']).length} titres · ${p['labelAt']}', style: V20Text.bm),
           Text('Sorti le jour J${p['day']} · Campagne : ${p['promoName'] ?? 'Aucune'}', style: V20Text.bs()),
+        ])),
         ]),
       ),
       const SizedBox(height: 8),

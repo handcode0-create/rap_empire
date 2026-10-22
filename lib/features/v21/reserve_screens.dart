@@ -15,6 +15,7 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/awards21.dart' show dateLabel21;
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'library_screens.dart';
 import 'widgets21.dart';
 
 /// Réserve de titres enregistrés et sorties programmées. Un titre peut attendre sa sortie (date de jeu), rejoindre un EP ou
@@ -138,7 +139,7 @@ class _SongCard extends ConsumerWidget {
     return GameCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Pochette21(int.tryParse(id.replaceAll(RegExp('[^0-9]'), '')) ?? 0, size: 48),
+          Cover21(trackCover21(c), size: 48),
           const SizedBox(width: 12),
           Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
