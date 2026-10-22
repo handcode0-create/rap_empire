@@ -69,14 +69,14 @@ void main() {
     expect(txt('Choisis un nom de scène pour continuer.'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'Young SM');
     await tester.pumpAndSettle();
-    await tester.tap(txt('Tamarel'));
-    await tester.pumpAndSettle();
+    await tapText(tester, 'Tamarel');
     await tapText(tester, 'Continuer');
     expect(txt('Ton look'), findsOneWidget);
-    await tester.tap(txt('Afro'));
-    await tester.pumpAndSettle();
+    await tapText(tester, 'Afro');
     await tapText(tester, 'Continuer');
     expect(txt('Ton style musical'), findsOneWidget);
+    await tester.ensureVisible(txt('Principal').at(1));
+    await tester.pumpAndSettle();
     await tester.tap(txt('Principal').at(1));
     await tester.pumpAndSettle();
     await tapText(tester, 'Continuer');
@@ -400,6 +400,25 @@ void main() {
     await tester.tap(txt('Jouer ensemble'));
     await tester.pumpAndSettle();
     expect(r2.current['hour'], 9);
+  });
+
+  testWidgets('création : le nom apparaît en direct, look et origine se choisissent en tuiles', (tester) async {
+    final repo = await pump21(tester, init21(), location: '/artiste/identite');
+    expect(txt('TON NOM DE SCÈNE'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Young SM');
+    await tester.pumpAndSettle();
+    expect(txt('YOUNG SM'), findsOneWidget);
+    await tapText(tester, 'Sélène');
+    expect((repo.current['p'] as J)['origin'], 'selene');
+    await tapText(tester, 'Continuer');
+    await tapText(tester, 'Nattes collées');
+    await tapText(tester, 'Bomber violet');
+    expect(((repo.current['ap'] as J)['hair'], (repo.current['ap'] as J)['top']), ('cornrows', 'bomber'));
+    await tester.tap(find.bySemanticsLabel('Teint Ébène'));
+    await tester.pumpAndSettle();
+    expect((repo.current['ap'] as J)['skin'], '6');
+    await tapText(tester, 'Surprends-moi');
+    expect(Reg21.skins.containsKey((repo.current['ap'] as J)['skin']), isTrue);
   });
 
   testWidgets('partie sans artiste : le QG renvoie au démarrage', (tester) async {
