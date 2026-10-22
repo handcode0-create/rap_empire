@@ -2412,7 +2412,7 @@ final Map<String, Action> actions21 = {
   'setthumb': (s, a) {
     if (a is! List || a.length < 2) return _no(s, 'inconnu');
     final id = '${a[0]}', v = a[1];
-    if (v != null && (v is! int || v < 0 || v > 8)) return _no(s, 'inconnu');
+    if (v != null && (v is! int || v < 0 || v > clipScenes21)) return _no(s, 'inconnu');
     final n = clone21(s);
     for (final x in _l(n['disco'] ?? const [])) {
       final song = _m(x);

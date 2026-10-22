@@ -88,6 +88,9 @@ const klipo21 = <Map<String, Object>>[
 /// Miniatures des clips du joueur : assets/klipo/mine/M1 à M8.svg.
 const myThumbs21 = 8;
 
+/// Décors illustrés des miniatures de clips (0 à 11) ; l'indice 12 est la pochette du titre. Purement visuel.
+const clipScenes21 = 12;
+
 num _n(dynamic x) => (x ?? 0) as num;
 int _r(num x) => (x + 0.5).floor();
 J _mk(J s) => s['mk'] is Map ? s['mk'] as J : <String, dynamic>{};
@@ -143,7 +146,7 @@ List<J> myClips21(J s) => ((s['disco'] as List?) ?? const []).map((x) => x as J)
 int clipThumb21(Map t, int i) {
   final c = t['clip'];
   final v = c is Map ? c['thumb'] : null;
-  return v is int && v >= 0 && v <= 8 ? v : i % myThumbs21;
+  return v is int && v >= 0 && v <= clipScenes21 ? v : i % clipScenes21;
 }
 
 ({int v, int lk, int cm, int ret, String img}) clipStats21(J t, int i) {

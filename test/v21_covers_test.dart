@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart' show J;
@@ -58,7 +59,7 @@ void main() {
     }
   });
 
-  test('miniature de clip : setthumb ne vaut que pour un clip publié, 0 à 8, null revient à l\'automatique', () {
+  test('miniature de clip : setthumb ne vaut que pour un clip publié, 0 à 12, null revient à l\'automatique', () {
     final s = withSong();
     s['disco'] = <dynamic>[
       <String, dynamic>{'id': 'TA', 'title': 'Titre A', 'clip': <String, dynamic>{'st': 'aucun'}},
@@ -66,13 +67,18 @@ void main() {
     ];
     expect(act21(s, 'setthumb', ['TA', 3]).err, 'inconnu'); // clip pas publié
     final song = (s['disco'] as List)[1] as J;
-    final r = act21(s, 'setthumb', [song['id'], 8]);
+    final r = act21(s, 'setthumb', [song['id'], 12]);
     expect(r.err, isNull);
-    expect(clipThumb21((r.s['disco'] as List)[1] as J, 5), 8);
-    expect(act21(r.s, 'setthumb', [song['id'], 9]).err, 'inconnu');
+    expect(clipThumb21((r.s['disco'] as List)[1] as J, 5), 12);
+    expect(act21(r.s, 'setthumb', [song['id'], 13]).err, 'inconnu');
     expect(act21(r.s, 'setthumb', [song['id'], 'x']).err, 'inconnu');
     final back = act21(r.s, 'setthumb', [song['id'], null]);
     expect(clipThumb21((back.s['disco'] as List)[1] as J, 5), 5);
-    expect(clipThumb21({'clip': {'st': 'publie'}}, 11), 3); // défaut : ordre du clip modulo 8
+    expect(clipThumb21({'clip': {'st': 'publie'}}, 14), 2); // défaut : ordre du clip modulo 12
+    for (final n in ['foret', 'savane', 'resto', 'street', 'rue', 'lagune', 'toit', 'studio', 'marche', 'scene', 'club', 'quartier']) {
+      final f = File('assets/klipo/mine/scene_$n.svg');
+      expect(f.existsSync(), isTrue, reason: n);
+      expect(f.readAsStringSync().contains('<text'), isFalse, reason: n);
+    }
   });
 }

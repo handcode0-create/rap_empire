@@ -435,7 +435,7 @@ class _VideoPost extends StatelessWidget {
         child: SizedBox(
           height: 300,
           child: Stack(fit: StackFit.expand, children: [
-            _PostScene(s, i + 4),
+            _PostScene(s, i + 5),
             const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00000000), Color(0xD9000000)], stops: [.35, 1]))),
             const Center(child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 54)),
             if (_n(p['viral']) == 1) const Positioned(left: 12, top: 12, child: GameTag('Virale', style: GameTagStyle.accent)),
