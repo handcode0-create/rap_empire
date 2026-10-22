@@ -21,15 +21,14 @@ const certNames21 = {
   'diamant': 'Disque de diamant',
 };
 
-/// Seuils en unités par format (fixés par Smith le 22/10/2026 pour l'album : Disque d'or 500 000, platine 1 000 000, diamant 100 000 000).
-/// Double (2 000 000) et triple (5 000 000) de l'album sont des valeurs intermédiaires provisoires. Les autres formats suivent
-/// la hiérarchie des certifications de l'industrie : le single demande 20 % du seuil d'un album (une écoute vaut peu, le titre se
-/// diffuse beaucoup), l'EP 60 %. Unités : ventes + équivalent streaming, 100 écoutes = 1 unité (single : écoutes affichées sur les
-/// plateformes, clip et playlists compris ; EP et album : écoutes du projet). Valeurs provisoires (D-02, D-08).
+/// Seuils de certification calqués sur la grille de la SNEP française (demandé par Smith le 22/10/2026), en unités par format.
+/// Album et EP : équivalents-ventes (ventes + streams ÷ 1 500) : or 50 000, platine 100 000, double 200 000, triple 300 000, diamant 500 000.
+/// Single : équivalents-streams (écoutes + téléchargements × 150) : or 15 M, platine 30 M, diamant 50 M ; la SNEP ne délivre ni double
+/// ni triple platine pour un single (0 = palier inexistant). Les EP suivent la grille des albums (hypothèse à confirmer).
 const certThresholds21 = <String, List<int>>{
-  'Single': [100000, 200000, 400000, 1000000, 20000000],
-  'EP': [300000, 600000, 1200000, 3000000, 60000000],
-  'Album': [500000, 1000000, 2000000, 5000000, 100000000],
+  'Single': [15000000, 30000000, 0, 0, 50000000],
+  'EP': [50000, 100000, 200000, 300000, 500000],
+  'Album': [50000, 100000, 200000, 300000, 500000],
 };
 
 class Cert21 {
@@ -39,30 +38,36 @@ class Cert21 {
   const Cert21(this.id, this.title, this.kind, this.units, this.level);
   String? get levelId => level < 0 ? null : certLevels21[level];
   String get name => level < 0 ? 'Pas encore certifié' : certNames21[certLevels21[level]]!;
-  int? get next => level >= 4 ? null : certThresholds21[kind]![level + 1];
+  int? get next {
+    final th = certThresholds21[kind]!;
+    for (var i = level + 1; i < th.length; i++) {
+      if (th[i] > 0) return th[i];
+    }
+    return null;
+  }
   String get plaque => 'assets/awards/plaque_${levelId ?? 'vide'}.svg';
 }
 
 /// Écoutes cumulées d'un single : celles qu'affichent les plateformes (sortie et jours suivants, clip, playlists).
 int _streams(J t) => (_n(t['L']) + _n(t['clipL']) + _n(t['plL'])).round();
 
-/// Écoutes pour une unité certifiable (provisoire, D-08).
-const streamsPerUnit21 = 100;
+/// Équivalences de la SNEP : 1 téléchargement de single = 150 streams ; 1 vente d'album ou d'EP = 1 500 streams.
+const streamsPerSingleSale21 = 150, streamsPerAlbumSale21 = 1500;
 
 int _level(String kind, int units) {
   final th = certThresholds21[kind]!;
   var lv = -1;
   for (var i = 0; i < th.length; i++) {
-    if (units >= th[i]) lv = i;
+    if (th[i] > 0 && units >= th[i]) lv = i;
   }
   return lv;
 }
 
-/// Unités certifiables d'un single.
-int singleUnits21(J s, J t) => (_n(t['sales'] ?? (_n(t['L']) * Reg21.singleSales)) + _streams(t) / streamsPerUnit21).round();
+/// Unités certifiables d'un single : équivalents-streams (écoutes + téléchargements × 150).
+int singleUnits21(J s, J t) => (_n(t['sales'] ?? (_n(t['L']) * Reg21.singleSales)) * streamsPerSingleSale21 + _streams(t)).round();
 
-/// Unités certifiables d'un EP ou d'un album.
-int projectUnits21(J p) => (_n(p['sales']) + _n(p['L']) / streamsPerUnit21).round();
+/// Unités certifiables d'un EP ou d'un album : équivalents-ventes (ventes + streams ÷ 1 500).
+int projectUnits21(J p) => (_n(p['sales']) + _n(p['L']) / streamsPerAlbumSale21).round();
 
 /// Toutes les œuvres du joueur avec leur certification (la plus haute d'abord).
 List<Cert21> certs21(J s) {

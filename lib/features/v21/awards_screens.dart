@@ -579,7 +579,7 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
                 SizedBox(width: 30, height: 38, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg')),
                 const SizedBox(width: 12),
                 Expanded(child: Text(certNames21[certLevels21[i]]!, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700))),
-                for (final k in const ['Single', 'EP', 'Album']) SizedBox(width: 58, child: Text(_short(certThresholds21[k]![i]), textAlign: TextAlign.right, style: V20Text.baloo(size: 16, line: 20, color: Tk.gold))),
+                for (final k in const ['Single', 'EP', 'Album']) SizedBox(width: 58, child: Text(certThresholds21[k]![i] == 0 ? '–' : _short(certThresholds21[k]![i]), textAlign: TextAlign.right, style: V20Text.baloo(size: 16, line: 20, color: Tk.gold))),
               ]),
             ),
         ]),
@@ -587,8 +587,8 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
       const SizedBox(height: 12),
       const GameHint(
           icon: 'info',
-          text: 'Unités = ventes + équivalent streaming : 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes ; EP et album : écoutes du projet). '
-              'Le single demande 20 % du seuil d\'un album, l\'EP 60 %. Une certification n\'est jamais retirée. Seuils provisoires (18.4, D-02, D-08).'),
+          text: 'Album et EP en équivalents-ventes (1 vente = 1 500 écoutes). Single en équivalents-streams (1 téléchargement = 150 écoutes), sans double ni triple platine. '
+              'Une certification n\'est jamais retirée. Seuils provisoires (18.4, D-02, D-08).'),
     ]);
   }
 }

@@ -24,8 +24,9 @@ void main() {
 
   test('certification : paliers croissants, unités et palier suivant', () {
     for (final th in certThresholds21.values) {
-      for (var i = 1; i < th.length; i++) {
-        expect(th[i], greaterThan(th[i - 1]));
+      final real = th.where((x) => x > 0).toList();
+      for (var i = 1; i < real.length; i++) {
+        expect(real[i], greaterThan(real[i - 1]));
       }
     }
     final s = act21(init21(), 'preset', 'star').s;
@@ -46,14 +47,37 @@ void main() {
     expect(certs21(none).first.plaque, 'assets/awards/plaque_vide.svg');
   });
 
-  test('seuils par format : album 500 000 / 1 M / 100 M, single 20 %, EP 60 %', () {
-    final a = certThresholds21['Album']!, s = certThresholds21['Single']!, e = certThresholds21['EP']!;
-    expect([a.first, a[1], a.last], [500000, 1000000, 100000000]);
-    expect([a[2], a[3]], [2000000, 5000000]);
-    for (var i = 0; i < a.length; i++) {
-      expect(s[i], a[i] ~/ 5);
-      expect(e[i], a[i] * 6 ~/ 10);
-    }
+  test('seuils calqués sur la SNEP : album en équivalents-ventes, single en équivalents-streams', () {
+    expect(certThresholds21['Album'], [50000, 100000, 200000, 300000, 500000]);
+    expect(certThresholds21['EP'], certThresholds21['Album']);
+    expect(certThresholds21['Single'], [15000000, 30000000, 0, 0, 50000000]);
+    expect(streamsPerAlbumSale21, 1500);
+    expect(streamsPerSingleSale21, 150);
+  });
+
+  test('single : pas de double ni triple platine, le palier suivant saute les paliers inexistants', () {
+    final s = act21(init21(), 'preset', 'star').s;
+    final t = (s['disco'] as List).first as J;
+    t['L'] = 31000000;
+    t['clipL'] = 0;
+    t['plL'] = 0;
+    t['sales'] = 0;
+    final c = certs21(s).firstWhere((x) => x.id == t['id']);
+    expect(c.levelId, 'platine');
+    expect(c.next, 50000000);
+    t['L'] = 50000000;
+    expect(certs21(s).firstWhere((x) => x.id == t['id']).levelId, 'diamant');
+  });
+
+  test('équivalences : 1 téléchargement = 150 écoutes, 1 vente d\'album = 1 500 écoutes', () {
+    final s = act21(init21(), 'preset', 'star').s;
+    final t = (s['disco'] as List).first as J;
+    t['L'] = 1000;
+    t['clipL'] = 0;
+    t['plL'] = 0;
+    t['sales'] = 10;
+    expect(singleUnits21(s, t), 1000 + 10 * 150);
+    expect(projectUnits21({'sales': 100, 'L': 3000000}), 100 + 2000);
   });
 
   test('certification : un million d\'écoutes ne fait pas un disque de diamant', () {
@@ -63,10 +87,10 @@ void main() {
     t['clipL'] = 0;
     t['plL'] = 0;
     t['sales'] = 12000;
-    expect(singleUnits21(s, t), 12000 + 1000000 ~/ streamsPerUnit21);
+    expect(singleUnits21(s, t), 12000 * 150 + 1000000);
     expect(certs21(s).firstWhere((c) => c.id == t['id']).level, lessThan(0));
-    t['L'] = 30000000;
-    t['sales'] = 100000000;
+    t['L'] = 50000000;
+    t['sales'] = 0;
     expect(certs21(s).firstWhere((c) => c.id == t['id']).levelId, 'diamant');
   });
 
