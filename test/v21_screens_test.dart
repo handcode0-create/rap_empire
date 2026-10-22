@@ -423,7 +423,6 @@ void main() {
   testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
     expect(txt('AUCUN MANAGER'), findsOneWidget);
-    expect(txt('Séraphine Aboa'), findsOneWidget); // M6 listé avec son profil
     await tapText(tester, 'Recruter');
     await tapText(tester, 'Signer le contrat');
     expect(repo.current['mgr'], 'maya');
@@ -431,6 +430,8 @@ void main() {
     await tapText(tester, 'Mettre fin au contrat');
     await tapText(tester, 'Mettre fin au contrat'); // bouton de la feuille de confirmation
     expect(repo.current['mgr'], isNull);
+    await tester.scrollUntilVisible(txt('Séraphine Aboa'), 300, scrollable: find.byType(Scrollable).first); // M6 listé avec son profil
+    expect(txt('Séraphine Aboa'), findsOneWidget);
   });
 
   testWidgets('espace label : contrat en héros, rupture avec pénalité chiffrée', (tester) async {

@@ -62,7 +62,7 @@ Future<void> breakLabelContract21(BuildContext context, WidgetRef ref, J s) asyn
       title: 'Rompre avec $name ?',
       body: 'Pénalité : ${fmt21(cost)} cauris (rachat de l’avance + 20 %). Cash après : ${cash >= cost ? '${fmt21(cash - cost)} cauris' : 'insuffisant, il te manque ${fmt21(cost - cash)} cauris'}. '
           'Relation avec le directeur −${Reg21.labelBreakRel}, popularité −${Reg21.labelBreakPop}. Tu redeviens indépendant ; l’avance déjà reçue reste acquise.',
-      action: 'Payer ${fmt21(cost)} et rompre');
+      action: 'Payer ${fmt21(cost)} cauris et rompre');
   if (!yes || !context.mounted) return;
   await doAct(context, ref, 'lbreak', 'confirm', null, 'Contrat rompu avec $name');
 }
