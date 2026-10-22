@@ -414,8 +414,7 @@ void main() {
     await tapText(tester, 'Nattes collées');
     await tapText(tester, 'Bomber violet');
     expect(((repo.current['ap'] as J)['hair'], (repo.current['ap'] as J)['top']), ('cornrows', 'bomber'));
-    await tester.tap(find.bySemanticsLabel('Teint Ébène'));
-    await tester.pumpAndSettle();
+    await tapText(tester, 'Ébène');
     expect((repo.current['ap'] as J)['skin'], '6');
     await tapText(tester, 'Surprends-moi');
     expect(Reg21.skins.containsKey((repo.current['ap'] as J)['skin']), isTrue);
