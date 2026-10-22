@@ -561,4 +561,61 @@ void main() {
       }
     }
   });
+
+  testWidgets('patrimoine : catégories, filtres, biens verrouillés par la réputation, fiche et achat', (tester) async {
+    final st = init21();
+    st['cash'] = 600000;
+    st['rep'] = 8;
+    final repo = await pump21(tester, st, location: '/business/patrimoine');
+    expect(find.byKey(const ValueKey('patrimoine-hero')), findsOneWidget);
+    expect(txt('VALEUR DU PATRIMOINE'), findsOneWidget);
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    // la bague (réputation 8) est disponible, pas la villa (55)
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-bague')), 300, scrollable: list);
+    expect(find.byKey(const ValueKey('prod-bague')), findsOneWidget);
+    // filtre : véhicules seulement
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('patrimoine-cats')), -300, scrollable: list);
+    await tester.tap(find.textContaining('Véhicules ·'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('prod-scooter')), findsOneWidget);
+    expect(find.byKey(const ValueKey('prod-bague')), findsNothing);
+    // filtre d'état : verrouillés
+    await tester.tap(txt('Verrouillés'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('prod-scooter')), findsNothing); // rep 0, accessible
+    expect(find.byKey(const ValueKey('prod-berline')), findsOneWidget);
+    expect(txt('RÉPUTATION 70'), findsOneWidget);
+    // un bien verrouillé ne s'ouvre pas
+    await tester.tap(find.byKey(const ValueKey('prod-berline')));
+    await tester.pumpAndSettle();
+    expect(txt('Réputation insuffisante'), findsWidgets);
+    expect(repo.current['ui']['buy'], isNull);
+    // disponible : fiche puis achat
+    await tester.tap(txt('Disponibles'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('prod-scooter')));
+    await tester.pumpAndSettle();
+    expect(txt('Fiche du bien'), findsOneWidget);
+    expect(txt('Scooter'), findsWidgets);
+    await tester.scrollUntilVisible(txt('Acheter'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    await tester.tap(txt('Acheter'));
+    await tester.pumpAndSettle();
+    expect((repo.current['own'] as Map)['scooter'], isNotNull);
+    expect(repo.current['cash'], 600000 - 25000);
+  });
+
+  testWidgets('battle : mini-jeu de Flow, une tentative par round, aucune animation tant qu’il n’est pas lancé', (tester) async {
+    final st = init21();
+    st['btq'] = 'kzer';
+    await pump21(tester, st, location: '/scene/battle');
+    expect(find.byKey(const ValueKey('battle-flow-hint')), findsOneWidget);
+    expect(txt('Écouter le flow'), findsOneWidget);
+    await tester.tap(txt('Écouter le flow'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(txt('Fige le flow'), findsOneWidget);
+    await tester.tap(txt('Fige le flow'));
+    await tester.pumpAndSettle(); // le curseur est arrêté : plus d'animation
+    expect(txt('Écouter le flow'), findsNothing);
+    expect(find.textContaining('Raté').evaluate().length + find.textContaining('Bien calé').evaluate().length, greaterThan(0));
+  });
 }

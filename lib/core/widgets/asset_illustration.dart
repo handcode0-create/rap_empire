@@ -5,7 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 class AssetIllustration extends StatelessWidget {
   final String id;
   final double size;
-  const AssetIllustration(this.id, {super.key, this.size = 64});
+  final double radius;
+  const AssetIllustration(this.id, {super.key, this.size = 64, this.radius = 14});
 
   static const _photos = <String, String>{
     'maison': 'assets/patrimoine/maison.jpg',
@@ -37,6 +38,32 @@ class AssetIllustration extends StatelessWidget {
         '<path d="M29 48 39 24h22l10 24-21 32z" fill="#3A1B52" stroke="#FFC83D" stroke-width="5" stroke-linejoin="round"/><path d="m39 24 11 12 11-12M29 48h42" fill="none" stroke="#3CD6F2" stroke-width="4"/>',
     'montre':
         '<rect x="37" y="10" width="26" height="80" rx="8" fill="#3A1B52" stroke="#8B5CF6" stroke-width="4"/><circle cx="50" cy="50" r="22" fill="#14102B" stroke="#FFC83D" stroke-width="5"/><path d="M50 35v16l12 7" fill="none" stroke="#3CD6F2" stroke-width="4" stroke-linecap="round"/>',
+    'studiomeuble':
+        '<rect x="16" y="40" width="68" height="40" rx="4" fill="#3A1B52" stroke="#FFC83D" stroke-width="4"/><path d="M12 42 50 18l38 24" fill="none" stroke="#F43F9D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="26" y="52" width="16" height="14" fill="#3CD6F2"/><rect x="58" y="52" width="16" height="28" fill="#8B5CF6"/>',
+    'villa':
+        '<path d="M10 80V46l22-14 18 10 18-10 22 14v34z" fill="#3A1B52" stroke="#FFC83D" stroke-width="4" stroke-linejoin="round"/><path d="M18 58h14v12H18zm50 0h14v12H68zm-26 6h16v16H42z" fill="#3CD6F2"/><path d="M6 88q12-6 24 0t24 0 24 0 12 0" fill="none" stroke="#3CD6F2" stroke-width="3"/>',
+    'penthouse':
+        '<rect x="30" y="14" width="40" height="72" fill="#3A1B52" stroke="#8B5CF6" stroke-width="4"/><rect x="22" y="14" width="56" height="10" fill="#F43F9D"/><path d="M38 34h8m8 0h8M38 46h8m8 0h8M38 58h8m8 0h8M38 70h8m8 0h8" stroke="#FFC83D" stroke-width="5" stroke-linecap="round"/>',
+    'local':
+        '<rect x="14" y="40" width="72" height="42" fill="#3A1B52" stroke="#FFC83D" stroke-width="4"/><path d="M10 40h80l-6-18H16z" fill="#F43F9D" stroke="#FFC83D" stroke-width="3" stroke-linejoin="round"/><rect x="24" y="52" width="26" height="30" fill="#3CD6F2"/><rect x="58" y="52" width="20" height="14" fill="#8B5CF6"/>',
+    'immeuble':
+        '<rect x="20" y="12" width="60" height="74" fill="#3A1B52" stroke="#3CD6F2" stroke-width="4"/><path d="M30 24h10m10 0h10m-30 14h10m10 0h10M30 52h10m10 0h10M30 66h10m10 0h10" stroke="#FFC83D" stroke-width="5" stroke-linecap="round"/><rect x="43" y="72" width="14" height="14" fill="#F43F9D"/>',
+    'scooter':
+        '<circle cx="26" cy="70" r="11" fill="none" stroke="#FFC83D" stroke-width="5"/><circle cx="76" cy="70" r="11" fill="none" stroke="#FFC83D" stroke-width="5"/><path d="M26 70h22l12-28h-8m8 0 6-14h10M44 70h32" fill="none" stroke="#F43F9D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>',
+    'suv':
+        '<path d="M10 64V48l10-6 12-16h36l12 16 10 6v16z" fill="#3A1B52" stroke="#3CD6F2" stroke-width="4" stroke-linejoin="round"/><path d="M34 30h14v14H26zm20 0h12l8 14H54z" fill="#3CD6F2" fill-opacity=".7"/><circle cx="30" cy="68" r="9" fill="#14102B" stroke="#FFC83D" stroke-width="4"/><circle cx="72" cy="68" r="9" fill="#14102B" stroke="#FFC83D" stroke-width="4"/>',
+    'berline':
+        '<path d="M8 62c0-8 6-10 14-12l10-14h36l14 14c8 2 10 6 10 12z" fill="#3A1B52" stroke="#FFC83D" stroke-width="4" stroke-linejoin="round"/><path d="M34 40h16v12H26zm22 0h10l8 12H56z" fill="#8B5CF6"/><circle cx="28" cy="66" r="8" fill="#14102B" stroke="#F43F9D" stroke-width="4"/><circle cx="72" cy="66" r="8" fill="#14102B" stroke="#F43F9D" stroke-width="4"/>',
+    'chaine':
+        '<path d="M22 20q28 66 56 0" fill="none" stroke="#B6B0DD" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 9"/><circle cx="50" cy="66" r="10" fill="#B6B0DD" stroke="#F8F7FF" stroke-width="3"/>',
+    'bracelet':
+        '<ellipse cx="50" cy="52" rx="30" ry="24" fill="none" stroke="#B6B0DD" stroke-width="9"/><ellipse cx="50" cy="52" rx="30" ry="24" fill="none" stroke="#F8F7FF" stroke-width="2" stroke-dasharray="3 6"/><circle cx="50" cy="28" r="6" fill="#3CD6F2"/>',
+    'diamantrose':
+        '<path d="m15 35 13-18h44l13 18-35 48z" fill="#FF6BB8" fill-opacity=".8" stroke="#FFC83D" stroke-width="4"/><path d="m15 35 35 3 35-3M28 17l22 21 22-21M50 38 50 83" fill="none" stroke="#F8F7FF" stroke-width="3"/>',
+    'cabinepro':
+        '<rect x="16" y="14" width="68" height="72" rx="6" fill="#3A1B52" stroke="#8B5CF6" stroke-width="4"/><path d="M26 28h48M26 40h48M26 52h48" stroke="#2B2459" stroke-width="5"/><circle cx="50" cy="66" r="9" fill="none" stroke="#3CD6F2" stroke-width="5"/><circle cx="50" cy="66" r="3" fill="#F43F9D"/>',
+    'regie':
+        '<rect x="10" y="40" width="80" height="40" rx="5" fill="#3A1B52" stroke="#8B5CF6" stroke-width="4"/><path d="M22 52v18m12-18v18m12-18v18m12-18v18m12-18v18" stroke="#FFC83D" stroke-width="4" stroke-linecap="round"/><rect x="26" y="14" width="48" height="20" rx="3" fill="#14102B" stroke="#3CD6F2" stroke-width="4"/>',
     'diamant':
         '<path d="m15 35 13-18h44l13 18-35 48z" fill="#3CD6F2" fill-opacity=".7" stroke="#FFC83D" stroke-width="4"/><path d="m15 35 35 3 35-3M28 17l22 21 22-21M50 38 50 83" fill="none" stroke="#F8F7FF" stroke-width="3"/>',
   };
@@ -52,7 +79,7 @@ class AssetIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(radius),
         child: SizedBox.square(
           dimension: size,
           child: _photos[id] == null

@@ -119,69 +119,47 @@ class Reg21 {
     },
   };
 
-  // patrimoine : un effet distinct par bien
+  // patrimoine : un effet distinct par bien, rangé par catégorie ; 'rep' = réputation requise (règle validée, valeurs provisoires)
+  // Effets : energy (max d'énergie, cumul plafonné à homeEnergyCap), upkeep (entretien par jour), lo/hi (revenu locatif par jour),
+  // prestige (+réputation à l'achat), saveAll (énergie économisée par boulot, clip, open mic, concert, tournée ; le meilleur compte),
+  // sceneEnergy (énergie économisée en plus sur concert et tournée ; le meilleur compte), recSave / prod / voixB (cabine : le meilleur compte).
+  static const assetCats = <String, String>{
+    'immo': 'Immobilier',
+    'invest': 'Investissements',
+    'vehicule': 'Véhicules',
+    'bijou': 'Bijoux et montres',
+    'studio': 'Matériel de studio',
+  };
+  static const homeEnergyCap = 30;
   static const assets = <String, J>{
-    'moto': {
-      'n': 'Moto',
-      'cost': 60000,
-      'eff': '−5 énergie sur chaque boulot, concert et tournée'
-    },
-    'appart': {
-      'n': 'Appartement à Lumbé',
-      'cost': 350000,
-      'upkeep': 2000,
-      'eff': '+5 énergie max ; entretien 2 000 / jour'
-    },
-    'homestudio': {
-      'n': 'Home studio',
-      'cost': 180000,
-      'eff': 'Enregistrement : −10 énergie et +4 production'
-    },
-    'terrain': {
-      'n': 'Terrain à Sélène',
-      'cost': 500000,
-      'lo': 1000,
-      'hi': 2000,
-      'eff': 'Loyer estimé 1 000 à 2 000 / jour'
-    },
-    'maison': {
-      'n': 'Maison à Ndolo',
-      'cost': 850000,
-      'upkeep': 3500,
-      'energy': 10,
-      'eff': '+10 énergie max ; entretien 3 500 / jour'
-    },
-    'voiture': {
-      'n': 'Voiture',
-      'cost': 320000,
-      'sceneEnergy': 5,
-      'eff': '−5 énergie sur les concerts et tournées'
-    },
-    'bateau': {
-      'n': 'Bateau de plaisance',
-      'cost': 1800000,
-      'lo': 2500,
-      'hi': 5000,
-      'eff': 'Location estimée 2 500 à 5 000 / jour'
-    },
-    'bague': {
-      'n': 'Bague en or',
-      'cost': 95000,
-      'prestige': 2,
-      'eff': '+2 réputation à l’achat'
-    },
-    'montre': {
-      'n': 'Montre en or',
-      'cost': 220000,
-      'prestige': 4,
-      'eff': '+4 réputation à l’achat'
-    },
-    'diamant': {
-      'n': 'Diamant',
-      'cost': 1200000,
-      'prestige': 8,
-      'eff': '+8 réputation à l’achat'
-    },
+    // ---- Immobilier ----
+    'studiomeuble': {'n': 'Studio meublé à Ndolo', 'cat': 'immo', 'rep': 5, 'cost': 120000, 'upkeep': 600, 'energy': 2, 'eff': '+2 énergie max ; entretien 600 / jour'},
+    'appart': {'n': 'Appartement à Lumbé', 'cat': 'immo', 'rep': 15, 'cost': 350000, 'upkeep': 2000, 'energy': 5, 'eff': '+5 énergie max ; entretien 2 000 / jour'},
+    'maison': {'n': 'Maison à Ndolo', 'cat': 'immo', 'rep': 30, 'cost': 850000, 'upkeep': 3500, 'energy': 10, 'eff': '+10 énergie max ; entretien 3 500 / jour'},
+    'villa': {'n': 'Villa à Port-Ambre', 'cat': 'immo', 'rep': 55, 'cost': 2400000, 'upkeep': 6000, 'energy': 15, 'eff': '+15 énergie max ; entretien 6 000 / jour'},
+    'penthouse': {'n': 'Penthouse de Lumbé', 'cat': 'immo', 'rep': 75, 'cost': 4800000, 'upkeep': 11000, 'energy': 20, 'eff': '+20 énergie max ; entretien 11 000 / jour'},
+    // ---- Investissements ----
+    'terrain': {'n': 'Terrain à Sélène', 'cat': 'invest', 'rep': 20, 'cost': 500000, 'lo': 1000, 'hi': 2000, 'eff': 'Loyer estimé 1 000 à 2 000 / jour'},
+    'local': {'n': 'Local commercial à Mabaya', 'cat': 'invest', 'rep': 35, 'cost': 900000, 'lo': 1800, 'hi': 3200, 'eff': 'Loyer estimé 1 800 à 3 200 / jour'},
+    'bateau': {'n': 'Bateau de plaisance', 'cat': 'invest', 'rep': 50, 'cost': 1800000, 'lo': 2500, 'hi': 5000, 'eff': 'Location estimée 2 500 à 5 000 / jour'},
+    'immeuble': {'n': 'Immeuble locatif à Kôtoro', 'cat': 'invest', 'rep': 60, 'cost': 2800000, 'lo': 6000, 'hi': 10000, 'eff': 'Loyers estimés 6 000 à 10 000 / jour'},
+    // ---- Véhicules ----
+    'scooter': {'n': 'Scooter', 'cat': 'vehicule', 'rep': 0, 'cost': 25000, 'saveAll': 2, 'eff': '−2 énergie sur chaque boulot, concert et tournée'},
+    'moto': {'n': 'Moto', 'cat': 'vehicule', 'rep': 5, 'cost': 60000, 'saveAll': 5, 'eff': '−5 énergie sur chaque boulot, concert et tournée'},
+    'voiture': {'n': 'Voiture', 'cat': 'vehicule', 'rep': 20, 'cost': 320000, 'sceneEnergy': 5, 'eff': '−5 énergie sur les concerts et tournées'},
+    'suv': {'n': 'SUV de tournée', 'cat': 'vehicule', 'rep': 45, 'cost': 950000, 'sceneEnergy': 10, 'eff': '−10 énergie sur les concerts et tournées'},
+    'berline': {'n': 'Berline de luxe', 'cat': 'vehicule', 'rep': 70, 'cost': 2600000, 'sceneEnergy': 15, 'prestige': 5, 'eff': '−15 énergie sur les concerts et tournées ; +5 réputation à l’achat'},
+    // ---- Bijoux et montres ----
+    'chaine': {'n': 'Chaîne en argent', 'cat': 'bijou', 'rep': 0, 'cost': 40000, 'prestige': 1, 'eff': '+1 réputation à l’achat'},
+    'bague': {'n': 'Bague en or', 'cat': 'bijou', 'rep': 8, 'cost': 95000, 'prestige': 2, 'eff': '+2 réputation à l’achat'},
+    'montre': {'n': 'Montre en or', 'cat': 'bijou', 'rep': 20, 'cost': 220000, 'prestige': 4, 'eff': '+4 réputation à l’achat'},
+    'bracelet': {'n': 'Bracelet de platine', 'cat': 'bijou', 'rep': 35, 'cost': 480000, 'prestige': 6, 'eff': '+6 réputation à l’achat'},
+    'diamant': {'n': 'Diamant', 'cat': 'bijou', 'rep': 50, 'cost': 1200000, 'prestige': 8, 'eff': '+8 réputation à l’achat'},
+    'diamantrose': {'n': 'Diamant rose', 'cat': 'bijou', 'rep': 70, 'cost': 3500000, 'prestige': 14, 'eff': '+14 réputation à l’achat'},
+    // ---- Matériel de studio ----
+    'homestudio': {'n': 'Home studio', 'cat': 'studio', 'rep': 12, 'cost': 180000, 'recSave': 10, 'prod': 4, 'voixB': 2, 'eff': 'Enregistrement : −10 énergie, +4 production, +2 voix'},
+    'cabinepro': {'n': 'Cabine insonorisée pro', 'cat': 'studio', 'rep': 30, 'cost': 450000, 'recSave': 12, 'prod': 6, 'voixB': 3, 'eff': 'Enregistrement : −12 énergie, +6 production, +3 voix'},
+    'regie': {'n': 'Régie de studio complète', 'cat': 'studio', 'rep': 55, 'cost': 1400000, 'recSave': 15, 'prod': 9, 'voixB': 4, 'eff': 'Enregistrement : −15 énergie, +9 production, +4 voix'},
   };
 
   // création musicale
@@ -661,10 +639,11 @@ class Reg21 {
   // battle de K-Zer : 3 rounds, victoire à 2
   static const battleWin = 2, battleFee = 3000;
 
-  /// Indice de battle selon le Flow (règle validée par Smith) : dès [flowHintElim] une mauvaise réponse est écartée à chaque round,
-  /// dès [flowHintReveal] le bon style est annoncé. Niveau 0 : aucun indice. Les seuils sont provisoires.
-  static const flowHintElim = 20, flowHintReveal = 40;
-  static int flowHintLevel(num flow) => flow >= flowHintReveal ? 2 : (flow >= flowHintElim ? 1 : 0);
+  /// Indice de battle gagné au mini-jeu de Flow (règle validée par Smith, valeurs provisoires) : la zone à toucher s'élargit avec le Flow ;
+  /// une réussite écarte une mauvaise réponse du round ; dès [flowHintReveal] de Flow, elle annonce le bon style.
+  static const flowZoneMin = .14, flowZoneMax = .42, flowHintReveal = 40;
+  static double flowZone(num flow) => (.14 + flow * .0025).clamp(flowZoneMin, flowZoneMax).toDouble();
+  static int flowHintLevel(num flow) => flow >= flowHintReveal ? 2 : 1;
 
   // scène : open mic une fois par jour, gains décroissants sur 7 jours glissants
   static const omWindow = 7, omStep = 0.15, omFloor = 0.3, omFans = 150, omCash = 3000;

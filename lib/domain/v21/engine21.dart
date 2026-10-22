@@ -75,9 +75,36 @@ int enMaxAge(int age) {
   return m;
 }
 
-int enMax(J s) => enMaxAge(_n(s['age']).toInt()) +
-    (_m(s['own'])['appart'] != null ? 5 : 0) +
-    (_m(s['own'])['maison'] != null ? 10 : 0);
+int enMax(J s) => enMaxAge(_n(s['age']).toInt()) + homeEnergy21(s);
+
+/// Énergie max apportée par les logements possédés (cumul plafonné à [Reg21.homeEnergyCap]).
+int homeEnergy21(J s) {
+  final own = _m(s['own']);
+  var e = 0;
+  for (final k in own.keys) {
+    e += (Reg21.assets[k]?['energy'] as num? ?? 0).toInt();
+  }
+  return math.min(Reg21.homeEnergyCap, e);
+}
+
+/// Meilleur effet [key] parmi les biens possédés (les effets de déplacement et de cabine ne se cumulent pas).
+int bestAsset21(J s, String key) {
+  var best = 0;
+  for (final k in _m(s['own']).keys) {
+    final v = (Reg21.assets[k]?[key] as num? ?? 0).toInt();
+    if (v > best) best = v;
+  }
+  return best;
+}
+
+/// Verrou d'un bien : 'rep' si la réputation est trop basse, 'deja' si possédé, sinon null.
+String? assetLock21(J s, String id) {
+  final a = Reg21.assets[id];
+  if (a == null) return 'inconnu';
+  if (_m(s['own'])[id] != null) return 'deja';
+  if (_n(s['rep']) < (a['rep'] as num? ?? 0)) return 'rep';
+  return null;
+}
 
 String stageOf(int age) {
   var n = Reg21.stages.first.$2;
@@ -1094,9 +1121,9 @@ final Map<String, Action> actions21 = {
   'record': (s, takes) {
     final cur0 = s['cur'];
     if (cur0 == null || _m(cur0)['st'] != 'ecrit') return _no(s, 'pasdetexte');
-    final hs = _m(s['own'])['homestudio'] != null;
+    final recSave = bestAsset21(s, 'recSave'), prodB = bestAsset21(s, 'prod'), voixB = bestAsset21(s, 'voixB');
     final n = clone21(s);
-    final e = _spend(n, 2, hs ? 15 : 25);
+    final e = _spend(n, 2, 25 - recSave);
     if (e != null) return _no(s, e);
     final kc = _m(n['kc']);
     final kb = _n(kc['left']) > 0 ? _n(kc['bonus']) : 0;
@@ -1108,8 +1135,8 @@ final Map<String, Action> actions21 = {
     final ui = _m(n['ui']);
     final iid = (ui['inst'] ?? 'nuit') as String;
     final inst = Reg21.instrus[iid]!;
-    final voix = jsRound(tk.fold<num>(0, (a, b) => a + b) / tk.length) + (hs ? 2 : 0);
-    final prod = _n(inst['Q']) + (hs ? 4 : 0) + kb;
+    final voix = jsRound(tk.fold<num>(0, (a, b) => a + b) / tk.length) + voixB;
+    final prod = _n(inst['Q']) + prodB + kb;
     final mal = math.min(20, math.max(0, 40 - _n(s['en'])) / 2);
     cur['takes'] = tk;
     cur['inst'] = iid;
@@ -1402,7 +1429,7 @@ final Map<String, Action> actions21 = {
     }
     final n = clone21(s);
     final e = _spend(
-        n, Reg21.shootH, Reg21.shootE - (_m(s['own'])['moto'] != null ? 5 : 0));
+        n, Reg21.shootH, Reg21.shootE - bestAsset21(s, 'saveAll'));
     if (e != null) return _no(s, e);
     final c = _clipSong(n)!;
     _m(c['clip'])['st'] = 'produit';
@@ -1444,7 +1471,7 @@ final Map<String, Action> actions21 = {
   'openmic': (s, a) {
     if (s['omDay'] == s['day']) return _no(s, 'deja');
     final n = clone21(s);
-    final e = _spend(n, 1, 15 - (_m(s['own'])['moto'] != null ? 5 : 0));
+    final e = _spend(n, 1, 15 - bestAsset21(s, 'saveAll'));
     if (e != null) return _no(s, e);
     final hist = (((n['omHist'] as List?) ?? const []).cast<num>()).where((d) => _n(n['day']) - d < Reg21.omWindow).toList();
     final k = math.max(Reg21.omFloor, 1 - Reg21.omStep * hist.length);
@@ -1946,9 +1973,7 @@ final Map<String, Action> actions21 = {
       return _no(s, 'delai');
     }
     final n = clone21(s);
-    final own = _m(s['own']);
-    final e = _spend(n, 4, 35 - (own['moto'] != null ? 5 : 0) -
-        (own['voiture'] != null ? 5 : 0));
+    final e = _spend(n, 4, 35 - bestAsset21(s, 'saveAll') - bestAsset21(s, 'sceneEnergy'));
     if (e != null) return _no(s, e);
     final top = _n(s['en']) >= 60, tk = tickets21(s);
     final ca = jsRound(tk * Reg21.ticketPrice * (top ? 1 : 0.85)),
@@ -2060,10 +2085,8 @@ final Map<String, Action> actions21 = {
     }
     if (_n(s['cash']) < (t['cost'] as num)) return _no(s, 'cash');
     final n = clone21(s);
-    final own = _m(s['own']);
     final e = _spend(n, t['h'] as num,
-        (t['e'] as num) - (own['moto'] != null ? 5 : 0) -
-            (own['voiture'] != null ? 5 : 0));
+        (t['e'] as num) - bestAsset21(s, 'saveAll') - bestAsset21(s, 'sceneEnergy'));
     if (e != null) return _no(s, e);
     final fee = (t['fee'] as num) +
         jsRound(
@@ -2103,8 +2126,7 @@ final Map<String, Action> actions21 = {
     final lock = jobLock21(s, id as String);
     if (lock != null) return _no(s, lock);
     final n = clone21(s);
-    final moto = _m(s['own'])['moto'] != null ? 5 : 0;
-    final e = _spend(n, j['h'] as num, (j['e'] as num) - moto);
+    final e = _spend(n, j['h'] as num, (j['e'] as num) - bestAsset21(s, 'saveAll'));
     if (e != null) return _no(s, e);
     _pay(n, j['cash'] as num);
     n['lastJob'] = {
@@ -2131,6 +2153,9 @@ final Map<String, Action> actions21 = {
   },
 
   'ask': (s, id) {
+    if (id is! String || Reg21.assets[id] == null) return _no(s, 'inconnu');
+    final lock = assetLock21(s, id);
+    if (lock != null && lock != 'deja') return _no(s, lock);
     final n = clone21(s);
     _m(n['ui'])['buy'] = id;
     return _ok(n);
@@ -2140,14 +2165,15 @@ final Map<String, Action> actions21 = {
     final id = (arg ?? _m(s['ui'])['buy']) as String?;
     final a = id == null ? null : Reg21.assets[id];
     if (a == null) return _no(s, 'inconnu');
-    if (_m(s['own'])[id] != null) return _no(s, 'deja');
+    final lock = assetLock21(s, id!);
+    if (lock != null) return _no(s, lock);
     if (_n(s['cash']) < (a['cost'] as num)) return _no(s, 'cash');
     final n = clone21(s);
     _pay(n, -(a['cost'] as num));
-    _m(n['own'])[id!] = {'since': n['day']};
+    _m(n['own'])[id] = {'since': n['day']};
     _m(n['ui'])['buy'] = null;
-    if (id == 'appart' || id == 'maison') {
-      n['en'] = math.min(enMax(n), _n(n['en']) + (a['energy'] as num? ?? 5));
+    if (a['energy'] != null) {
+      n['en'] = math.min(enMax(n), _n(n['en']) + (a['energy'] as num));
     }
     if (a['prestige'] != null) n['rep'] = _n(n['rep']) + (a['prestige'] as num);
     _log(n, 'Bien acquis : ${a['n']}', 'eco');
@@ -2747,6 +2773,13 @@ Res _endDay(J s) {
     inc += y;
     ev.add('Location du bateau : ${sg21(y)}');
   }
+  for (final k in _m(n['own']).keys) {
+    final r = Reg21.assets[k];
+    if (r == null || r['lo'] == null || k == 'terrain' || k == 'bateau') continue;
+    final y = jsRound((r['lo'] as num) + ((r['hi'] as num) - (r['lo'] as num)) * rng21(n, 30 + k.length * 3 + k.codeUnitAt(0) % 7));
+    inc += y;
+    ev.add('Loyers · ${r['n']} : ${sg21(y)}');
+  }
   if (n['merch'] != null) {
     final mm = _m(n['merch']);
     final m = Reg21.merch[mm['id']]!;
@@ -2783,11 +2816,8 @@ Res _endDay(J s) {
     sf[k] = _n(sf[k]) + jsRound(_n(n['pop']) * (socialNets21[k]?.share ?? 0) * 0.5);
   }
   num cost = 0;
-  if (_m(n['own'])['appart'] != null) {
-    cost += Reg21.assets['appart']!['upkeep'] as num;
-  }
-  if (_m(n['own'])['maison'] != null) {
-    cost += Reg21.assets['maison']!['upkeep'] as num;
+  for (final k in _m(n['own']).keys) {
+    cost += Reg21.assets[k]?['upkeep'] as num? ?? 0;
   }
   if (_m(n['rom'])['off'] != null) cost += Reg21.coupleCost;
   cost += _l(_m(n['fam'])['kids']).length * Reg21.kidCost;

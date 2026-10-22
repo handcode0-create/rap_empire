@@ -26,6 +26,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'festival_screens.dart';
+import 'flow_minigame21.dart';
 import 'labels_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
@@ -816,59 +817,239 @@ class EntreprisesScreen extends ConsumerWidget {
 // 21-E4 Patrimoine, 21-E5 Confirmation d'achat
 // ---------------------------------------------------------------------------------------------------------------------
 
-class PatrimoineScreen extends ConsumerWidget {
+class PatrimoineScreen extends ConsumerStatefulWidget {
   const PatrimoineScreen({super.key});
+  @override
+  ConsumerState<PatrimoineScreen> createState() => _PatrimoineScreenState();
+}
+
+class _PatrimoineScreenState extends ConsumerState<PatrimoineScreen> {
+  String _cat = 'tout';
+  String _status = 'tous';
+
+  /// Revenu net estimé par jour : loyers moyens des biens possédés moins l'entretien (présentation seulement).
+  num _netPerDay(J s) {
+    num v = 0;
+    for (final k in _m(s['own']).keys) {
+      final a = Reg21.assets[k];
+      if (a == null) continue;
+      if (a['lo'] != null) v += ((a['lo'] as num) + (a['hi'] as num)) / 2;
+      v -= (a['upkeep'] as num? ?? 0);
+    }
+    return v;
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
-    final total = _m(s['own'])
-            .keys
-            .fold<num>(0, (a, k) => a + (Reg21.assets[k]!['cost'] as num)) +
-        _m(s['biz'])
-            .keys
-            .fold<num>(0, (a, k) => a + (Reg21.biz[k]!['cost'] as num));
+    final own = _m(s['own']);
+    final rep = _n(s['rep']);
+    final total = own.keys.fold<num>(0, (a, k) => a + (Reg21.assets[k]?['cost'] as num? ?? 0)) +
+        _m(s['biz']).keys.fold<num>(0, (a, k) => a + (Reg21.biz[k]?['cost'] as num? ?? 0));
+    final net = _netPerDay(s);
+    final all = Reg21.assets.entries.toList();
+    bool matchStatus(MapEntry<String, J> e) {
+      final lock = assetLock21(s, e.key);
+      return switch (_status) {
+        'dispo' => lock == null,
+        'verrouille' => lock == 'rep',
+        'possede' => lock == 'deja',
+        _ => true,
+      };
+    }
+
+    final shown = all.where((e) => (_cat == 'tout' || e.value['cat'] == _cat) && matchStatus(e)).toList();
+    int count(String? cat) => all.where((e) => cat == null || e.value['cat'] == cat).length;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Patrimoine', onBack: () => context.go('/business')),
-      const SizedBox(height: 8),
-      KeyVal('Valeur du patrimoine', '${fmt21(total)} cauris', color: Tk.gold),
-      const SizedBox(height: 8),
-      const GameHint(
-          icon: 'info',
-          text:
-              'Chaque bien a un effet propre sur le jeu : énergie, coût d’une activité, qualité ou revenu. Aucun n’est décoratif.'),
-      for (final e in Reg21.assets.entries) ...[
-        const SizedBox(height: 12),
-        GameCard(
-          selected: _m(s['own'])[e.key] != null,
-          onTap: _m(s['own'])[e.key] != null
-              ? null
-              : () async {
-                  await ref.read(game21Provider.notifier).act('ask', e.key);
-                  if (context.mounted) context.go('/business/achat');
-                },
-          child: Row(children: [
-            AssetIllustration(e.key, size: 56),
-            const SizedBox(width: 12),
-            Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                  Text(e.value['n'] as String, style: V20Text.nm()),
-                  Text(e.value['eff'] as String, style: V20Text.bs())
-                ])),
-            _m(s['own'])[e.key] != null
-                ? const GameTag('Possédé', style: GameTagStyle.ok)
-                : Text(fmt21(e.value['cost'] as num),
-                    style: V20Text.nm(color: Tk.gold)),
+      const SizedBox(height: 12),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          key: const ValueKey('patrimoine-hero'),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep])),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text('VALEUR DU PATRIMOINE', style: V20Text.lab()),
+            const SizedBox(height: 4),
+            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Flexible(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(fmt21(total), style: V20Text.baloo(size: 40, line: 42, color: Tk.gold)))),
+              const SizedBox(width: 8),
+              Padding(padding: const EdgeInsets.only(bottom: 6), child: Text('cauris', style: V20Text.bs())),
+            ]),
+            const SizedBox(height: 14),
+            Row(children: [
+              _PatStat('Biens', '${own.keys.where(Reg21.assets.containsKey).length} / ${all.length}', Tk.cy),
+              const SizedBox(width: 8),
+              _PatStat('Net / jour', '${net >= 0 ? '+' : '−'}${fmt21(net.abs())}', net >= 0 ? Tk.ok : Tk.acc4),
+              const SizedBox(width: 8),
+              _PatStat('Réputation', fmt21(rep), Tk.gold),
+            ]),
           ]),
         ),
-      ],
-      const SizedBox(height: 12),
+      ),
+      const SizedBox(height: 16),
+      // filtre par catégorie
+      SingleChildScrollView(
+        key: const ValueKey('patrimoine-cats'),
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
+          Chip21('Tout · ${count(null)}', selected: _cat == 'tout', onTap: () => setState(() => _cat = 'tout')),
+          for (final c in Reg21.assetCats.entries) ...[
+            const SizedBox(width: 8),
+            Chip21('${c.value} · ${count(c.key)}', selected: _cat == c.key, onTap: () => setState(() => _cat = c.key)),
+          ],
+        ]),
+      ),
+      const SizedBox(height: 4),
+      // filtre par état
+      SingleChildScrollView(
+        key: const ValueKey('patrimoine-status'),
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
+          for (final f in const [('tous', 'Tous'), ('dispo', 'Disponibles'), ('verrouille', 'Verrouillés'), ('possede', 'Possédés')]) ...[
+            if (f.$1 != 'tous') const SizedBox(width: 8),
+            Chip21(f.$2, selected: _status == f.$1, onTap: () => setState(() => _status = f.$1)),
+          ],
+        ]),
+      ),
+      const SizedBox(height: 8),
+      if (shown.isEmpty)
+        const GameHint(icon: 'info', text: 'Aucun bien ne correspond à ce filtre.')
+      else
+        for (final cat in Reg21.assetCats.entries)
+          if (shown.any((e) => e.value['cat'] == cat.key)) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(cat.value.toUpperCase(), style: V20Text.lab()),
+                Text('${shown.where((e) => e.value['cat'] == cat.key).length} bien(s)', style: V20Text.bs()),
+              ]),
+            ),
+            ..._rows(shown.where((e) => e.value['cat'] == cat.key).toList(), s, rep),
+          ],
+      const SizedBox(height: 16),
       const Conseq21(ConsequenceKind.certain,
-          'Achat définitif. Appartement : 2 000 cauris/jour d’entretien ; maison : 3 500. Terrain et bateau : loyers journaliers estimés.'),
+          'Achat définitif. Chaque bien se débloque avec la réputation : les plus chers demandent une carrière installée. Entretiens et loyers sont versés à la fin de chaque journée.'),
     ]);
+  }
+
+  List<Widget> _rows(List<MapEntry<String, J>> items, J s, num rep) {
+    final rows = <Widget>[];
+    for (var i = 0; i < items.length; i += 2) {
+      final pair = items.skip(i).take(2).toList();
+      rows.add(Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: _ProductCard(pair[0].key, pair[0].value, s, rep, () => _open(pair[0].key))),
+          const SizedBox(width: 12),
+          Expanded(child: pair.length > 1 ? _ProductCard(pair[1].key, pair[1].value, s, rep, () => _open(pair[1].key)) : const SizedBox()),
+        ]),
+      ));
+    }
+    return rows;
+  }
+
+  Future<void> _open(String id) async {
+    final lock = assetLock21(ref.read(game21Provider).valueOrNull ?? const {}, id);
+    if (lock == 'rep') {
+      toastErr(context, 'rep');
+      return;
+    }
+    await ref.read(game21Provider.notifier).act('ask', id);
+    if (mounted) context.go('/business/achat');
+  }
+}
+
+class _PatStat extends StatelessWidget {
+  final String lab, v;
+  final Color c;
+  const _PatStat(this.lab, this.v, this.c);
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(color: const Color(0x33000000), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0x1AFFFFFF))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(v, maxLines: 1, style: V20Text.baloo(size: 22, line: 24, color: c))),
+            const SizedBox(height: 2),
+            Text(lab.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
+          ]),
+        ),
+      );
+}
+
+/// Carte produit : image, nom, effet, prix ; verrouillée (réputation) ou possédée selon [assetLock21].
+class _ProductCard extends StatelessWidget {
+  final String id;
+  final J a;
+  final J s;
+  final num rep;
+  final VoidCallback onTap;
+  const _ProductCard(this.id, this.a, this.s, this.rep, this.onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    final lock = assetLock21(s, id);
+    final owned = lock == 'deja', locked = lock == 'rep';
+    final need = (a['rep'] as num? ?? 0).toInt();
+    final cash = _n(s['cash']);
+    final cost = a['cost'] as num;
+    return Semantics(
+      button: true,
+      label: '${a['n']}, ${fmt21(cost)} cauris${locked ? ', réputation $need requise' : (owned ? ', possédé' : '')}',
+      child: GestureDetector(
+        key: ValueKey('prod-$id'),
+        behavior: HitTestBehavior.opaque,
+        onTap: owned ? null : onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Tk.s1,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: owned ? Tk.ok : const Color(0x1FFFFFFF), width: owned ? 2 : 1),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            AspectRatio(
+              aspectRatio: 1 / .78,
+              child: Stack(fit: StackFit.expand, children: [
+                FittedBox(fit: BoxFit.cover, clipBehavior: Clip.hardEdge, child: SizedBox.square(dimension: 200, child: AssetIllustration(id, size: 200, radius: 0))),
+                if (locked)
+                  ColoredBox(
+                      color: const Color(0xB30C0820),
+                      child: Center(
+                          child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        const GameIcon('lock', size: 28, color: Tk.ink),
+                        const SizedBox(height: 4),
+                        Text('RÉPUTATION $need', style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w800, color: Tk.ink)),
+                      ]))),
+                if (owned) const Positioned(left: 8, top: 8, child: GameTag('Possédé', style: GameTagStyle.ok)),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                SizedBox(height: 38, child: Text(a['n'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.nm().copyWith(fontSize: 15, height: 1.2))),
+                const SizedBox(height: 2),
+                SizedBox(height: 50, child: Text(a['eff'] as String, maxLines: 3, overflow: TextOverflow.ellipsis, style: V20Text.bs().copyWith(fontSize: 12, height: 1.3))),
+                const SizedBox(height: 8),
+                Text('${fmt21(cost)} cauris', maxLines: 1, style: V20Text.nm(color: locked || (cash < cost && !owned) ? V20.ink2 : Tk.gold)),
+                SizedBox(
+                  height: 16,
+                  child: Text(
+                    locked ? 'Tu as ${fmt21(rep)} de réputation' : (!owned && cash < cost ? 'Il te manque ${fmt21(cost - cash)}' : (owned ? 'Dans ton patrimoine' : 'Disponible')),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: V20Text.bs(color: !locked && !owned && cash >= cost ? Tk.ok : V20.ink2).copyWith(fontSize: 11),
+                  ),
+                ),
+              ]),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 }
 
@@ -881,41 +1062,52 @@ class AchatScreen extends ConsumerWidget {
     if (s == null) return const SizedBox();
     final id = _m(s['ui'])['buy'] as String?;
     final a = id == null ? null : Reg21.assets[id];
+    final cost = (a?['cost'] as num?) ?? 0;
+    final cash = _n(s['cash']);
     return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(
-          title: 'Confirmation d’achat',
-          onBack: () => context.go('/business/patrimoine')),
+      BackHeader(title: 'Fiche du bien', onBack: () => context.go('/business/patrimoine')),
       const SizedBox(height: 12),
-      if (a == null)
+      if (a == null || id == null)
         Text('Aucun bien sélectionné', style: V20Text.nm())
       else ...[
-        Text('ACHETER ${(a['n'] as String).toUpperCase()} ?',
-            style: V20Text.dm(size: 26)),
+        LayoutBuilder(builder: (context, c) => ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: SizedBox(
+                height: c.maxWidth * .62,
+                width: c.maxWidth,
+                child: OverflowBox(maxWidth: c.maxWidth, maxHeight: c.maxWidth, child: AssetIllustration(id, size: c.maxWidth, radius: 0)),
+              ),
+            )),
+        const SizedBox(height: 14),
+        GameTag(Reg21.assetCats[a['cat']] ?? 'Bien'),
+        const SizedBox(height: 8),
+        Text(a['n'] as String, style: V20Text.dm(size: 28)),
+        const SizedBox(height: 4),
+        Text('${fmt21(cost)} cauris', style: V20Text.baloo(size: 26, line: 28, color: Tk.gold)),
         const SizedBox(height: 12),
         Conseq21(ConsequenceKind.certain, a['eff'] as String),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         GlassCard(
           child: Column(children: [
-            KeyVal('Prix', '${fmt21(a['cost'] as num)} cauris', color: Tk.gold),
-            KeyVal('Cash après achat',
-                '${fmt21(_n(s['cash']) - (a['cost'] as num))} cauris'),
+            KeyVal('Prix', '${fmt21(cost)} cauris', color: Tk.gold),
+            KeyVal('Cash actuel', '${fmt21(cash)} cauris'),
+            KeyVal('Cash après achat', '${fmt21(cash - cost)} cauris', color: cash >= cost ? Tk.ink : Tk.acc4),
+            KeyVal('Réputation requise', '${(a['rep'] as num? ?? 0).toInt()} (tu as ${fmt21(_n(s['rep']))})'),
           ]),
         ),
         const SizedBox(height: 16),
-        if (_n(s['cash']) >= (a['cost'] as num))
+        if (assetLock21(s, id) == 'rep')
+          const GameHint(icon: 'lock', warn: true, text: 'Réputation insuffisante pour ce bien')
+        else if (cash >= cost)
           PrimaryGlowButton(
               label: 'Acheter',
               sublabel: 'Achat définitif',
-              onPressed: () => doAct(context, ref, 'assetBuy', null,
-                  () => context.go('/business/patrimoine'), '${a['n']} acquis'))
+              onPressed: () => doAct(context, ref, 'assetBuy', null, () => context.go('/business/patrimoine'), '${a['n']} acquis'))
         else
-          const GameHint(icon: 'info', warn: true, text: 'Cash insuffisant'),
+          GameHint(icon: 'info', warn: true, text: 'Cash insuffisant : il te manque ${fmt21(cost - cash)} cauris'),
       ],
       const SizedBox(height: 8),
-      PrimaryButton(
-          label: 'Annuler',
-          style: GameButtonStyle.ghost,
-          onPressed: () => context.go('/business/patrimoine')),
+      PrimaryButton(label: 'Retour au patrimoine', style: GameButtonStyle.ghost, onPressed: () => context.go('/business/patrimoine')),
     ]);
   }
 }
@@ -1137,6 +1329,7 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
   List<(String, String, String)> get _rounds => Reg21.rivalRounds[widget.target] ?? Reg21.rivalRounds['kzer']!;
   static const _answers = ['Agressif', 'Malin', 'Cool'];
   final List<bool> _won = [];
+  final Map<int, bool> _flowHit = {}; // résultat du mini-jeu de Flow par round
   bool _busy = false, _done = false;
 
   int get _score => _won.where((w) => w).length;
@@ -1174,10 +1367,12 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
     final name = kzer ? "K-Zer d'Mabaya" : (Reg21.rivals[widget.target] ?? 'artiste');
     final round = _rounds[_won.length.clamp(0, 2)];
     final flow = _n(_m(s['sk'])['flow']);
+    final rIdx = _won.length.clamp(0, 2);
     final hint = Reg21.flowHintLevel(flow);
     final good = round.$3;
     final wrong = _answers.where((a) => a != good).toList();
-    final struck = hint >= 1 && hint < 2 ? wrong[_won.length.clamp(0, 2) % 2] : (hint >= 2 ? '' : null);
+    final played = _flowHit[rIdx];
+    final struck = played == true && hint == 1 ? wrong[rIdx % 2] : null;
     final tier = managerTier21(s);
     final prime = tier == null ? '3 000' : '${fmt21(3000 - jsRound(3000 * (tier['rate'] as num)))} net après manager';
     final back = BackHeader(title: 'Battle', step: '1 h · −15 énergie', onBack: () => context.go('/scene'));
@@ -1246,22 +1441,36 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
         Row(children: [
           for (var i = 0; i < _answers.length; i++) ...[
             if (i > 0) const SizedBox(width: 8),
-            Expanded(child: _AnswerPill(_answers[i], _busy || (hint == 1 && _answers[i] == struck) ? null : () => _answer(_answers[i]))),
+            Expanded(child: _AnswerPill(_answers[i], _busy || _answers[i] == struck ? null : () => _answer(_answers[i]))),
           ],
         ]),
       if (!_done)
         Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Container(
+          padding: const EdgeInsets.only(top: 12),
+          child: GlassCard(
             key: const ValueKey('battle-flow-hint'),
-            child: Text(
-              hint >= 2
-                  ? 'Flow ${flow.round()} · ton flow lit le public : réponds « $good ».'
-                  : hint == 1
-                      ? 'Flow ${flow.round()} · « $struck » est écarté : tu sens que ce n\'est pas le bon ton.'
-                      : 'Flow ${flow.round()} / ${Reg21.flowHintElim} : à ${Reg21.flowHintElim} de Flow, tu écartes une mauvaise réponse par round (freestyle, cours de rythme).',
-              style: V20Text.bs(color: hint > 0 ? Tk.cy : Tk.ink2),
-            ),
+            accent: played == true ? GlassAccent.cyan : GlassAccent.none,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text('FLOW · INDICE', style: V20Text.lab()),
+              const SizedBox(height: 4),
+              if (played == null)
+                Text(
+                    hint >= 2
+                        ? 'Flow ${flow.round()} : réussis le mini-jeu et ton flow te souffle le bon style.'
+                        : 'Flow ${flow.round()} : réussis le mini-jeu pour écarter une mauvaise réponse. Plus ton Flow monte, plus la zone est large (au-delà de ${Reg21.flowHintReveal}, le bon style t’est annoncé).',
+                    style: V20Text.bs())
+              else if (played)
+                Text(hint >= 2 ? 'Bien calé : réponds « $good ».' : 'Bien calé : « $struck » est écarté, il reste deux styles.', style: V20Text.bs(color: Tk.cy))
+              else
+                Text('Raté, pas d’indice pour ce round. Lis le ton de l’attaque.', style: V20Text.bs(color: V20.hintGoldText)),
+              const SizedBox(height: 10),
+              FlowMiniGame21(
+                key: ValueKey('mg$rIdx'),
+                zone: Reg21.flowZone(flow),
+                center: .3 + .4 * (((rIdx * 7 + _n(s['day']).toInt() * 3) % 10) / 10),
+                onDone: (hit) => setState(() => _flowHit[rIdx] = hit),
+              ),
+            ]),
           ),
         ),
       const SizedBox(height: 12),
