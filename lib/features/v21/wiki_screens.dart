@@ -134,7 +134,7 @@ class WikiScreen21 extends ConsumerWidget {
       _Sub('Singles', singles.isEmpty ? 'Aucun single pour l’instant.' : null),
       for (final t in singles.reversed) _Disc(trackCover21(t), '${t['title']}', dateLabel21(_n(t['day'])), '${fmt21(platformListens(t))} écoutes', certOf['${t['id']}']?.level, certOf['${t['id']}']?.name),
       const _H('Distinctions'),
-      _Sub('Certifications', certs.isEmpty ? 'Aucune certification pour l’instant (Disque d’or à ${fmt21(certThresholds21['Single']!.first)} unités).' : null),
+      _Sub('Certifications', certs.isEmpty ? 'Aucune certification pour l’instant (Disque d’or à ${fmt21(certThresholds21['Album']!.first)} unités pour un album, ${fmt21(certThresholds21['Single']!.first)} pour un single).' : null),
       for (final c in certs) _Line(c.kind, '${c.name} · « ${c.title} » · ${fmt21(c.units)} unités'),
       _Sub('Récompenses', awards.isEmpty ? 'Aucune nomination pour l’instant.' : null),
       for (final a in awards) _Line('An ${a['y']}', '${a['res'] == 'win' ? 'Lauréat' : 'Nommé'} · ${_awardName(a)}'),

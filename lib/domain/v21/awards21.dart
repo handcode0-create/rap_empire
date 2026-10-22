@@ -21,13 +21,14 @@ const certNames21 = {
   'diamant': 'Disque de diamant',
 };
 
-/// Seuils en unités, identiques pour single, EP et album (fixés par Smith le 22/10/2026) : Disque d'or à 500 000,
-/// platine 1 000 000, diamant 100 000 000 ; double (2 000 000) et triple (5 000 000) sont des valeurs intermédiaires provisoires.
-/// Unités : ventes + équivalent streaming, 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes, clip et playlists
-/// compris ; EP et album : écoutes du projet). Exemple : 1 000 000 d'écoutes d'un single ≈ 10 000 unités + ses ventes.
+/// Seuils en unités par format (fixés par Smith le 22/10/2026 pour l'album : Disque d'or 500 000, platine 1 000 000, diamant 100 000 000).
+/// Double (2 000 000) et triple (5 000 000) de l'album sont des valeurs intermédiaires provisoires. Les autres formats suivent
+/// la hiérarchie des certifications de l'industrie : le single demande 20 % du seuil d'un album (une écoute vaut peu, le titre se
+/// diffuse beaucoup), l'EP 60 %. Unités : ventes + équivalent streaming, 100 écoutes = 1 unité (single : écoutes affichées sur les
+/// plateformes, clip et playlists compris ; EP et album : écoutes du projet). Valeurs provisoires (D-02, D-08).
 const certThresholds21 = <String, List<int>>{
-  'Single': [500000, 1000000, 2000000, 5000000, 100000000],
-  'EP': [500000, 1000000, 2000000, 5000000, 100000000],
+  'Single': [100000, 200000, 400000, 1000000, 20000000],
+  'EP': [300000, 600000, 1200000, 3000000, 60000000],
   'Album': [500000, 1000000, 2000000, 5000000, 100000000],
 };
 

@@ -46,6 +46,16 @@ void main() {
     expect(certs21(none).first.plaque, 'assets/awards/plaque_vide.svg');
   });
 
+  test('seuils par format : album 500 000 / 1 M / 100 M, single 20 %, EP 60 %', () {
+    final a = certThresholds21['Album']!, s = certThresholds21['Single']!, e = certThresholds21['EP']!;
+    expect([a.first, a[1], a.last], [500000, 1000000, 100000000]);
+    expect([a[2], a[3]], [2000000, 5000000]);
+    for (var i = 0; i < a.length; i++) {
+      expect(s[i], a[i] ~/ 5);
+      expect(e[i], a[i] * 6 ~/ 10);
+    }
+  });
+
   test('certification : un million d\'écoutes ne fait pas un disque de diamant', () {
     final s = act21(init21(), 'preset', 'star').s;
     final t = (s['disco'] as List).first as J;

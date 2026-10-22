@@ -565,6 +565,13 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
       const _Sec('Échelle des paliers', 'unités'),
       GlassCard(
         child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(children: [
+              const Spacer(),
+              for (final k in const ['Single', 'EP', 'Album']) SizedBox(width: 58, child: Text(k.toUpperCase(), textAlign: TextAlign.right, style: V20Text.lab())),
+            ]),
+          ),
           for (var i = 0; i < certLevels21.length; i++)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -572,7 +579,7 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
                 SizedBox(width: 30, height: 38, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg')),
                 const SizedBox(width: 12),
                 Expanded(child: Text(certNames21[certLevels21[i]]!, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700))),
-                Text(fmt21(certThresholds21['Single']![i]), style: V20Text.baloo(size: 18, line: 20, color: Tk.gold)),
+                for (final k in const ['Single', 'EP', 'Album']) SizedBox(width: 58, child: Text(_short(certThresholds21[k]![i]), textAlign: TextAlign.right, style: V20Text.baloo(size: 16, line: 20, color: Tk.gold))),
               ]),
             ),
         ]),
@@ -581,10 +588,12 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
       const GameHint(
           icon: 'info',
           text: 'Unités = ventes + équivalent streaming : 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes ; EP et album : écoutes du projet). '
-              'Les mêmes seuils valent pour single, EP et album. Une certification n\'est jamais retirée. Seuils provisoires (18.4, D-02, D-08).'),
+              'Le single demande 20 % du seuil d\'un album, l\'EP 60 %. Une certification n\'est jamais retirée. Seuils provisoires (18.4, D-02, D-08).'),
     ]);
   }
 }
+
+String _short(int n) => n >= 1000000 ? '${(n / 1000000).toStringAsFixed(n % 1000000 == 0 ? 0 : 1).replaceAll('.', ',')} M' : '${n ~/ 1000} k';
 
 /// Plaque d'une œuvre : plaque (ou cadre vide), pochette, palier et progression vers le suivant.
 class _Plaque extends StatelessWidget {
