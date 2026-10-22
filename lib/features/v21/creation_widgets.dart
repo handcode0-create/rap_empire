@@ -21,7 +21,7 @@ String stageName21(J s) {
 
 Duration _dur(BuildContext c, int ms) => MediaQuery.of(c).disableAnimations ? Duration.zero : Duration(milliseconds: ms);
 
-String _lookKey(J s) => '${(s['ap'] as J).values.join('-')}';
+String _lookKey(J s) => (s['ap'] as J).values.join('-');
 
 /// Fond de scène sous le personnage : halo magenta mesuré sur violet nuit.
 class _StageGlow extends StatelessWidget {

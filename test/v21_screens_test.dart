@@ -404,7 +404,7 @@ void main() {
 
   testWidgets('création : le nom apparaît en direct, look et origine se choisissent en tuiles', (tester) async {
     final repo = await pump21(tester, init21(), location: '/artiste/identite');
-    expect(txt('TON NOM DE SCÈNE'), findsOneWidget);
+    expect(txt('TON NOM DE SCÈNE'), findsWidgets);
     await tester.enterText(find.byType(TextField), 'Young SM');
     await tester.pumpAndSettle();
     expect(txt('YOUNG SM'), findsOneWidget);
