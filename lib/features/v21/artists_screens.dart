@@ -25,8 +25,6 @@ final directory21Provider = FutureProvider<Directory21>((ref) async => parseDire
 
 num _n(dynamic x) => (x ?? 0) as num;
 
-String _initials(String n) => n.split(RegExp(r"[\s'’.-]+")).where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join().toUpperCase();
-
 String _trend(Artist21 a) => switch (a.tendance) { 'en hausse' => '▲', 'en baisse' => '▼', _ => '–' };
 Color _trendColor(Artist21 a) => switch (a.tendance) { 'en hausse' => Tk.ok, 'en baisse' => Tk.acc4, _ => V20.ink2 };
 
