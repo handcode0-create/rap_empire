@@ -270,7 +270,7 @@ class _ArtistSheet extends ConsumerWidget {
     final free = slots - roster.length;
     final cash = _n(s['cash']);
     final adv = labelAdvance21(s, tier);
-    final est = labelArtistDay21(_entry(tier), (ol as Map)['staff']);
+    final est = labelArtistDay21(_entry(tier), ol['staff']);
     String? why;
     if (rank < (tier['rank'] as num)) {
       why = 'Rang N${tier['rank']} requis pour signer un ${a.palier.toLowerCase()}.';
