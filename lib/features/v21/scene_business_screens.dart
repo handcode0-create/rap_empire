@@ -1173,6 +1173,11 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
     final pending = !kzer || s['btq'] != null || _done;
     final name = kzer ? "K-Zer d'Mabaya" : (Reg21.rivals[widget.target] ?? 'artiste');
     final round = _rounds[_won.length.clamp(0, 2)];
+    final flow = _n(_m(s['sk'])['flow']);
+    final hint = Reg21.flowHintLevel(flow);
+    final good = round.$3;
+    final wrong = _answers.where((a) => a != good).toList();
+    final struck = hint >= 1 && hint < 2 ? wrong[_won.length.clamp(0, 2) % 2] : (hint >= 2 ? '' : null);
     final tier = managerTier21(s);
     final prime = tier == null ? '3 000' : '${fmt21(3000 - jsRound(3000 * (tier['rate'] as num)))} net après manager';
     final back = BackHeader(title: 'Battle', step: '1 h · −15 énergie', onBack: () => context.go('/scene'));
@@ -1241,9 +1246,24 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
         Row(children: [
           for (var i = 0; i < _answers.length; i++) ...[
             if (i > 0) const SizedBox(width: 8),
-            Expanded(child: _AnswerPill(_answers[i], _busy ? null : () => _answer(_answers[i]))),
+            Expanded(child: _AnswerPill(_answers[i], _busy || (hint == 1 && _answers[i] == struck) ? null : () => _answer(_answers[i]))),
           ],
         ]),
+      if (!_done)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Container(
+            key: const ValueKey('battle-flow-hint'),
+            child: Text(
+              hint >= 2
+                  ? 'Flow ${flow.round()} · ton flow lit le public : réponds « $good ».'
+                  : hint == 1
+                      ? 'Flow ${flow.round()} · « $struck » est écarté : tu sens que ce n\'est pas le bon ton.'
+                      : 'Flow ${flow.round()} / ${Reg21.flowHintElim} : à ${Reg21.flowHintElim} de Flow, tu écartes une mauvaise réponse par round (freestyle, cours de rythme).',
+              style: V20Text.bs(color: hint > 0 ? Tk.cy : Tk.ink2),
+            ),
+          ),
+        ),
       const SizedBox(height: 12),
       if (!_done) ...[
         GlassCard(

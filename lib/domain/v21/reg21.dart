@@ -661,6 +661,11 @@ class Reg21 {
   // battle de K-Zer : 3 rounds, victoire à 2
   static const battleWin = 2, battleFee = 3000;
 
+  /// Indice de battle selon le Flow (règle validée par Smith) : dès [flowHintElim] une mauvaise réponse est écartée à chaque round,
+  /// dès [flowHintReveal] le bon style est annoncé. Niveau 0 : aucun indice. Les seuils sont provisoires.
+  static const flowHintElim = 20, flowHintReveal = 40;
+  static int flowHintLevel(num flow) => flow >= flowHintReveal ? 2 : (flow >= flowHintElim ? 1 : 0);
+
   // scène : open mic une fois par jour, gains décroissants sur 7 jours glissants
   static const omWindow = 7, omStep = 0.15, omFloor = 0.3, omFans = 150, omCash = 3000;
 }

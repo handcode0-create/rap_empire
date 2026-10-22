@@ -499,4 +499,13 @@ void main() {
     expect(m(l(result.s['disco']).single)['L'], greaterThan(10000));
     expect(m(m(l(result.s['disco']).single)['platforms'])['ondea'], greaterThan(7000));
   });
+
+  test('battle : indice de Flow, aucun dès le départ, une réponse écartée dès 20, le bon style annoncé dès 40', () {
+    expect(Reg21.flowHintLevel(17), 0); // Flow de départ
+    expect(Reg21.flowHintLevel(19), 0);
+    expect(Reg21.flowHintLevel(20), 1);
+    expect(Reg21.flowHintLevel(39), 1);
+    expect(Reg21.flowHintLevel(40), 2);
+    expect(Reg21.flowHintLevel(100), 2);
+  });
 }
