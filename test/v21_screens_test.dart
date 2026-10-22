@@ -940,7 +940,7 @@ void main() {
     expect(s['hour'], Reg21.dayEnd);
     expect(act21(s, 'tick').err, 'tard');
     expect(act21(preset('prison'), 'tick').err, isNull);
-    final dayMs = Reg21.tickMs * (Reg21.dayEnd - Reg21.dayStart + 1);
+    const dayMs = Reg21.tickMs * (Reg21.dayEnd - Reg21.dayStart + 1);
     expect(dayMs, inInclusiveRange(89000, 91000));
     expect(clockPaused21('/studio/cabine'), isTrue);
     expect(clockPaused21('/bilan'), isTrue);
