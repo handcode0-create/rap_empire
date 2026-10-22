@@ -590,8 +590,9 @@ void main() {
     expect(txt('RÉPUTATION 70'), findsOneWidget);
     // un bien verrouillé ne s'ouvre pas
     await tester.tap(find.byKey(const ValueKey('prod-berline')));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
     expect(txt('Réputation insuffisante'), findsWidgets);
+    await tester.pumpAndSettle();
     expect(repo.current['ui']['buy'], isNull);
     // disponible : fiche puis achat
     await tester.scrollUntilVisible(txt('Disponibles'), -200, scrollable: list);
