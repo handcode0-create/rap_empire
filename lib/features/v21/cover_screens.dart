@@ -73,6 +73,10 @@ class _CoverSheetState extends State<_CoverSheet> {
           ]),
         ),
       ]),
+      if (custom) ...[
+        const SizedBox(height: 10),
+        Align(alignment: Alignment.centerLeft, child: Chip21('Pochette automatique', onTap: () => Navigator.of(context).pop(''))),
+      ],
       const SizedBox(height: 12),
       const Lab21('Motif'),
       const SizedBox(height: 4),
@@ -87,8 +91,6 @@ class _CoverSheetState extends State<_CoverSheet> {
           for (var v = 0; v < coverVariants21; v++) _Choice('assets/covers/s_${_theme}_${am}_$v.svg', current, '${_themeName(_theme)}, ambiance ${_ambName(am).toLowerCase()}, variante ${v + 1}'),
         ]),
       ],
-      const SizedBox(height: 16),
-      Align(alignment: Alignment.centerLeft, child: Chip21('Pochette automatique', onTap: () => Navigator.of(context).pop(''))),
     ]);
   }
 }
