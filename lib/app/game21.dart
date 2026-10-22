@@ -57,6 +57,8 @@ const err21 = {
   'confirm': "Confirme l'achat (15 000 cauris ou plus)",
   'indispo': 'Tenue indisponible : une illustration manque',
   'pasachete': "Achète d'abord cette tenue",
+  'pascontrat': 'Aucun contrat de label à rompre',
+  'confirmrupture': 'Confirme la rupture du contrat',
   'inconnu': 'Action impossible',
 };
 

@@ -150,7 +150,7 @@ final Map<String, String> castn21 = {
 
 J _lblSet(String code, Lbl L, int adv, double cut, String? perk, String relKey, int rel) => {
       'cash': adv,
-      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk},
+      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk, 'ladv': adv},
       'rel': {relKey: rel},
     };
 
@@ -256,15 +256,15 @@ final Map<String, Dlg> dlg21 = {
     nodes: {
       'n1': const DlgNode('poised', '« Bakoma Sound Records te propose six mois, 150 000 d\'avance, 35 % sur tes écoutes et deux sons par trimestre. On signe ? »', [
         DlgChoice('a', 'Signer', '+150 000 cauris · 35 % des écoutes au label · 6 mois',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('b', 'Contre-proposer', 'réponse incertaine', k: 'i', go: 'n2'),
         DlgChoice('c', 'Réfléchir 7 jours', "l'offre revient dans 7 jours", k: 'i', e: {'q': ['label', 7]}, end: 'Réflexion'),
       ]),
       'n2': const DlgNode('neutral', "« Je peux monter l'avance à 180 000, mais la part passe à 40 %. Ou on garde l'offre de départ. »", [
         DlgChoice('a', '180 000 et 40 %', '+180 000 cauris · 40 % des écoutes au label',
-            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio'}}, end: 'Contrat signé (40 %)'),
+            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio', 'ladv': 180000}}, end: 'Contrat signé (40 %)'),
         DlgChoice('b', '150 000 et 35 %', '+150 000 cauris · 35 % des écoutes au label',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('c', 'Rester indépendant', 'relation −5 · Bakoma Sound Records ne revient pas', k: 'r',
             e: {'rel': {'orage': -5}}, end: 'Indépendant'),
       ]),

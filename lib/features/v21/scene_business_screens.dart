@@ -1222,6 +1222,14 @@ class LabelsScreen extends ConsumerWidget {
               onPressed: () =>
                   doAct(context, ref, 'sign', null, null, 'Contrat signé'),
             ),
+          if (s['signed'] == 1)
+            PrimaryButton(
+              label: 'Rompre le contrat',
+              sublabel: 'Pénalité ${fmt21(labelBreakCost21(s))} cauris',
+              compact: true,
+              style: GameButtonStyle.secondary,
+              onPressed: () => breakLabelContract21(context, ref, s),
+            ),
           if (rep < Reg21.labelRep)
             Padding(
                 padding: const EdgeInsets.only(top: 4),

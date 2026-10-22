@@ -334,6 +334,8 @@ class Reg21 {
   static const pbEvery = 3, pbMaxRank = 3;
   static const ownLabelRep = 60, ownLabelCash = 500000;
   static const labelCut = 0.35;
+  /// Rupture d'un contrat de label (D-08, provisoire) : rachat de l'avance + 20 % (planche 18.1), relation avec le directeur −15, popularité −3.
+  static const labelBreakRate = 1.2, labelBreakRel = 15, labelBreakPop = 3;
   static const managerTiers = <String, J>{
     // Maya (M1) : 8 % de chaque cachet, « pas de fixe tant que tu débutes » (dialogue 19-6).
     'm1': {'n': 'Maya Tessé', 'rate': .08, 'fee': 0, 'rep': 0, 'xp': 0},
@@ -341,7 +343,7 @@ class Reg21 {
     'm3': {'n': 'Rosine Adjoua', 'rate': .12, 'fee': 4000, 'rep': 25, 'xp': 400},
     'm4': {'n': 'Anselme Bayoko', 'rate': .15, 'fee': 12000, 'rep': 45, 'xp': 1000},
     'm5': {'n': 'Léa Sombré', 'rate': .17, 'fee': 30000, 'rep': 65, 'xp': 2200},
-    'm6': {'n': 'Manager d’élite (profil à définir)', 'rate': .20, 'fee': 80000, 'rep': 80, 'xp': 4500},
+    'm6': {'n': 'Séraphine Aboa', 'rate': .20, 'fee': 80000, 'rep': 80, 'xp': 4500},
   };
   static const rivals = <String, String>{
     'kzer': 'K-Zer', 'zaki': 'Zaki Mbela', 'orage': 'Madame Orage', 'djo': 'Djo Kene'

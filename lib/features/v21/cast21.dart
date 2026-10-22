@@ -8,7 +8,7 @@ import '../../core/widgets/portrait.dart';
 const castIllustrated21 = <String>{
   'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme', 'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
   'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo',
-  'solo', 'mika', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane', 'bako', 'sable', 'yaya',
+  'solo', 'mika', 'salif', 'lea', 'seraphine', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane', 'bako', 'sable', 'yaya',
 };
 
 /// Nom affiché → identifiant du personnage, avec son poste.
@@ -23,6 +23,9 @@ const castByName21 = <String, (String, String)>{
   'Rosine Adjoua': ('rosine', 'Manager · presse et crise'),
   'Anselme Bayoko': ('anselme', 'Manager · négociation de contrats'),
   'Mika Soro': ('mika', 'Manager · développement et image'),
+  'Salif Odjé': ('salif', 'Manager · concerts et tournées locales'),
+  'Léa Sombré': ('lea', 'Manager · développement international'),
+  'Séraphine Aboa': ('seraphine', 'Manager d\'élite · plan de carrière et crises majeures'),
   'Tamsir Koffi': ('tamsir', 'Beatmaker · afro-drill'),
   'Désiré Kpan': ('desire', 'Road manager'),
   'Naya Rêve': ('naya', 'Rap mélodique et R&B'),

@@ -644,6 +644,15 @@ J? managerTier21(J s) {
 }
 
 /// Nom du label signé (Bakoma Sound Records par défaut).
+/// Pénalité de rupture : l'avance perçue (ou celle du contrat type pour une ancienne sauvegarde) × 1,2.
+int labelBreakCost21(J n) {
+  final adv = _n(n['ladv']) > 0 ? _n(n['ladv']) : (lbl21[n['label']]?.adv ?? Reg21.labelAdvance);
+  return jsRound(adv * Reg21.labelBreakRate);
+}
+
+/// Clé de relation du directeur du label signé (Madame Orage pour Bakoma Sound Records).
+String labelDirectorKey21(J n) => lbl21[n['label']]?.who ?? 'orage';
+
 String lblName21(J n) => lbl21[n['label']]?.n ?? 'Bakoma Sound Records';
 
 /// Ventes cumulées d'un projet ou d'un titre selon les plateformes fictives (aucun revenu en plus des écoutes).
@@ -1607,8 +1616,31 @@ final Map<String, Action> actions21 = {
     n['label'] = 'BSR';
     n['lcut'] = 0.35;
     n['lperk'] = 'radio';
+    n['ladv'] = 150000;
     _pay(n, 150000);
     _log(n, 'Contrat signé : Bakoma Sound Records (avance 150 000)', 'carriere');
+    return _ok(n);
+  },
+
+  /// Rupture du contrat de label : rachat de l'avance + 20 %, relation avec le directeur et popularité en baisse. Jamais de dette (I-09).
+  'lbreak': (s, arg) {
+    if (!_t(s['signed'])) return _no(s, 'pascontrat');
+    if (arg != 'confirm') return _no(s, 'confirmrupture');
+    final cost = labelBreakCost21(s);
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
+    final n = clone21(s);
+    final name = lblName21(n);
+    final who = labelDirectorKey21(n);
+    _pay(n, -cost);
+    final rel = _m(n['rel']);
+    rel[who] = clamp21(_n(rel[who]) - Reg21.labelBreakRel, -100, 100);
+    n['pop'] = clamp21(_n(n['pop']) - Reg21.labelBreakPop, 0, 100);
+    n['signed'] = 0;
+    n['label'] = null;
+    n['lperk'] = null;
+    n['lcut'] = null;
+    n['ladv'] = null;
+    _log(n, 'Contrat rompu avec $name : pénalité ${fmt21(cost)} cauris', 'carriere');
     return _ok(n);
   },
 
@@ -1728,6 +1760,7 @@ final Map<String, Action> actions21 = {
         n['label'] = null;
         n['lperk'] = null;
         n['lcut'] = null;
+        n['ladv'] = null;
       }
     }
     n['verdict'] = {
@@ -2616,6 +2649,7 @@ final Map<String, Action> actions21 = {
     if (id == 'label') {
       if (ch == 'a') {
         n['signed'] = 1;
+        n['ladv'] = Reg21.labelAdvance;
         _pay(n, Reg21.labelAdvance);
       } else {
         n['lr'] = 1;

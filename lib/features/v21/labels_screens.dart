@@ -15,6 +15,9 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../core/widgets/character_view.dart';
 import 'cast21.dart';
+import '../../core/widgets/primary_button.dart';
+import 'start_screens.dart' show confirmSheet;
+import 'widgets21.dart' show doAct;
 
 /// Les 10 labels (21-L2) : logo, siège, influence, contrat type, directeur, conditions et avantage ; l'état de l'offre se lit d'un coup d'œil.
 /// Données de présentation (ville, profil, influence) : planche 18.1 ; conditions, avantages et contrats : dialogues21.dart.
@@ -51,6 +54,19 @@ class LabelLogo21 extends StatelessWidget {
       );
 }
 
+/// Rupture du contrat de label : feuille de confirmation avec la pénalité chiffrée, puis action du moteur.
+Future<void> breakLabelContract21(BuildContext context, WidgetRef ref, J s) async {
+  final cost = labelBreakCost21(s), cash = (s['cash'] as num);
+  final name = lblName21(s);
+  final yes = await confirmSheet(context,
+      title: 'Rompre avec $name ?',
+      body: 'Pénalité : ${fmt21(cost)} cauris (rachat de l’avance + 20 %). Cash après : ${cash >= cost ? '${fmt21(cash - cost)} cauris' : 'insuffisant, il te manque ${fmt21(cost - cash)} cauris'}. '
+          'Relation avec le directeur −${Reg21.labelBreakRel}, popularité −${Reg21.labelBreakPop}. Tu redeviens indépendant ; l’avance déjà reçue reste acquise.',
+      action: 'Payer ${fmt21(cost)} et rompre');
+  if (!yes || !context.mounted) return;
+  await doAct(context, ref, 'lbreak', 'confirm', null, 'Contrat rompu avec $name');
+}
+
 String _pct(double c) => '${(c * 100).round()} %';
 
 class LabelsAllScreen extends ConsumerWidget {
@@ -74,6 +90,16 @@ class LabelsAllScreen extends ConsumerWidget {
         Text(
             'Part : ${signed ? _pct(_n(s['lcut']) == 0 ? Reg21.labelCut : _n(s['lcut']).toDouble()) : '—'} · avantage : ${signed ? perk21[s['lperk']] ?? '—' : '—'}',
             style: V20Text.bs()),
+        if (signed) ...[
+          const SizedBox(height: 12),
+          PrimaryButton(
+            label: 'Rompre le contrat',
+            sublabel: 'Pénalité ${fmt21(labelBreakCost21(s))} cauris',
+            style: GameButtonStyle.secondary,
+            compact: true,
+            onPressed: () => breakLabelContract21(context, ref, s),
+          ),
+        ],
       ])),
       if (!signed) ...[
         const SizedBox(height: 12),
