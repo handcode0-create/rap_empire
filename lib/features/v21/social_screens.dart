@@ -20,6 +20,7 @@ import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart' show J;
 import '../../domain/v21/view21.dart';
+import 'thumbs21.dart';
 import 'wardrobe_screens.dart' show PlayerBust21, PlayerFace21;
 import 'widgets21.dart';
 
@@ -392,27 +393,12 @@ List<(String, String)> _comments(J p) {
   ];
 }
 
-/// Décor d'une publication : dégradé de scène (huit ambiances) derrière le joueur, qui porte toujours sa tenue du moment.
-const _sceneGrads = <List<Color>>[
-  [Color(0xFF2A1060), Color(0xFF0B0620)],
-  [Color(0xFF5A1D5C), Color(0xFF1A0B2E)],
-  [Color(0xFF7A1F5A), Color(0xFF14102B)],
-  [Color(0xFF3A1B52), Color(0xFF0C0820)],
-  [Color(0xFF8A4A12), Color(0xFF1A0B0B)],
-  [Color(0xFF0E6B6B), Color(0xFF0C0820)],
-  [Color(0xFF8A1030), Color(0xFF14102B)],
-  [Color(0xFF6B5A12), Color(0xFF14102B)],
-];
-
 class _PostScene extends StatelessWidget {
   final J s;
   final int i;
   const _PostScene(this.s, this.i);
   @override
-  Widget build(BuildContext context) => Stack(fit: StackFit.expand, children: [
-        DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: _sceneGrads[i % _sceneGrads.length]))),
-        Padding(padding: const EdgeInsets.only(left: 24, right: 24, top: 6), child: PlayerBust21(s)),
-      ]);
+  Widget build(BuildContext context) => SceneBackdrop21(s, i, scale: .6);
 }
 
 class _PhotoPost extends StatelessWidget {

@@ -139,6 +139,13 @@ double _r1(num x) => (x * 10).round() / 10;
 List<J> myClips21(J s) => ((s['disco'] as List?) ?? const []).map((x) => x as J).where((t) => t['clip'] is Map && (t['clip'] as Map)['st'] == 'publie').toList();
 
 /// Statistiques d'un clip : vues = 2 par écoute apportée par le clip ; j'aime, commentaires, rétention = estimations de démonstration.
+/// Miniature d'un clip : le choix du joueur (0 à 7 : scènes, 8 : pochette du titre), sinon l'ambiance d'office selon l'ordre du clip.
+int clipThumb21(Map t, int i) {
+  final c = t['clip'];
+  final v = c is Map ? c['thumb'] : null;
+  return v is int && v >= 0 && v <= 8 ? v : i % myThumbs21;
+}
+
 ({int v, int lk, int cm, int ret, String img}) clipStats21(J t, int i) {
   final v = _r(_n(t['clipL']) * 2);
   final r = 0.42 + (_n(t['vir']).toInt() % 23) / 100;

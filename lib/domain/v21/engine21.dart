@@ -701,7 +701,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
+  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -2402,6 +2402,27 @@ final Map<String, Action> actions21 = {
         song.remove('cover');
       } else {
         song['cover'] = path;
+      }
+      return _ok(n);
+    }
+    return _no(s, 'inconnu');
+  },
+
+  // Miniature d'un clip publié : 0 à 7 (scènes) ou 8 (pochette du titre) ; null pour revenir à l'automatique. Purement visuel.
+  'setthumb': (s, a) {
+    if (a is! List || a.length < 2) return _no(s, 'inconnu');
+    final id = '${a[0]}', v = a[1];
+    if (v != null && (v is! int || v < 0 || v > 8)) return _no(s, 'inconnu');
+    final n = clone21(s);
+    for (final x in _l(n['disco'] ?? const [])) {
+      final song = _m(x);
+      if ('${song['id']}' != id) continue;
+      final clip = song['clip'];
+      if (clip is! Map || clip['st'] != 'publie') return _no(s, 'inconnu');
+      if (v == null) {
+        clip.remove('thumb');
+      } else {
+        clip['thumb'] = v;
       }
       return _ok(n);
     }

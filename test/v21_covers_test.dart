@@ -57,4 +57,22 @@ void main() {
       expect(out['cover'], 'assets/covers/s_gloire_legere_1.svg');
     }
   });
+
+  test('miniature de clip : setthumb ne vaut que pour un clip publié, 0 à 8, null revient à l\'automatique', () {
+    final s = withSong();
+    s['disco'] = <dynamic>[
+      <String, dynamic>{'id': 'TA', 'title': 'Titre A', 'clip': <String, dynamic>{'st': 'aucun'}},
+      <String, dynamic>{'id': 'TB', 'title': 'Titre B', 'clip': <String, dynamic>{'st': 'publie'}},
+    ];
+    expect(act21(s, 'setthumb', ['TA', 3]).err, 'inconnu'); // clip pas publié
+    final song = (s['disco'] as List)[1] as J;
+    final r = act21(s, 'setthumb', [song['id'], 8]);
+    expect(r.err, isNull);
+    expect(clipThumb21((r.s['disco'] as List)[1] as J, 5), 8);
+    expect(act21(r.s, 'setthumb', [song['id'], 9]).err, 'inconnu');
+    expect(act21(r.s, 'setthumb', [song['id'], 'x']).err, 'inconnu');
+    final back = act21(r.s, 'setthumb', [song['id'], null]);
+    expect(clipThumb21((back.s['disco'] as List)[1] as J, 5), 5);
+    expect(clipThumb21({'clip': {'st': 'publie'}}, 11), 3); // défaut : ordre du clip modulo 8
+  });
 }

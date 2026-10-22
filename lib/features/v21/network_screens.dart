@@ -23,6 +23,7 @@ import 'cast21.dart';
 import 'library_screens.dart';
 import 'playlist_screens.dart';
 import 'social_screens.dart';
+import 'thumbs21.dart';
 import 'wardrobe_screens.dart' show PlayerFace21;
 import 'widgets21.dart';
 
@@ -59,18 +60,19 @@ class _Logo extends StatelessWidget {
 
 /// Miniature 16:9 (SVG sans texte) avec durée, type et bouton lecture ; repli sombre si le fichier manque.
 class _Thumb extends StatelessWidget {
-  final String path;
+  final String? path;
+  final Widget? art;
   final String? dur, kind;
   final bool play;
   final double radius;
-  const _Thumb(this.path, {this.dur, this.kind, this.play = false, this.radius = 14});
+  const _Thumb(this.path, {this.art, this.dur, this.kind, this.play = false, this.radius = 14});
   @override
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Stack(fit: StackFit.expand, children: [
-            SvgPicture.asset(path, fit: BoxFit.cover, placeholderBuilder: (_) => const SvgLoadingPlaceholder(radius: 0), errorBuilder: (_, __, ___) => const SvgLoadingPlaceholder(radius: 0)),
+            art ?? SvgPicture.asset(path!, fit: BoxFit.cover, placeholderBuilder: (_) => const SvgLoadingPlaceholder(radius: 0), errorBuilder: (_, __, ___) => const SvgLoadingPlaceholder(radius: 0)),
             if (play)
               Center(
                 child: Container(
@@ -180,7 +182,8 @@ class _PfCard extends StatelessWidget {
   final Color accent;
   final VoidCallback onTap;
   final String? image;
-  const _PfCard({required this.logo, required this.eyebrow, required this.big, required this.sub, required this.colors, required this.accent, required this.onTap, this.image});
+  final Widget? art;
+  const _PfCard({required this.logo, required this.eyebrow, required this.big, required this.sub, required this.colors, required this.accent, required this.onTap, this.image, this.art});
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
@@ -196,8 +199,8 @@ class _PfCard extends StatelessWidget {
                   border: Border.all(color: accent.withValues(alpha: .35), width: 1.5),
                   borderRadius: BorderRadius.circular(22)),
               child: Stack(children: [
-                if (image != null) ...[
-                  Positioned.fill(child: Opacity(opacity: .75, child: SvgPicture.asset(image!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()))),
+                if (image != null || art != null) ...[
+                  Positioned.fill(child: Opacity(opacity: .75, child: art ?? SvgPicture.asset(image!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()))),
                   const Positioned.fill(
                       child: DecoratedBox(
                           decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00000000), Color(0xD9000000)], stops: [.3, 1])))),
@@ -296,7 +299,7 @@ class ReseauScreen extends ConsumerWidget {
           sub: '${fmt21(t.klipoViews)} vues cumulées sur Klipo',
           colors: const [Colors.black, Colors.black],
           accent: _klpGold,
-          image: clips.isEmpty ? 'assets/klipo/mine/M1.svg' : clipStats21(clips.first, 0).img,
+          art: clips.isEmpty ? SceneBackdrop21(s, 0) : ClipArt21(s, clips.first, clipThumb21(clips.first, 0)),
           onTap: () => context.go('/profil/reseau/clips')),
       const SizedBox(height: 12),
       const SocialEntryCard(),
@@ -560,7 +563,7 @@ class _KlipoHomeState extends ConsumerState<KlipoHomeScreen> {
           sub: '${clips.length} clip(s) publié(s)',
           colors: const [Colors.black, Colors.black],
           accent: _klpGold,
-          image: clips.isEmpty ? 'assets/klipo/mine/M1.svg' : clipStats21(clips.first, 0).img,
+          art: clips.isEmpty ? SceneBackdrop21(s, 0) : ClipArt21(s, clips.first, clipThumb21(clips.first, 0)),
           onTap: () => context.go('/profil/reseau/clips')),
       _Rail('Tendances', [for (var i = 1; i < 10; i++) i], 'les plus vues'),
       _Rail('Clips officiels', officials.length > 9 ? officials.sublist(9) : officials),
@@ -677,7 +680,7 @@ class MyClipsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(8),
             onTap: () => doAct(context, ref, 'mcl', q, () => context.go('/profil/reseau/clips/clip')),
             child: Row(children: [
-              SizedBox(width: 140, child: _Thumb(clipStats21(clips[q], q).img, dur: 'Clip', radius: 10)),
+              SizedBox(width: 140, child: _Thumb(null, art: ClipArt21(s, clips[q], clipThumb21(clips[q], q)), dur: 'Clip', radius: 10)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -721,7 +724,9 @@ class ClipDetailScreen extends ConsumerWidget {
         const GameTag('Estimé', style: GameTagStyle.outline),
       ]),
       const SizedBox(height: 12),
-      _Thumb(st.img, kind: 'Clip officiel', play: true, radius: 16),
+      _Thumb(null, art: ClipArt21(s, c, clipThumb21(c, i)), kind: 'Clip officiel', play: true, radius: 16),
+      const SizedBox(height: 8),
+      Align(alignment: Alignment.centerLeft, child: Chip21('Changer la miniature', onTap: () => pickClipThumb(context, ref, s, c, i))),
       const SizedBox(height: 8),
       Text('${c['title']}', style: V20Text.baloo(size: 26, line: 28)),
       Text('Réalisation ${_directors[dir] ?? dir ?? '—'} · publié J${c['day']} · viralité ${c['vir']}', style: V20Text.bs()),
