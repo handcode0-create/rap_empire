@@ -33,6 +33,7 @@ ROUTES = [
     ('studio', '/studio'),
     ('business', '/business'),
     ('feats', '/studio/feats'),
+    ('pochettes', '/studio/pochettes'),
 ]
 os.makedirs(OUT, exist_ok=True)
 LIVE = WEB.startswith('http')  # adresse du site déployé : on le capture tel quel (aucun serveur local)
