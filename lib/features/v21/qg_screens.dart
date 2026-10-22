@@ -193,7 +193,7 @@ class QgScreen extends ConsumerWidget {
       PrimaryGlowButton(
         label: 'Terminer la journée',
         sublabel: 'Nuit · bilan · jour suivant',
-        onPressed: () => doAct(context, ref, 'endDay', null, () => context.go('/bilan')),
+        onPressed: () => context.go('/fin-journee'),
       ),
     ]);
   }

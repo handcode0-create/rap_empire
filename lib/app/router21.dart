@@ -1,32 +1,33 @@
 import 'package:go_router/go_router.dart';
+import '../features/v21/artist_space_screens.dart';
+import '../features/v21/artists_screens.dart' show Rivalites21Screen;
 import '../features/v21/awards_screens.dart';
 import '../features/v21/catalogue_screens.dart';
 import '../features/v21/characters_screen.dart';
+import '../features/v21/child_space_screens.dart';
+import '../features/v21/cover_screens.dart';
+import '../features/v21/day_end_scene.dart';
 import '../features/v21/dialogue_screens.dart';
+import '../features/v21/festival_screens.dart';
 import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
-import '../features/v21/manager_screens.dart';
 import '../features/v21/library_screens.dart';
 import '../features/v21/love_screens.dart';
+import '../features/v21/manager_screens.dart';
 import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
+import '../features/v21/own_label_screens.dart';
 import '../features/v21/playlist_screens.dart';
-import '../features/v21/social_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
-import '../features/v21/cover_screens.dart';
 import '../features/v21/reserve_screens.dart';
-import '../features/v21/artists_screens.dart' show Rivalites21Screen;
-import '../features/v21/artist_space_screens.dart';
-import '../features/v21/child_space_screens.dart';
-import '../features/v21/own_label_screens.dart';
 import '../features/v21/scene_business_screens.dart';
-import '../features/v21/wiki_screens.dart';
-import '../features/v21/festival_screens.dart';
 import '../features/v21/shell21.dart';
+import '../features/v21/social_screens.dart';
+import '../features/v21/start_screens.dart';
 import '../features/v21/studio_screens.dart';
 import '../features/v21/wardrobe_screens.dart';
-import '../features/v21/start_screens.dart';
+import '../features/v21/wiki_screens.dart';
 
 /// Routes de la v21 (planches 21-*). Cinq onglets : QG, Studio, Scène, Business, Profil. La barre de navigation n'apparaît
 /// que sur les écrans racines. Les écrans de vie perso, de journée et de bilan ont le HUD sans navigation (Frame21).
@@ -317,6 +318,10 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             path: '/journee',
             name: '21-Q2-Journee',
             builder: (_, __) => const JourneeScreen()),
+        GoRoute(
+            path: '/fin-journee',
+            name: '21-Q3a-Fin-journee',
+            builder: (_, __) => const FinJourneeScreen()),
         GoRoute(
             path: '/bilan',
             name: '21-Q3-Bilan',

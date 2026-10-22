@@ -932,7 +932,7 @@ String? _applyEff(J n, J? e) {
 
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
-  'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
+  'endDay', 'tick', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
   'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'ccancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
 };
 
@@ -2843,6 +2843,14 @@ final Map<String, Action> actions21 = {
 
   // ---------- fin de journée ----------
   'endDay': (s, a) => _endDay(s),
+
+  /// Horloge en temps réel : une heure de jeu s'écoule sans coût. Passé la dernière heure, c'est à l'écran de fin de journée de conclure.
+  'tick': (s, a) {
+    if (_n(s['hour']) >= Reg21.dayEnd) return _no(s, 'tard');
+    final n = clone21(s);
+    n['hour'] = _n(n['hour']) + 1;
+    return _ok(n);
+  },
 
   'skipYear': (s, a) {
     final n = clone21(s);

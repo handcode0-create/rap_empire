@@ -90,7 +90,7 @@ class ReserveScreen extends ConsumerWidget {
             label: 'Terminer la journée',
             sublabel: 'Avance la date d\'un jour : les sorties du jour partent',
             style: GameButtonStyle.secondary,
-            onPressed: () => doAct(context, ref, 'endDay', null, () => context.go('/bilan'))),
+            onPressed: () => context.go('/fin-journee')),
       ])),
       const SizedBox(height: 12),
       if (stock.isEmpty) ...[

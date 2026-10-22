@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/router21.dart';
+import 'features/v21/day_clock21.dart';
 import 'core/config/env.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/svg_precache.dart';
@@ -45,5 +46,10 @@ final _router = buildRouter21(initialLocation: '/demarrer');
 class RapEmpireApp extends StatelessWidget {
   const RapEmpireApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp.router(title: 'RAP EMPIRE', theme: buildGameTheme(), routerConfig: _router, debugShowCheckedModeBanner: false);
+  Widget build(BuildContext context) => MaterialApp.router(
+      title: 'RAP EMPIRE',
+      theme: buildGameTheme(),
+      routerConfig: _router,
+      debugShowCheckedModeBanner: false,
+      builder: (context, child) => DayClock21(router: _router, child: child ?? const SizedBox()));
 }

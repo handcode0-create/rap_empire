@@ -10,6 +10,7 @@ import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 import 'package:rap_empire/domain/v21/artists21.dart' show parseDirectory21;
+import 'package:rap_empire/features/v21/day_clock21.dart';
 import 'package:rap_empire/features/v21/artists_screens.dart' show directory21Provider;
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
@@ -879,5 +880,71 @@ void main() {
     await tester.tap(txt('Kaïra Nox'));
     await tester.pumpAndSettle();
     expect(txt('Superstar internationale'), findsWidgets);
+  });
+
+  testWidgets('scène de fin de journée : la nuit tombe, la journée se termine, le bilan s\'ouvre', (tester) async {
+    final repo = await pump21(tester, preset('debut'), location: '/fin-journee');
+    expect(txt('Bilan de la journée'), findsOneWidget);
+    expect(repo.current['day'], 2);
+    expect(repo.current['hour'], Reg21.dayStart);
+  });
+
+  testWidgets('scène de fin de journée : « Passer » ne saute pas la fin de la journée', (tester) async {
+    final repo = await pump21(tester, preset('debut'), location: '/');
+    await tapText(tester, 'Terminer la journée');
+    expect(txt('Bilan de la journée'), findsOneWidget);
+    expect(repo.current['day'], 2);
+  });
+
+  testWidgets('horloge : l\'heure avance seule, minuit ouvre la scène de fin de journée, pause hors jeu', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final s = preset('debut');
+    s['hour'] = 22;
+    final repo = FakeRepo21(s);
+    final router = buildRouter21(initialLocation: '/');
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        save21RepoProvider.overrideWithValue(repo),
+        directory21Provider.overrideWith((_) async => parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync())),
+      ],
+      child: MaterialApp.router(
+        theme: ThemeData.dark(useMaterial3: true),
+        routerConfig: router,
+        builder: (_, child) => DayClock21(router: router, tick: const Duration(seconds: 1), child: child!),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(repo.current['hour'], 24);
+    expect(repo.current['day'], 1);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/fin-journee');
+    await tester.pumpAndSettle();
+    expect(repo.current['day'], 2);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/bilan');
+    await tester.pump(const Duration(seconds: 5));
+    expect(repo.current['hour'], Reg21.dayStart, reason: 'le temps est en pause sur le bilan');
+  });
+
+  test('horloge : tick = une heure, bloqué à minuit, autorisé en prison ; une journée dure ≈ 45 s', () {
+    var s = preset('debut');
+    for (var i = Reg21.dayStart; i < Reg21.dayEnd; i++) {
+      final r = act21(s, 'tick');
+      expect(r.err, isNull);
+      s = r.s;
+    }
+    expect(s['hour'], Reg21.dayEnd);
+    expect(act21(s, 'tick').err, 'tard');
+    expect(act21(preset('prison'), 'tick').err, isNull);
+    final dayMs = Reg21.tickMs * (Reg21.dayEnd - Reg21.dayStart + 1);
+    expect(dayMs, inInclusiveRange(44000, 46000));
+    expect(clockPaused21('/studio/cabine'), isTrue);
+    expect(clockPaused21('/bilan'), isTrue);
+    expect(clockPaused21('/'), isFalse);
+    expect(clockPaused21('/scene'), isFalse);
   });
 }

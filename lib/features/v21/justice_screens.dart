@@ -458,7 +458,7 @@ class PrisonScreen extends ConsumerWidget {
         PrimaryButton(label: 'S’entraîner', style: s['jsp'] == s['day'] ? GameButtonStyle.disabled : GameButtonStyle.secondary, onPressed: s['jsp'] == s['day'] ? null : () => doAct(context, ref, 'js', null, null, 'Charisme +1')),
       ])),
       const SizedBox(height: 12),
-      PrimaryGlowButton(label: 'Terminer la journée', sublabel: 'Un jour de moins', onPressed: () => doAct(context, ref, 'endDay', null, () => context.go('/bilan'))),
+      PrimaryGlowButton(label: 'Terminer la journée', sublabel: 'Un jour de moins', onPressed: () => context.go('/fin-journee')),
     ]);
   }
 }
