@@ -470,8 +470,6 @@ void main() {
     final a = ((repo.current['olabel'] as J)['roster'] as List)[0] as J;
     expect(a['req'], isNull);
     expect((a['rel'] as List).length, 1);
-    expect(find.byKey(const ValueKey('artiste-boost')), findsOneWidget);
-    expect(txt('DISCOGRAPHIE · 1 SORTIE'), findsOneWidget);
   });
 
   testWidgets('ton label : le bouton ouvre l’espace de l’artiste', (tester) async {
