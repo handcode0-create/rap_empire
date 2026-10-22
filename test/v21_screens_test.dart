@@ -494,11 +494,48 @@ void main() {
     expect(txt('Sortir maintenant'), findsNWidgets(2));
   });
 
+  testWidgets('trophées : le hall mène à la chambre des certifications et au salon des awards', (tester) async {
+    final s = preset('carriere');
+    await pump21(tester, s, location: '/profil/trophees');
+    expect(txt('Chambre des certifications'), findsOneWidget);
+    expect(txt('Salon des awards'), findsOneWidget);
+    await tester.tap(txt('Chambre des certifications'));
+    await tester.pumpAndSettle();
+    expect(txt('Échelle des paliers'), findsOneWidget);
+    expect(txt('Albums'), findsOneWidget);
+    await tester.tap(txt('Albums'));
+    await tester.pumpAndSettle();
+    expect(txt('Aucune œuvre ici. Chaque single, EP ou album peut être certifié : or, platine, double, triple, diamant.'), findsOneWidget);
+  });
+
+  testWidgets('salon des awards : prochaine cérémonie, palmarès et calendrier', (tester) async {
+    final s = preset('carriere');
+    await pump21(tester, s, location: '/profil/trophees/awards', width: 360, height: 800);
+    expect(txt('PROCHAINE CÉRÉMONIE'), findsOneWidget);
+    expect(txt('Palmarès'), findsOneWidget);
+    expect(txt('Prochaine'), findsOneWidget);
+  });
+
+  testWidgets('catalogue : filtres Singles / EP et albums', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    await pump21(tester, s, location: '/studio/catalogue');
+    expect(find.byKey(const ValueKey('catalogue-hero')), findsOneWidget);
+    await tester.tap(find.textContaining('EP et albums ·'));
+    await tester.pumpAndSettle();
+    expect(txt('Singles sortis'), findsNothing);
+    expect(txt('Aucun EP ni album pour l’instant.'), findsOneWidget);
+    await tester.tap(find.textContaining('Singles ·'));
+    await tester.pumpAndSettle();
+    expect(txt('Singles sortis'), findsOneWidget);
+  });
+
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/festivals', '/scene/booking', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/formation', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/studio/pochettes', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/trophees/certifications', '/profil/trophees/awards', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/studio/pochettes', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
       '/profil/reseau', '/profil/reseau/ondea', '/profil/reseau/klipo', '/profil/reseau/klipo/video', '/profil/reseau/clips', '/profil/reseau/clips/clip', '/profil/reseau/cauri', '/profil/reseau/marketing',
       '/profil/reseau/ondea/titres', '/profil/reseau/ondea/sortie', '/profil/reseau/ondea/playlist', '/profil/reseau/ondea/playlist/pitch', '/profil/reseau/cauri/titres', '/profil/reseau/cauri/sortie',
       '/profil/reseau/social', '/profil/reseau/social/lueur', '/profil/reseau/social/bakoz', '/profil/reseau/social/griot', '/profil/annee', '/profil/reglages',

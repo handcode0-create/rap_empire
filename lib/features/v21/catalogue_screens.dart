@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
@@ -49,8 +50,9 @@ class _TitleRow extends StatelessWidget {
   final int index;
   final J t;
   final J s;
+  final Cert21? cert;
   final VoidCallback onTap;
-  const _TitleRow(this.index, this.t, this.s, this.onTap);
+  const _TitleRow(this.index, this.t, this.s, this.cert, this.onTap);
   @override
   Widget build(BuildContext context) => GameCard(
         onTap: onTap,
@@ -63,7 +65,7 @@ class _TitleRow extends StatelessWidget {
             Text(titleMeta(t), style: V20Text.bs()),
             Text('${fmt21(streamsTotal(s, t))} streams · ${fmt21(salesOf(t))} ventes', style: V20Text.bs(color: Tk.ink)),
           ])),
-          const GameIcon('arrow', color: Tk.ink),
+          _plaqueBadge(cert),
         ]),
       );
 }
@@ -72,27 +74,80 @@ class _TitleRow extends StatelessWidget {
 // 21-A0 Catalogue
 // ---------------------------------------------------------------------------------------------------------------------
 
-class CatalogueScreen extends ConsumerWidget {
+class CatalogueScreen extends ConsumerStatefulWidget {
   const CatalogueScreen({super.key});
+  @override
+  ConsumerState<CatalogueScreen> createState() => _CatalogueState();
+}
+
+/// Mini plaque de certification (rien si l'œuvre n'est pas encore certifiée).
+Widget _plaqueBadge(Cert21? c) => c == null || c.level < 0
+    ? const GameIcon('arrow', color: Tk.ink)
+    : Semantics(label: c.name, excludeSemantics: true, child: SizedBox(width: 30, height: 38, child: SvgPicture.asset(c.plaque)));
+
+class _CatalogueState extends ConsumerState<CatalogueScreen> {
+  String _tab = 'tout';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final disco = _l(s['disco']).map(_m).toList();
     final projects = _l(s['projects']).map(_m).toList();
     final pendingProjects = _l(s['pendingProjects'] ?? const []).map(_m).toList();
     final ep = bestProject(s, 'EP'), al = bestProject(s, 'Album');
+    final certs = {for (final c in certs21(s)) '${c.kind}-${c.id}': c};
+    final streams = disco.fold<num>(0, (a, t) => a + streamsTotal(s, t));
+    final sales = disco.fold<num>(0, (a, t) => a + salesOf(t)) + projects.fold<num>(0, (a, p) => a + _n(p['sales']));
+    // Les quatre dernières pochettes, de la plus récente à la plus ancienne.
+    final covers = <String>[
+      for (final p in projects.take(2)) projectCover21(p),
+      for (final t in disco.reversed.take(4)) trackCover21(t),
+    ].take(4).toList();
     Widget board(String title, J? p, String none, String hint) => _BoardTile(
           title,
           p == null ? none : projectRankLabel(p),
           p == null ? hint : '${p['title']} · ${fmt21(_n(p['sales']))} ventes',
         );
+    final showSingles = _tab == 'tout' || _tab == 'singles';
+    final showProjects = _tab == 'tout' || _tab == 'projets';
+    final showPending = _tab == 'tout' || _tab == 'projets';
     return ListView(padding: const EdgeInsets.all(16), children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('CATALOGUE', style: V20Text.dm()),
         GameTag('${disco.length} titres · ${projects.length} projets'),
       ]),
+      const SizedBox(height: 12),
+      // vitrine : pochettes récentes et totaux
+      ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          key: const ValueKey('catalogue-hero'),
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep])),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              if (covers.isEmpty)
+                const Expanded(child: Text('Ta discographie apparaîtra ici dès ta première sortie.'))
+              else
+                SizedBox(
+                  height: 64,
+                  width: 64.0 + (covers.length - 1) * 40,
+                  child: Stack(children: [
+                    for (var i = covers.length - 1; i >= 0; i--) Positioned(left: i * 40.0, child: _LiveCover(covers[i], 64)),
+                  ]),
+                ),
+              if (covers.isNotEmpty) const Spacer(),
+            ]),
+            const SizedBox(height: 12),
+            Row(children: [
+              _HeroNum('Streams cumulés', fmt21(streams), Tk.cy),
+              _HeroNum('Ventes', fmt21(sales), Tk.gold),
+              _HeroNum('Plaques', '${certCount21(s)}', Tk.acc4),
+            ]),
+          ]),
+        ),
+      ),
       const SizedBox(height: 12),
       KpiRow(children: [
         board(projectBoard('EP'), ep, 'Aucun EP', 'Crée un EP de 3 à 7 titres'),
@@ -104,7 +159,28 @@ class CatalogueScreen extends ConsumerWidget {
           sublabel: 'EP : 3 à 7 titres · album : 8 titres ou plus',
           onPressed: () => context.go('/studio/catalogue/projet')),
       const SizedBox(height: 12),
-      if (pendingProjects.isNotEmpty) ...[
+      GlassCard(
+        accent: GlassAccent.cyan,
+        halo: false,
+        onTap: () => context.go('/profil/trophees/certifications'),
+        semanticLabel: 'Chambre des certifications',
+        child: Row(children: [
+          SizedBox(width: 30, height: 38, child: SvgPicture.asset(certs.isEmpty ? 'assets/awards/plaque_vide.svg' : (certs21(s).first.plaque))),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Chambre des certifications', style: V20Text.nm()),
+            Text('${certCount21(s)} plaque(s) sur ${certs.length} œuvre(s)', style: V20Text.bs()),
+          ])),
+          const GameIcon('arrow', color: Tk.ink),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        Chip21('Tout', selected: _tab == 'tout', onTap: () => setState(() => _tab = 'tout')),
+        Chip21('Singles · ${disco.length}', selected: _tab == 'singles', onTap: () => setState(() => _tab = 'singles')),
+        Chip21('EP et albums · ${projects.length + pendingProjects.length}', selected: _tab == 'projets', onTap: () => setState(() => _tab = 'projets')),
+      ]),
+      if (showPending && pendingProjects.isNotEmpty) ...[
         const SizedBox(height: 12),
         const Lab21('SORTIES PROGRAMMÉES'),
         for (final p in pendingProjects) ...[
@@ -121,19 +197,21 @@ class CatalogueScreen extends ConsumerWidget {
           ])),
         ],
       ],
-      const Row(children: [
-        Lab21('Singles sortis'),
-        SizedBox(width: 8),
-        GameTag('Nouveau', style: GameTagStyle.accent),
-      ]),
-      const SizedBox(height: 8),
-      if (disco.isEmpty)
-        const GlassCard(child: Text('Aucun titre sorti pour l’instant.')),
-      for (var i = 0; i < disco.length; i++) ...[
-        if (i > 0) const SizedBox(height: 8),
-        _TitleRow(i, disco[i], s, () => doAct(context, ref, 'ctki', i, () => context.go('/studio/catalogue/titre'))),
+      if (showSingles) ...[
+        const SizedBox(height: 12),
+        const Row(children: [
+          Lab21('Singles sortis'),
+          SizedBox(width: 8),
+          GameTag('Nouveau', style: GameTagStyle.accent),
+        ]),
+        const SizedBox(height: 8),
+        if (disco.isEmpty) const GlassCard(child: Text('Aucun titre sorti pour l’instant.')),
+        for (var i = 0; i < disco.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _TitleRow(i, disco[i], s, certs['Single-${disco[i]['id']}'], () => doAct(context, ref, 'ctki', i, () => context.go('/studio/catalogue/titre'))),
+        ],
       ],
-      if (projects.isNotEmpty) ...[
+      if (showProjects && projects.isNotEmpty) ...[
         const SizedBox(height: 12),
         const Lab21('EP et albums sortis'),
         for (var i = 0; i < projects.length; i++) ...[
@@ -149,10 +227,14 @@ class CatalogueScreen extends ConsumerWidget {
                 Text('${projects[i]['type']} · ${_l(projects[i]['tracks']).length} titres · ${projectRankLabel(projects[i])}', style: V20Text.bs()),
                 Text('${fmt21(_n(projects[i]['sales']))} ventes', style: V20Text.bs(color: Tk.ink)),
               ])),
-              const GameIcon('arrow', color: Tk.ink),
+              _plaqueBadge(certs['${projects[i]['type'] == 'EP' ? 'EP' : 'Album'}-${projects[i]['id']}']),
             ]),
           ),
         ],
+      ],
+      if (_tab == 'projets' && projects.isEmpty && pendingProjects.isEmpty) ...[
+        const SizedBox(height: 12),
+        const GlassCard(child: Text('Aucun EP ni album pour l’instant.')),
       ],
       const SizedBox(height: 12),
       const GameHint(
@@ -161,6 +243,19 @@ class CatalogueScreen extends ConsumerWidget {
               '30 cauris la vente, ajoutées aux revenus (part du label déduite). Valeurs provisoires (D-08).'),
     ]);
   }
+}
+
+class _HeroNum extends StatelessWidget {
+  final String lab, v;
+  final Color c;
+  const _HeroNum(this.lab, this.v, this.c);
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(v, maxLines: 1, style: V20Text.baloo(size: 28, line: 30, color: c))),
+          Text(lab.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
+        ]),
+      );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

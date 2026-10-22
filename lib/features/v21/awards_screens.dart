@@ -19,7 +19,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'cast21.dart';
-import 'library_screens.dart' show coverOf21, projectCover21, trackCover21;
+import 'library_screens.dart' show Cover21, coverOf21, projectCover21, trackCover21;
 import 'widgets21.dart';
 
 /// Classements officiels (21-R2, refonte façon plateforme de streaming), salle des trophées (certifications et cérémonies).
@@ -348,8 +348,56 @@ class _MyPosition extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Salle des trophées : certifications et cérémonies
+// Salle des trophées : le hall, avec deux portes (chambre des certifications, salon des awards)
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// Pochette de l'œuvre d'une certification (single de la discographie, EP ou album sorti).
+String _certCover(J s, Cert21 c) {
+  if (c.kind == 'Single') {
+    for (final t in _l(s['disco']).map(_m)) {
+      if ('${t['id']}' == c.id) return trackCover21(t);
+    }
+  } else {
+    for (final p in _l(s['projects']).map(_m)) {
+      if ('${p['id']}' == c.id) return projectCover21(p);
+    }
+  }
+  return coverOf21(c.id);
+}
+
+J _m(dynamic x) => x is Map ? x.map((k, v) => MapEntry('$k', v)) : <String, dynamic>{};
+List _l(dynamic x) => x is List ? x : const [];
+
+/// Porte d'une salle : grande carte illustrée, chiffre clé, et ce qu'on y trouve.
+class _Door extends StatelessWidget {
+  final String title, kicker, line;
+  final Widget art;
+  final Widget badge;
+  final GlassAccent accent;
+  final VoidCallback onTap;
+  const _Door({super.key, required this.title, required this.kicker, required this.line, required this.art, required this.badge, required this.accent, required this.onTap});
+  @override
+  Widget build(BuildContext context) => GlassCard(
+        accent: accent,
+        halo: false,
+        onTap: onTap,
+        semanticLabel: title,
+        child: Row(children: [
+          SizedBox(width: 72, height: 92, child: art),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(kicker, style: V20Text.lab(color: accent == GlassAccent.gold ? V20.hintGoldText : Tk.cy)),
+              Text(title, style: V20Text.baloo(size: 22, line: 24)),
+              const SizedBox(height: 2),
+              Text(line, style: V20Text.bs()),
+              const SizedBox(height: 6),
+              badge,
+            ]),
+          ),
+        ]),
+      );
+}
 
 class TropheesScreen extends ConsumerWidget {
   const TropheesScreen({super.key});
@@ -358,12 +406,11 @@ class TropheesScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final certs = certs21(s);
-    final hist = awardHistory21(s);
+    final best = certs.where((c) => c.level >= 0).toList();
     final (next, days) = nextCeremony21(s);
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Salle des trophées', step: 'T1', onBack: () => context.go('/profil')),
       const SizedBox(height: 12),
-      // vitrine
       ClipRRect(
         borderRadius: BorderRadius.circular(22),
         child: Container(
@@ -391,33 +438,245 @@ class TropheesScreen extends ConsumerWidget {
         ),
       ),
       const SizedBox(height: 12),
-      // prochaine cérémonie
-      GlassCard(
-        accent: GlassAccent.gold,
-        halo: false,
-        child: Row(children: [
-          SizedBox(width: 56, height: 76, child: SvgPicture.asset(next.trophy)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('PROCHAINE CÉRÉMONIE', style: V20Text.lab()),
-              Text(next.n, style: V20Text.nm()),
-              Text('Semaine ${next.week} · ${next.place} · ${days == 0 ? "aujourd'hui" : 'dans $days jour(s)'}', style: V20Text.bs()),
-              const SizedBox(height: 4),
-              for (final cat in next.cats) _CatLine(s: s, c: next, cat: cat),
-            ]),
-          ),
-        ]),
+      _Door(
+        key: const ValueKey('door-certifs'),
+        title: 'Chambre des certifications',
+        kicker: 'DISQUES D\'OR, PLATINE, DIAMANT',
+        line: best.isEmpty ? 'Aucune plaque pour l\'instant. Chaque sortie compte.' : 'Meilleure plaque : ${best.first.name} · ${best.first.title}',
+        art: SvgPicture.asset(certs.isEmpty ? 'assets/awards/plaque_vide.svg' : certs.first.plaque),
+        badge: GameTag('${certCount21(s)} plaque(s) · ${certs.length} œuvre(s)', style: GameTagStyle.outline),
+        accent: GlassAccent.cyan,
+        onTap: () => context.go('/profil/trophees/certifications'),
       ),
-      const _Sec('Certifications', 'unités cumulées'),
-      if (certs.isEmpty)
-        const GameCard(child: Text('Aucune sortie. Chaque single, EP ou album peut être certifié : or, platine, double, triple, diamant.'))
+      const SizedBox(height: 12),
+      _Door(
+        key: const ValueKey('door-awards'),
+        title: 'Salon des awards',
+        kicker: 'CÉRÉMONIES ET PALMARÈS',
+        line: '${next.n} · ${days == 0 ? "aujourd'hui" : 'dans $days jour(s)'}',
+        art: SvgPicture.asset(next.trophy),
+        badge: GameTag('${awardWins21(s)} trophée(s) · ${awardNoms21(s)} nomination(s)', style: GameTagStyle.outline),
+        accent: GlassAccent.gold,
+        onTap: () => context.go('/profil/trophees/awards'),
+      ),
+    ]);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Chambre des certifications
+// Intention de jeu : voir d'un coup d'œil ce que chaque sortie a gagné, et quelle plaque est la plus proche.
+// ---------------------------------------------------------------------------------------------------------------------
+
+double _progress(Cert21 c) {
+  final next = c.next;
+  if (next == null) return 1;
+  final prev = c.level < 0 ? 0 : certThresholds21[c.kind]![c.level];
+  return ((c.units - prev) / (next - prev)).clamp(0, 1).toDouble();
+}
+
+class CertificationsScreen21 extends ConsumerStatefulWidget {
+  const CertificationsScreen21({super.key});
+  @override
+  ConsumerState<CertificationsScreen21> createState() => _CertificationsState();
+}
+
+class _CertificationsState extends ConsumerState<CertificationsScreen21> {
+  String _kind = 'Tout';
+
+  @override
+  Widget build(BuildContext context) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const Center(child: CircularProgressIndicator());
+    final all = certs21(s);
+    final shown = _kind == 'Tout' ? all : all.where((c) => c.kind == _kind).toList();
+    final perLevel = [for (var i = 0; i < certLevels21.length; i++) all.where((c) => c.level == i).length];
+    final chasing = all.where((c) => c.next != null && c.units > 0).toList()..sort((a, b) => _progress(b).compareTo(_progress(a)));
+    final target = chasing.isEmpty ? null : chasing.first;
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Chambre des certifications', step: 'T2', onBack: () => context.go('/profil/trophees')),
+      const SizedBox(height: 12),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF0C2A33), Tk.s1, Tk.deep])),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('PLAQUES OBTENUES', style: V20Text.lab(color: Tk.cy)),
+            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Text('${certCount21(s)}', style: V20Text.baloo(size: 52, line: 54, color: Tk.cy)),
+              const SizedBox(width: 8),
+              Padding(padding: const EdgeInsets.only(bottom: 8), child: Text('sur ${all.length} œuvre(s)', style: V20Text.bs(color: Tk.ink))),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              for (var i = 0; i < certLevels21.length; i++)
+                Expanded(
+                  child: Semantics(
+                    label: '${certNames21[certLevels21[i]]} : ${perLevel[i]}',
+                    excludeSemantics: true,
+                    child: Column(children: [
+                      SizedBox(height: 44, child: Opacity(opacity: perLevel[i] > 0 ? 1 : .35, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg'))),
+                      Text('${perLevel[i]}', style: V20Text.baloo(size: 18, line: 20, color: perLevel[i] > 0 ? Tk.gold : V20.ink2)),
+                    ]),
+                  ),
+                ),
+            ]),
+          ]),
+        ),
+      ),
+      if (target != null) ...[
+        const _Sec('Prochaine plaque', 'la plus proche'),
+        GlassCard(
+          key: const ValueKey('next-plaque'),
+          accent: GlassAccent.gold,
+          halo: false,
+          child: Row(children: [
+            Stack(children: [
+              SizedBox(width: 78, height: 98, child: SvgPicture.asset(target.plaque)),
+              Positioned(right: 0, bottom: 0, child: Cover21(_certCover(s, target), size: 34, radius: 8)),
+            ]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(target.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm()),
+                Text('${target.kind} · ${target.level < 0 ? 'vers le Disque d\'or' : 'vers ${certNames21[certLevels21[target.level + 1]]}'}', style: V20Text.bs()),
+                const SizedBox(height: 6),
+                MeterBar(value: _progress(target), tone: MeterTone.gold, thin: true),
+                const SizedBox(height: 4),
+                Text('Encore ${fmt21(target.next! - target.units)} unités (≈ ${fmt21((target.next! - target.units) * 100)} écoutes)', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+              ]),
+            ),
+          ]),
+        ),
+      ],
+      const _Sec('Tes œuvres', 'plaque par œuvre'),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final k in const ['Tout', 'Single', 'EP', 'Album']) Chip21(k == 'Tout' ? 'Tout' : (k == 'Single' ? 'Singles' : (k == 'EP' ? 'EP' : 'Albums')), selected: _kind == k, onTap: () => setState(() => _kind = k)),
+      ]),
+      const SizedBox(height: 12),
+      if (shown.isEmpty)
+        const GameCard(child: Text('Aucune œuvre ici. Chaque single, EP ou album peut être certifié : or, platine, double, triple, diamant.'))
       else
         LayoutBuilder(builder: (context, c) {
           final w = (c.maxWidth - 12) / 2;
-          return Wrap(spacing: 12, runSpacing: 12, children: [for (final x in certs) SizedBox(width: w, child: _CertCard(x))]);
+          return Wrap(spacing: 12, runSpacing: 12, children: [for (final x in shown) SizedBox(width: w, child: _Plaque(x, _certCover(s, x)))]);
         }),
-      const _Sec('Palmarès', 'cérémonies'),
+      const _Sec('Échelle des paliers', 'unités'),
+      GlassCard(
+        child: Column(children: [
+          for (var i = 0; i < certLevels21.length; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(children: [
+                SizedBox(width: 30, height: 38, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg')),
+                const SizedBox(width: 12),
+                Expanded(child: Text(certNames21[certLevels21[i]]!, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700))),
+                Text(fmt21(certThresholds21['Single']![i]), style: V20Text.baloo(size: 18, line: 20, color: Tk.gold)),
+              ]),
+            ),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      const GameHint(
+          icon: 'info',
+          text: 'Unités = ventes + équivalent streaming : 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes ; EP et album : écoutes du projet). '
+              'Les mêmes seuils valent pour single, EP et album. Une certification n\'est jamais retirée. Seuils provisoires (18.4, D-02, D-08).'),
+    ]);
+  }
+}
+
+/// Plaque d'une œuvre : plaque (ou cadre vide), pochette, palier et progression vers le suivant.
+class _Plaque extends StatelessWidget {
+  final Cert21 c;
+  final String cover;
+  const _Plaque(this.c, this.cover);
+  @override
+  Widget build(BuildContext context) {
+    final next = c.next;
+    return GlassCard(
+      padding: const EdgeInsets.all(10),
+      accent: c.level >= 0 ? GlassAccent.gold : GlassAccent.none,
+      halo: false,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Center(
+          child: SizedBox(
+            height: 120,
+            child: Stack(children: [
+              AspectRatio(aspectRatio: 240 / 300, child: SvgPicture.asset(c.plaque)),
+              Positioned(right: 0, bottom: 0, child: Cover21(cover, size: 34, radius: 8)),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(c.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700)),
+        Text('${c.kind} · ${c.name}', maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 16, color: c.level >= 0 ? V20.hintGoldText : V20.ink2)),
+        const SizedBox(height: 6),
+        MeterBar(value: _progress(c), tone: MeterTone.gold, thin: true),
+        const SizedBox(height: 4),
+        Text(next == null ? '${fmt21(c.units)} unités · palier maximal' : '${fmt21(c.units)} / ${fmt21(next)} unités', style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+      ]),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Salon des awards
+// Intention de jeu : savoir quelle cérémonie arrive, où l'on en est, et garder la mémoire de ses victoires.
+// ---------------------------------------------------------------------------------------------------------------------
+
+class SalonAwardsScreen21 extends ConsumerWidget {
+  const SalonAwardsScreen21({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(game21Provider).valueOrNull;
+    if (s == null) return const Center(child: CircularProgressIndicator());
+    final hist = awardHistory21(s);
+    final (next, days) = nextCeremony21(s);
+    final week = weekOf21(_n(s['day']));
+    final wins = hist.where((h) => h['res'] == 'win').toList();
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Salon des awards', step: 'T3', onBack: () => context.go('/profil/trophees')),
+      const SizedBox(height: 12),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF2A1F08), Tk.s1, Tk.deep])),
+          child: Column(children: [
+            Row(children: [
+              SizedBox(width: 84, height: 112, child: SvgPicture.asset(next.trophy)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(days == 0 ? 'CÉRÉMONIE CE SOIR' : 'PROCHAINE CÉRÉMONIE', style: V20Text.lab(color: V20.hintGoldText)),
+                  Text(next.n, style: V20Text.baloo(size: 24, line: 26)),
+                  Text('Semaine ${next.week} · ${next.place}', style: V20Text.bs(color: Tk.ink)),
+                  const SizedBox(height: 4),
+                  Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                    Text(days == 0 ? '0' : '$days', style: V20Text.baloo(size: 40, line: 40, color: Tk.gold)),
+                    const SizedBox(width: 6),
+                    Padding(padding: const EdgeInsets.only(bottom: 4), child: Text('jour(s)', style: V20Text.bs())),
+                  ]),
+                ]),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              _Count('Trophées', '${awardWins21(s)}', Tk.gold),
+              _Count('Nominations', '${awardNoms21(s)}', Tk.acc4),
+              _Count('Cérémonies', '${hist.map((h) => '${h['y']}-${h['c']}').toSet().length}', Tk.cy),
+            ]),
+          ]),
+        ),
+      ),
+      const _Sec('Tes catégories', 'score estimé'),
+      GlassCard(
+        accent: GlassAccent.gold,
+        halo: false,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [for (final cat in next.cats) _CatLine(s: s, c: next, cat: cat)]),
+      ),
+      const _Sec('Palmarès', 'tes victoires et nominations'),
       if (hist.isEmpty)
         GameCard(
           child: Row(children: [
@@ -426,34 +685,45 @@ class TropheesScreen extends ConsumerWidget {
             Expanded(child: Text('Pas encore de nomination. Les cérémonies ont lieu en fin d\'année (semaines 43 à 52), nominations à partir de la semaine 41.', style: V20Text.bs())),
           ]),
         )
-      else
+      else ...[
+        if (wins.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text('${wins.length} victoire(s) au total', style: V20Text.bs(color: Tk.ok))),
         for (final h in hist.reversed) _HistRow(h),
-      const _Sec('Calendrier', 'chaque année'),
-      for (final c in ceremonies21)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: GameCard(
-            child: Row(children: [
-              SizedBox(width: 40, height: 54, child: SvgPicture.asset(c.trophy)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(c.n, style: V20Text.nm()),
-                  Text('S${c.week} · ${c.place}', style: V20Text.bs()),
-                  Text(c.cats.map((x) => x.n).join(' · '), style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
-                ]),
-              ),
-              GameTag('Prestige ${c.prestige}', style: GameTagStyle.outline),
-            ]),
-          ),
-        ),
+      ],
+      const _Sec('Calendrier de l\'année', 'semaine $week'),
+      for (final c in ceremonies21) _CeremonyRow(c, past: c.week < week, isNext: c.id == next.id),
       const SizedBox(height: 8),
       const GameHint(
           icon: 'info',
-          text: 'Certifications : Disque d\'or à 50 000 unités, platine 100 000, double 200 000, triple 300 000, diamant 500 000. Unités = ventes + équivalent streaming : 100 écoutes = 1 unité (single : écoutes affichées sur les plateformes ; EP et album : écoutes du projet). Une certification n\'est jamais retirée. '
-              'Cérémonies : score = 0,35 qualité + 0,25 résultats + 0,20 impact + 0,10 popularité + jury ; au plus 3 victoires par cérémonie ; une nomination rapporte aussi de la réputation. Seuils provisoires (18.4, 18.5).'),
+          text: 'Cérémonies : score = 0,35 qualité + 0,25 résultats + 0,20 impact + 0,10 popularité + jury ; au plus 3 victoires par cérémonie ; '
+              'une nomination rapporte aussi de la réputation. Seuils provisoires (18.5).'),
     ]);
   }
+}
+
+class _CeremonyRow extends StatelessWidget {
+  final Ceremony21 c;
+  final bool past, isNext;
+  const _CeremonyRow(this.c, {required this.past, required this.isNext});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: GameCard(
+          selected: isNext,
+          child: Row(children: [
+            SizedBox(width: 40, height: 54, child: Opacity(opacity: past ? .45 : 1, child: SvgPicture.asset(c.trophy))),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(c.n, style: V20Text.nm()),
+                Text('S${c.week} · ${c.place}', style: V20Text.bs()),
+                Text(c.cats.map((x) => x.n).join(' · '), style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            GameTag(past ? 'Passée' : (isNext ? 'Prochaine' : 'Prestige ${c.prestige}'), style: isNext ? GameTagStyle.accent : GameTagStyle.outline),
+          ]),
+        ),
+      );
 }
 
 class _Count extends StatelessWidget {
@@ -500,33 +770,6 @@ class _CatLine extends StatelessWidget {
     if (sc == null) return Conseq21(ConsequenceKind.uncertain, '${cat.n} : pas encore éligible');
     final txt = '${cat.n} : score estimé ${sc.round()} · nomination ${c.nominateAt.round()} · victoire ${c.winAt.round()}';
     return Conseq21(ConsequenceKind.estimated, txt);
-  }
-}
-
-class _CertCard extends StatelessWidget {
-  final Cert21 c;
-  const _CertCard(this.c);
-  @override
-  Widget build(BuildContext context) {
-    final next = c.next;
-    final prev = c.level < 0 ? 0 : certThresholds21[c.kind]![c.level];
-    final prog = next == null ? 1.0 : ((c.units - prev) / (next - prev)).clamp(0, 1).toDouble();
-    return GlassCard(
-      padding: const EdgeInsets.all(10),
-      accent: c.level >= 0 ? GlassAccent.gold : GlassAccent.none,
-      halo: false,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Center(child: SizedBox(height: 120, child: AspectRatio(aspectRatio: 240 / 300, child: SvgPicture.asset(c.plaque)))),
-        const SizedBox(height: 8),
-        Text(c.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 14, line: 18, weight: FontWeight.w700)),
-        Text('${c.kind} · ${c.name}', maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 16, color: c.level >= 0 ? V20.hintGoldText : V20.ink2)),
-        const SizedBox(height: 6),
-        MeterBar(value: prog, tone: MeterTone.gold, thin: true),
-        const SizedBox(height: 4),
-        Text(next == null ? '${fmt21(c.units)} unités · palier maximal' : '${fmt21(c.units)} / ${fmt21(next)} unités',
-            style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
-      ]),
-    );
   }
 }
 

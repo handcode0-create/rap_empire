@@ -234,7 +234,11 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         name: '21-R2-Classements',
                         builder: (_, __) => const ClassementsScreen()),
                     GoRoute(path: 'wiki', name: '21-W1-Bakopedia', builder: (_, __) => const WikiScreen21()),
-                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen(), routes: [GoRoute(path: 'annonce', name: '21-T2-Annonce', builder: (_, __) => const AnnonceTropheeScreen())]),
+                    GoRoute(path: 'trophees', name: '21-T1-Trophees', builder: (_, __) => const TropheesScreen(), routes: [
+                      GoRoute(path: 'annonce', name: '21-T2-Annonce', builder: (_, __) => const AnnonceTropheeScreen()),
+                      GoRoute(path: 'certifications', name: '21-T3-Certifications', builder: (_, __) => const CertificationsScreen21()),
+                      GoRoute(path: 'awards', name: '21-T4-Awards', builder: (_, __) => const SalonAwardsScreen21()),
+                    ]),
                     GoRoute(
                         path: 'garde-robe',
                         name: '21-W1-Garde-robe',
