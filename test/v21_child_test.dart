@@ -34,7 +34,7 @@ void main() {
       s = must(s, 'kid', ['0', 'jouer']);
     }
     expect((kid(s)['mem'] as List).length, Reg21.kidMemMax);
-    expect((kid(s)['dev'] as J)['eveil'], 40);
+    expect((kid(s)['dev'] as J)['eveil'], 4 * (Reg21.kidMemMax + 3));
   });
 
   test('garde : nounou pour un bébé, école interdite avant 3 ans, pas deux fois la même', () {
