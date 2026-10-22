@@ -589,6 +589,10 @@ void main() {
     expect(find.byKey(const ValueKey('prod-berline')), findsOneWidget);
     expect(txt('RÉPUTATION 70'), findsOneWidget);
     // un bien verrouillé ne s'ouvre pas
+    await tester.ensureVisible(find.byKey(const ValueKey('prod-berline')));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
     await tester.tap(find.byKey(const ValueKey('prod-berline')));
     await tester.pump(const Duration(milliseconds: 300));
     expect(txt('Réputation insuffisante'), findsWidgets);
@@ -599,6 +603,10 @@ void main() {
     await tester.tap(txt('Disponibles'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-scooter')), 200, scrollable: list);
+    await tester.ensureVisible(find.byKey(const ValueKey('prod-scooter')));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
     await tester.tap(find.byKey(const ValueKey('prod-scooter')));
     await tester.pumpAndSettle();
     expect(txt('Fiche du bien'), findsOneWidget);
