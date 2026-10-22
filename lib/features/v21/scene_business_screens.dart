@@ -30,6 +30,7 @@ import 'labels_screens.dart';
 import 'merch_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
+import 'start_screens.dart' show confirmSheet;
 import 'widgets21.dart';
 
 /// Scène (21-C1 à 21-C3) et Business (21-E1 à 21-E5, 21-L1).
@@ -1185,20 +1186,7 @@ class LabelsScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
-      GameCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Flexible(child: Text('Créer ton label', style: V20Text.nm())),
-            const GameTag('Verrouillé', style: GameTagStyle.outline)
-          ]),
-          KeyVal('Réputation ${Reg21.ownLabelRep}',
-              rep >= Reg21.ownLabelRep ? '✓' : '—'),
-          KeyVal('Capital ${fmt21(Reg21.ownLabelCash)} cauris',
-              _n(s['cash']) >= Reg21.ownLabelCash ? '✓' : '—'),
-          const KeyVal('Manager M3 ou plus', 'non modélisé ici', bold: false),
-          Text('Validé (D-05), seuils provisoires.', style: V20Text.bs()),
-        ]),
-      ),
+      _OwnLabelCard(s),
     ]);
   }
 }
@@ -1474,4 +1462,57 @@ String? jobLockText21(J s, String id) {
     'rep' => 'Réputation ${j['rep']} requise (tu as ${_n(s['rep']).toInt()})',
     _ => null,
   };
+}
+
+/// Création de son label : dès le rang N4, capital 500 000 cauris, sans contrat de label actif (provisoire, D-05 / D-08).
+class _OwnLabelCard extends ConsumerWidget {
+  final J s;
+  const _OwnLabelCard(this.s);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final founded = s['olabel'] != null;
+    final rankOk = rankOf(s) >= Reg21.ownLabelRank;
+    final cashOk = _n(s['cash']) >= Reg21.ownLabelCash;
+    final free = s['signed'] != 1;
+    final ready = rankOk && cashOk && free && !founded;
+    final day = Reg21.ownLabelDay * math.max(1, rankOf(s) - 3);
+    return GameCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Flexible(child: Text(founded ? 'Ton label' : 'Créer ton label', style: V20Text.nm())),
+          founded
+              ? const GameTag('Fondé', style: GameTagStyle.ok)
+              : (rankOk ? const GameTag('Disponible') : const GameTag('Niveau 4', style: GameTagStyle.outline)),
+        ]),
+        if (founded) ...[
+          KeyVal('Revenu estimé par jour', '+${fmt21(day)} cauris', color: Tk.gold),
+          Text('Le revenu grandit avec ton rang. Signer d’autres artistes n’est pas encore modélisé (valeurs provisoires).', style: V20Text.bs()),
+        ] else ...[
+          KeyVal('Rang N${Reg21.ownLabelRank} · ${(Reg21.ranks[Reg21.ownLabelRank - 1]['n'] as String)}', rankOk ? '✓' : '—'),
+          KeyVal('Capital ${fmt21(Reg21.ownLabelCash)} cauris', cashOk ? '✓' : '—'),
+          KeyVal('Aucun contrat de label actif', free ? '✓' : '—'),
+          Text('Revenu estimé après création : +${fmt21(Reg21.ownLabelDay)} cauris par jour au rang N${Reg21.ownLabelRank}, plus à chaque rang. Valeurs provisoires (D-08).', style: V20Text.bs()),
+          const SizedBox(height: 8),
+          PrimaryButton(
+            label: 'Fonder mon label',
+            sublabel: '−${fmt21(Reg21.ownLabelCash)} cauris',
+            compact: true,
+            style: ready ? GameButtonStyle.secondary : GameButtonStyle.disabled,
+            onPressed: () async {
+              if (!ready) {
+                toastErr(context, !rankOk ? 'rang' : (!free ? 'contratactif' : 'cash'));
+                return;
+              }
+              final yes = await confirmSheet(context,
+                  title: 'Fonder ton label ?',
+                  body: 'Capital de ${fmt21(Reg21.ownLabelCash)} cauris, payé tout de suite. Ton label rapporte ensuite ${fmt21(Reg21.ownLabelDay)} cauris par jour au rang N${Reg21.ownLabelRank}.',
+                  action: 'Fonder le label');
+              if (yes && context.mounted) await doAct(context, ref, 'olabel', null, null, 'Label fondé');
+            },
+          ),
+        ],
+      ]),
+    );
+  }
 }

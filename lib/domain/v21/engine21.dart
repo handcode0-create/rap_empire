@@ -207,6 +207,7 @@ J init21() {
     'biz': <String, dynamic>{},
     'merch': null,
     'merchDone': <String, dynamic>{},
+    'olabel': null,
     'signed': 0,
     'jail': null,
     'jphone': 0,
@@ -2290,6 +2291,19 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // ---------- création de son label (dès le rang N4) ----------
+  'olabel': (s, a) {
+    if (s['olabel'] != null) return _no(s, 'deja');
+    if (_n(s['rank']) < Reg21.ownLabelRank) return _no(s, 'rang');
+    if (_t(s['signed'])) return _no(s, 'contratactif');
+    if (_n(s['cash']) < Reg21.ownLabelCash) return _no(s, 'cash');
+    final n = clone21(s);
+    _pay(n, -Reg21.ownLabelCash);
+    n['olabel'] = {'day': n['day']};
+    _log(n, 'Ton label est fondé', 'business');
+    return _ok(n);
+  },
+
   'merch': (s, id) {
     final m = Reg21.merch[id];
     if (m == null) return _no(s, 'inconnu');
@@ -2896,6 +2910,11 @@ Res _endDay(J s) {
     final y = jsRound((r['lo'] as num) + ((r['hi'] as num) - (r['lo'] as num)) * rng21(n, 30 + k.length * 3 + k.codeUnitAt(0) % 7));
     inc += y;
     ev.add('Loyers · ${r['n']} : ${sg21(y)}');
+  }
+  if (n['olabel'] != null) {
+    final z = Reg21.ownLabelDay * math.max(1, _n(n['rank']).toInt() - 3);
+    inc += z;
+    ev.add('Ton label : ${sg21(z)}');
   }
   if (n['merch'] != null) {
     final mm = _m(n['merch']);

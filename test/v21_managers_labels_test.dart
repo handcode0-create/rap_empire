@@ -100,4 +100,24 @@ void main() {
       expect(est.$2, est.$1 * 16);
     });
   });
+
+  test('création de son label : dès le rang N4, capital payé, pas avec un contrat actif, revenu quotidien', () {
+    var s = act21(init21(), 'preset', 'carriere').s;
+    s['cash'] = 600000;
+    s['rank'] = 3;
+    expect(act21(s, 'olabel').err, 'rang');
+    s['rank'] = 4;
+    s['signed'] = 1;
+    expect(act21(s, 'olabel').err, 'contratactif');
+    s['signed'] = 0;
+    s['cash'] = 100000;
+    expect(act21(s, 'olabel').err, 'cash');
+    s['cash'] = 600000;
+    s = must(s, 'olabel');
+    expect(s['cash'], 100000);
+    expect(act21(s, 'olabel').err, 'deja');
+    final before = s['cash'] as num;
+    s = must(s, 'endDay');
+    expect((s['cash'] as num) > before, isTrue);
+  });
 }

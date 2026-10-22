@@ -396,7 +396,8 @@ class Reg21 {
 
   /// Problèmes de début de carrière : un à la fois, au plus un tous les [pbEvery] jours, jusqu'au rang [pbMaxRank].
   static const pbEvery = 3, pbMaxRank = 3;
-  static const ownLabelRep = 60, ownLabelCash = 500000;
+  /// Création de son label (D-05 révisé à la demande de Smith : dès le rang N4). Capital et revenu par jour provisoires (D-08).
+  static const ownLabelRank = 4, ownLabelCash = 500000, ownLabelDay = 2000;
   static const labelCut = 0.35;
   /// Rupture d'un contrat de label (D-08, provisoire) : rachat de l'avance + 20 % (planche 18.1), relation avec le directeur −15, popularité −3.
   static const labelBreakRate = 1.2, labelBreakRel = 15, labelBreakPop = 3;
