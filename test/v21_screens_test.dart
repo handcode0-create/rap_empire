@@ -428,7 +428,8 @@ void main() {
     expect(repo.current['mgr'], 'maya');
     expect(txt('Mettre fin au contrat'), findsOneWidget);
     await tapText(tester, 'Mettre fin au contrat');
-    await tapText(tester, 'Mettre fin au contrat'); // bouton de la feuille de confirmation
+    await tester.tap(txt('Mettre fin au contrat').last); // bouton de la feuille de confirmation
+    await tester.pumpAndSettle();
     expect(repo.current['mgr'], isNull);
     await tester.scrollUntilVisible(txt('Séraphine Aboa'), 300, scrollable: find.byType(Scrollable).first); // M6 listé avec son profil
     expect(txt('Séraphine Aboa'), findsOneWidget);
@@ -449,6 +450,8 @@ void main() {
     await tapText(tester, 'Payer 96 000 cauris et rompre');
     expect(repo.current['signed'], 0);
     expect(repo.current['cash'], 104000);
+    await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await tester.pumpAndSettle();
     expect(txt('Artiste indépendant'), findsOneWidget);
   });
 
