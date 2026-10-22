@@ -405,7 +405,7 @@ void main() {
   testWidgets('espace enfant : hero, développement, changer de garde, souvenirs', (tester) async {
     final repo = await pump21(tester, preset('parent'), location: '/famille/enfant');
     expect(find.byKey(const ValueKey('enfant-hero')), findsOneWidget);
-    await tester.ensureVisible(find.byKey(const ValueKey('garde-Nounou')));
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('garde-Nounou')), 300);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('garde-Nounou')));
     await tester.pumpAndSettle();
