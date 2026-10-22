@@ -310,7 +310,7 @@ void main() {
 
   testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/scene/rivalites');
-    expect(txt('Zaki Mbela'), findsOneWidget);
+    expect(txt('Zaki Mbela'), findsWidgets);
     await tapText(tester, 'Discuter');
     expect((repo.current['rivals'] as J)['zaki']['relation'], 5);
     await tapText(tester, 'Répondre en freestyle');
@@ -631,5 +631,27 @@ void main() {
     await tester.pumpAndSettle(); // le curseur est arrêté : plus d'animation
     expect(txt('Écouter le flow'), findsNothing);
     expect(find.textContaining('Raté').evaluate().length + find.textContaining('Bien calé').evaluate().length, greaterThan(0));
+  });
+
+  testWidgets('réseau artistique : annuaire des 1 000 artistes, recherche, filtres, fiche', (tester) async {
+    await pump21(tester, preset('debut'), location: '/scene/rivalites');
+    expect(find.byKey(const ValueKey('reseau-hero')), findsOneWidget);
+    expect(txt('1 000 artistes'), findsOneWidget);
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('annuaire-recherche')), 300, scrollable: list);
+    expect(find.byKey(const ValueKey('annuaire-compte')), findsOneWidget);
+    // recherche sans accent ni casse
+    await tester.enterText(find.byKey(const ValueKey('annuaire-recherche')), 'kaira');
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(txt('Kaïra Nox'), 200, scrollable: list);
+    expect(txt('1 artiste(s)'), findsOneWidget);
+    // fiche d'un artiste
+    await tester.ensureVisible(txt('Kaïra Nox'));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
+    await tester.tap(txt('Kaïra Nox'));
+    await tester.pumpAndSettle();
+    expect(txt('Superstar internationale'), findsWidgets);
   });
 }

@@ -15,6 +15,7 @@ import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
 import '../features/v21/cover_screens.dart';
 import '../features/v21/reserve_screens.dart';
+import '../features/v21/artists_screens.dart' show Rivalites21Screen;
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/wiki_screens.dart';
 import '../features/v21/festival_screens.dart';

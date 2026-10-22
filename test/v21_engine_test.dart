@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:io';
+import 'package:rap_empire/domain/v21/artists21.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
@@ -556,5 +558,33 @@ void main() {
     s = must(s, 'ask', 'voiture');
     s = must(s, 'assetBuy');
     expect(bestAsset21(s, 'sceneEnergy'), 10);
+  });
+
+  test('annuaire des artistes : 1 000 fiches, recherche sans accent, filtres et tri', () {
+    final d = parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync());
+    expect(d.artists.length, 1000);
+    expect(d.artists.first.nom, 'Kaïra Nox');
+    expect(d.artists.map((a) => a.id).toSet().length, 1000);
+    expect(d.labels.length, 10);
+    expect(filterArtists21(d, q: 'KAIRA').map((a) => a.nom), ['Kaïra Nox']);
+    expect(filterArtists21(d, q: 'bakoma sound').every((a) => a.label == 'BSR'), isTrue);
+    final signes = filterArtists21(d, statut: 'signé');
+    expect(signes.length, 520);
+    expect(signes.every((a) => a.label != null), isTrue);
+    final genre = d.genres.first;
+    expect(filterArtists21(d, genre: genre).every((a) => a.genre == genre), isTrue);
+    final pop = filterArtists21(d, tri: 'pop');
+    for (var i = 1; i < pop.length; i++) {
+      expect(pop[i].popularite, lessThanOrEqualTo(pop[i - 1].popularite));
+    }
+    expect(filterArtists21(d, tri: 'hausse').first.tendance, 'en hausse');
+    // alliés et rivaux pointent vers des fiches existantes
+    for (final a in d.artists) {
+      for (final id in [...a.allies, ...a.rivaux]) {
+        expect(d.byId(id), isNotNull, reason: '${a.id} → $id');
+      }
+    }
+    expect(rivalKeyOf21('Zaki Mbela'), 'zaki');
+    expect(rivalKeyOf21('Kaïra Nox'), isNull);
   });
 }

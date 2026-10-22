@@ -1498,59 +1498,6 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
   }
 }
 
-class Rivalites21Screen extends ConsumerWidget {
-  const Rivalites21Screen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(game21Provider).valueOrNull;
-    if (s == null) return const SizedBox();
-    final links = s['rivals'] is Map ? s['rivals'] as Map : const {};
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Réseau artistique', onBack: () => context.go('/scene')),
-      const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Parle avec les artistes, provoque-les ou tente d’apaiser une rivalité. Les interactions et leurs effets chiffrés sont provisoires.'),
-      const Lab21('Artistes de Bakoma'),
-      for (final rival in Reg21.rivals.entries.where((e) => e.key != 'kzer')) ...[
-        const SizedBox(height: 8),
-        GameCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            CastAvatar(rival.key, size: 48, mood: 'smirk'),
-            const SizedBox(width: 10),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(rival.value, style: V20Text.nm()),
-              Text(_artistRelation(links[rival.key]), style: V20Text.bs()),
-            ])),
-          ]),
-          const SizedBox(height: 8),
-          Text(_artistIntro[rival.key]!, style: V20Text.bm),
-          const SizedBox(height: 8),
-          ActionRow(title: 'Discuter', subtitle: '1 h · −5 énergie · relation +5 · tension −3', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'discuter'], null, 'Discussion terminée')),
-          ActionRow(title: 'Provoquer', subtitle: '1 h · −10 énergie · relation −5 · tension +15', trailing: ActionRow.arrow(), onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'provoquer'], null, 'La rivalité monte')),
-          ActionRow(title: 'Apaiser la rivalité', subtitle: '1 h · −8 énergie · −2 000 cauris · relation +8 · tension −12', trailing: ActionRow.arrow(), disabled: _n(s['cash']) < 2000, onTap: () => doAct(context, ref, 'artistScene', [rival.key, 'apaiser'], null, 'Tension réduite')),
-          const SizedBox(height: 6),
-          PrimaryButton(label: 'Répondre en freestyle', sublabel: 'Battle · 1 h · −15 énergie', style: GameButtonStyle.secondary, compact: true, onPressed: () => context.go('/scene/rival-battle/${rival.key}')),
-        ])),
-      ],
-      const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Une battle se joue en trois rounds. À partir de deux bonnes réponses : +150 fans, +3 000 cauris bruts, +6 réputation et +60 XP. La commission du manager est retenue sur le cachet.'),
-    ]);
-  }
-
-  static const _artistIntro = {
-    'zaki': 'Zaki te croise après une sortie et te reproche de viser son public.',
-    'orage': 'Madame Orage veut entendre ce que tu as réellement à défendre.',
-    'djo': 'Djo Kene te lance un défi pour mesurer ton identité musicale.',
-  };
-
-  static String _artistRelation(dynamic raw) {
-    if (raw is! Map) return 'Relation neutre · tension 0 / 100';
-    final data = Map<String, dynamic>.from(raw);
-    final relation = _n(data['relation']).round();
-    final tension = _n(data['tension']).round();
-    return 'Relation ${relation >= 0 ? '+' : ''}$relation · tension $tension / 100';
-  }
-}
-
 /// Résultat de battle 21-B2 : victoire ou défaite, puis fans, réputation, prime et énergie dépensée.
 class BattleResult21Screen extends ConsumerWidget {
   const BattleResult21Screen({super.key});
