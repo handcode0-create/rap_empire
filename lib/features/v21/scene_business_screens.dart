@@ -1476,7 +1476,7 @@ class _OwnLabelCard extends ConsumerWidget {
     final cashOk = _n(s['cash']) >= Reg21.ownLabelCash;
     final free = s['signed'] != 1;
     final ready = rankOk && cashOk && free && !founded;
-    final day = Reg21.ownLabelDay * math.max(1, rankOf(s) - 3);
+    final roster = founded ? (_m(s['olabel'])['roster'] as List).length : 0;
     return GameCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1486,13 +1486,15 @@ class _OwnLabelCard extends ConsumerWidget {
               : (rankOk ? const GameTag('Disponible') : const GameTag('Niveau 4', style: GameTagStyle.outline)),
         ]),
         if (founded) ...[
-          KeyVal('Revenu estimé par jour', '+${fmt21(day)} cauris', color: Tk.gold),
-          Text('Le revenu grandit avec ton rang. Signer d’autres artistes n’est pas encore modélisé (valeurs provisoires).', style: V20Text.bs()),
+          KeyVal('Artistes signés', '$roster / ${labelSlots21(s)}', color: Tk.cy),
+          Text('Ton label touche une part des streams, concerts et merch de ses artistes.', style: V20Text.bs()),
+          const SizedBox(height: 8),
+          PrimaryButton(label: 'Gérer mon label', sublabel: roster == 0 ? 'Signe ton premier artiste' : null, compact: true, onPressed: () => context.go('/business/mon-label')),
         ] else ...[
           KeyVal('Rang N${Reg21.ownLabelRank} · ${(Reg21.ranks[Reg21.ownLabelRank - 1]['n'] as String)}', rankOk ? '✓' : '—'),
           KeyVal('Capital ${fmt21(Reg21.ownLabelCash)} cauris', cashOk ? '✓' : '—'),
           KeyVal('Aucun contrat de label actif', free ? '✓' : '—'),
-          Text('Revenu estimé après création : +${fmt21(Reg21.ownLabelDay)} cauris par jour au rang N${Reg21.ownLabelRank}, plus à chaque rang. Valeurs provisoires (D-08).', style: V20Text.bs()),
+          Text('Une fois fondé, tu signes des artistes de l’annuaire (3 places au rang N4). Ton label touche une part de leurs streams, concerts et merch. Valeurs provisoires (D-08).', style: V20Text.bs()),
           const SizedBox(height: 8),
           PrimaryButton(
             label: 'Fonder mon label',
@@ -1506,7 +1508,7 @@ class _OwnLabelCard extends ConsumerWidget {
               }
               final yes = await confirmSheet(context,
                   title: 'Fonder ton label ?',
-                  body: 'Capital de ${fmt21(Reg21.ownLabelCash)} cauris, payé tout de suite. Ton label rapporte ensuite ${fmt21(Reg21.ownLabelDay)} cauris par jour au rang N${Reg21.ownLabelRank}.',
+                  body: 'Capital de ${fmt21(Reg21.ownLabelCash)} cauris, payé tout de suite. Tu pourras ensuite signer des artistes : ton label touche une part de leurs streams, concerts et merch.',
                   action: 'Fonder le label');
               if (yes && context.mounted) await doAct(context, ref, 'olabel', null, null, 'Label fondé');
             },

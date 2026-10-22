@@ -651,6 +651,62 @@ J? managerTier21(J s) {
   return (day, day * (m['days'] as num).toInt());
 }
 
+/// Places dans l'écurie de ton label selon ton rang (0 sous le rang N4).
+int labelSlots21(J s) {
+  var best = 0;
+  for (final e in Reg21.labelSlots.entries) {
+    if (_n(s['rank']) >= e.key) best = e.value;
+  }
+  return best;
+}
+
+/// Revenus quotidiens moyens d'un artiste signé, part du label (le concert est lissé sur [Reg21.lbConcertEvery] jours).
+/// `s` streams, `c` concerts, `m` merch, `f` frais (négatifs), `net` total.
+Map<String, int> labelArtistDay21(J a) {
+  final cut = _n(a['cut']);
+  final s = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut);
+  final c = jsRound(_labelConcert21(a) / Reg21.lbConcertEvery * cut);
+  final m = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut);
+  final f = -jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv);
+  return {'s': s, 'c': c, 'm': m, 'f': f, 'net': s + c + m + f};
+}
+
+num _labelConcert21(J a) => math.sqrt(_n(a['fans'])) * Reg21.lbConcertK * (0.6 + _n(a['pop']) / 100);
+
+/// Fin de journée de l'écurie : streams, concert (tous les 8 jours, décalé par artiste), merch, frais ; progression hebdomadaire.
+/// Retourne le gain net du label et ajoute une ligne par source dans [ev].
+int ownLabelTick21(J n, List<String> ev) {
+  final ol = n['olabel'];
+  if (ol is! Map) return 0;
+  final roster = _l(ol['roster']);
+  if (roster.isEmpty) return 0;
+  var s = 0, c = 0, m = 0, f = 0;
+  for (var i = 0; i < roster.length; i++) {
+    final a = roster[i] as J;
+    final cut = _n(a['cut']);
+    final st = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut);
+    final mm = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut);
+    final cc = (_n(n['day']).toInt() + i) % Reg21.lbConcertEvery == 0 ? jsRound(_labelConcert21(a) * cut) : 0;
+    final up = jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv);
+    s += st; m += mm; c += cc; f += up;
+    final t = _m(a['tot']);
+    t['s'] = _n(t['s']) + st; t['c'] = _n(t['c']) + cc; t['m'] = _n(t['m']) + mm; t['f'] = _n(t['f']) + up;
+    final age = _n(n['day']) - _n(a['since']);
+    if (age > 0 && age % 7 == 0) {
+      final g = ((_n(a['talent']) - 45) / 400).clamp(-0.02, 0.06);
+      a['eco'] = jsRound(_n(a['eco']) * (1 + g));
+      a['fans'] = jsRound(_n(a['fans']) * (1 + g));
+    }
+  }
+  final tot = _m(ol['tot']);
+  tot['s'] = _n(tot['s']) + s; tot['c'] = _n(tot['c']) + c; tot['m'] = _n(tot['m']) + m; tot['f'] = _n(tot['f']) + f;
+  if (s > 0) ev.add('Ton label · streams : ${sg21(s)}');
+  if (c > 0) ev.add('Ton label · concerts : ${sg21(c)}');
+  if (m > 0) ev.add('Ton label · merch : ${sg21(m)}');
+  if (f > 0) ev.add('Ton label · frais : ${sg21(-f)}');
+  return s + c + m - f;
+}
+
 int labelBreakCost21(J n) {
   final adv = _n(n['ladv']) > 0 ? _n(n['ladv']) : (lbl21[n['label']]?.adv ?? Reg21.labelAdvance);
   return jsRound(adv * Reg21.labelBreakRate);
@@ -2291,6 +2347,42 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // ---------- écurie du label : signer et libérer des artistes ----------
+  'lsignart': (s, a) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    if (a is! Map || a['id'] is! String || a['palier'] is! String) return _no(s, 'inconnu');
+    final tier = Reg21.labelSign[a['palier']];
+    if (tier == null) return _no(s, 'inconnu');
+    if (!Reg21.labelFreeStatuses.contains(a['statut'])) return _no(s, 'deja');
+    final ol = _m(s['olabel']);
+    final roster = _l(ol['roster']);
+    if (roster.any((x) => (x as Map)['id'] == a['id'])) return _no(s, 'deja');
+    if (_n(s['rank']) < (tier['rank'] as num)) return _no(s, 'rang');
+    if (roster.length >= labelSlots21(s)) return _no(s, 'ecurie');
+    if (_n(s['cash']) < (tier['adv'] as num)) return _no(s, 'cash');
+    final n = clone21(s);
+    _pay(n, -(tier['adv'] as num));
+    _l(_m(n['olabel'])['roster']).add(<String, dynamic>{
+      'id': a['id'], 'nom': a['nom'], 'palier': a['palier'], 'genre': a['genre'], 'ville': a['ville'],
+      'fans': _n(a['fans']), 'eco': _n(a['ecoutes']), 'pop': _n(a['pop']), 'talent': _n(a['talent']),
+      'cut': tier['cut'], 'adv': tier['adv'], 'since': n['day'], 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0},
+    });
+    _log(n, '${a['nom']} signe chez ton label', 'business');
+    return _ok(n);
+  },
+  'lrelart': (s, id) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    final roster = _l(_m(s['olabel'])['roster']);
+    final i = roster.indexWhere((x) => (x as Map)['id'] == id);
+    if (i < 0) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final r = _l(_m(n['olabel'])['roster']);
+    final who = (r[i] as Map)['nom'];
+    r.removeAt(i);
+    _log(n, '$who quitte ton label', 'business');
+    return _ok(n);
+  },
+
   // ---------- création de son label (dès le rang N4) ----------
   'olabel': (s, a) {
     if (s['olabel'] != null) return _no(s, 'deja');
@@ -2299,7 +2391,7 @@ final Map<String, Action> actions21 = {
     if (_n(s['cash']) < Reg21.ownLabelCash) return _no(s, 'cash');
     final n = clone21(s);
     _pay(n, -Reg21.ownLabelCash);
-    n['olabel'] = {'day': n['day']};
+    n['olabel'] = <String, dynamic>{'day': n['day'], 'roster': <dynamic>[], 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0}};
     _log(n, 'Ton label est fondé', 'business');
     return _ok(n);
   },
@@ -2911,11 +3003,7 @@ Res _endDay(J s) {
     inc += y;
     ev.add('Loyers · ${r['n']} : ${sg21(y)}');
   }
-  if (n['olabel'] != null) {
-    final z = Reg21.ownLabelDay * math.max(1, _n(n['rank']).toInt() - 3);
-    inc += z;
-    ev.add('Ton label : ${sg21(z)}');
-  }
+  inc += ownLabelTick21(n, ev);
   if (n['merch'] != null) {
     final mm = _m(n['merch']);
     final m = Reg21.merch[mm['id']]!;

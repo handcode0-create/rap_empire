@@ -17,6 +17,7 @@ import '../features/v21/qg_screens.dart';
 import '../features/v21/cover_screens.dart';
 import '../features/v21/reserve_screens.dart';
 import '../features/v21/artists_screens.dart' show Rivalites21Screen;
+import '../features/v21/own_label_screens.dart';
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/wiki_screens.dart';
 import '../features/v21/festival_screens.dart';
@@ -205,6 +206,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         name: '21-L1-Labels-merch',
                         builder: (_, __) => const LabelsScreen(),
                         routes: [GoRoute(path: 'tous', name: '21-L2-Labels', builder: (_, __) => const LabelsAllScreen())]),
+                    GoRoute(path: 'mon-label', name: '21-L3-Mon-label', builder: (_, __) => const OwnLabelScreen()),
                     GoRoute(
                         path: 'manager',
                         name: '20-Manager',

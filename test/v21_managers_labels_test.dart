@@ -116,8 +116,64 @@ void main() {
     s = must(s, 'olabel');
     expect(s['cash'], 100000);
     expect(act21(s, 'olabel').err, 'deja');
-    final before = s['cash'] as num;
-    s = must(s, 'endDay');
-    expect((s['cash'] as num) > before, isTrue);
+  });
+
+  group('écurie du label', () {
+    J art(String id, String palier, {String statut = 'indépendant', int fans = 4000, int eco = 28000}) =>
+        {'id': id, 'nom': 'Artiste $id', 'palier': palier, 'genre': 'Rap', 'ville': 'Ndolo', 'statut': statut, 'fans': fans, 'ecoutes': eco, 'pop': 30, 'talent': 55};
+
+    J founded({int rank = 4}) {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['rank'] = rank;
+      s['cash'] = 2000000;
+      s['signed'] = 0;
+      return must(s, 'olabel');
+    }
+
+    test('conditions : label fondé, rang du palier, statut libre, places, cash, doublon', () {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['cash'] = 2000000;
+      expect(act21(s, 'lsignart', art('A', 'Débutant')).err, 'pasdelabel');
+      s = founded();
+      expect(act21(s, 'lsignart', art('A', 'Confirmé')).err, 'rang');
+      expect(act21(s, 'lsignart', art('A', 'Superstar internationale')).err, 'inconnu');
+      expect(act21(s, 'lsignart', art('A', 'Débutant', statut: 'signé')).err, 'deja');
+      s['cash'] = 1000;
+      expect(act21(s, 'lsignart', art('A', 'Débutant')).err, 'cash');
+      s['cash'] = 2000000;
+      s = must(s, 'lsignart', art('A', 'Débutant'));
+      expect(s['cash'], 1985000);
+      expect(act21(s, 'lsignart', art('A', 'Débutant')).err, 'deja');
+      s = must(s, 'lsignart', art('B', 'Talent émergent'));
+      s = must(s, 'lsignart', art('C', 'Débutant'));
+      expect(labelSlots21(s), 3);
+      expect(act21(s, 'lsignart', art('D', 'Débutant')).err, 'ecurie');
+    });
+
+    test('revenus : streams, merch et frais calculés sur la part du label, cumulés par artiste', () {
+      var s = founded();
+      final a = art('A', 'Talent émergent');
+      s = must(s, 'lsignart', a);
+      final e = (s['olabel'] as J)['roster'][0] as J;
+      final d = labelArtistDay21(e);
+      expect(d['s'], jsRound(28000 / 7 * .45));
+      expect(d['f'], -jsRound(40000 / 30));
+      expect(d['net'], d['s']! + d['c']! + d['m']! + d['f']!);
+      s = must(s, 'endDay');
+      final t = (((s['olabel'] as J)['roster'][0]) as J)['tot'] as J;
+      expect(t['s'], jsRound(28000 / 7 * .45));
+      expect(t['m'], jsRound(0.4 * 63.245553203367585 * Reg21.merchScale * .45));
+      expect(t['f'], jsRound(40000 / 30));
+    });
+
+    test('libérer un artiste : la place se libère, l’avance n’est pas remboursée', () {
+      var s = founded();
+      s = must(s, 'lsignart', art('A', 'Débutant'));
+      final cash = s['cash'];
+      s = must(s, 'lrelart', 'A');
+      expect(s['cash'], cash);
+      expect(((s['olabel'] as J)['roster'] as List), isEmpty);
+      expect(act21(s, 'lrelart', 'A').err, 'inconnu');
+    });
   });
 }

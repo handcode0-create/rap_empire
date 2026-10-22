@@ -13,10 +13,11 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/artists21.dart';
-import '../../domain/v21/engine21.dart' show fmt21;
+import '../../domain/v21/engine21.dart' show fmt21, labelArtistDay21, labelSlots21;
 import '../../domain/v21/reg21.dart';
 import 'cast21.dart';
 import 'labels_screens.dart' show LabelLogo21;
+import 'start_screens.dart' show confirmSheet;
 import 'widgets21.dart';
 
 /// Réseau artistique (21-C4) : les trois rivalités jouables, puis l'annuaire des 1 000 artistes de Bakoma (lecture seule).
@@ -243,12 +244,71 @@ class _ArtistRow extends StatelessWidget {
       );
 }
 
-class _ArtistSheet extends StatelessWidget {
+class _ArtistSheet extends ConsumerWidget {
   final Artist21 a;
   final Directory21 d;
   const _ArtistSheet(this.a, this.d);
+
+  /// Entrée d'écurie telle que le moteur la stocke (instantané de la fiche à la signature).
+  J _entry(Map<String, dynamic> tier) => {
+        'id': a.id, 'nom': a.nom, 'palier': a.palier, 'genre': a.genre, 'ville': a.ville, 'statut': a.statut,
+        'fans': a.fans, 'ecoutes': a.ecoutes7j, 'eco': a.ecoutes7j, 'pop': a.popularite, 'talent': a.talent,
+        'cut': tier['cut'], 'adv': tier['adv'],
+      };
+
+  /// Bloc « Signer chez ton label » : visible dès que le label est fondé, avec la raison quand c'est impossible.
+  List<Widget> _signing(BuildContext context, WidgetRef ref, J s) {
+    final ol = s['olabel'];
+    if (ol == null) return const [SizedBox(height: 12), GameHint(icon: 'info', text: 'Fonde ton label (rang N4) pour signer des artistes.')];
+    final roster = ((ol as Map)['roster'] as List).map((x) => x as Map);
+    if (roster.any((x) => x['id'] == a.id)) return const [SizedBox(height: 12), GameTag('Dans ton écurie', style: GameTagStyle.ok)];
+    final tier = Reg21.labelSign[a.palier];
+    if (tier == null) return const [SizedBox(height: 12), GameHint(icon: 'info', text: 'Hors de portée de ton label : cet artiste est trop établi.')];
+    if (!Reg21.labelFreeStatuses.contains(a.statut)) return const [SizedBox(height: 12), GameHint(icon: 'info', text: 'Déjà sous contrat chez un autre label.')];
+    final rank = _n(s['rank']);
+    final slots = labelSlots21(s);
+    final free = slots - roster.length;
+    final cash = _n(s['cash']);
+    final adv = (tier['adv'] as num).toInt();
+    final est = labelArtistDay21(_entry(tier));
+    String? why;
+    if (rank < (tier['rank'] as num)) {
+      why = 'Rang N${tier['rank']} requis pour signer un ${a.palier.toLowerCase()}.';
+    } else if (free <= 0) {
+      why = 'Écurie pleine ($slots places) : monte de rang ou libère un artiste.';
+    } else if (cash < adv) {
+      why = 'Il te manque ${fmt21(adv - cash.toInt())} cauris d’avance.';
+    }
+    return [
+      const SizedBox(height: 14),
+      Text('SIGNER CHEZ TON LABEL', style: V20Text.lab()),
+      const SizedBox(height: 6),
+      KeyVal('Avance versée', '${fmt21(adv)} cauris', color: Tk.gold),
+      KeyVal('Part de ton label', '${((tier['cut'] as num) * 100).round()} %'),
+      KeyVal('Net estimé par jour', '${est['net']! >= 0 ? '+' : '−'}${fmt21(est['net']!.abs())} cauris', color: est['net']! >= 0 ? Tk.ok : Tk.acc4),
+      if (why != null) Padding(padding: const EdgeInsets.only(top: 6), child: GameHint(icon: 'lock', text: why)),
+      const SizedBox(height: 10),
+      PrimaryButton(
+        label: 'Signer ${a.nom}',
+        sublabel: '−${fmt21(adv)} cauris',
+        style: why == null ? GameButtonStyle.primary : GameButtonStyle.disabled,
+        onPressed: () async {
+          if (why != null) return;
+          final yes = await confirmSheet(context,
+              title: 'Signer ${a.nom} ?',
+              body: 'Avance de ${fmt21(adv)} cauris, payée tout de suite. Ton label garde ${((tier['cut'] as num) * 100).round()} % de ses streams, concerts et merch (≈ ${fmt21(est['net']!.abs())} cauris par jour, net, estimé).',
+              action: 'Signer');
+          if (!yes || !context.mounted) return;
+          await doAct(context, ref, 'lsignart', _entry(tier), null, '${a.nom} signe chez ton label');
+          if (context.mounted) Navigator.of(context).pop();
+        },
+      ),
+    ];
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final game = ref.watch(game21Provider).valueOrNull;
     final lab = a.label == null ? null : d.labels[a.label];
     Widget kpi(String l, String v, [Color c = Tk.ink]) => Expanded(
           child: Container(
@@ -322,6 +382,7 @@ class _ArtistSheet extends StatelessWidget {
       if (a.managerNiveau != null) Text('Manager de niveau M${a.managerNiveau}', style: V20Text.bs()),
       ...rels('ALLIÉS', a.allies),
       ...rels('RIVAUX', a.rivaux),
+      if (game != null) ..._signing(context, ref, game),
       if (rivalKeyOf21(a.nom) != null) ...[
         const SizedBox(height: 12),
         const GameHint(icon: 'info', text: 'Rivalité jouable : discussion, provocation et battle sont dans « Tes rivalités ».'),

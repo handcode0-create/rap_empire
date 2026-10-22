@@ -439,6 +439,20 @@ void main() {
     expect(txt('EN VENTE MAINTENANT'), findsOneWidget);
   });
 
+  testWidgets('ton label : écurie, sources de revenus, libération', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('REVENU NET ESTIMÉ PAR JOUR'), findsOneWidget);
+    expect(txt('Streams'), findsOneWidget);
+    expect(find.byKey(const ValueKey('ecurie-ART-9')), findsOneWidget);
+    await tapText(tester, 'Libérer l’artiste');
+    await tester.tap(txt('Libérer').last);
+    await tester.pumpAndSettle();
+    expect(((repo.current['olabel'] as J)['roster'] as List), isEmpty);
+  });
+
   testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
     expect(txt('AUCUN MANAGER'), findsOneWidget);

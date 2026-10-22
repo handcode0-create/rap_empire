@@ -5,7 +5,7 @@ import 'dart:convert';
 class Artist21 {
   final String id, nom, palier, genre, sousGenre, ville, statut, tendance;
   final String? label, labelDirige, certif;
-  final int popularite, rang, ecoutes7j, fans, titres, albums;
+  final int popularite, talent, rang, ecoutes7j, fans, titres, albums;
   final double indice;
   final int? managerNiveau;
   final List<String> allies, rivaux;
@@ -22,6 +22,7 @@ class Artist21 {
     required this.labelDirige,
     required this.certif,
     required this.popularite,
+    required this.talent,
     required this.rang,
     required this.ecoutes7j,
     required this.fans,
@@ -46,6 +47,7 @@ class Artist21 {
         labelDirige: j['label_dirige'] as String?,
         certif: j['certif'] as String?,
         popularite: (j['popularite'] as num).toInt(),
+        talent: (j['talent'] as num? ?? 40).toInt(),
         rang: (j['rang_global'] as num).toInt(),
         ecoutes7j: (j['ecoutes_7j'] as num).toInt(),
         fans: (j['fans'] as num).toInt(),

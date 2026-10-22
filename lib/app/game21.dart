@@ -14,6 +14,8 @@ const err21 = {
   'rep': 'Réputation insuffisante',
   'deja': 'Déjà fait',
   'encours': 'Un titre est déjà en cours',
+  'pasdelabel': 'Fonde d’abord ton label',
+  'ecurie': 'Plus de place dans ton écurie : monte de rang ou libère un artiste',
   'contratactif': 'Romps d’abord ton contrat de label',
   'merchencours': 'Une production de merch est déjà en vente',
   'pasdetexte': "Écris d'abord le texte",

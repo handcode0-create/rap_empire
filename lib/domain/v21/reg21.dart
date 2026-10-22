@@ -397,7 +397,27 @@ class Reg21 {
   /// Problèmes de début de carrière : un à la fois, au plus un tous les [pbEvery] jours, jusqu'au rang [pbMaxRank].
   static const pbEvery = 3, pbMaxRank = 3;
   /// Création de son label (D-05 révisé à la demande de Smith : dès le rang N4). Capital et revenu par jour provisoires (D-08).
-  static const ownLabelRank = 4, ownLabelCash = 500000, ownLabelDay = 2000;
+  static const ownLabelRank = 4, ownLabelCash = 500000;
+
+  /// Artistes signés par ton label (provisoire, D-08). Par palier : avance versée à la signature, part du label sur
+  /// streams, concerts et merch, rang minimum pour le signer. Superstars non signables.
+  static const labelSign = <String, J>{
+    'Débutant': {'adv': 15000, 'cut': .50, 'rank': 4},
+    'Talent émergent': {'adv': 40000, 'cut': .45, 'rank': 4},
+    'Déclin et retour': {'adv': 60000, 'cut': .40, 'rank': 5},
+    'Confirmé': {'adv': 120000, 'cut': .40, 'rank': 5},
+    'Star nationale': {'adv': 400000, 'cut': .35, 'rank': 6},
+  };
+
+  /// Places dans l'écurie selon le rang N4, N5, N6 ; statuts d'artistes encore libres.
+  static const labelSlots = <int, int>{4: 3, 5: 5, 6: 8};
+  static const labelFreeStatuses = <String>['indépendant', 'émergent', 'en déclin', 'en pause'];
+
+  /// Revenus d'un artiste signé, par jour : streams = écoutes sur 7 jours ÷ 7 × [lbStream] cauri ;
+  /// concert tous les [lbConcertEvery] jours = √fans × [lbConcertK] × (0,6 + popularité ÷ 100) ;
+  /// merch = [lbMerchK] × √fans × [merchScale] ; frais de promotion et de studio = avance ÷ [lbUpkeepDiv] par jour.
+  /// Chaque semaine depuis la signature, écoutes et fans progressent de (talent − 45) ÷ 400, borné entre −2 % et +6 %.
+  static const lbStream = 1.0, lbConcertEvery = 8, lbConcertK = 120, lbMerchK = 0.4, lbUpkeepDiv = 30;
   static const labelCut = 0.35;
   /// Rupture d'un contrat de label (D-08, provisoire) : rachat de l'avance + 20 % (planche 18.1), relation avec le directeur −15, popularité −3.
   static const labelBreakRate = 1.2, labelBreakRel = 15, labelBreakPop = 3;
