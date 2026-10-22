@@ -577,12 +577,15 @@ void main() {
     await tester.scrollUntilVisible(find.byKey(const ValueKey('patrimoine-cats')), -300, scrollable: list);
     await tester.tap(find.textContaining('Véhicules ·'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-scooter')), 200, scrollable: list);
     expect(find.byKey(const ValueKey('prod-scooter')), findsOneWidget);
-    expect(find.byKey(const ValueKey('prod-bague')), findsNothing);
+    expect(find.byKey(const ValueKey('prod-bague'), skipOffstage: false), findsNothing);
     // filtre d'état : verrouillés
+    await tester.scrollUntilVisible(txt('Verrouillés'), -200, scrollable: list);
     await tester.tap(txt('Verrouillés'));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('prod-scooter')), findsNothing); // rep 0, accessible
+    expect(find.byKey(const ValueKey('prod-scooter'), skipOffstage: false), findsNothing); // rep 0, accessible
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-berline')), 200, scrollable: list);
     expect(find.byKey(const ValueKey('prod-berline')), findsOneWidget);
     expect(txt('RÉPUTATION 70'), findsOneWidget);
     // un bien verrouillé ne s'ouvre pas
@@ -591,8 +594,10 @@ void main() {
     expect(txt('Réputation insuffisante'), findsWidgets);
     expect(repo.current['ui']['buy'], isNull);
     // disponible : fiche puis achat
+    await tester.scrollUntilVisible(txt('Disponibles'), -200, scrollable: list);
     await tester.tap(txt('Disponibles'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-scooter')), 200, scrollable: list);
     await tester.tap(find.byKey(const ValueKey('prod-scooter')));
     await tester.pumpAndSettle();
     expect(txt('Fiche du bien'), findsOneWidget);
