@@ -23,6 +23,7 @@ import 'cast21.dart';
 import 'library_screens.dart';
 import 'playlist_screens.dart';
 import 'social_screens.dart';
+import 'wardrobe_screens.dart' show PlayerFace21;
 import 'widgets21.dart';
 
 /// Espace Réseau v21 (planches 21-N0 à 21-N8) [VALIDÉ par Smith le 20/10/2026].
@@ -352,7 +353,7 @@ class OndeaArtistScreen extends ConsumerWidget {
               width: 92,
               height: 92,
               decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Tk.cy, width: 3)),
-              child: ClipOval(child: SvgPicture.asset('assets/klipo/mine/M3.svg', fit: BoxFit.cover, alignment: const Alignment(0, -.4))),
+              child: PlayerFace21(s, size: 86),
             ),
             const SizedBox(width: 14),
             Expanded(

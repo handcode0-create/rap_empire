@@ -88,6 +88,32 @@ class EquippedAvatar extends StatelessWidget {
       OutfitImage(s, path: resolveLook21(s).path, outfitId: resolveLook21(s).outfit, width: width, height: height, label: 'Ton rappeur dans sa tenue équipée', mood: mood);
 }
 
+/// Visage du joueur pour les photos de profil rondes (réseaux) : l'avatar équipé, recadré sur la tête (x 70 à 230, y 0 à 160 du dessin 300 × 640).
+class PlayerFace21 extends StatelessWidget {
+  final J s;
+  final double size;
+  const PlayerFace21(this.s, {super.key, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final w = size * 300 / 160, h = size * 640 / 160;
+    return ClipOval(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: OverflowBox(
+          alignment: Alignment.topLeft,
+          minWidth: 0,
+          minHeight: 0,
+          maxWidth: w,
+          maxHeight: h,
+          child: Transform.translate(offset: Offset(-70 * size / 160, 0), child: EquippedAvatar(s, width: w, height: h)),
+        ),
+      ),
+    );
+  }
+}
+
 String _price(Map<String, dynamic> o) => (o['price'] as num) == 0 ? 'Offerte' : '${fmt21(o['price'] as num)} cauris';
 
 String _cond(Map<String, dynamic> o) => (o['rank'] as num) > 1 ? 'Rang N${o['rank']} requis' : 'Aucune condition';

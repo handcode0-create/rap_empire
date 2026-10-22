@@ -22,6 +22,7 @@ import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart' show J;
 import '../../domain/v21/view21.dart';
+import 'wardrobe_screens.dart' show PlayerFace21;
 import 'widgets21.dart';
 
 /// Réseaux sociaux fictifs v21 : Lueur (photos), Bakoz (vidéos courtes), Griot (messages) [VALIDÉ par Smith le 20/10/2026].
@@ -178,7 +179,7 @@ class SocialNetScreen extends ConsumerWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c, width: 3)),
-            child: ClipOval(child: SvgPicture.asset('assets/klipo/mine/M3.svg', fit: BoxFit.cover, alignment: const Alignment(0, -.4))),
+            child: PlayerFace21(s, size: 66),
           ),
           const SizedBox(width: 14),
           Expanded(
