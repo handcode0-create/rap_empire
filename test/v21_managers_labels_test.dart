@@ -72,4 +72,31 @@ void main() {
     expect(s['ladv'], 150000);
     expect(labelBreakCost21(s), 180000);
   });
+
+  group('merchandising', () {
+    test('catalogue : 8 articles, une image chacun, classés du plus accessible au plus exigeant', () {
+      expect(Reg21.merch.keys, containsAll(['tshirt', 'hoodie', 'vinyle', 'cd', 'casquette', 'capsule']));
+      expect(Reg21.merch.length, 8);
+      for (final id in Reg21.merch.keys) {
+        expect(File('assets/merch/$id.svg').existsSync(), isTrue, reason: id);
+      }
+      final fans = Reg21.merch.values.map((m) => m['fans'] as num).toList();
+      expect(fans, orderedEquals([...fans]..sort()));
+    });
+
+    test('lancement : conditions, une production à la fois, estimation = ventes réelles du premier jour', () {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['fans'] = 4000;
+      expect(act21(s, 'merch', 'hoodie').err, 'rang');
+      s['rank'] = 2;
+      s['cash'] = 200000;
+      final est = merchEstimate21(s, Reg21.merch['hoodie']!);
+      s = must(s, 'merch', 'hoodie');
+      expect(s['cash'], 155000);
+      expect(act21(s, 'merch', 'casquette').err, 'merchencours');
+      s = must(s, 'endDay');
+      expect((s['merch'] as J)['tot'], est.$1);
+      expect(est.$2, est.$1 * 16);
+    });
+  });
 }

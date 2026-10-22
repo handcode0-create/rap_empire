@@ -644,6 +644,12 @@ J? managerTier21(J s) {
 }
 
 /// Pénalité de rupture : l'avance perçue (ou celle du contrat type pour une ancienne sauvegarde) × 1,2.
+/// Ventes estimées d'une production de merch au nombre de fans actuel : (par jour, sur toute la durée). Même formule que la fin de journée.
+(int, int) merchEstimate21(J s, J m) {
+  final day = jsRound((m['perFan'] as num) * math.sqrt(_n(s['fans'])) * Reg21.merchScale);
+  return (day, day * (m['days'] as num).toInt());
+}
+
 int labelBreakCost21(J n) {
   final adv = _n(n['ladv']) > 0 ? _n(n['ladv']) : (lbl21[n['label']]?.adv ?? Reg21.labelAdvance);
   return jsRound(adv * Reg21.labelBreakRate);
@@ -2287,7 +2293,7 @@ final Map<String, Action> actions21 = {
   'merch': (s, id) {
     final m = Reg21.merch[id];
     if (m == null) return _no(s, 'inconnu');
-    if (s['merch'] != null) return _no(s, 'encours');
+    if (s['merch'] != null) return _no(s, 'merchencours');
     if (_n(s['fans']) < (m['fans'] as num)) return _no(s, 'fans');
     if (m['singles'] != null && _l(s['disco']).length < (m['singles'] as num)) {
       return _no(s, 'single');

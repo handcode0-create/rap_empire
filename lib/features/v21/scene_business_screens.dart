@@ -27,6 +27,7 @@ import '../../domain/v21/view21.dart';
 import 'festival_screens.dart';
 import 'flow_minigame21.dart';
 import 'labels_screens.dart';
+import 'merch_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
 import 'widgets21.dart';
@@ -1127,65 +1128,8 @@ class LabelsScreen extends ConsumerWidget {
       const SizedBox(height: 12),
       ActionRow(title: 'Les 10 labels', subtitle: 'Logos, sièges, contrats types (18.1)', trailing: ActionRow.arrow(), onTap: () => context.go('/business/labels/tous')),
       const SizedBox(height: 12),
-      for (final e in Reg21.merch.entries) ...[
-        Builder(builder: (context) {
-          final m = e.value;
-          final running = s['merch'] != null && _m(s['merch'])['id'] == e.key;
-          final done = _m(s['merchDone'])[e.key];
-          final ok = _n(s['fans']) >= (m['fans'] as num) &&
-              (m['singles'] == null ||
-                  (s['disco'] as List).length >= (m['singles'] as num)) &&
-              (m['rank'] == null || rankOf(s) >= (m['rank'] as num));
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: GameCard(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                              child:
-                                  Text(m['n'] as String, style: V20Text.nm())),
-                          running
-                              ? const GameTag('En vente',
-                                  style: GameTagStyle.ok)
-                              : (done != null
-                                  ? const GameTag('Écoulé')
-                                  : (ok
-                                      ? const GameTag('Accessible')
-                                      : const GameTag('Verrouillé',
-                                          style: GameTagStyle.outline))),
-                        ]),
-                    Text(
-                        'Condition : ${m['cl']} · stock ${fmt21(m['cost'] as num)} cauris · ${m['days']} jours',
-                        style: V20Text.bs()),
-                    Conseq21(ConsequenceKind.estimated,
-                        'Ventes estimées : ${m['perFan'].toString().replaceAll('.', ',')} cauris par fan et par jour'),
-                    if (running) ...[
-                      KeyVal('Jours restants', '${_m(s['merch'])['left']}'),
-                      KeyVal(
-                          'Ventes cumulées', fmt21(_n(_m(s['merch'])['tot'])))
-                    ],
-                    if (done != null) KeyVal('Total vendu', fmt21(_n(done))),
-                    if (!running) ...[
-                      const SizedBox(height: 8),
-                      PrimaryButton(
-                          label: 'Lancer',
-                          sublabel: '−${fmt21(m['cost'] as num)} cauris',
-                          compact: true,
-                          style: ok && s['merch'] == null
-                              ? GameButtonStyle.secondary
-                              : GameButtonStyle.disabled,
-                          onPressed: () => doAct(context, ref, 'merch', e.key,
-                              null, '${m['n']} lancé')),
-                    ],
-                  ]),
-            ),
-          );
-        }),
-      ],
+      MerchSection21(s),
+      const SizedBox(height: 8),
       const Lab21('Labels'),
       if (s['signed'] != 1) ...[LabelInterestCard(s), const SizedBox(height: 12)],
       GameCard(

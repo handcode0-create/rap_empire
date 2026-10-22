@@ -420,6 +420,25 @@ void main() {
     expect(Reg21.skins.containsKey((repo.current['ap'] as J)['skin']), isTrue);
   });
 
+  testWidgets('espace merchandising : catalogue illustré, détail estimé, lancement', (tester) async {
+    final s = preset('carriere')..['fans'] = 1500..['cash'] = 100000;
+    final repo = await pump21(tester, s, location: '/business/labels');
+    expect(txt('AUCUNE PRODUCTION EN VENTE'), findsOneWidget);
+    expect(find.byKey(const ValueKey('merch-tshirt')), findsOneWidget);
+    expect(find.byKey(const ValueKey('merch-capsule')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('merch-tshirt')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('merch-tshirt')));
+    await tester.pumpAndSettle();
+    expect(txt('Total estimé'), findsOneWidget);
+    expect(find.textContaining('Bénéfice estimé').evaluate().length + find.textContaining('Perte estimée').evaluate().length, 1);
+    await tester.tap(txt('Lancer la production'));
+    await tester.pumpAndSettle();
+    expect((repo.current['merch'] as J)['id'], 'tshirt');
+    expect(repo.current['cash'], 80000);
+    expect(txt('EN VENTE MAINTENANT'), findsOneWidget);
+  });
+
   testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
     expect(txt('AUCUN MANAGER'), findsOneWidget);

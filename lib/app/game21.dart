@@ -14,6 +14,7 @@ const err21 = {
   'rep': 'Réputation insuffisante',
   'deja': 'Déjà fait',
   'encours': 'Un titre est déjà en cours',
+  'merchencours': 'Une production de merch est déjà en vente',
   'pasdetexte': "Écris d'abord le texte",
   'pasenregistre': "Enregistre d'abord le titre",
   'pasdetitre': 'Aucun titre concerné',

@@ -303,9 +303,42 @@ class Reg21 {
   ];
 
   // labels et merchandising
+  /// Catalogue du merchandising (valeurs provisoires, D-08). Une production à la fois ; l'image est `assets/merch/<id>.svg`.
+  /// Ventes par jour = perFan × √fans × [merchScale] ; classé du plus accessible au plus exigeant.
   static const merch = <String, J>{
+    'affiche': {
+      'n': 'Posters Ndo City',
+      'kind': 'Poster',
+      'cost': 8000,
+      'days': 7,
+      'perFan': 0.45,
+      'fans': 300,
+      'singles': 1,
+      'cl': '300 fans et 1 single sorti'
+    },
+    'casquette': {
+      'n': 'Casquettes Ndo',
+      'kind': 'Casquette',
+      'cost': 12000,
+      'days': 10,
+      'perFan': 0.6,
+      'fans': 600,
+      'singles': 1,
+      'cl': '600 fans et 1 single sorti'
+    },
+    'cd': {
+      'n': 'CD du single',
+      'kind': 'CD',
+      'cost': 15000,
+      'days': 12,
+      'perFan': 0.7,
+      'fans': 800,
+      'singles': 1,
+      'cl': '800 fans et 1 single sorti'
+    },
     'tshirt': {
       'n': 'T-shirts Ndo City',
+      'kind': 'T-shirt',
       'cost': 20000,
       'days': 14,
       'perFan': 0.8,
@@ -313,8 +346,39 @@ class Reg21 {
       'singles': 1,
       'cl': '1 000 fans et 1 single sorti'
     },
+    'tote': {
+      'n': 'Tote bags cauri',
+      'kind': 'Tote bag',
+      'cost': 25000,
+      'days': 14,
+      'perFan': 0.9,
+      'fans': 2000,
+      'singles': 1,
+      'cl': '2 000 fans et 1 single sorti'
+    },
+    'hoodie': {
+      'n': 'Hoodies Ndo City',
+      'kind': 'Hoodie',
+      'cost': 45000,
+      'days': 16,
+      'perFan': 1.1,
+      'fans': 3000,
+      'rank': 2,
+      'cl': '3 000 fans et rang N2'
+    },
+    'vinyle': {
+      'n': 'Vinyle collector',
+      'kind': 'Vinyle',
+      'cost': 60000,
+      'days': 21,
+      'perFan': 1.3,
+      'fans': 5000,
+      'rank': 3,
+      'cl': '5 000 fans et rang N3'
+    },
     'capsule': {
       'n': 'Collection capsule',
+      'kind': 'Capsule',
       'cost': 100000,
       'days': 21,
       'perFan': 1.5,
