@@ -398,6 +398,9 @@ class Reg21 {
   static const pbEvery = 3, pbMaxRank = 3;
   /// Création de son label (D-05 révisé à la demande de Smith : dès le rang N4). Capital et revenu par jour provisoires (D-08).
   static const ownLabelRank = 4, ownLabelCash = 500000;
+  /// Identité du label du joueur : nom de 2 à [ownNameMax] caractères et un des logos générés (assets/logos/own_<id>.svg).
+  static const ownNameMax = 22;
+  static const ownLogos = <String>['vinyle', 'micro', 'flamme', 'cauri', 'etoile', 'onde', 'skyline', 'soleil'];
 
   /// Artistes signés par ton label (provisoire, D-08). Par palier : avance versée à la signature, part du label sur
   /// streams, concerts et merch, rang minimum pour le signer. Superstars non signables.

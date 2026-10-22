@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
+import '../../core/widgets/bottom_sheet_game.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
@@ -18,6 +20,120 @@ import 'widgets21.dart';
 
 num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
+
+/// Logo du label du joueur (un des [Reg21.ownLogos], générés dans assets/logos/own_<id>.svg).
+class OwnLogo21 extends StatelessWidget {
+  final String id;
+  final double size;
+  const OwnLogo21(this.id, {super.key, this.size = 52});
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: 'Logo du label',
+        excludeSemantics: true,
+        child: SvgPicture.asset('assets/logos/own_${Reg21.ownLogos.contains(id) ? id : Reg21.ownLogos.first}.svg', width: size, height: size,
+            placeholderBuilder: (_) => SizedBox.square(dimension: size), errorBuilder: (_, __, ___) => SizedBox.square(dimension: size)),
+      );
+}
+
+/// Feuille « identité du label » : nom et choix du logo parmi huit. Retourne le nom et le logo choisis, ou null si fermée.
+Future<({String name, String logo})?> showLabelIdentity21(BuildContext context,
+    {required String title, required String action, String name = '', String logo = 'vinyle', String? note}) {
+  return showGameSheet<({String name, String logo})>(
+    context,
+    builder: (ctx) => _IdentitySheet(title: title, action: action, name: name, logo: logo, note: note),
+  );
+}
+
+class _IdentitySheet extends StatefulWidget {
+  final String title, action, name, logo;
+  final String? note;
+  const _IdentitySheet({required this.title, required this.action, required this.name, required this.logo, this.note});
+  @override
+  State<_IdentitySheet> createState() => _IdentitySheetState();
+}
+
+class _IdentitySheetState extends State<_IdentitySheet> {
+  late final _c = TextEditingController(text: widget.name);
+  late String _logo = widget.logo;
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ok = ownLabelNameOk21(_c.text);
+    return SingleChildScrollView(
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('IDENTITÉ DU LABEL', style: V20Text.lab()),
+        const SizedBox(height: 12),
+        Text(widget.title.toUpperCase(), style: V20Text.dm(size: 24)),
+        const SizedBox(height: 12),
+        Text('NOM DU LABEL', style: V20Text.lab()),
+        const SizedBox(height: 6),
+        TextField(
+          key: const ValueKey('label-nom'),
+          controller: _c,
+          maxLength: 40,
+          onChanged: (_) => setState(() {}),
+          style: V20Text.nm(),
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            counterText: '',
+            hintText: 'EX. NDO RECORDS',
+            hintStyle: V20Text.nm(color: V20.ink2.withValues(alpha: .5)),
+            filled: true,
+            fillColor: Tk.s1,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            suffixIcon: ok ? const Icon(Icons.check_circle_rounded, color: Tk.ok) : null,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: ok ? Tk.ok : Tk.line, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
+          ),
+        ),
+        if (!ok)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text('De ${Reg21.nameMin} à ${Reg21.ownNameMax} caractères : lettres, chiffres, espace, tiret, apostrophe, point ou &.', style: V20Text.bs(color: V20.hintGoldText)),
+          ),
+        const SizedBox(height: 14),
+        Text('LOGO', style: V20Text.lab()),
+        const SizedBox(height: 8),
+        Wrap(spacing: 10, runSpacing: 10, children: [
+          for (final id in Reg21.ownLogos)
+            GestureDetector(
+              key: ValueKey('logo-$id'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _logo = id),
+              child: Container(
+                width: 72,
+                height: 72,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: id == _logo ? Tk.tint : Tk.s1,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: id == _logo ? Tk.acc : Tk.line, width: 2),
+                ),
+                child: OwnLogo21(id, size: 60),
+              ),
+            ),
+        ]),
+        if (widget.note != null) ...[const SizedBox(height: 12), Text(widget.note!, style: V20Text.bs())],
+        const SizedBox(height: 16),
+        PrimaryButton(
+          key: const ValueKey('label-valider'),
+          label: widget.action,
+          style: ok ? GameButtonStyle.primary : GameButtonStyle.disabled,
+          onPressed: ok ? () => Navigator.of(context).pop((name: cleanName21(_c.text), logo: _logo)) : null,
+        ),
+        const SizedBox(height: 8),
+        PrimaryButton(label: 'Annuler', style: GameButtonStyle.secondary, compact: true, onPressed: () => Navigator.of(context).pop()),
+      ]),
+    );
+  }
+}
 
 String _signed(int v) => '${v >= 0 ? '+' : '−'}${fmt21(v.abs())}';
 
@@ -57,6 +173,25 @@ class OwnLabelScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep])),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(children: [
+              OwnLogo21(ol['logo'] as String? ?? 'vinyle', size: 56),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(ownLabelName21(s).toUpperCase(), key: const ValueKey('own-label-name'), maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.dm(size: 24)),
+                  GestureDetector(
+                    key: const ValueKey('label-modifier'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () async {
+                      final r = await showLabelIdentity21(context, title: 'Modifier ton label', action: 'Enregistrer', name: ownLabelName21(s), logo: ol['logo'] as String? ?? 'vinyle');
+                      if (r != null && context.mounted) await doAct(context, ref, 'lbrand', {'name': r.name, 'logo': r.logo}, null, 'Identité du label mise à jour');
+                    },
+                    child: Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text('Nom et logo · modifier', style: V20Text.lab(color: V20.accText))),
+                  ),
+                ]),
+              ),
+            ]),
+            const SizedBox(height: 10),
             Text('REVENU NET ESTIMÉ PAR JOUR', style: V20Text.lab()),
             const SizedBox(height: 4),
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [

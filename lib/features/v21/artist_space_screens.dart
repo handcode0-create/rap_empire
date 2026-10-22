@@ -124,6 +124,7 @@ class ArtistSpaceScreen extends ConsumerWidget {
       const SizedBox(height: 8),
       GameCard(
         child: Column(children: [
+          KeyVal('Label', ownLabelName21(s)),
           KeyVal('Palier', a['palier'] as String),
           KeyVal('Part de ton label', '${(_n(a['cut']) * 100).round()} %'),
           KeyVal('Avance versée', '${fmt21(_n(a['adv']))} cauris'),

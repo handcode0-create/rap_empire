@@ -502,6 +502,47 @@ void main() {
     expect(find.byKey(const ValueKey('artiste-commande')), findsOneWidget);
   });
 
+  testWidgets('fonder le label : nommer et choisir un logo', (tester) async {
+    final s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    final repo = await pump21(tester, s, location: '/business/labels');
+    await tester.scrollUntilVisible(txt('Fonder mon label'), 300);
+    await tester.pumpAndSettle();
+    await tester.tap(txt('Fonder mon label'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('label-nom')), 'Ndo Records');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('logo-flamme')));
+    await tester.tap(find.byKey(const ValueKey('logo-flamme')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('label-valider')));
+    await tester.tap(find.byKey(const ValueKey('label-valider')));
+    await tester.pumpAndSettle();
+    final ol = repo.current['olabel'] as J;
+    expect(ol['name'], 'Ndo Records');
+    expect(ol['logo'], 'flamme');
+    expect(repo.current['cash'], 1500000);
+  });
+
+  testWidgets('ton label : modifier le nom et le logo', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel', {'name': 'Ndo Records', 'logo': 'vinyle'}).s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('Ndo Records'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('label-modifier')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('label-nom')), 'Lagune Sons');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('logo-micro')));
+    await tester.tap(find.byKey(const ValueKey('logo-micro')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('label-valider')));
+    await tester.tap(find.byKey(const ValueKey('label-valider')));
+    await tester.pumpAndSettle();
+    expect((repo.current['olabel'] as J)['name'], 'Lagune Sons');
+    expect((repo.current['olabel'] as J)['logo'], 'micro');
+    expect(txt('Lagune Sons'), findsOneWidget);
+  });
+
   testWidgets('ton label : embaucher un profil de l’équipe', (tester) async {
     var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
     s = act21(s, 'olabel').s;

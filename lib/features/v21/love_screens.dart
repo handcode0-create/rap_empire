@@ -12,12 +12,12 @@ import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
-import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
+import 'child_space_screens.dart' show KidPortrait21;
 import 'shell21.dart';
 import 'widgets21.dart';
 
@@ -838,7 +838,7 @@ class FamilleScreen extends ConsumerWidget {
           accent: GlassAccent.magenta,
           halo: false,
           child: Row(children: [
-            Portrait(_m(k)['n'].toString()[0], size: 56),
+            KidPortrait21(_m(k)['n'].toString(), age: kidAge(s, _m(k)), bond: _n(_m(k)['l']), shared: _n(_m(k)['today']) == 1, size: 64, crop: 'head'),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

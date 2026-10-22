@@ -2,7 +2,8 @@
 """Génère les logos des 10 labels et des 8 médias de RAP EMPIRE.
 
 Usage :  python3 tools/design/gen_logos.py        (depuis la racine du dépôt)
-Sortie : assets/logos/label_<CODE>.svg  (BSR, AMG, RCD, BLG, AUB, LYR, SKP, NUG, SIC, VAG)
+Sortie : assets/logos/own_<id>.svg  (8 logos au choix pour le label du joueur)
+         assets/logos/label_<CODE>.svg  (BSR, AMG, RCD, BLG, AUB, LYR, SKP, NUG, SIC, VAG)
          assets/logos/media_<id>.svg    (lagune, affiches, bktv, solomag, spot, tamtv, korradio, aldwave)
 SVG pur, carré 128 x 128, pas de filtre. flutter_svg n'affiche pas <text> : les lettres sont dessinées en traits
 (petite police vectorielle ci-dessous). Chaque logo a un emblème lié à son identité (planche 18.1, network21.dart).
@@ -298,6 +299,99 @@ def aldwave():  # Aldéra Wave : barres d'onde dorées
     return L.render()
 
 
+
+# ------------------------------------------------------------------------------------------------------------------
+# Logos au choix pour le label du joueur (sans lettres : le nom est celui que le joueur donne à son label)
+# ------------------------------------------------------------------------------------------------------------------
+
+def own_vinyle():
+    L = Logo('ov')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % L.lin('g', VIOLET, ACC))
+    L.add('<circle cx="64" cy="64" r="48" fill="#0C0820"/>')
+    for r in (40, 34, 28):
+        L.add('<circle cx="64" cy="64" r="%d" fill="none" stroke="#3A3270" stroke-width="1.4"/>' % r)
+    L.add('<path d="M30 46 A38 38 0 0 1 56 28" fill="none" stroke="%s" stroke-width="3" stroke-linecap="round" opacity=".5"/>' % INK)
+    L.add('<circle cx="64" cy="64" r="17" fill="%s"/><circle cx="64" cy="64" r="4" fill="#0C0820"/>' % GOLD)
+    return L.render()
+
+
+def own_micro():
+    L = Logo('om')
+    L.add('<rect width="128" height="128" rx="64" fill="%s"/>' % BG, '<circle cx="64" cy="64" r="58" fill="none" stroke="%s" stroke-width="4"/>' % CY)
+    L.add('<rect x="46" y="22" width="36" height="56" rx="18" fill="%s"/>' % L.lin('g', '#B6B0DD', '#6E6896', True))
+    for y in (36, 46, 56):
+        L.add('<path d="M50 %d H78" stroke="#2B2459" stroke-width="2.5" stroke-linecap="round"/>' % y)
+    L.add('<path d="M36 64 C36 92 92 92 92 64" fill="none" stroke="%s" stroke-width="5" stroke-linecap="round"/>' % GOLD)
+    L.add('<path d="M64 86 V104 M48 104 H80" stroke="%s" stroke-width="5" stroke-linecap="round"/>' % GOLD)
+    return L.render()
+
+
+def own_flamme():
+    L = Logo('of')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % L.lin('g', ACC, ACC7))
+    L.add('<path d="M64 14 C70 36 94 46 94 76 C94 98 80 112 64 112 C48 112 34 98 34 76 C34 60 44 54 48 40 C54 50 56 54 60 56 C60 40 58 28 64 14Z" fill="%s"/>' % GOLD)
+    L.add('<path d="M64 52 C68 66 80 72 80 86 C80 98 72 106 64 106 C56 106 48 98 48 86 C48 74 58 68 64 52Z" fill="%s"/>' % INK)
+    L.add('<path d="M64 80 C66 88 72 90 72 98 C72 104 68 108 64 108 C60 108 56 104 56 98 C56 90 62 88 64 80Z" fill="%s"/>' % ACC)
+    return L.render()
+
+
+def own_cauri():
+    L = Logo('oc')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % BG)
+    L.add('<ellipse cx="64" cy="66" rx="40" ry="50" transform="rotate(-18 64 66)" fill="%s"/>' % L.lin('g', '#FFE08A', '#C9961A', True))
+    L.add('<ellipse cx="64" cy="66" rx="31" ry="42" transform="rotate(-18 64 66)" fill="none" stroke="#8A6410" stroke-width="2" opacity=".55"/>')
+    L.add('<path d="M52 98 C60 78 66 52 76 30" fill="none" stroke="#14102B" stroke-width="7" stroke-linecap="round"/>')
+    for i in range(6):
+        y = 90 - i * 11.5
+        x = 54 + i * 4.2
+        L.add('<path d="M%.1f %.1f l-9 -3 M%.1f %.1f l9 3" stroke="#FFE08A" stroke-width="2.2" stroke-linecap="round"/>' % (x, y, x, y))
+    return L.render()
+
+
+def own_etoile():
+    L = Logo('oe')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % L.lin('g', '#FFE08A', '#E09A12'))
+    L.add('<path d="%s" fill="%s"/>' % (star(64, 68, 50, 21), BG))
+    L.add('<path d="%s" fill="%s"/>' % (star(64, 68, 30, 12), ACC))
+    L.add('<circle cx="64" cy="68" r="6" fill="%s"/>' % GOLD)
+    return L.render()
+
+
+def own_onde():
+    L = Logo('oo')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % S1, '<rect x="5" y="5" width="118" height="118" rx="26" fill="none" stroke="%s" stroke-width="2"/>' % LINE)
+    hs = [18, 34, 54, 78, 94, 78, 54, 34, 18]
+    for i, h in enumerate(hs):
+        L.add('<rect x="%.1f" y="%.1f" width="7" height="%d" rx="3.5" fill="%s"/>' % (20 + i * 10.6, 64 - h / 2, h, CY if i % 2 == 0 else OK))
+    return L.render()
+
+
+def own_skyline():
+    L = Logo('os')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % L.lin('g', '#2B2459', '#0C0820', True))
+    L.add('<circle cx="92" cy="36" r="13" fill="%s"/><circle cx="97" cy="32" r="11" fill="#1B1640"/>' % GOLD)
+    b = [(14, 70, 18), (30, 52, 16), (44, 80, 14), (56, 40, 18), (72, 62, 16), (86, 76, 14), (98, 56, 16)]
+    for x, y, w in b:
+        L.add('<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>' % (x, y, w, 118 - y, BG))
+        for wy in range(y + 8, 112, 12):
+            L.add('<rect x="%d" y="%d" width="4" height="5" fill="%s" opacity=".8"/>' % (x + 4, wy, ACC if (wy + x) % 3 else CY))
+    L.add('<rect x="8" y="112" width="112" height="4" rx="2" fill="%s"/>' % ACC)
+    return L.render()
+
+
+def own_soleil():
+    L = Logo('ol')
+    L.add('<rect width="128" height="128" rx="30" fill="%s"/>' % L.lin('g', ACC7, VIOLET))
+    for i in range(12):
+        x1, y1 = pt(64, 64, 34, i * 30)
+        x2, y2 = pt(64, 64, 54 if i % 2 == 0 else 46, i * 30)
+        L.add('<path d="M%.1f %.1f L%.1f %.1f" stroke="%s" stroke-width="6" stroke-linecap="round"/>' % (x1, y1, x2, y2, GOLD))
+    L.add('<circle cx="64" cy="64" r="26" fill="%s"/><circle cx="64" cy="64" r="16" fill="%s"/>' % (GOLD, BG))
+    return L.render()
+
+
+OWN = {'vinyle': own_vinyle, 'micro': own_micro, 'flamme': own_flamme, 'cauri': own_cauri, 'etoile': own_etoile, 'onde': own_onde, 'skyline': own_skyline, 'soleil': own_soleil}
+
 LABELS = {'BSR': bsr, 'AMG': amg, 'RCD': rcd, 'BLG': blg, 'AUB': aub, 'LYR': lyr, 'SKP': skp, 'NUG': nug, 'SIC': sic, 'VAG': vag}
 MEDIA = {'lagune': lagune, 'affiches': affiches, 'bktv': bktv, 'solomag': solomag, 'spot': spot, 'tamtv': tamtv, 'korradio': korradio, 'aldwave': aldwave}
 
@@ -308,7 +402,9 @@ def main():
         open(os.path.join(OUT, 'label_%s.svg' % k), 'w').write(fn())
     for k, fn in MEDIA.items():
         open(os.path.join(OUT, 'media_%s.svg' % k), 'w').write(fn())
-    print('%d logos écrits dans %s' % (len(LABELS) + len(MEDIA), OUT))
+    for k, fn in OWN.items():
+        open(os.path.join(OUT, 'own_%s.svg' % k), 'w').write(fn())
+    print('%d logos écrits dans %s' % (len(LABELS) + len(MEDIA) + len(OWN), OUT))
 
 
 if __name__ == '__main__':

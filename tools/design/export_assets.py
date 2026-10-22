@@ -58,6 +58,20 @@ def main():
                         svg = clean(figure(STYLE, 'front', skin=SKINS[sk], hair=hair, hc='#1B1424', beard='stubble', mood=mood, outfit={**base, **tv}, acc=('chain',), crop=crop))
                         fn = 'me_%s_%s_%d_%s_%s.svg' % (hair, tk, sk, mood, crop)
                         open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
+    # portraits uniques des enfants du joueur (v21, espace enfant) : identité fixe par enfant, trois étapes de vie,
+    # kid_<enfant>_<étape>_<humeur>_<cadrage>.svg ; étape : bebe (moins de 1 an), enfant (1 à 11 ans), ado (12 ans et plus)
+    kids = {
+        'nayla': dict(skin=SKINS[4], hair='knots', hc='#1B1424', acc=('fem', 'ring'), outfit=dict(top='#FFC83D', pants='#2B2459', shoe='#F43F9D', accent='#F43F9D', kind='tee', logo=False)),
+        'kenzo': dict(skin=SKINS[3], hair='afro', hc='#1B1424', acc=(), outfit=dict(top='#3CD6F2', pants='#2B2459', shoe='#F8F7FF', accent='#14102B', kind='hoodie', logo=False)),
+    }
+    stages = {'bebe': (.62, 1.22, 1.0, 26), 'enfant': (.78, 1.12, .92, 18), 'ado': (.92, 1.02, .97, 8)}
+    for who, kd in kids.items():
+        for st, sc in stages.items():
+            for mood in ('neutral', 'smile', 'laugh'):
+                for crop in ('head', 'bust'):
+                    svg = clean(figure(STYLE, 'front', skin=kd['skin'], hair=kd['hair'], hc=kd['hc'], beard='none', mood=mood, outfit={**base, **kd['outfit']}, acc=kd['acc'], crop=crop, kid=sc))
+                    fn = 'kid_%s_%s_%s_%s.svg' % (who, st, mood, crop)
+                    open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
     json.dump({'style': STYLE, 'cast': {k: v['name'] for k, v in CAST.items()}, 'files': files}, open(os.path.join(OUT_C, 'manifest.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     for kind, f in scenes.BGS.items():
         open(os.path.join(OUT_S, kind + '.svg'), 'w', encoding='utf-8').write(clean(f()))

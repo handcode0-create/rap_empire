@@ -639,6 +639,15 @@ bool nameOk21(dynamic x) {
       RegExp(r"^[A-Za-zÀ-ÖØ-öø-ÿ0-9 '\-.]+$").hasMatch(n);
 }
 
+/// Nom valide pour le label du joueur : 2 à [Reg21.ownNameMax] caractères, mêmes caractères que le nom de scène.
+bool ownLabelNameOk21(dynamic x) {
+  final n = cleanName21(x);
+  return n.length >= Reg21.nameMin && n.length <= Reg21.ownNameMax && RegExp(r"^[A-Za-zÀ-ÖØ-öø-ÿ0-9 '\-.&]+$").hasMatch(n);
+}
+
+/// Nom du label du joueur (« Ton label » pour les anciennes parties sans nom).
+String ownLabelName21(J s) => s['olabel'] is Map && _m(s['olabel'])['name'] is String ? _m(s['olabel'])['name'] as String : 'Ton label';
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -2562,6 +2571,18 @@ final Map<String, Action> actions21 = {
     _log(n, '${art['nom']} sort « $titre »', 'business');
     return _ok(n);
   },
+  'lbrand': (s, a) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    if (a is! Map) return _no(s, 'inconnu');
+    if (!ownLabelNameOk21(a['name'])) return _no(s, 'nomlabel');
+    if (!Reg21.ownLogos.contains(a['logo'])) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final ol = _m(n['olabel']);
+    ol['name'] = cleanName21(a['name']);
+    ol['logo'] = a['logo'];
+    _log(n, 'Ton label devient ${ol['name']}', 'business');
+    return _ok(n);
+  },
   'lrelart': (s, id) {
     if (s['olabel'] == null) return _no(s, 'pasdelabel');
     final roster = _l(_m(s['olabel'])['roster']);
@@ -2613,10 +2634,13 @@ final Map<String, Action> actions21 = {
     if (_n(s['rank']) < Reg21.ownLabelRank) return _no(s, 'rang');
     if (_t(s['signed'])) return _no(s, 'contratactif');
     if (_n(s['cash']) < Reg21.ownLabelCash) return _no(s, 'cash');
+    final id = a is Map ? a : <String, dynamic>{};
+    if (id['name'] != null && !ownLabelNameOk21(id['name'])) return _no(s, 'nomlabel');
+    if (id['logo'] != null && !Reg21.ownLogos.contains(id['logo'])) return _no(s, 'inconnu');
     final n = clone21(s);
     _pay(n, -Reg21.ownLabelCash);
-    n['olabel'] = <String, dynamic>{'day': n['day'], 'roster': <dynamic>[], 'staff': <String, dynamic>{}, 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0}};
-    _log(n, 'Ton label est fondé', 'business');
+    n['olabel'] = <String, dynamic>{'name': id['name'] != null ? cleanName21(id['name']) : 'Label ${cleanName21(_m(n['p'])['name'])}'.trim(), 'logo': id['logo'] ?? Reg21.ownLogos.first, 'day': n['day'], 'roster': <dynamic>[], 'staff': <String, dynamic>{}, 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0}};
+    _log(n, '${_m(n['olabel'])['name']} est fondé', 'business');
     return _ok(n);
   },
 

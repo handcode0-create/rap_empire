@@ -30,7 +30,7 @@ import 'labels_screens.dart';
 import 'merch_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
-import 'start_screens.dart' show confirmSheet;
+import 'own_label_screens.dart' show OwnLogo21, showLabelIdentity21;
 import 'widgets21.dart';
 
 /// Scène (21-C1 à 21-C3) et Business (21-E1 à 21-E5, 21-L1).
@@ -1480,7 +1480,8 @@ class _OwnLabelCard extends ConsumerWidget {
     return GameCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Flexible(child: Text(founded ? 'Ton label' : 'Créer ton label', style: V20Text.nm())),
+          if (founded) ...[OwnLogo21(_m(s['olabel'])['logo'] as String? ?? 'vinyle', size: 40), const SizedBox(width: 10)],
+          Flexible(child: Text(founded ? ownLabelName21(s) : 'Créer ton label', maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm())),
           founded
               ? const GameTag('Fondé', style: GameTagStyle.ok)
               : (rankOk ? const GameTag('Disponible') : const GameTag('Niveau 4', style: GameTagStyle.outline)),
@@ -1506,11 +1507,12 @@ class _OwnLabelCard extends ConsumerWidget {
                 toastErr(context, !rankOk ? 'rang' : (!free ? 'contratactif' : 'cash'));
                 return;
               }
-              final yes = await confirmSheet(context,
-                  title: 'Fonder ton label ?',
-                  body: 'Capital de ${fmt21(Reg21.ownLabelCash)} cauris, payé tout de suite. Tu pourras ensuite signer des artistes : ton label touche une part de leurs streams, concerts et merch.',
-                  action: 'Fonder le label');
-              if (yes && context.mounted) await doAct(context, ref, 'olabel', null, null, 'Label fondé');
+              final r = await showLabelIdentity21(context,
+                  title: 'Fonder ton label',
+                  action: 'Payer ${fmt21(Reg21.ownLabelCash)} cauris et fonder',
+                  name: 'Label ${cleanName21(_m(s['p'])['name'])}'.trim(),
+                  note: 'Capital de ${fmt21(Reg21.ownLabelCash)} cauris, payé tout de suite. Nom et logo restent modifiables ensuite. Tu pourras signer des artistes : ton label touche une part de leurs streams, concerts et merch.');
+              if (r != null && context.mounted) await doAct(context, ref, 'olabel', {'name': r.name, 'logo': r.logo}, null, '${r.name} est fondé');
             },
           ),
         ],

@@ -19,6 +19,7 @@ const err21 = {
   'contratactif': 'Romps d’abord ton contrat de label',
   'pasdedemande': 'Aucune demande de sortie en attente',
   'sortieencours': 'Une sortie est déjà en cours ou en attente pour cet artiste',
+  'nomlabel': 'Nom du label : de 2 à 22 caractères (lettres, chiffres, espace, tiret, apostrophe, point ou &)',
   'merchencours': 'Une production de merch est déjà en vente',
   'pasdetexte': "Écris d'abord le texte",
   'pasenregistre': "Enregistre d'abord le titre",

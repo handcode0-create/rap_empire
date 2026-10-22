@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
@@ -21,6 +22,40 @@ num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
 
 String _lien(num l) => l >= 85 ? 'Inséparables' : (l >= 60 ? 'Complices' : (l >= 30 ? 'Proches' : 'Distants'));
+
+/// Portrait unique de l'enfant (assets/characters/kid_<enfant>_<étape>_<humeur>_<cadrage>.svg) ; monogramme si l'enfant n'a pas d'illustration.
+/// Étape : bébé (moins de 1 an), enfant (1 à 11 ans), ado (12 ans et plus) ; humeur selon le lien et le moment partagé du jour.
+class KidPortrait21 extends StatelessWidget {
+  final String name;
+  final int age;
+  final num bond;
+  final bool shared;
+  final double size;
+  final String crop;
+  const KidPortrait21(this.name, {super.key, required this.age, required this.bond, this.shared = false, this.size = 72, this.crop = 'bust'});
+
+  static const known = <String>['nayla', 'kenzo'];
+  static String stage(int age) => age < 1 ? 'bebe' : (age < 12 ? 'enfant' : 'ado');
+  static String mood(num bond, bool shared) => shared || bond >= 70 ? 'laugh' : (bond >= 40 ? 'smile' : 'neutral');
+
+  @override
+  Widget build(BuildContext context) {
+    final id = name.toLowerCase();
+    if (!known.contains(id)) return Portrait(name.isEmpty ? '?' : name[0], size: size);
+    return Semantics(
+      label: 'Portrait de $name',
+      excludeSemantics: true,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(size * .26), border: Border.all(color: Tk.line, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: SvgPicture.asset('assets/characters/kid_${id}_${stage(age)}_${mood(bond, shared)}_$crop.svg', fit: BoxFit.cover, alignment: Alignment.topCenter,
+            placeholderBuilder: (_) => const SizedBox(), errorBuilder: (_, __, ___) => Portrait(name[0], size: size)),
+      ),
+    );
+  }
+}
 
 /// Espace de l'enfant : lien, moments partagés selon l'âge, développement, garde et souvenirs.
 /// Un onglet par enfant si le foyer en compte deux. Valeurs provisoires (D-08).
@@ -88,7 +123,7 @@ class _ParentEnfantState extends ConsumerState<ParentEnfantScreen> {
         halo: false,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Portrait('${k['n']}'[0], size: 72),
+            KidPortrait21('${k['n']}', age: age, bond: l, shared: _n(k['today']) == 1, size: 96),
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
