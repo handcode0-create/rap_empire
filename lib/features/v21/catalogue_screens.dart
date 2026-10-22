@@ -304,6 +304,25 @@ class _ProjetScreenState extends ConsumerState<ProjetScreen> {
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
         ),
       ),
+      const SizedBox(height: 8),
+      TitleIdeas21(
+        key: ValueKey('ideas-$type'),
+        label: type == 'EP' ? 'Idées de noms d\'EP' : 'Idées de noms d\'album',
+        ideas: (page) => titleIdeas21(s, kind: type, page: page),
+        onPick: (t) {
+          _title.text = t;
+          ref.read(game21Provider.notifier).act('setui', 'ptitle=$t');
+        },
+      ),
+      const SizedBox(height: 4),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Chip21('Nom aléatoire', onTap: () {
+          FocusScope.of(context).unfocus();
+          _title.clear();
+          ref.read(game21Provider.notifier).act('rptitle', '');
+        }),
+      ),
       const SizedBox(height: 12),
       if (!enough) ...[
         GameHint(icon: 'info', warn: true, text: 'Tu n’as pas encore assez de singles sortis : il en faut au moins $min. Sors d’autres titres au studio.'),

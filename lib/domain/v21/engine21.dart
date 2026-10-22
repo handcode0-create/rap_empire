@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_dynamic_calls, prefer_const_declarations, unnecessary_cast
 import 'dart:convert';
 import 'dart:math' as math;
-import '../music_catalog.dart' show generateTitle, themeById;
+import '../title_dictionary.dart';
 import 'awards21.dart';
 import 'playlists21.dart';
 import 'dialogues21.dart';
@@ -409,18 +409,37 @@ String tierOf21(num l) {
   return t;
 }
 
-String _randomTitle21(J s, String theme) {
-  if (themeById(theme) != null) {
-    final seed = _n(s['seed']).toInt() +
-        _n(s['day']).toInt() * 31 +
-        _l(s['disco']).length * 101;
-    return generateTitle(seed, themeId: theme, maxLength: 30);
+/// Titres déjà pris par le joueur (son en cours, réserve, sortis, EP et albums) : le dictionnaire ne les reproduit pas.
+Set<String> usedTitles21(J s) {
+  final out = <String>{};
+  void take(dynamic x) {
+    if (x is Map && x['title'] is String) out.add(x['title'] as String);
   }
-  final pool = titles21[theme] ?? titles21['quartier']!;
-  final index =
-      (_n(s['seed']).toInt() + _n(s['day']).toInt() + _l(s['disco']).length) %
-          pool.length;
-  return pool[index];
+
+  take(s['cur']);
+  for (final k in ['disco', 'stock', 'projects', 'pendingProjects']) {
+    for (final x in _l(s[k] ?? const [])) {
+      take(x);
+      if (x is Map) {
+        for (final y in _l(x['inedits'] ?? const [])) {
+          take(y);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+int _titleSeed21(J s) => _n(s['seed']).toInt() + _n(s['day']).toInt() * 31 + _l(s['disco']).length * 101 + _l(s['stock']).length * 17 + _n(s['songSeq']).toInt() * 211;
+
+String _randomTitle21(J s, String theme) =>
+    pickTitle(_titleSeed21(s), kind: TitleKind.single, theme: theme, used: usedTitles21(s), maxLength: 30);
+
+/// Idées de titres pour l'écran (n'écrit rien dans la partie) : [kind] vaut 'single', 'EP' ou 'Album', [page] fait défiler les idées.
+List<String> titleIdeas21(J s, {String kind = 'single', int page = 0, int count = 3}) {
+  final ui = _m(s['ui']);
+  final k = kind == 'EP' ? TitleKind.ep : (kind == 'Album' ? TitleKind.album : TitleKind.single);
+  return titleIdeas(_titleSeed21(s), kind: k, theme: k == TitleKind.single ? (ui['th'] ?? 'quartier') as String : null, page: page, count: count, used: usedTitles21(s));
 }
 
 double featBoost21(J song) {
@@ -2359,6 +2378,18 @@ final Map<String, Action> actions21 = {
     if (!['title', 'th', 'am', 'ptitle', 'projectTitle'].contains(k)) return _no(s, 'inconnu');
     final n = clone21(s);
     _m(n['ui'])[k] = v.length > 40 ? v.substring(0, 40) : v;
+    return _ok(n);
+  },
+
+  // Titre du prochain EP ou album : tiré du dictionnaire, sans reprendre un titre déjà pris (la saisie libre reste possible).
+  'rptitle': (s, a) {
+    final n = clone21(s);
+    final ui = _m(n['ui']);
+    final type = (ui['ptype'] ?? 'EP') == 'Album' ? 'Album' : 'EP';
+    final taken = usedTitles21(n)..add(cleanName21(ui['ptitle']));
+    final seed = _titleSeed21(n) + _n(ui['ptn']).toInt() * 977;
+    ui['ptn'] = _n(ui['ptn']).toInt() + 1;
+    ui['ptitle'] = pickTitle(seed, kind: type == 'Album' ? TitleKind.album : TitleKind.ep, used: taken, maxLength: 30);
     return _ok(n);
   },
 

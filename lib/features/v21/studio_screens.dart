@@ -246,6 +246,15 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
               ),
             ),
             const SizedBox(height: 8),
+            TitleIdeas21(
+              label: 'Idées de titres · ${Reg21.themes[th]?['n'] ?? th}',
+              ideas: (page) => titleIdeas21(s, page: page),
+              onPick: (t) {
+                _title.text = t;
+                ref.read(game21Provider.notifier).act('setui', 'title=$t');
+              },
+            ),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
               child: Chip21('Titre aléatoire', onTap: () {

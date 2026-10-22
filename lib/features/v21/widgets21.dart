@@ -46,6 +46,34 @@ class Chip21 extends StatelessWidget {
       );
 }
 
+/// Idées de titres tirées du dictionnaire (5 000 titres) : trois pastilles à toucher pour remplir le champ, « Autres idées » en montre trois nouvelles.
+/// [ideas] renvoie les titres d'une page ; aucune règle ici, le tirage et l'exclusion des titres déjà pris sont dans le moteur.
+class TitleIdeas21 extends StatefulWidget {
+  final List<String> Function(int page) ideas;
+  final ValueChanged<String> onPick;
+  final String label;
+  const TitleIdeas21({super.key, required this.ideas, required this.onPick, this.label = 'Idées du dictionnaire'});
+  @override
+  State<TitleIdeas21> createState() => _TitleIdeas21State();
+}
+
+class _TitleIdeas21State extends State<TitleIdeas21> {
+  int _page = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = widget.ideas(_page);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Lab21(widget.label),
+      const SizedBox(height: 4),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final t in list) Chip21(t, onTap: () => widget.onPick(t)),
+        Chip21('Autres idées', selected: true, onTap: () => setState(() => _page++)),
+      ]),
+    ]);
+  }
+}
+
 /// Étapes de la création (.stp) : quatre segments, les faits en blanc, l'actuel en rose.
 class Steps21 extends StatelessWidget {
   final int current; // 0 à 3
