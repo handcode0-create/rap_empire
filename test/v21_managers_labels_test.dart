@@ -122,6 +122,8 @@ void main() {
     J art(String id, String palier, {String statut = 'indépendant', int fans = 4000, int eco = 28000}) =>
         {'id': id, 'nom': 'Artiste $id', 'palier': palier, 'genre': 'Rap', 'ville': 'Ndolo', 'statut': statut, 'fans': fans, 'ecoutes': eco, 'pop': 30, 'talent': 55};
 
+    num eco(J e) => e['eco'] as num;
+
     J founded({int rank = 4}) {
       var s = act21(init21(), 'preset', 'carriere').s;
       s['rank'] = rank;
@@ -164,6 +166,46 @@ void main() {
       expect(t['s'], jsRound(28000 / 7 * .45));
       expect(t['m'], jsRound(0.4 * 63.245553203367585 * Reg21.merchScale * .45));
       expect(t['f'], jsRound(40000 / 30));
+    });
+
+    test('équipe : conditions, un poste de chaque, frais de 7 jours de salaire, licenciement', () {
+      var s = act21(init21(), 'preset', 'carriere').s;
+      s['cash'] = 2000000;
+      expect(act21(s, 'lhire', 'moussa').err, 'pasdelabel');
+      s = founded();
+      expect(act21(s, 'lhire', 'nafi').err, 'rang');
+      expect(act21(s, 'lhire', 'inconnu').err, 'inconnu');
+      s = must(s, 'lhire', 'moussa');
+      expect(s['cash'], 2000000 - 500000 - 4200);
+      expect(act21(s, 'lhire', 'nafi').err, 'deja');
+      s['rank'] = 5;
+      expect(act21(s, 'lhire', 'nafi').err, 'deja');
+      s = must(s, 'lfire', 'ar');
+      expect(s['cash'], 2000000 - 500000 - 8400);
+      expect(((s['olabel'] as J)['staff'] as Map), isEmpty);
+      expect(act21(s, 'lfire', 'ar').err, 'inconnu');
+    });
+
+    test('équipe : remise A&R à la signature, bonus des postes sur les revenus, salaires prélevés', () {
+      var s = founded();
+      s = must(s, 'lhire', 'moussa');
+      final before = s['cash'] as num;
+      s = must(s, 'lsignart', art('A', 'Débutant'));
+      expect(before - (s['cash'] as num), 13500); // 15 000 − 10 %
+      s = must(s, 'lhire', 'prisca');
+      s = must(s, 'lhire', 'cedric');
+      final k = labelMods21((s['olabel'] as J)['staff']);
+      expect([k['adv'], k['s'], k['f'], k['wage']], [0.9, 1.08, 0.85, 600 + 600 + 500]);
+      final e = (s['olabel'] as J)['roster'][0] as J;
+      final d = labelArtistDay21(e, (s['olabel'] as J)['staff']);
+      expect(d['s'], jsRound(eco(e) / 7 * .5 * 1.08));
+      expect(d['f'], -jsRound(15000 / 30 * .85));
+      s['day'] = 3; // pas de concert ce jour-là (cycle de 8 jours)
+      final ev = <String>[];
+      final inc = ownLabelTick21(s, ev);
+      final m = jsRound(0.4 * 63.245553203367585 * Reg21.merchScale * .5);
+      expect(inc, d['s']! + m - jsRound(15000 / 30 * .85) - 1700);
+      expect(ev.any((x) => x.contains('équipe')), isTrue);
     });
 
     test('libérer un artiste : la place se libère, l’avance n’est pas remboursée', () {

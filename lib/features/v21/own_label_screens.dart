@@ -40,9 +40,11 @@ class OwnLabelScreen extends ConsumerWidget {
     }
     final roster = (ol['roster'] as List).map((x) => x as J).toList();
     final slots = labelSlots21(s);
-    final days = [for (final a in roster) labelArtistDay21(a)];
+    final staff = ol['staff'];
+    final days = [for (final a in roster) labelArtistDay21(a, staff)];
     int sum(String k) => days.fold<int>(0, (t, d) => t + d[k]!);
-    final net = sum('net');
+    final wage = labelMods21(staff)['wage']!.toInt();
+    final net = sum('net') - wage;
     final tot = _m(ol['tot']);
     final earned = (_n(tot['s']) + _n(tot['c']) + _n(tot['m']) - _n(tot['f'])).toInt();
     return ListView(padding: const EdgeInsets.all(16), children: [
@@ -71,7 +73,7 @@ class OwnLabelScreen extends ConsumerWidget {
           ]),
         ),
       ),
-      if (roster.isNotEmpty) ...[
+      if (roster.isNotEmpty || wage > 0) ...[
         const SizedBox(height: 16),
         Text('SOURCES DE REVENUS · PAR JOUR', style: V20Text.lab()),
         const SizedBox(height: 8),
@@ -81,7 +83,8 @@ class OwnLabelScreen extends ConsumerWidget {
             KeyVal('Concerts', _signed(sum('c')), color: Tk.gold),
             KeyVal('Merch', _signed(sum('m')), color: Tk.ok),
             KeyVal('Frais de promo et de studio', _signed(sum('f')), color: Tk.acc4),
-            Conseq21(ConsequenceKind.estimated, 'Part du label sur chaque revenu ; le concert est lissé sur ${Reg21.lbConcertEvery} jours. Les ventes réelles tombent chaque fin de journée.'),
+            if (wage > 0) KeyVal('Salaires de l’équipe', _signed(-wage), color: Tk.acc4),
+            const Conseq21(ConsequenceKind.estimated, 'Part du label sur chaque revenu ; le concert est lissé sur ${Reg21.lbConcertEvery} jours. Les ventes réelles tombent chaque fin de journée.'),
           ]),
         ),
       ],
@@ -99,6 +102,12 @@ class OwnLabelScreen extends ConsumerWidget {
         style: slots - roster.length > 0 ? GameButtonStyle.primary : GameButtonStyle.disabled,
         onPressed: () => slots - roster.length > 0 ? context.go('/scene/rivalites') : toastErr(context, 'ecurie'),
       ),
+      const SizedBox(height: 20),
+      Text('ÉQUIPE', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      for (final role in Reg21.staffRoles.keys) ...[_RoleCard(s, role, roster), const SizedBox(height: 10)],
+      const SizedBox(height: 2),
+      const GameHint(icon: 'info', text: 'Un poste de chaque. Embauche et licenciement coûtent ${Reg21.staffFeeDays} jours de salaire ; les profils confirmés demandent le rang N5. Valeurs provisoires.'),
       const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Les places montent avec ton rang (N4 : 3, N5 : 5, N6 : 8). Les talents plus établis demandent un rang plus haut. Valeurs provisoires.'),
     ]);
@@ -164,6 +173,105 @@ class _ArtistCard extends ConsumerWidget {
             if (yes && context.mounted) await doAct(context, ref, 'lrelart', a['id'], null, '${a['nom']} a quitté ton label');
           },
         ),
+      ]),
+    );
+  }
+}
+
+String _effect(J p) {
+  final v = ((p['v'] as num) * 100).round();
+  return switch (p['role']) {
+    'ar' => '−$v % sur les avances de signature',
+    'mkt' => '+$v % sur les streams',
+    'book' => '+$v % sur les concerts',
+    'merch' => '+$v % sur le merch',
+    _ => '−$v % sur les frais de promo et de studio',
+  };
+}
+
+/// Un poste de l'équipe : le profil embauché (licenciable) ou les deux candidats, avec le gain net estimé salaire compris.
+class _RoleCard extends ConsumerWidget {
+  final J s;
+  final String role;
+  final List<J> roster;
+  const _RoleCard(this.s, this.role, this.roster);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final r = Reg21.staffRoles[role]!;
+    final staff = (s['olabel'] as J)['staff'] is Map ? Map<String, dynamic>.from((s['olabel'] as J)['staff'] as Map) : <String, dynamic>{};
+    final hiredId = staff[role] as String?;
+    int netWith(Map<String, dynamic> st) => roster.fold<int>(0, (t, a) => t + labelArtistDay21(a, st)['net']!) - labelMods21(st)['wage']!.toInt();
+    final now = netWith(staff);
+    final rank = _n(s['rank']);
+    final candidates = Reg21.staffProfiles.entries.where((e) => e.value['role'] == role).toList();
+    return GameCard(
+      key: ValueKey('poste-$role'),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text(r['n'] as String, style: V20Text.nm())),
+          hiredId != null ? const GameTag('Pourvu', style: GameTagStyle.ok) : const GameTag('Vacant', style: GameTagStyle.outline),
+        ]),
+        Text('Agit sur : ${(r['eff'] as String).toLowerCase()}', style: V20Text.bs()),
+        const SizedBox(height: 8),
+        for (final e in candidates)
+          if (hiredId == null || hiredId == e.key) ...[
+            Builder(builder: (context) {
+              final p = e.value;
+              final hired = hiredId == e.key;
+              final fee = ((p['sal'] as num) * Reg21.staffFeeDays).toInt();
+              final locked = rank < (p['rank'] as num);
+              final gain = netWith({...staff, role: e.key}) - now;
+              final canPay = _n(s['cash']) >= fee;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  key: ValueKey('profil-${e.key}'),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Tk.s2, borderRadius: BorderRadius.circular(14)),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [
+                      CastAvatar(p['n'] as String, size: 48),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(p['n'] as String, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm().copyWith(fontSize: 16)),
+                          Text('${p['lvl'] == 1 ? 'Junior' : 'Confirmé'} · ${fmt21(p['sal'] as num)} cauris par jour', style: V20Text.bs().copyWith(fontSize: 12)),
+                        ]),
+                      ),
+                      if (locked) const GameTag('N5', style: GameTagStyle.outline),
+                    ]),
+                    const SizedBox(height: 6),
+                    Text(_effect(p), style: V20Text.poppins(size: 13, line: 18, weight: FontWeight.w600, color: Tk.ink)),
+                    if (role != 'ar')
+                      Conseq21(ConsequenceKind.estimated, hired
+                          ? 'Net actuel de ton label : ${_signed(now)} par jour, salaire compris.'
+                          : 'Net estimé avec lui : ${_signed(now + gain)} par jour (${gain >= 0 ? '+' : '−'}${fmt21(gain.abs())}), salaire compris.')
+                    else
+                      const Conseq21(ConsequenceKind.certain, 'La remise s’applique à chaque nouvelle signature.'),
+                    const SizedBox(height: 6),
+                    PrimaryButton(
+                      label: hired ? 'Licencier' : 'Embaucher',
+                      sublabel: '−${fmt21(fee)} cauris',
+                      compact: true,
+                      style: hired ? GameButtonStyle.secondary : (!locked && canPay ? GameButtonStyle.primary : GameButtonStyle.disabled),
+                      onPressed: () async {
+                        if (!hired && locked) return toastErr(context, 'rang');
+                        final yes = await confirmSheet(context,
+                            title: hired ? 'Licencier ${p['n']} ?' : 'Embaucher ${p['n']} ?',
+                            body: hired
+                                ? 'Il quitte ton label. Indemnité : ${fmt21(fee)} cauris (${Reg21.staffFeeDays} jours de salaire). Le poste redevient vacant.'
+                                : 'Frais d’embauche : ${fmt21(fee)} cauris (${Reg21.staffFeeDays} jours de salaire), puis ${fmt21(p['sal'] as num)} cauris par jour. ${_effect(p)}.',
+                            action: hired ? 'Licencier' : 'Embaucher');
+                        if (!yes || !context.mounted) return;
+                        await (hired ? doAct(context, ref, 'lfire', role, null, '${p['n']} a quitté ton label') : doAct(context, ref, 'lhire', e.key, null, '${p['n']} rejoint ton label'));
+                      },
+                    ),
+                  ]),
+                ),
+              );
+            }),
+          ],
       ]),
     );
   }

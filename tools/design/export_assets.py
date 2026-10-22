@@ -37,7 +37,7 @@ def main():
     os.makedirs(OUT_C, exist_ok=True); os.makedirs(OUT_S, exist_ok=True)
     jobs = set()
     for who in CAST:
-        for m in MOODS:
+        for m in CAST[who].get('moods', MOODS):
             for c in CROPS: jobs.add((who, m, '', '', c))
     for who, mood, g, _st, crop, _view, pose in USED: jobs.add((who, mood, g, pose, crop))
     files = []

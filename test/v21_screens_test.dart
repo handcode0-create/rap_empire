@@ -453,6 +453,19 @@ void main() {
     expect(((repo.current['olabel'] as J)['roster'] as List), isEmpty);
   });
 
+  testWidgets('ton label : embaucher un profil de l’équipe', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('ÉQUIPE'), findsOneWidget);
+    await tapText(tester, 'Embaucher');
+    await tester.tap(txt('Embaucher').last);
+    await tester.pumpAndSettle();
+    expect(((repo.current['olabel'] as J)['staff'] as Map)['ar'], 'moussa');
+    expect(repo.current['cash'], 2000000 - 500000 - 4200);
+    expect(txt('Pourvu'), findsOneWidget);
+  });
+
   testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
     final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
     expect(txt('AUCUN MANAGER'), findsOneWidget);

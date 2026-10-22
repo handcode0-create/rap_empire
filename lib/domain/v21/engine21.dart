@@ -660,14 +660,39 @@ int labelSlots21(J s) {
   return best;
 }
 
-/// Revenus quotidiens moyens d'un artiste signé, part du label (le concert est lissé sur [Reg21.lbConcertEvery] jours).
-/// `s` streams, `c` concerts, `m` merch, `f` frais (négatifs), `net` total.
-Map<String, int> labelArtistDay21(J a) {
+/// Multiplicateurs de l'équipe du label : `adv` (avances), `s` streams, `c` concerts, `m` merch, `f` frais ; `wage` = salaires par jour.
+Map<String, num> labelMods21(dynamic staff) {
+  final r = <String, num>{'adv': 1, 's': 1, 'c': 1, 'm': 1, 'f': 1, 'wage': 0};
+  if (staff is! Map) return r;
+  for (final id in staff.values) {
+    final p = Reg21.staffProfiles[id];
+    if (p == null) continue;
+    final v = p['v'] as num;
+    switch (p['role']) {
+      case 'ar': r['adv'] = 1 - v;
+      case 'mkt': r['s'] = 1 + v;
+      case 'book': r['c'] = 1 + v;
+      case 'merch': r['m'] = 1 + v;
+      case 'compta': r['f'] = 1 - v;
+    }
+    r['wage'] = r['wage']! + (p['sal'] as num);
+  }
+  return r;
+}
+
+/// Avance réellement payée pour signer un artiste du palier [tier] (remise du découvreur de talents).
+int labelAdvance21(J s, J tier) => jsRound((tier['adv'] as num) * labelMods21(s['olabel'] is Map ? _m(s['olabel'])['staff'] : null)['adv']!);
+
+/// Revenus quotidiens moyens d'un artiste signé, part du label (le concert est lissé sur [Reg21.lbConcertEvery] jours),
+/// avec les effets de l'équipe [staff] (poste → profil). `s` streams, `c` concerts, `m` merch, `f` frais (négatifs), `net` total ;
+/// les salaires de l'équipe ne sont pas inclus (voir [labelMods21]).
+Map<String, int> labelArtistDay21(J a, [dynamic staff]) {
   final cut = _n(a['cut']);
-  final s = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut);
-  final c = jsRound(_labelConcert21(a) / Reg21.lbConcertEvery * cut);
-  final m = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut);
-  final f = -jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv);
+  final k = labelMods21(staff);
+  final s = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']!);
+  final c = jsRound(_labelConcert21(a) / Reg21.lbConcertEvery * cut * k['c']!);
+  final m = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut * k['m']!);
+  final f = -jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv * k['f']!);
   return {'s': s, 'c': c, 'm': m, 'f': f, 'net': s + c + m + f};
 }
 
@@ -679,15 +704,17 @@ int ownLabelTick21(J n, List<String> ev) {
   final ol = n['olabel'];
   if (ol is! Map) return 0;
   final roster = _l(ol['roster']);
-  if (roster.isEmpty) return 0;
+  final k = labelMods21(ol['staff']);
+  final wage = k['wage']!.toInt();
+  if (roster.isEmpty && wage == 0) return 0;
   var s = 0, c = 0, m = 0, f = 0;
   for (var i = 0; i < roster.length; i++) {
     final a = roster[i] as J;
     final cut = _n(a['cut']);
-    final st = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut);
-    final mm = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut);
-    final cc = (_n(n['day']).toInt() + i) % Reg21.lbConcertEvery == 0 ? jsRound(_labelConcert21(a) * cut) : 0;
-    final up = jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv);
+    final st = jsRound(_n(a['eco']) / 7 * Reg21.lbStream * cut * k['s']!);
+    final mm = jsRound(Reg21.lbMerchK * math.sqrt(_n(a['fans'])) * Reg21.merchScale * cut * k['m']!);
+    final cc = (_n(n['day']).toInt() + i) % Reg21.lbConcertEvery == 0 ? jsRound(_labelConcert21(a) * cut * k['c']!) : 0;
+    final up = jsRound(_n(a['adv']) / Reg21.lbUpkeepDiv * k['f']!);
     s += st; m += mm; c += cc; f += up;
     final t = _m(a['tot']);
     t['s'] = _n(t['s']) + st; t['c'] = _n(t['c']) + cc; t['m'] = _n(t['m']) + mm; t['f'] = _n(t['f']) + up;
@@ -704,7 +731,8 @@ int ownLabelTick21(J n, List<String> ev) {
   if (c > 0) ev.add('Ton label · concerts : ${sg21(c)}');
   if (m > 0) ev.add('Ton label · merch : ${sg21(m)}');
   if (f > 0) ev.add('Ton label · frais : ${sg21(-f)}');
-  return s + c + m - f;
+  if (wage > 0) ev.add('Ton label · équipe : ${sg21(-wage)}');
+  return s + c + m - f - wage;
 }
 
 int labelBreakCost21(J n) {
@@ -2359,9 +2387,10 @@ final Map<String, Action> actions21 = {
     if (roster.any((x) => (x as Map)['id'] == a['id'])) return _no(s, 'deja');
     if (_n(s['rank']) < (tier['rank'] as num)) return _no(s, 'rang');
     if (roster.length >= labelSlots21(s)) return _no(s, 'ecurie');
-    if (_n(s['cash']) < (tier['adv'] as num)) return _no(s, 'cash');
+    final paid = labelAdvance21(s, tier);
+    if (_n(s['cash']) < paid) return _no(s, 'cash');
     final n = clone21(s);
-    _pay(n, -(tier['adv'] as num));
+    _pay(n, -paid);
     _l(_m(n['olabel'])['roster']).add(<String, dynamic>{
       'id': a['id'], 'nom': a['nom'], 'palier': a['palier'], 'genre': a['genre'], 'ville': a['ville'],
       'fans': _n(a['fans']), 'eco': _n(a['ecoutes']), 'pop': _n(a['pop']), 'talent': _n(a['talent']),
@@ -2383,6 +2412,38 @@ final Map<String, Action> actions21 = {
     return _ok(n);
   },
 
+  // ---------- équipe du label ----------
+  'lhire': (s, id) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    final p = id is String ? Reg21.staffProfiles[id] : null;
+    if (p == null) return _no(s, 'inconnu');
+    final staff = _m(_m(s['olabel'])['staff'] ?? <String, dynamic>{});
+    if (staff.containsKey(p['role'])) return _no(s, 'deja');
+    if (_n(s['rank']) < (p['rank'] as num)) return _no(s, 'rang');
+    final fee = (p['sal'] as num) * Reg21.staffFeeDays;
+    if (_n(s['cash']) < fee) return _no(s, 'cash');
+    final n = clone21(s);
+    _pay(n, -fee);
+    final ol = _m(n['olabel']);
+    ol['staff'] = <String, dynamic>{...(ol['staff'] is Map ? _m(ol['staff']) : <String, dynamic>{}), p['role'] as String: id};
+    _log(n, '${p['n']} rejoint ton label', 'business');
+    return _ok(n);
+  },
+  'lfire': (s, role) {
+    if (s['olabel'] == null) return _no(s, 'pasdelabel');
+    final staff = _m(s['olabel'])['staff'];
+    if (staff is! Map || !staff.containsKey(role)) return _no(s, 'inconnu');
+    final p = Reg21.staffProfiles[staff[role]]!;
+    final fee = (p['sal'] as num) * Reg21.staffFeeDays;
+    if (_n(s['cash']) < fee) return _no(s, 'cash');
+    final n = clone21(s);
+    _pay(n, -fee);
+    final ol = _m(n['olabel']);
+    ol['staff'] = <String, dynamic>{for (final e in _m(ol['staff']).entries) if (e.key != role) e.key: e.value};
+    _log(n, '${p['n']} quitte ton label', 'business');
+    return _ok(n);
+  },
+
   // ---------- création de son label (dès le rang N4) ----------
   'olabel': (s, a) {
     if (s['olabel'] != null) return _no(s, 'deja');
@@ -2391,7 +2452,7 @@ final Map<String, Action> actions21 = {
     if (_n(s['cash']) < Reg21.ownLabelCash) return _no(s, 'cash');
     final n = clone21(s);
     _pay(n, -Reg21.ownLabelCash);
-    n['olabel'] = <String, dynamic>{'day': n['day'], 'roster': <dynamic>[], 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0}};
+    n['olabel'] = <String, dynamic>{'day': n['day'], 'roster': <dynamic>[], 'staff': <String, dynamic>{}, 'tot': <String, dynamic>{'s': 0, 'c': 0, 'm': 0, 'f': 0}};
     _log(n, 'Ton label est fondé', 'business');
     return _ok(n);
   },

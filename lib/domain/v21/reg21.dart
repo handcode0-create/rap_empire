@@ -409,6 +409,31 @@ class Reg21 {
     'Star nationale': {'adv': 400000, 'cut': .35, 'rank': 6},
   };
 
+  /// Équipe du label : un poste de chaque, deux profils par poste (junior au rang N4, confirmé au rang N5).
+  /// Salaire par jour ; embauche et licenciement coûtent 7 jours de salaire. Effets provisoires (D-08) :
+  /// `ar` réduit les avances de signature ; `mkt`, `book`, `merch` augmentent les streams, concerts, merch du label ;
+  /// `compta` réduit les frais de promotion et de studio.
+  static const staffRoles = <String, J>{
+    'ar': {'n': 'Découvreur de talents (A&R)', 'eff': 'Avances de signature'},
+    'mkt': {'n': 'Marketing et promotion', 'eff': 'Revenus des streams'},
+    'book': {'n': 'Booking et tournées', 'eff': 'Revenus des concerts'},
+    'merch': {'n': 'Merchandising', 'eff': 'Revenus du merch'},
+    'compta': {'n': 'Comptabilité', 'eff': 'Frais de promo et de studio'},
+  };
+  static const staffProfiles = <String, J>{
+    'moussa': {'role': 'ar', 'n': 'Moussa Tiéné', 'lvl': 1, 'sal': 600, 'v': .10, 'rank': 4},
+    'nafi': {'role': 'ar', 'n': 'Nafi Gnagne', 'lvl': 2, 'sal': 1800, 'v': .20, 'rank': 5},
+    'prisca': {'role': 'mkt', 'n': 'Prisca Yapi', 'lvl': 1, 'sal': 600, 'v': .08, 'rank': 4},
+    'herve': {'role': 'mkt', 'n': 'Hervé Dagri', 'lvl': 2, 'sal': 1800, 'v': .18, 'rank': 5},
+    'eli': {'role': 'book', 'n': 'Eli Kobenan', 'lvl': 1, 'sal': 600, 'v': .15, 'rank': 4},
+    'mariam': {'role': 'book', 'n': 'Mariam Sylla', 'lvl': 2, 'sal': 1800, 'v': .30, 'rank': 5},
+    'joel': {'role': 'merch', 'n': 'Joël Atta', 'lvl': 1, 'sal': 600, 'v': .15, 'rank': 4},
+    'sonia': {'role': 'merch', 'n': 'Sonia Ahoua', 'lvl': 2, 'sal': 1800, 'v': .30, 'rank': 5},
+    'cedric': {'role': 'compta', 'n': 'Cédric Zadi', 'lvl': 1, 'sal': 500, 'v': .15, 'rank': 4},
+    'fanta': {'role': 'compta', 'n': 'Fanta Doh', 'lvl': 2, 'sal': 1500, 'v': .30, 'rank': 5},
+  };
+  static const staffFeeDays = 7;
+
   /// Places dans l'écurie selon le rang N4, N5, N6 ; statuts d'artistes encore libres.
   static const labelSlots = <int, int>{4: 3, 5: 5, 6: 8};
   static const labelFreeStatuses = <String>['indépendant', 'émergent', 'en déclin', 'en pause'];

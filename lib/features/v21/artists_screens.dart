@@ -13,7 +13,7 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/artists21.dart';
-import '../../domain/v21/engine21.dart' show fmt21, labelArtistDay21, labelSlots21;
+import '../../domain/v21/engine21.dart' show fmt21, labelAdvance21, labelArtistDay21, labelSlots21;
 import '../../domain/v21/reg21.dart';
 import 'cast21.dart';
 import 'labels_screens.dart' show LabelLogo21;
@@ -269,8 +269,8 @@ class _ArtistSheet extends ConsumerWidget {
     final slots = labelSlots21(s);
     final free = slots - roster.length;
     final cash = _n(s['cash']);
-    final adv = (tier['adv'] as num).toInt();
-    final est = labelArtistDay21(_entry(tier));
+    final adv = labelAdvance21(s, tier);
+    final est = labelArtistDay21(_entry(tier), (ol as Map)['staff']);
     String? why;
     if (rank < (tier['rank'] as num)) {
       why = 'Rang N${tier['rank']} requis pour signer un ${a.palier.toLowerCase()}.';

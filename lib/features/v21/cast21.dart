@@ -9,6 +9,7 @@ const castIllustrated21 = <String>{
   'djo', 'kore', 'orage', 'zaki', 'nadia', 'zamba', 'rosine', 'anselme', 'ayana', 'kzer', 'woro', 'sanko', 'ines', 'kadi', 'lina', 'sefa',
   'amara', 'yao', 'noe', 'teo', 'awa', 'bakary', 'liv', 'marius', 'kre', 'maze', 'benedicte', 'kofi', 'kaira', 'tito', 'lazuli', 'nadia-kolo',
   'solo', 'mika', 'salif', 'lea', 'seraphine', 'tamsir', 'desire', 'naya', 'sadia', 'malik', 'yele', 'tidjane', 'bako', 'sable', 'yaya',
+  'moussa', 'nafi', 'prisca', 'herve', 'eli', 'mariam', 'joel', 'sonia', 'cedric', 'fanta',
 };
 
 /// Nom affiché → identifiant du personnage, avec son poste.
@@ -53,6 +54,16 @@ const castByName21 = <String, (String, String)>{
   'Bako Flux': ('bako', 'Artiste · rap technique'),
   'Dr. Sable': ('sable', 'Artiste et producteur · afro-trap'),
   'Yaya Cendre': ('yaya', 'Chanteuse · soul'),
+  'Moussa Tiéné': ('moussa', 'Découvreur de talents · junior'),
+  'Nafi Gnagne': ('nafi', 'Directrice A&R · confirmée'),
+  'Prisca Yapi': ('prisca', 'Chargée de promotion · junior'),
+  'Hervé Dagri': ('herve', 'Directeur marketing · confirmé'),
+  'Eli Kobenan': ('eli', 'Booker · junior'),
+  'Mariam Sylla': ('mariam', 'Directrice des tournées · confirmée'),
+  'Joël Atta': ('joel', 'Responsable merch · junior'),
+  'Sonia Ahoua': ('sonia', 'Directrice merchandising · confirmée'),
+  'Cédric Zadi': ('cedric', 'Comptable · junior'),
+  'Fanta Doh': ('fanta', 'Directrice financière · confirmée'),
 };
 
 /// Identifiant illustré d'un nom (ou d'un identifiant), sinon null.
