@@ -123,26 +123,46 @@ class _CatalogueState extends ConsumerState<CatalogueScreen> {
         borderRadius: BorderRadius.circular(22),
         child: Container(
           key: const ValueKey('catalogue-hero'),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
           decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A1B52), Tk.s1, Tk.deep])),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              if (covers.isEmpty)
-                const Expanded(child: Text('Ta discographie apparaîtra ici dès ta première sortie.'))
-              else
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (covers.isEmpty)
+              Text('Ta discographie apparaîtra ici dès ta première sortie.', style: V20Text.bs())
+            else
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                 SizedBox(
-                  height: 64,
-                  width: 64.0 + (covers.length - 1) * 40,
-                  child: Stack(children: [
-                    for (var i = covers.length - 1; i >= 0; i--) Positioned(left: i * 40.0, child: _LiveCover(covers[i], 64)),
+                  height: 72,
+                  width: 72.0 + (covers.length - 1) * 44,
+                  child: Stack(clipBehavior: Clip.none, children: [
+                    for (var i = covers.length - 1; i >= 0; i--)
+                      Positioned(
+                        left: i * 44.0,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: Tk.deep, width: 2),
+                            boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 10, offset: Offset(0, 4))],
+                          ),
+                          child: _LiveCover(covers[i], 68),
+                        ),
+                      ),
                   ]),
                 ),
-              if (covers.isNotEmpty) const Spacer(),
-            ]),
-            const SizedBox(height: 12),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('DERNIÈRES SORTIES', style: V20Text.lab()),
+                    const SizedBox(height: 4),
+                    Text('${disco.length} titres · ${projects.length} projets', maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.bs(color: Tk.ink)),
+                  ]),
+                ),
+              ]),
+            const SizedBox(height: 18),
             Row(children: [
-              _HeroNum('Streams cumulés', fmt21(streams), Tk.cy),
+              _HeroNum('Streams', fmt21(streams), Tk.cy),
+              const SizedBox(width: 8),
               _HeroNum('Ventes', fmt21(sales), Tk.gold),
+              const SizedBox(width: 8),
               _HeroNum('Plaques', '${certCount21(s)}', Tk.acc4),
             ]),
           ]),
@@ -251,10 +271,15 @@ class _HeroNum extends StatelessWidget {
   const _HeroNum(this.lab, this.v, this.c);
   @override
   Widget build(BuildContext context) => Expanded(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(v, maxLines: 1, style: V20Text.baloo(size: 28, line: 30, color: c))),
-          Text(lab.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
-        ]),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(color: const Color(0x33000000), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0x1AFFFFFF))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(v, maxLines: 1, style: V20Text.baloo(size: 26, line: 28, color: c))),
+            const SizedBox(height: 2),
+            Text(lab.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
+          ]),
+        ),
       );
 }
 
