@@ -643,7 +643,6 @@ J? managerTier21(J s) {
   return Reg21.managerTiers[m == 'maya' ? 'm1' : m];
 }
 
-/// Nom du label signé (Bakoma Sound Records par défaut).
 /// Pénalité de rupture : l'avance perçue (ou celle du contrat type pour une ancienne sauvegarde) × 1,2.
 int labelBreakCost21(J n) {
   final adv = _n(n['ladv']) > 0 ? _n(n['ladv']) : (lbl21[n['label']]?.adv ?? Reg21.labelAdvance);
@@ -653,6 +652,7 @@ int labelBreakCost21(J n) {
 /// Clé de relation du directeur du label signé (Madame Orage pour Bakoma Sound Records).
 String labelDirectorKey21(J n) => lbl21[n['label']]?.who ?? 'orage';
 
+/// Nom du label signé (Bakoma Sound Records par défaut).
 String lblName21(J n) => lbl21[n['label']]?.n ?? 'Bakoma Sound Records';
 
 /// Ventes cumulées d'un projet ou d'un titre selon les plateformes fictives (aucun revenu en plus des écoutes).

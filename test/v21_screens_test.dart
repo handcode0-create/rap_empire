@@ -420,6 +420,37 @@ void main() {
     expect(Reg21.skins.containsKey((repo.current['ap'] as J)['skin']), isTrue);
   });
 
+  testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
+    final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
+    expect(txt('AUCUN MANAGER'), findsOneWidget);
+    expect(txt('Séraphine Aboa'), findsOneWidget); // M6 listé avec son profil
+    await tapText(tester, 'Recruter');
+    await tapText(tester, 'Signer le contrat');
+    expect(repo.current['mgr'], 'maya');
+    expect(txt('Mettre fin au contrat'), findsOneWidget);
+    await tapText(tester, 'Mettre fin au contrat');
+    await tapText(tester, 'Mettre fin au contrat'); // bouton de la feuille de confirmation
+    expect(repo.current['mgr'], isNull);
+  });
+
+  testWidgets('espace label : contrat en héros, rupture avec pénalité chiffrée', (tester) async {
+    final s = preset('carriere')
+      ..['signed'] = 1
+      ..['label'] = 'BLG'
+      ..['lcut'] = 0.4
+      ..['lperk'] = 'scene'
+      ..['ladv'] = 80000
+      ..['cash'] = 200000;
+    final repo = await pump21(tester, s, location: '/business/labels/tous');
+    expect(txt('SOUS CONTRAT'), findsOneWidget);
+    await tapText(tester, 'Rompre le contrat');
+    expect(find.textContaining('96 000'), findsWidgets);
+    await tapText(tester, 'Payer 96 000 cauris et rompre');
+    expect(repo.current['signed'], 0);
+    expect(repo.current['cash'], 104000);
+    expect(txt('Artiste indépendant'), findsOneWidget);
+  });
+
   testWidgets('partie sans artiste : le QG renvoie au démarrage', (tester) async {
     await pump21(tester, init21(), location: '/');
     expect(txt('Commencer'), findsOneWidget);

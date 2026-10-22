@@ -5,6 +5,7 @@ import '../features/v21/characters_screen.dart';
 import '../features/v21/dialogue_screens.dart';
 import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
+import '../features/v21/manager_screens.dart';
 import '../features/v21/library_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/music_screens.dart';

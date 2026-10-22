@@ -10,7 +10,6 @@ import '../../core/theme/v20.dart';
 import '../../core/widgets/action_row.dart';
 import '../../core/widgets/asset_illustration.dart';
 import '../../core/widgets/back_header.dart';
-import '../../core/widgets/character_view.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
@@ -30,7 +29,6 @@ import 'flow_minigame21.dart';
 import 'labels_screens.dart';
 import 'network_screens.dart';
 import 'shell21.dart';
-import 'cast21.dart';
 import 'widgets21.dart';
 
 /// Scène (21-C1 à 21-C3) et Business (21-E1 à 21-E5, 21-L1).
@@ -1257,69 +1255,6 @@ class LabelsScreen extends ConsumerWidget {
           Text('Validé (D-05), seuils provisoires.', style: V20Text.bs()),
         ]),
       ),
-    ]);
-  }
-}
-
-/// Port du système de management actuellement implémenté dans le moteur v20.
-class Manager21Screen extends ConsumerWidget {
-  const Manager21Screen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(game21Provider).valueOrNull;
-    if (s == null) return const SizedBox();
-    final tierKey = s['mgr'] == 'maya' ? 'm1' : s['mgr'] as String?;
-    final tier = Reg21.managerTiers[tierKey ?? 'm1']!;
-    final active = tierKey != null;
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Mon manager', onBack: () => context.go('/business')),
-      const SizedBox(height: 12),
-      GameCard(
-          child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        // Le manager affiché est celui de ton niveau (illustration si le personnage existe, sinon monogramme).
-        SizedBox(
-            width: 96,
-            height: 120,
-            child: castId21(tier['n'] as String) != null
-                ? CharacterView(who: castId21(tier['n'] as String)!, mood: 'poised', crop: 'bust')
-                : Center(child: CastAvatar(tier['n'] as String, size: 80))),
-        const SizedBox(width: 12),
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text((tier['n'] as String).toUpperCase(), style: V20Text.lab(color: V20.accText)),
-          Text('Niveau ${(tierKey ?? 'm1').toUpperCase()}', style: V20Text.nm()),
-          Text('Réseau local · conseils simples · calendrier de base',
-              style: V20Text.bs()),
-        ])),
-      ])),
-      const SizedBox(height: 12),
-      GlassCard(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('CONTRAT', style: V20Text.lab()),
-        KeyVal('Commission', '${((tier['rate'] as num) * 100).round()} % des cachets'),
-        KeyVal('Fixe hebdomadaire', tier['fee'] == 0 ? 'Aucun fixe' : '${fmt21(tier['fee'] as num)} cauris'),
-        KeyVal('Commissions versées', '${fmt21(_n(s['managerPaid']))} cauris'),
-        const SizedBox(height: 6),
-        Text(
-            'Le forfait est prélevé tous les 7 jours. La commission s’applique aux cachets de scène. Les revenus des écoutes et du merchandising restent intacts.',
-            style: V20Text.bs()),
-      ])),
-      const SizedBox(height: 12),
-      for (final tier in Reg21.managerTiers.entries) ...[
-        const SizedBox(height: 8),
-        ActionRow(
-          title: '${tier.key.toUpperCase()} · ${tier.value['n']}',
-          subtitle: '${((tier.value['rate'] as num) * 100).round()} % des cachets · ${tier.value['fee'] == 0 ? 'sans fixe' : '${fmt21(tier.value['fee'] as num)}/semaine'} · réputation ${tier.value['rep']} · ${tier.value['xp']} XP requis',
-          trailing: tierKey == tier.key ? const GameTag('Actif', style: GameTagStyle.ok) : ActionRow.arrow(),
-          disabled: _n(s['rep']) < (tier.value['rep'] as num) || _n(s['xp']) < (tier.value['xp'] as num),
-          onTap: () => doAct(context, ref, 'hireManager', tier.key, null, 'Contrat signé avec ${tier.value['n']}'),
-        ),
-      ],
-      if (active) PrimaryButton(label: 'Mettre fin au contrat', style: GameButtonStyle.secondary, onPressed: () => doAct(context, ref, 'mgr', null, null, 'Contrat terminé')),
-      const GameHint(icon: 'info', text: 'Barèmes et conditions provisoires issus des planches managers v20. Les bonus de développement commercial des planches ne sont pas chiffrés dans le moteur.'),
     ]);
   }
 }
