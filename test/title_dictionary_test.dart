@@ -36,7 +36,7 @@ void main() {
       for (final t in all) {
         expect(RegExp(r'\b(\w+) \1\b', caseSensitive: false).hasMatch(t), isFalse, reason: t);
         expect(t.contains(RegExp(r'[{}$]|  ')), isFalse, reason: t);
-        expect(RegExp(r'\b(de|à) le\b|\bde de\b|\ble le\b').hasMatch(t), isFalse, reason: t);
+        expect(RegExp(r'(^| )((de|à) le|de de|le le)( |$)', caseSensitive: false).hasMatch(t), isFalse, reason: t);
       }
     });
 
