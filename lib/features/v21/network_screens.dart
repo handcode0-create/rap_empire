@@ -181,9 +181,8 @@ class _PfCard extends StatelessWidget {
   final List<Color> colors;
   final Color accent;
   final VoidCallback onTap;
-  final String? image;
   final Widget? art;
-  const _PfCard({required this.logo, required this.eyebrow, required this.big, required this.sub, required this.colors, required this.accent, required this.onTap, this.image, this.art});
+  const _PfCard({required this.logo, required this.eyebrow, required this.big, required this.sub, required this.colors, required this.accent, required this.onTap, this.art});
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
@@ -199,8 +198,8 @@ class _PfCard extends StatelessWidget {
                   border: Border.all(color: accent.withValues(alpha: .35), width: 1.5),
                   borderRadius: BorderRadius.circular(22)),
               child: Stack(children: [
-                if (image != null || art != null) ...[
-                  Positioned.fill(child: Opacity(opacity: .75, child: art ?? SvgPicture.asset(image!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()))),
+                if (art != null) ...[
+                  Positioned.fill(child: Opacity(opacity: .75, child: art!)),
                   const Positioned.fill(
                       child: DecoratedBox(
                           decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00000000), Color(0xD9000000)], stops: [.3, 1])))),
