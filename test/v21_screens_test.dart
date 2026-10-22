@@ -455,6 +455,30 @@ void main() {
     expect(txt('Inédit'), findsOneWidget);
   });
 
+  testWidgets('pochettes : choisir la pochette d\'un son depuis le Studio, puis revenir à l\'automatique', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    final title = (s['cur'] as J)['title'] as String;
+    final repo = await pump21(tester, s, location: '/studio/pochettes');
+    expect(txt(title), findsOneWidget);
+    expect(txt('Automatique'), findsWidgets);
+    await tester.tap(txt(title));
+    await tester.pumpAndSettle();
+    expect(txt('POCHETTE'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel(RegExp('ambiance sombre, variante 3')).first);
+    await tester.pumpAndSettle();
+    final chosen = (repo.current['cur'] as J)['cover'] as String;
+    expect(isCoverPath21(chosen), isTrue);
+    expect(chosen.endsWith('_sombre_2.svg'), isTrue);
+    expect(txt('Choisie'), findsOneWidget);
+    await tester.tap(txt(title));
+    await tester.pumpAndSettle();
+    await tester.tap(txt('Pochette automatique'));
+    await tester.pumpAndSettle();
+    expect((repo.current['cur'] as J)['cover'], isNull);
+  });
+
   testWidgets('réserve : titres programmés et sans date, sans débordement à 360 px', (tester) async {
     var s = preset('carriere');
     for (var i = 0; i < 2; i++) {
@@ -474,7 +498,7 @@ void main() {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/festivals', '/scene/booking', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/formation', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/studio/pochettes', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
       '/profil/reseau', '/profil/reseau/ondea', '/profil/reseau/klipo', '/profil/reseau/klipo/video', '/profil/reseau/clips', '/profil/reseau/clips/clip', '/profil/reseau/cauri', '/profil/reseau/marketing',
       '/profil/reseau/ondea/titres', '/profil/reseau/ondea/sortie', '/profil/reseau/ondea/playlist', '/profil/reseau/ondea/playlist/pitch', '/profil/reseau/cauri/titres', '/profil/reseau/cauri/sortie',
       '/profil/reseau/social', '/profil/reseau/social/lueur', '/profil/reseau/social/bakoz', '/profil/reseau/social/griot', '/profil/annee', '/profil/reglages',

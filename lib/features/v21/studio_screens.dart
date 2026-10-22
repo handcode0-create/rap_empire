@@ -24,6 +24,7 @@ import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'cast21.dart';
+import 'cover_screens.dart';
 import 'library_screens.dart' show coverAmbs21, coverThemes21, trackCover21;
 import 'widgets21.dart';
 
@@ -293,7 +294,19 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
             Text(st == 'ecrit' ? 'TEXTE ÉCRIT · CHOISIS UNE INSTRU' : 'ENREGISTRÉ · PRÊT À SORTIR', style: V20Text.lab(color: V20.accText)),
             const SizedBox(height: 10),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              _cover(trackCover21(cur), 92),
+              Semantics(
+                button: true,
+                label: 'Changer la pochette',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => pickCover(context, ref, cur),
+                  child: Column(children: [
+                    _cover(trackCover21(cur), 92),
+                    const SizedBox(height: 4),
+                    Text('Changer', style: V20Text.poppins(size: 11, line: 14, weight: FontWeight.w700, color: V20.accText)),
+                  ]),
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -349,6 +362,12 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
             extra: _l(s['stock']).isEmpty ? null : GameTag('${_l(s['stock']).length}')),
         const SizedBox(width: 10),
         _AtelierTile('music', 'Catalogue, EP et album', '${_l(s['disco']).length} titre(s) sorti(s) · projets', () => context.go('/studio/catalogue')),
+      ]),
+      const SizedBox(height: 10),
+      Row(children: [
+        _AtelierTile('flame', 'Pochettes', '${coverThemes21.length * coverAmbs21.length * 6} au choix pour chaque son', () => context.go('/studio/pochettes')),
+        const SizedBox(width: 10),
+        const Expanded(child: SizedBox()),
       ]),
       const SizedBox(height: 12),
       GameHint(

@@ -43,6 +43,8 @@ int _h21(String id) => id.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) & 0x3fff
 
 /// Pochette d'un single : le motif suit le thème du texte, les couleurs l'ambiance, la variante l'identifiant.
 String trackCover21(Map t) {
+  final chosen = t['cover'];
+  if (chosen is String && isCoverPath21(chosen)) return chosen; // pochette choisie par le joueur (Studio > Pochettes)
   final id = '${t['id']}', h = _h21(id);
   final th = coverThemes21.contains(t['theme']) ? '${t['theme']}' : coverThemes21[h % coverThemes21.length];
   final amb = coverAmbs21.contains(t['amb']) ? '${t['amb']}' : coverAmbs21[(h ~/ 13) % 3];

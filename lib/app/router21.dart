@@ -13,6 +13,7 @@ import '../features/v21/playlist_screens.dart';
 import '../features/v21/social_screens.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
+import '../features/v21/cover_screens.dart';
 import '../features/v21/reserve_screens.dart';
 import '../features/v21/scene_business_screens.dart';
 import '../features/v21/wiki_screens.dart';
@@ -105,6 +106,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
                         name: '04-9-Mix-v21',
                         builder: (_, __) => const Mix21Screen()),
                     GoRoute(path: 'reserve', name: '21-M9-Reserve', builder: (_, __) => const ReserveScreen()),
+                    GoRoute(path: 'pochettes', name: '21-M10-Pochettes', builder: (_, __) => const CoversScreen21()),
                     GoRoute(
                         path: 'catalogue',
                         name: '21-A0-Catalogue',

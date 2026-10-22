@@ -409,6 +409,10 @@ String tierOf21(num l) {
   return t;
 }
 
+/// Pochettes disponibles dans le jeu (assets/covers, générées par tools/design/gen_covers.py) : 13 motifs x 3 ambiances x 6 variantes.
+final _coverPath21 = RegExp(r'^assets/covers/s_(quartier|galere|ambition|amour|rue|argent|fete|ego|introspection|identite|trap|gloire|autre)_(sombre|fiere|legere)_[0-5]\.svg$');
+bool isCoverPath21(String p) => _coverPath21.hasMatch(p);
+
 /// Titres déjà pris par le joueur (son en cours, réserve, sortis, EP et albums) : le dictionnaire ne les reproduit pas.
 Set<String> usedTitles21(J s) {
   final out = <String>{};
@@ -697,7 +701,7 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
+  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -2379,6 +2383,29 @@ final Map<String, Action> actions21 = {
     final n = clone21(s);
     _m(n['ui'])[k] = v.length > 40 ? v.substring(0, 40) : v;
     return _ok(n);
+  },
+
+  // Pochette choisie pour un son (en cours, en réserve ou sorti) : un chemin parmi les pochettes du jeu ; vide pour revenir à l'automatique.
+  // Purement visuel : aucune règle de jeu n'en dépend.
+  'setcover': (s, a) {
+    if (a is! List || a.length < 2) return _no(s, 'inconnu');
+    final id = '${a[0]}', path = a[1] == null ? '' : '${a[1]}';
+    if (path.isNotEmpty && !isCoverPath21(path)) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final songs = <J>[
+      if (n['cur'] != null) _m(n['cur']),
+      for (final k in ['stock', 'disco']) for (final x in _l(n[k] ?? const [])) _m(x),
+    ];
+    for (final song in songs) {
+      if ('${song['id']}' != id) continue;
+      if (path.isEmpty) {
+        song.remove('cover');
+      } else {
+        song['cover'] = path;
+      }
+      return _ok(n);
+    }
+    return _no(s, 'inconnu');
   },
 
   // Titre du prochain EP ou album : tiré du dictionnaire, sans reprendre un titre déjà pris (la saisie libre reste possible).
