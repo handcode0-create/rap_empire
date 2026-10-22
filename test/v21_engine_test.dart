@@ -531,7 +531,6 @@ void main() {
     s['rep'] = 8;
     expect(assetLock21(s, 'villa'), 'rep');
     expect(run(s, 'ask', 'villa').err, 'rep');
-    s['ui']['buy'] = 'villa';
     expect(run(s, 'assetBuy', 'villa').err, 'rep');
     expect(assetLock21(s, 'bague'), isNull); // rep 8 : accessible dès le départ
     s = must(s, 'ask', 'bague');

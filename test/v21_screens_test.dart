@@ -563,7 +563,7 @@ void main() {
   });
 
   testWidgets('patrimoine : catégories, filtres, biens verrouillés par la réputation, fiche et achat', (tester) async {
-    final st = init21();
+    final st = preset('carriere');
     st['cash'] = 600000;
     st['rep'] = 8;
     final repo = await pump21(tester, st, location: '/business/patrimoine');
@@ -605,7 +605,7 @@ void main() {
   });
 
   testWidgets('battle : mini-jeu de Flow, une tentative par round, aucune animation tant qu’il n’est pas lancé', (tester) async {
-    final st = init21();
+    final st = preset('carriere');
     st['btq'] = 'kzer';
     await pump21(tester, st, location: '/scene/battle');
     expect(find.byKey(const ValueKey('battle-flow-hint')), findsOneWidget);
