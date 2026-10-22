@@ -114,6 +114,28 @@ class PlayerFace21 extends StatelessWidget {
   }
 }
 
+/// Buste du joueur dans sa tenue du moment, qui remplit l'espace donné (publications, résultats). La largeur fixe l'échelle : 260 unités du dessin 300 × 640.
+class PlayerBust21 extends StatelessWidget {
+  final J s;
+  final String mood;
+  const PlayerBust21(this.s, {super.key, this.mood = 'smile'});
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
+        final u = c.maxWidth / 260;
+        return ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.topLeft,
+            minWidth: 0,
+            minHeight: 0,
+            maxWidth: 300 * u,
+            maxHeight: 640 * u,
+            child: Transform.translate(offset: Offset(-20 * u, 0), child: EquippedAvatar(s, width: 300 * u, height: 640 * u, mood: mood)),
+          ),
+        );
+      });
+}
+
 String _price(Map<String, dynamic> o) => (o['price'] as num) == 0 ? 'Offerte' : '${fmt21(o['price'] as num)} cauris';
 
 String _cond(Map<String, dynamic> o) => (o['rank'] as num) > 1 ? 'Rang N${o['rank']} requis' : 'Aucune condition';

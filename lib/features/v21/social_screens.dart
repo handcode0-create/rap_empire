@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/game21.dart';
 import '../../core/theme/tokens.dart';
@@ -9,7 +8,6 @@ import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
 import '../../core/widgets/bottom_sheet_game.dart';
 import '../../core/widgets/cascade.dart';
-import '../../core/widgets/character_view.dart';
 import '../../core/widgets/hero_stat.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/reward_burst.dart';
@@ -22,7 +20,7 @@ import '../../core/widgets/primary_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart' show J;
 import '../../domain/v21/view21.dart';
-import 'wardrobe_screens.dart' show PlayerFace21;
+import 'wardrobe_screens.dart' show PlayerBust21, PlayerFace21;
 import 'widgets21.dart';
 
 /// Réseaux sociaux fictifs v21 : Lueur (photos), Bakoz (vidéos courtes), Griot (messages) [VALIDÉ par Smith le 20/10/2026].
@@ -210,10 +208,10 @@ class SocialNetScreen extends ConsumerWidget {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             childAspectRatio: .78,
-            children: [for (var i = 0; i < posts.length; i++) _PhotoPost(posts[i], i)],
+            children: [for (var i = 0; i < posts.length; i++) _PhotoPost(s, posts[i], i)],
           )
         else if (net == 'bakoz')
-          for (var i = 0; i < posts.length; i++) ...[_VideoPost(posts[i], i), const SizedBox(height: 10)]
+          for (var i = 0; i < posts.length; i++) ...[_VideoPost(s, posts[i], i), const SizedBox(height: 10)]
         else
           for (final p in posts) ...[_ThreadPost(s, p), const SizedBox(height: 10)],
         const SizedBox(height: 4),
@@ -315,7 +313,7 @@ class _PostResult extends StatelessWidget {
                     style: V20Text.bs(color: Tk.ink)),
               ]),
             ),
-            SizedBox(width: 110, height: 140, child: CharacterView(who: 'djo', mood: mood, crop: 'bust', width: 110, height: 140)),
+            SizedBox(width: 110, height: 140, child: PlayerBust21(s, mood: mood)),
           ]),
         ]),
         const SizedBox(height: 12),
@@ -394,17 +392,40 @@ List<(String, String)> _comments(J p) {
   ];
 }
 
-class _PhotoPost extends StatelessWidget {
-  final J p;
+/// Décor d'une publication : dégradé de scène (huit ambiances) derrière le joueur, qui porte toujours sa tenue du moment.
+const _sceneGrads = <List<Color>>[
+  [Color(0xFF2A1060), Color(0xFF0B0620)],
+  [Color(0xFF5A1D5C), Color(0xFF1A0B2E)],
+  [Color(0xFF7A1F5A), Color(0xFF14102B)],
+  [Color(0xFF3A1B52), Color(0xFF0C0820)],
+  [Color(0xFF8A4A12), Color(0xFF1A0B0B)],
+  [Color(0xFF0E6B6B), Color(0xFF0C0820)],
+  [Color(0xFF8A1030), Color(0xFF14102B)],
+  [Color(0xFF6B5A12), Color(0xFF14102B)],
+];
+
+class _PostScene extends StatelessWidget {
+  final J s;
   final int i;
-  const _PhotoPost(this.p, this.i);
+  const _PostScene(this.s, this.i);
+  @override
+  Widget build(BuildContext context) => Stack(fit: StackFit.expand, children: [
+        DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: _sceneGrads[i % _sceneGrads.length]))),
+        Padding(padding: const EdgeInsets.only(left: 24, right: 24, top: 6), child: PlayerBust21(s)),
+      ]);
+}
+
+class _PhotoPost extends StatelessWidget {
+  final J s, p;
+  final int i;
+  const _PhotoPost(this.s, this.p, this.i);
   @override
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
           color: Tk.s1,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AspectRatio(aspectRatio: 1, child: SvgPicture.asset('assets/klipo/mine/M${(i % myThumbs21) + 1}.svg', fit: BoxFit.cover)),
+            AspectRatio(aspectRatio: 1, child: _PostScene(s, i)),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -419,16 +440,16 @@ class _PhotoPost extends StatelessWidget {
 }
 
 class _VideoPost extends StatelessWidget {
-  final J p;
+  final J s, p;
   final int i;
-  const _VideoPost(this.p, this.i);
+  const _VideoPost(this.s, this.p, this.i);
   @override
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(18),
         child: SizedBox(
           height: 300,
           child: Stack(fit: StackFit.expand, children: [
-            SvgPicture.asset('assets/klipo/mine/M${((i + 4) % myThumbs21) + 1}.svg', fit: BoxFit.cover),
+            _PostScene(s, i + 4),
             const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00000000), Color(0xD9000000)], stops: [.35, 1]))),
             const Center(child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 54)),
             if (_n(p['viral']) == 1) const Positioned(left: 12, top: 12, child: GameTag('Virale', style: GameTagStyle.accent)),
