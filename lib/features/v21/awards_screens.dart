@@ -689,7 +689,7 @@ class SalonAwardsScreen21 extends ConsumerWidget {
         if (wins.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text('${wins.length} victoire(s) au total', style: V20Text.bs(color: Tk.ok))),
         for (final h in hist.reversed) _HistRow(h),
       ],
-      const _Sec('Calendrier de l\'année', 'semaine $week'),
+      _Sec('Calendrier de l\'année', 'semaine $week'),
       for (final c in ceremonies21) _CeremonyRow(c, past: c.week < week, isNext: c.id == next.id),
       const SizedBox(height: 8),
       const GameHint(
