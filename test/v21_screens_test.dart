@@ -449,6 +449,8 @@ void main() {
     expect((repo.current['wd'] as J)['hair'], 'fade');
     expect(repo.current['cash'], 58500);
 
+    await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('onglet-Tatouages')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const ValueKey('cos-main_phalanges')));
