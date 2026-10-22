@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/theme/v20.dart';
 import '../../core/widgets/primary_button.dart';
 
 /// Mini-jeu de Flow d'une battle : un curseur va et vient sur la mesure, le joueur le fige dans la zone verte.

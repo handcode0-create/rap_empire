@@ -2132,7 +2132,7 @@ final Map<String, Action> actions21 = {
     n['lastJob'] = {
       'id': id,
       'cash': j['cash'],
-      'e': (j['e'] as num) - moto,
+      'e': (j['e'] as num) - bestAsset21(s, 'saveAll'),
       'h': j['h']
     };
     _log(n, '${j['n']} : +${fmt21(j['cash'] as num)} cauris', 'eco');
