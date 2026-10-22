@@ -87,6 +87,7 @@ void main() {
     test('lancement : conditions, une production à la fois, estimation = ventes réelles du premier jour', () {
       var s = act21(init21(), 'preset', 'carriere').s;
       s['fans'] = 4000;
+      s['rank'] = 1;
       expect(act21(s, 'merch', 'hoodie').err, 'rang');
       s['rank'] = 2;
       s['cash'] = 200000;
