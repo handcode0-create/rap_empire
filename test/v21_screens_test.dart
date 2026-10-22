@@ -501,11 +501,12 @@ void main() {
     expect(txt('Salon des awards'), findsOneWidget);
     await tester.tap(txt('Chambre des certifications'));
     await tester.pumpAndSettle();
-    expect(txt('Échelle des paliers'), findsOneWidget);
     expect(txt('Albums'), findsOneWidget);
     await tester.tap(txt('Albums'));
     await tester.pumpAndSettle();
     expect(txt('Aucune œuvre ici. Chaque single, EP ou album peut être certifié : or, platine, double, triple, diamant.'), findsOneWidget);
+    await tester.scrollUntilVisible(txt('Échelle des paliers'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    expect(txt('Échelle des paliers'), findsOneWidget);
   });
 
   testWidgets('salon des awards : prochaine cérémonie, palmarès et calendrier', (tester) async {
@@ -513,6 +514,7 @@ void main() {
     await pump21(tester, s, location: '/profil/trophees/awards', width: 360, height: 800);
     expect(txt('PROCHAINE CÉRÉMONIE'), findsOneWidget);
     expect(txt('Palmarès'), findsOneWidget);
+    await tester.scrollUntilVisible(txt('Prochaine'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
     expect(txt('Prochaine'), findsOneWidget);
   });
 
