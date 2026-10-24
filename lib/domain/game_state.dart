@@ -73,10 +73,16 @@ class GameState {
 
   /// Graine de la partie : fait varier les noms des instrus (instru_names.dart). 0 pour une ancienne sauvegarde : noms d'origine.
   final int seed;
+
+  /// Garde-robe v21 : tenues achetées, tenue équipée et variante visuelle du personnage.
+  final List<String> outfitOwned;
+  final String equippedOutfit;
+  final String avatarStage;
   const GameState({
     this.version = 1, this.cash = 25000, this.energy = 100, this.day = 1, this.hour = 8, this.fans = 120, this.pop = 3, this.rep = 8, this.xp = 0, this.hood = 'Ndolo',
     this.inst, this.instName, this.texte, this.sk = defaultSkills, this.takes = const [], this.song, this.micro = false, this.ms = defaultMissions, this.pend, this.style = 'drill',
     this.rel, this.disco = const [], this.lw = 0, this.lc = 0, this.fgain = 0, this.led = const [], this.cat = defaultCat, this.title, this.kc = const KoreDeal(), this.koreIntro = false, this.seed = 0,
+    this.outfitOwned = const ['OUTFIT_001'], this.equippedOutfit = 'OUTFIT_001', this.avatarStage = 'young',
   });
 
   int get level => levelOf(xp);
@@ -87,6 +93,7 @@ class GameState {
     int? version, int? cash, int? energy, int? day, int? hour, int? fans, int? pop, int? rep, int? xp, String? hood,
     Object? inst = _keep, Object? instName = _keep, Object? texte = _keep, Map<String, int>? sk, List<int>? takes, Object? song = _keep, bool? micro, Map<String, String>? ms, Object? pend = _keep, String? style,
     Object? rel = _keep, List<DiscoEntry>? disco, int? lw, int? lc, int? fgain, List<LedgerEntry>? led, Map<String, int>? cat, Object? title = _keep, KoreDeal? kc, bool? koreIntro, int? seed,
+    List<String>? outfitOwned, String? equippedOutfit, String? avatarStage,
   }) =>
       GameState(
         version: version ?? this.version, cash: cash ?? this.cash, energy: energy ?? this.energy, day: day ?? this.day, hour: hour ?? this.hour,
@@ -104,6 +111,7 @@ class GameState {
         led: led ?? this.led, cat: cat ?? this.cat,
         title: identical(title, _keep) ? this.title : title as String?,
         kc: kc ?? this.kc, koreIntro: koreIntro ?? this.koreIntro, seed: seed ?? this.seed,
+        outfitOwned: outfitOwned ?? this.outfitOwned, equippedOutfit: equippedOutfit ?? this.equippedOutfit, avatarStage: avatarStage ?? this.avatarStage,
       );
 
   Map<String, dynamic> toJson() => {
@@ -111,6 +119,7 @@ class GameState {
         'inst': inst, 'in': instName, 'texte': texte?.toJson(), 'sk': sk, 'takes': takes, 'song': song?.toJson(), 'micro': micro, 'ms': ms, 'pend': pend?.toJson(), 'style': style,
         'rel': rel?.toJson(), 'disco': disco.map((d) => d.toJson()).toList(), 'lw': lw, 'lc': lc, 'fgain': fgain,
         'led': led.map((e) => e.toJson()).toList(), 'cat': cat, 'title': title, 'kc': kc.toJson(), 'ki': koreIntro, 'sd': seed,
+        'outfitOwned': outfitOwned, 'equippedOutfit': equippedOutfit, 'avatarStage': avatarStage,
       };
   factory GameState.fromJson(Map<String, dynamic> j) => GameState(
         version: (j['v'] ?? 1) as int, cash: (j['cash'] ?? 25000) as int, energy: (j['en'] ?? 100) as int, day: (j['day'] ?? 1) as int,
@@ -133,6 +142,9 @@ class GameState {
         kc: j['kc'] == null ? const KoreDeal() : KoreDeal.fromJson(Map<String, dynamic>.from(j['kc'] as Map)),
         koreIntro: (j['ki'] ?? false) as bool,
         seed: (j['sd'] ?? 0) as int,
+        outfitOwned: j['outfitOwned'] == null ? const ['OUTFIT_001'] : List<String>.from(j['outfitOwned'] as List),
+        equippedOutfit: (j['equippedOutfit'] ?? 'OUTFIT_001') as String,
+        avatarStage: (j['avatarStage'] ?? 'young') as String,
       );
   String encode() => jsonEncode(toJson());
 }
