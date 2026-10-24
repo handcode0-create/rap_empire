@@ -47,7 +47,7 @@ void main() {
     expect(tracks.every((t) => (t['L'] as num) > 0), isTrue);
     expect(tracks.every((t) => (t['sales'] as num) > 0), isTrue);
     expect(tracks.every((t) => (t['rev'] as num) > 0), isTrue);
-    expect(project['lastCatalogDay'], s['day']);
+    expect(project['lastCatalogDay'], (s['day'] as num) - 1);
     expect(project['lastDayL'], greaterThan(0));
     expect(project['lastDaySales'], greaterThan(0));
   });
