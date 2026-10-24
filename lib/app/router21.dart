@@ -12,6 +12,7 @@ import '../features/v21/festival_screens.dart';
 import '../features/v21/justice_screens.dart';
 import '../features/v21/labels_screens.dart';
 import '../features/v21/library_screens.dart';
+import '../features/v21/media_tv_screens.dart';
 import '../features/v21/love_screens.dart';
 import '../features/v21/manager_screens.dart';
 import '../features/v21/music_screens.dart';
@@ -334,6 +335,7 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             path: '/dialogue',
             name: '21-X1-Dialogue',
             builder: (_, __) => const DialogueScreen()),
+        GoRoute(path: '/media-tv', name: '21-X2-Plateaux-TV', builder: (_, __) => const MediaTvScreen21()),
         GoRoute(
             path: '/scenes',
             name: '21-X0-Scenes',
