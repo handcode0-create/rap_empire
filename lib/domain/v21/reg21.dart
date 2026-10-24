@@ -11,9 +11,10 @@ class Reg21 {
       startAge = 19,
       dayStart = 8,
       dayEnd = 24,
-      // Horloge en temps réel : une journée dure ≈ 1 min 30 (16 heures de jeu + la nuit), l'heure avance seule.
-      dayRealMs = 90000,
-      tickMs = 5294,
+      // Horloge en temps réel : une journée dure ≈ 4 minutes (16 heures jouables + transition de nuit).
+      // 17 incréments d'environ 14,12 s couvrent la journée ; le timer reste suspendu sur les écrans bloquants.
+      dayRealMs = 240000,
+      tickMs = 14118,
       babyMorning = 5;
   static const enMaxByAge = [(0, 100), (30, 95), (40, 88), (50, 80), (60, 72)];
 

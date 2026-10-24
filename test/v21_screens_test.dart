@@ -944,7 +944,7 @@ void main() {
     expect(repo.current['hour'], Reg21.dayStart, reason: 'le temps est en pause sur le bilan');
   });
 
-  test('horloge : tick = une heure, bloqué à minuit, autorisé en prison ; une journée dure ≈ 1 min 30', () {
+  test('horloge : tick = une heure, bloqué à minuit, autorisé en prison ; une journée dure ≈ 4 minutes', () {
     var s = preset('debut');
     for (var i = Reg21.dayStart; i < Reg21.dayEnd; i++) {
       final r = act21(s, 'tick');
@@ -955,7 +955,7 @@ void main() {
     expect(act21(s, 'tick').err, 'tard');
     expect(act21(preset('prison'), 'tick').err, isNull);
     const dayMs = Reg21.tickMs * (Reg21.dayEnd - Reg21.dayStart + 1);
-    expect(dayMs, inInclusiveRange(89000, 91000));
+    expect(dayMs, inInclusiveRange(239000, 241000));
     expect(clockPaused21('/studio/cabine'), isTrue);
     expect(clockPaused21('/bilan'), isTrue);
     expect(clockPaused21('/'), isFalse);
