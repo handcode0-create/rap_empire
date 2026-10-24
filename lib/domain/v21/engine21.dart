@@ -1211,6 +1211,19 @@ Res _mkBuy(J s, String id, bool ok) {
 }
 
 final Map<String, Action> actions21 = {
+  'tvAnswer': (s, arg) {
+    if (arg is! Map) return _no(s, 'inconnu');
+    final scene = _n(arg['scene']).toInt(), choice = _n(arg['choice']).toInt();
+    if (scene < 0 || scene > 2 || choice < 0 || choice > 3) return _no(s, 'inconnu');
+    final n = clone21(s);
+    final tv = (n['tvMedia'] ??= <String, dynamic>{'rep': 50, 'viral': 50, 'history': <dynamic>[]}) as J;
+    tv['rep'] = clamp21(_n(tv['rep'] ?? 50) + _n(arg['rep']), 0, 100).round();
+    tv['viral'] = clamp21(_n(tv['viral'] ?? 50) + _n(arg['viral']), 0, 100).round();
+    _l(tv['history'] ??= <dynamic>[]).add({'day': n['day'], 'scene': scene, 'choice': choice, 'rep': tv['rep'], 'viral': tv['viral']});
+    if (_l(tv['history']).length > 100) _l(tv['history']).removeAt(0);
+    _log(n, 'Plateau TV : réputation ${tv['rep']}/100, viralité ${tv['viral']}/100', 'carriere');
+    return _ok(n);
+  },
   // ---- Espace Réseau (21-N0 à 21-N8) [VALIDÉ 20/10, valeurs provisoires] ----
   'kv': (s, a) {
     final i = a is num ? a.toInt() : int.tryParse('$a') ?? -1;
