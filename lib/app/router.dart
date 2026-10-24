@@ -7,6 +7,7 @@ import '../features/end_of_day/end_of_day_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/journal/journal_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/profile/wardrobe_screen.dart';
 import '../features/missions/level_up_screen.dart';
 import '../features/missions/mission_done_screen.dart';
 import '../features/missions/missions_screen.dart';
@@ -77,7 +78,11 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(initialLocation
               GoRoute(path: 'finances', name: '09-5-Finances', builder: (_, __) => const FinancesScreen()),
             ]),
           ]),
-          StatefulShellBranch(routes: [GoRoute(path: '/profil', name: '03-4-Profil', builder: (_, __) => const ProfileScreen())]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/profil', name: '03-4-Profil', builder: (_, __) => const ProfileScreen(), routes: [
+              GoRoute(path: 'tenues', name: '03-4-Tenues', builder: (_, __) => const WardrobeScreen()),
+            ]),
+          ]),
         ],
       ),
       GoRoute(path: '/scene-resultat', name: '06-4-Resultat-scene', builder: (_, __) => const SceneResultScreen()),
