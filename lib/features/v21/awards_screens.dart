@@ -368,6 +368,12 @@ String _certCover(J s, Cert21 c) {
 J _m(dynamic x) => x is Map ? x.map((k, v) => MapEntry('$k', v)) : <String, dynamic>{};
 List _l(dynamic x) => x is List ? x : const [];
 
+/// Date de calendrier du jeu : chaque événement est fixé au premier jour de sa semaine annuelle.
+String _awardDateLabel(int week, int year) {
+  final day = ((year - 1) * Reg21.daysPerYear) + ((week - 1) * 7) + 1;
+  return dateLabel21(day);
+}
+
 /// Porte d'une salle : grande carte illustrée, chiffre clé, et ce qu'on y trouve.
 class _Door extends StatelessWidget {
   final String title, kicker, line;
@@ -660,7 +666,7 @@ class SalonAwardsScreen21 extends ConsumerWidget {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(days == 0 ? 'CÉRÉMONIE CE SOIR' : 'PROCHAINE CÉRÉMONIE', style: V20Text.lab(color: V20.hintGoldText)),
                   Text(next.n, style: V20Text.baloo(size: 24, line: 26)),
-                  Text('Semaine ${next.week} · ${next.place}', style: V20Text.bs(color: Tk.ink)),
+                  Text('${_awardDateLabel(next.week, yearOf21(_n(s['day']) + days))} · ${next.place}', style: V20Text.bs(color: Tk.ink)),
                   const SizedBox(height: 4),
                   Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                     Text(days == 0 ? '0' : '$days', style: V20Text.baloo(size: 40, line: 40, color: Tk.gold)),
@@ -699,7 +705,17 @@ class SalonAwardsScreen21 extends ConsumerWidget {
         for (final h in hist.reversed) _HistRow(h),
       ],
       _Sec('Calendrier de l\'année', 'semaine $week'),
-      for (final c in ceremonies21) _CeremonyRow(c, past: c.week < week, isNext: c.id == next.id),
+      GameCard(
+        child: Row(children: [
+          const Icon(Icons.event_available, color: Tk.gold),
+          const SizedBox(width: 10),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Annonce des nominations', style: V20Text.nm()),
+            Text(_awardDateLabel(nominationsWeek21, yearOf21(_n(s['day']))), style: V20Text.bs()),
+          ])),
+        ]),
+      ),
+      for (final c in ceremonies21) _CeremonyRow(c, year: yearOf21(_n(s['day'])), past: c.week < week, isNext: c.id == next.id),
       const SizedBox(height: 8),
       const GameHint(
           icon: 'info',
@@ -711,8 +727,9 @@ class SalonAwardsScreen21 extends ConsumerWidget {
 
 class _CeremonyRow extends StatelessWidget {
   final Ceremony21 c;
+  final int year;
   final bool past, isNext;
-  const _CeremonyRow(this.c, {required this.past, required this.isNext});
+  const _CeremonyRow(this.c, {required this.year, required this.past, required this.isNext});
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -724,7 +741,7 @@ class _CeremonyRow extends StatelessWidget {
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(c.n, style: V20Text.nm()),
-                Text('S${c.week} · ${c.place}', style: V20Text.bs()),
+                Text('${_awardDateLabel(c.week, year)} · ${c.place}', style: V20Text.bs()),
                 Text(c.cats.map((x) => x.n).join(' · '), style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
               ]),
             ),
@@ -949,7 +966,7 @@ class _NominationsAnnonce extends ConsumerWidget {
     final any = cats.isNotEmpty;
     return Stack(children: [
       ListView(padding: const EdgeInsets.fromLTRB(16, 24, 16, 16), children: [
-        Text('SEMAINE $nominationsWeek21 · ANNÉE ${it['y']}', textAlign: TextAlign.center, style: V20Text.lab(color: V20.hintGoldText)),
+        Text('NOMINATIONS · ${_awardDateLabel(nominationsWeek21, (it['y'] as num).toInt())}', textAlign: TextAlign.center, style: V20Text.lab(color: V20.hintGoldText)),
         const SizedBox(height: 8),
         Center(child: SizedBox(height: 200, child: AspectRatio(aspectRatio: 220 / 300, child: SvgPicture.asset(any ? 'assets/awards/trophee_grandprix.svg' : 'assets/awards/trophee_vide.svg')))),
         const SizedBox(height: 12),
