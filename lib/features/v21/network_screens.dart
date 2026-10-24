@@ -168,9 +168,10 @@ class _Tiers extends StatelessWidget {
 
 /// Auditeurs estimés d'une ville : répartition des auditeurs au prorata de la popularité par ville.
 int _cityListeners(J s, String city, int total) {
-  final g = (s['geo'] as Map?) ?? const {};
-  final sum = Reg21.cities.keys.fold<num>(0, (a, k) => a + _n(g[k]));
-  return sum <= 0 ? 0 : jsRound(total * _n(g[city]) / sum);
+  // geoOf() est un pourcentage : ne pas renormaliser uniquement les villes connues,
+  // ce qui gonflait artificiellement les estimations de chaque ville.
+  final share = geoOf(s, city).clamp(0, 100).toDouble();
+  return jsRound(total * share / 100);
 }
 
 String _dec(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1).replaceAll('.', ',');
@@ -314,6 +315,16 @@ class ReseauScreen extends ConsumerWidget {
           ),
           GameTag(act.isEmpty ? 'Aucune' : 'Actif', style: act.isEmpty ? GameTagStyle.outline : GameTagStyle.ok),
           const SizedBox(width: 8),
+          const Icon(Icons.arrow_forward_rounded, color: Tk.ink),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      GameCard(
+        onTap: () => context.go('/media-tv'),
+        child: Row(children: [
+          Container(width: 58, height: 58, decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: const LinearGradient(colors: [Color(0xFF6E21A8), Color(0xFF15162D)])), child: const Icon(Icons.live_tv_rounded, color: Tk.gold, size: 32)),
+          const SizedBox(width: 12),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Plateaux TV & médias', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)), SizedBox(height: 4), Text('Interviews, choix de mots et réactions du public', style: TextStyle(fontSize: 12))])),
           const Icon(Icons.arrow_forward_rounded, color: Tk.ink),
         ]),
       ),
