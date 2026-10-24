@@ -801,10 +801,7 @@ void _releaseProject(J n, J draft) {
   projects.insert(0, {
     'id': draft['id'] ?? 'P${projects.length + 1}',
     'type': type, 'title': draft['title'], 'tracks': List<dynamic>.of(ids), 'day': n['day'],
-    'Q': q, 'L': streams, 'launchL': streams, 'sales': sales, 'rev': revenue, 'cut': gross - revenue,
-    'lastDayL': 0, 'lastDaySales': 0, 'lastDayRev': 0, 'lastCatalogDay': _n(n['day']),
-    'signed': _t(n['signed']) ? 1 : 0,
-    'platforms': {'ondea': platformSplit21(streams).ondea, 'cauri': platformSplit21(streams).cauri},
+    'Q': q, 'L': streams, 'sales': sales, 'rev': revenue, 'cut': gross - revenue,
     'fans': newFans, 'rank': rank,
     if (promo != 0) 'promo': promo,
     if (promo != 0) 'promoName': promos21[promo]['n'],
@@ -812,8 +809,7 @@ void _releaseProject(J n, J draft) {
     'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
     if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {
       'id': x['id'], 'title': x['title'], 'Q': x['Q'],
-      'L': 0, 'sales': 0, 'rev': 0, 'lastDayL': 0, 'lastDaySales': 0,
-      'lastCatalogDay': _n(n['day']),
+      'L': 0, 'sales': 0, 'rev': 0,
     }],
   });
   _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
@@ -2466,12 +2462,15 @@ Res _endDay(J s) {
     final age = _n(n['day']) - _n(project['day']);
     if (age < 1 || age > Reg21.catalogDays ||
         _n(project['lastCatalogDay']) >= _n(n['day'])) {
-      project['lastDayL'] = 0;
-      project['lastDaySales'] = 0;
-      project['lastDayRev'] = 0;
       continue;
     }
     final launch = _n(project['launchL'] ?? project['L']);
+    project['launchL'] ??= launch;
+    project['lastCatalogDay'] = _n(n['day']);
+    project['lastDayL'] = 0;
+    project['lastDaySales'] = 0;
+    project['lastDayRev'] = 0;
+    project['signed'] ??= project['labelAt'] != 'Indépendant' ? 1 : 0;
     final daily = math.max(1, jsRound(launch * Reg21.catalogDaily *
         math.pow(Reg21.catalogDecay, age - 1))).toInt();
     final dailySales = math.max(1, jsRound(daily * 0.004)).toInt();
@@ -2493,7 +2492,10 @@ Res _endDay(J s) {
     final rawPlatforms = project['platforms'];
     final platforms = rawPlatforms is Map
         ? Map<String, dynamic>.from(rawPlatforms)
-        : <String, dynamic>{};
+        : <String, dynamic>{
+            'ondea': platformSplit21(launch).ondea,
+            'cauri': platformSplit21(launch).cauri,
+          };
     project['platforms'] = platforms;
     final split = _platformStreams21(daily);
     for (final platform in split.keys) {

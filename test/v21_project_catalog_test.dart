@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 
+typedef J = Map<String, dynamic>;
 J m(dynamic x) => x as J;
 List l(dynamic x) => x as List;
 
@@ -46,7 +47,7 @@ void main() {
     expect(tracks.every((t) => (t['L'] as num) > 0), isTrue);
     expect(tracks.every((t) => (t['sales'] as num) > 0), isTrue);
     expect(tracks.every((t) => (t['rev'] as num) > 0), isTrue);
-    expect(project['lastCatalogDay'], s['day']);
+    expect(project['lastCatalogDay'], (s['day'] as num) - 1);
     expect(project['lastDayL'], greaterThan(0));
     expect(project['lastDaySales'], greaterThan(0));
   });
