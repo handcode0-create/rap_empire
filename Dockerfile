@@ -3,16 +3,12 @@ WORKDIR /app
 COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
 COPY . .
-# Chaque build est servi sous un chemin unique (/b/<date>/) : aucun cache (téléphone, proxy, CDN) ne peut resservir
-# l'ancien code ou les anciennes images, puisque leurs adresses changent. Seule la page d'entrée, jamais mise en cache,
-# reste à la racine. L'ancien service worker est remplacé par un fichier qui vide les caches et se désinscrit.
-RUN V=$(date -u +%Y%m%d%H%M) \
- && flutter build web --release --base-href /b/$V/ --dart-define=BUILD_TIME=$(date -u +%d/%m-%Hh%M) \
- && mkdir -p /out/b \
+# Build servi depuis la racine : évite les chemins /b/<version>/ périmés qui renvoient 404
+# sur les navigateurs mobiles et les raccourcis iOS/Android.
+RUN flutter build web --release --base-href / --dart-define=BUILD_TIME=$(date -u +%d/%m-%Hh%M) \
  && cp tool/web/kill_sw.js build/web/flutter_service_worker.js \
- && mv build/web /out/b/$V \
- && cp /out/b/$V/index.html /out/index.html \
- && cp /out/b/$V/favicon.png /out/favicon.png \
+ && mkdir -p /out \
+ && cp -a build/web/. /out/ \
  && cp tool/web/kill_sw.js /out/flutter_service_worker.js
 
 FROM nginx:alpine
