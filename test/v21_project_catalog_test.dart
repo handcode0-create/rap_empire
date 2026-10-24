@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 
+typedef J = Map<String, dynamic>;
 J m(dynamic x) => x as J;
 List l(dynamic x) => x as List;
 
