@@ -65,6 +65,10 @@ void main() {
     test('parité · ${sc['name']}', () {
       J s = sc['start'] == 'init' ? init21() : act21(init21(), 'preset', sc['start']).s;
       (sc['patch'] as Map<String, dynamic>).forEach((k, v) => put(s, k, v));
+      // Systèmes ajoutés après engine21.js (intérêt des labels, problèmes de début de carrière) : neutralisés ici
+      // pour comparer les règles communes. Ils ont leurs propres tests (v21_career_test.dart).
+      s['lbz'] = Reg21.lbzMax;
+      s['evDone'] = <String, dynamic>{...(s['evDone'] as Map<String, dynamic>? ?? const {}), for (final p in problemOrder21) p: 'parite'};
       final watch = (sc['watch'] as List).cast<String>();
       var i = 0;
       for (final st in (sc['steps'] as List).cast<Map<String, dynamic>>()) {
@@ -80,7 +84,10 @@ void main() {
         }
         final out = st['out'] as Map<String, dynamic>;
         for (final w in watch) {
-          final d = diff(out[w], at(s, w), w);
+          var got = at(s, w);
+          // Problèmes de début de carrière : absents de engine21.js, retirés de la comparaison.
+          if (w == 'evDone' && got is Map) got = {for (final e in got.entries) if (!problemOrder21.contains(e.key)) e.key: e.value};
+          final d = diff(out[w], got, w);
           expect(d, isNull, reason: '$label · $d');
         }
       }

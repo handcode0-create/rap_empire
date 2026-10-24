@@ -62,6 +62,9 @@ class Lbl {
       required this.cl, required this.q1, required this.q2, required this.alt, this.risk = false});
 }
 
+/// Les offres de label n'arrivent qu'une fois l'intérêt des labels suffisant (D-08).
+bool labelReady21(J s) => _n(s['lbz']) >= Reg21.lbzGate;
+
 bool _seen(J s, String k) => _m(s['dseen'])[k] != null && _m(s['dseen'])[k] != 0;
 int _disco(J s) => _l(s['disco']).length;
 
@@ -147,7 +150,7 @@ final Map<String, String> castn21 = {
 
 J _lblSet(String code, Lbl L, int adv, double cut, String? perk, String relKey, int rel) => {
       'cash': adv,
-      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk},
+      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk, 'ladv': adv},
       'rel': {relKey: rel},
     };
 
@@ -160,7 +163,7 @@ Dlg _lblDlg(String code, Lbl L) {
   final rt = L.risk ? ' · Risque : label en difficulté, soutien incertain' : '';
   return Dlg(
       t: 'Offre · ${L.n}', ref: '18-1 · $code', place: L.place, who: L.who, role: L.role,
-      cond: (s) => !_t(s['signed']) && L.cond(s), cl: L.cl, lbl: code,
+      cond: (s) => !_t(s['signed']) && labelReady21(s) && L.cond(s), cl: '${L.cl} · intérêt des labels ${Reg21.lbzGate}', lbl: code,
       nodes: {
         'n1': DlgNode('poised', L.q1, [
           DlgChoice('a', 'Signer', '+${_fmt(L.adv)} cauris · ${p(L.cut)} des écoutes · ${L.dur} · ${perk21[L.perk]}$rt',
@@ -249,19 +252,19 @@ final Map<String, Dlg> dlg21 = {
   ),
   'label': Dlg(
     t: 'Contrat de label', ref: '16-B · 08-2', place: 'office', who: 'orage', role: 'Directrice artistique · Bakoma Sound Records',
-    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']), cl: 'Réputation 30',
+    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']) && labelReady21(s), cl: 'Réputation 30 · intérêt des labels ${Reg21.lbzGate}',
     nodes: {
       'n1': const DlgNode('poised', '« Bakoma Sound Records te propose six mois, 150 000 d\'avance, 35 % sur tes écoutes et deux sons par trimestre. On signe ? »', [
         DlgChoice('a', 'Signer', '+150 000 cauris · 35 % des écoutes au label · 6 mois',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('b', 'Contre-proposer', 'réponse incertaine', k: 'i', go: 'n2'),
         DlgChoice('c', 'Réfléchir 7 jours', "l'offre revient dans 7 jours", k: 'i', e: {'q': ['label', 7]}, end: 'Réflexion'),
       ]),
       'n2': const DlgNode('neutral', "« Je peux monter l'avance à 180 000, mais la part passe à 40 %. Ou on garde l'offre de départ. »", [
         DlgChoice('a', '180 000 et 40 %', '+180 000 cauris · 40 % des écoutes au label',
-            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio'}}, end: 'Contrat signé (40 %)'),
+            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio', 'ladv': 180000}}, end: 'Contrat signé (40 %)'),
         DlgChoice('b', '150 000 et 35 %', '+150 000 cauris · 35 % des écoutes au label',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('c', 'Rester indépendant', 'relation −5 · Bakoma Sound Records ne revient pas', k: 'r',
             e: {'rel': {'orage': -5}}, end: 'Indépendant'),
       ]),

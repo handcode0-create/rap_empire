@@ -18,6 +18,7 @@ import '../../core/widgets/screen_background.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'creation_widgets.dart';
 import 'wardrobe_screens.dart';
 import 'widgets21.dart';
 
@@ -230,6 +231,8 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
       const SizedBox(height: 12),
       const Steps21(0),
       const SizedBox(height: 12),
+      ArtistHero21(s, avatar: 130),
+      const SizedBox(height: 16),
       const Lab21('Ton nom de scène'),
       TextField(
         controller: _name,
@@ -244,8 +247,9 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
           filled: true,
           fillColor: Tk.s1,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          suffixIcon: ok ? const Icon(Icons.check_circle_rounded, color: Tk.ok) : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.line, width: 2)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: ok ? Tk.ok : Tk.line, width: 2)),
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Tk.acc, width: 2)),
         ),
       ),
@@ -255,13 +259,15 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('ÂGE DE DÉPART', style: V20Text.lab()), const GameTag('Proposé', style: GameTagStyle.outline, color: Color(0xFFD8C8FF))]),
           const SizedBox(height: 8),
-          Row(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             _Step(label: '−', onTap: age <= Reg21.ageMin ? null : () => _set('age=-')),
-            const SizedBox(width: 16),
-            Text('$age ANS', style: V20Text.dm(size: 30)),
-            const SizedBox(width: 16),
+            const SizedBox(width: 24),
+            SizedBox(width: 110, child: Text('$age ANS', textAlign: TextAlign.center, style: V20Text.dm(size: 34))),
+            const SizedBox(width: 24),
             _Step(label: '+', onTap: age >= Reg21.ageMax ? null : () => _set('age=+')),
           ]),
+          const SizedBox(height: 12),
+          EnergyMeter21(enMaxAge(age)),
           const SizedBox(height: 8),
           Text('De ${Reg21.ageMin} à ${Reg21.ageMax} ans. Énergie maximale au départ : ${enMaxAge(age)}. Elle baisse avec l’âge (écran Profil · Année).', style: V20Text.bs()),
         ]),
@@ -270,14 +276,16 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('TON PAYS D’ORIGINE', style: V20Text.lab()), const GameTag('Validé 16/10', style: GameTagStyle.ok)]),
-          for (final c in Reg21.conts.values) ...[
-            const SizedBox(height: 8),
-            Lab21(c['n'] as String),
-            Wrap(spacing: 8, runSpacing: 8, children: [
-              for (final k in (c['c'] as List).cast<String>()) Chip21(Reg21.origins[k]!, selected: p['origin'] == k, onTap: () => _set('origin=$k')),
-            ]),
-          ],
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          LayoutBuilder(builder: (_, box) {
+            final w = (box.maxWidth - 8) / 2;
+            return Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final cont in Reg21.conts.values)
+                for (final k in (cont['c'] as List).cast<String>())
+                  SizedBox(width: w, child: _OriginTile(name: Reg21.origins[k]!, region: cont['n'] as String, selected: p['origin'] == k, onTap: () => _set('origin=$k'))),
+            ]);
+          }),
+          const SizedBox(height: 12),
           Text('Tu débutes à Ndolo. Chaque joueur choisit son pays parmi ceux du monde fictif ; venir d’ailleurs donne +4 de notoriété de départ dans ce pays.', style: V20Text.bs()),
         ]),
       ),
@@ -285,6 +293,40 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
       PrimaryGlowButton(label: 'Continuer', sublabel: 'Ton look', onPressed: ok ? () => context.go('/artiste/look') : null),
     ]);
   }
+}
+
+class _OriginTile extends StatelessWidget {
+  final String name, region;
+  final bool selected;
+  final VoidCallback onTap;
+  const _OriginTile({required this.name, required this.region, required this.selected, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        selected: selected,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 64),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Tk.rCard),
+              color: selected ? Tk.tint : Tk.s1,
+              border: Border.all(color: selected ? Tk.acc4 : V20.cardBorder, width: 2),
+            ),
+            child: Row(children: [
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  Text(name, style: V20Text.nm()),
+                  Text(region, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+                ]),
+              ),
+              if (selected) const Icon(Icons.check_circle_rounded, color: Tk.acc4, size: 20),
+            ]),
+          ),
+        ),
+      );
 }
 
 class _Step extends StatelessWidget {
@@ -299,11 +341,11 @@ class _Step extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-            width: 48,
-            height: 48,
+            width: 52,
+            height: 52,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: Tk.s1, borderRadius: BorderRadius.circular(16), border: Border.all(color: Tk.line, width: 2)),
-            child: Text(label, style: V20Text.nm(color: onTap == null ? Tk.dis : Tk.ink)),
+            decoration: BoxDecoration(color: Tk.s1, borderRadius: BorderRadius.circular(16), border: Border.all(color: onTap == null ? Tk.line : Tk.acc4, width: 2)),
+            child: Text(label, style: V20Text.dm(size: 26, color: onTap == null ? Tk.dis : Tk.ink)),
           ),
         ),
       );
@@ -324,24 +366,51 @@ class LookScreen extends ConsumerWidget {
     if (s == null) return const SizedBox();
     final ap = s['ap'] as J;
     Future<void> set(String k, String v) => ref.read(game21Provider.notifier).act('ap', '$k=$v');
+    Future<void> surprise() {
+      final n = DateTime.now().millisecondsSinceEpoch;
+      final sk = Reg21.skins.keys.toList(), h = hairs.keys.toList(), t = tops.keys.toList();
+      return ref.read(game21Provider.notifier).actAll([('ap', 'skin=${sk[n % sk.length]}'), ('ap', 'hair=${h[(n ~/ 7) % h.length]}'), ('ap', 'top=${t[(n ~/ 13) % t.length]}')]);
+    }
+
+    Widget group(String title, List<Widget> kids) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(padding: const EdgeInsets.only(top: 16, bottom: 8), child: Text(title.toUpperCase(), style: V20Text.lab())),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (var i = 0; i < kids.length; i++) ...[if (i > 0) const SizedBox(width: 8), Expanded(child: kids[i])],
+          ]),
+        ]);
+
     return Page21(children: [
       BackHeader(title: 'Ton look', onBack: () => context.go('/artiste/identite')),
       const SizedBox(height: 12),
       const Steps21(1),
-      const SizedBox(height: 8),
-      Center(child: SizedBox(height: 240, child: PlayerAvatar(s, height: 240))),
+      const SizedBox(height: 12),
+      LookStage21(s),
+      const SizedBox(height: 4),
       Center(child: Text('${Reg21.skins[ap['skin']]} · ${hairs[ap['hair']]} · ${tops[ap['top']]}', style: V20Text.bm)),
-      const SizedBox(height: 12),
-      const Lab21('Teint'),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final e in Reg21.skins.entries) Chip21(e.value, selected: ap['skin'] == e.key, onTap: () => set('skin', e.key))]),
-      const SizedBox(height: 8),
-      const Lab21('Coiffure'),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final e in hairs.entries) Chip21(e.value, selected: ap['hair'] == e.key, onTap: () => set('hair', e.key))]),
-      const SizedBox(height: 8),
-      const Lab21('Haut'),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final e in tops.entries) Chip21(e.value, selected: ap['top'] == e.key, onTap: () => set('top', e.key))]),
-      const SizedBox(height: 12),
-      const GameHint(icon: 'info', text: 'Rendu 2D provisoire : il sera remplacé par les calques peints. Tu pourras changer de look plus tard.'),
+      Align(alignment: Alignment.center, child: Chip21('Surprends-moi', onTap: surprise)),
+      group('Teint', [
+        for (final e in Reg21.skins.entries) Center(child: SkinDot21(id: e.key, label: e.value, selected: ap['skin'] == e.key, onTap: () => set('skin', e.key))),
+      ]),
+      group('Coiffure', [
+        for (final e in hairs.entries)
+          OptionTile21(
+            label: e.value,
+            selected: ap['hair'] == e.key,
+            onTap: () => set('hair', e.key),
+            thumb: CharacterView(who: 'me_${e.key}_${ap['top']}_${ap['skin']}', mood: 'smile', crop: 'bust', height: 88),
+          ),
+      ]),
+      group('Haut', [
+        for (final e in tops.entries)
+          OptionTile21(
+            label: e.value,
+            selected: ap['top'] == e.key,
+            onTap: () => set('top', e.key),
+            thumb: CharacterView(who: 'me_${ap['hair']}_${e.key}_${ap['skin']}', mood: 'smile', crop: 'torso', height: 88),
+          ),
+      ]),
+      const SizedBox(height: 16),
+      const GameHint(icon: 'info', text: 'Rendu 2D provisoire. Tu pourras changer de look plus tard : d’autres coiffures, des tenues et des tatouages t’attendent dans la garde-robe (Profil).'),
       const SizedBox(height: 12),
       PrimaryGlowButton(label: 'Continuer', sublabel: 'Ton style musical', onPressed: () => context.go('/artiste/style')),
     ]);
@@ -366,6 +435,8 @@ class StyleScreen extends ConsumerWidget {
       const SizedBox(height: 12),
       const Steps21(2),
       const SizedBox(height: 12),
+      ArtistHero21(s, avatar: 96),
+      const SizedBox(height: 12),
       const GameHint(icon: 'info', text: 'Un style principal (obligatoire, +3 à sa compétence) et un style secondaire facultatif (+1). Touche à nouveau « Secondaire » sur le même style pour le retirer.'),
       for (final e in Reg21.styles.entries) ...[
         const SizedBox(height: 12),
@@ -379,6 +450,8 @@ class StyleScreen extends ConsumerWidget {
             ]),
             const SizedBox(height: 4),
             Text(e.value['d'] as String, style: V20Text.bm),
+            const SizedBox(height: 4),
+            Text('COMPÉTENCE TRAVAILLÉE · ${(e.value['kn'] as String).toUpperCase()}', style: V20Text.lab(color: Tk.cy)),
             const SizedBox(height: 8),
             Row(children: [
               Chip21('Principal', selected: p['main'] == e.key, onTap: () => set('main', e.key)),
@@ -406,6 +479,17 @@ class ObjectifScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const SizedBox();
     final p = s['p'] as J;
+    final age = (p['age'] as num).toInt();
+    Widget kpi(String label, String value, Color c) => Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+            decoration: BoxDecoration(color: Tk.s2, borderRadius: BorderRadius.circular(12)),
+            child: Column(children: [
+              Text(value, style: V20Text.nm(color: c)),
+              Text(label.toUpperCase(), style: V20Text.poppins(size: 10, line: 12, weight: FontWeight.w700, color: V20.ink2, spacing: .4)),
+            ]),
+          ),
+        );
     return Page21(children: [
       BackHeader(title: 'Ton objectif', onBack: () => context.go('/artiste/style')),
       const SizedBox(height: 12),
@@ -415,30 +499,31 @@ class ObjectifScreen extends ConsumerWidget {
         GameCard(
           selected: p['goal'] == e.key,
           onTap: () => ref.read(game21Provider.notifier).act('setp', 'goal=${e.key}'),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(e.value['n'] as String, style: V20Text.nm()), Text(e.value['d'] as String, style: V20Text.bs())]),
+          child: Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(e.value['n'] as String, style: V20Text.nm()), Text(e.value['d'] as String, style: V20Text.bs())])),
+            if (p['goal'] == e.key) const Icon(Icons.check_circle_rounded, color: Tk.acc4),
+          ]),
         ),
       ],
-      const SizedBox(height: 12),
+      const SizedBox(height: 16),
+      Text('TON ARTISTE', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      ArtistHero21(s, avatar: 150),
+      const SizedBox(height: 8),
       GameCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('TON ARTISTE', style: V20Text.lab()),
+          KeyVal('Nom', cleanName21(p['name'])),
+          KeyVal('Âge', '$age ans'),
+          KeyVal('Origine', Reg21.origins[p['origin']]!),
+          KeyVal('Style', Reg21.styles[p['main']]!['n'] as String),
+          if (p['second'] != null) KeyVal('Second', Reg21.styles[p['second']]!['n'] as String),
+          KeyVal('Objectif', Reg21.goals[p['goal']]!['n'] as String),
           const SizedBox(height: 8),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            EquippedAvatar(s, width: 93, height: 140),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(children: [
-                KeyVal('Nom', cleanName21(p['name'])),
-                KeyVal('Âge', '${p['age']} ans'),
-                KeyVal('Origine', Reg21.origins[p['origin']]!),
-                KeyVal('Style', Reg21.styles[p['main']]!['n'] as String),
-                if (p['second'] != null) KeyVal('Second', Reg21.styles[p['second']]!['n'] as String),
-                KeyVal('Objectif', Reg21.goals[p['goal']]!['n'] as String),
-              ]),
-            ),
-          ]),
+          Text('DÉPART', style: V20Text.lab()),
+          const SizedBox(height: 6),
+          Row(children: [kpi('cauris', '25 000', Tk.gold), const SizedBox(width: 8), kpi('énergie', '${enMaxAge(age)}', Tk.cy), const SizedBox(width: 8), kpi('fans', '120', Tk.ink)]),
           const SizedBox(height: 8),
-          Conseq21(ConsequenceKind.certain, 'Départ : 25 000 cauris · énergie ${enMaxAge((p['age'] as num).toInt())} · 120 fans · jour 1 à Ndolo · non classé'),
+          const Conseq21(ConsequenceKind.certain, 'Jour 1 à Ndolo · niveau N1 · non classé'),
         ]),
       ),
       const SizedBox(height: 16),

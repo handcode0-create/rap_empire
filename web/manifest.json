@@ -1,11 +1,11 @@
 {
-    "name": "rap_empire",
-    "short_name": "rap_empire",
+    "name": "RAP EMPIRE",
+    "short_name": "RAP EMPIRE",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#140F22",
+    "theme_color": "#140F22",
+    "description": "Jeu mobile de carrière de rappeur dans l’univers fictif de Bakoma.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

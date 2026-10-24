@@ -1,812 +1,901 @@
 {
-  "v": 3,
-  "attachments": {},
-  "boards": {
-    "21-00-Consolidation.dc.html": {
-      "h": 2842,
-      "title": "21.00 Nouveautés intégrées dans la v21",
-      "w": 1600,
-      "x": 0,
-      "y": 130
-    },
-    "21-00b-Reglages.dc.html": {
-      "h": 2575,
-      "title": "21.00b Réglages provisoires centralisés",
-      "w": 1400,
-      "x": 1680,
-      "y": 130
-    },
-    "21-00c-Parcours.dc.html": {
-      "h": 1376,
-      "title": "21.00c Parcours et contrôles qualité",
-      "w": 1400,
-      "x": 3160,
-      "y": 130
-    },
-    "21-01-Candidats.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.01 Sélection parmi les 8 candidat(e)s",
-      "w": 390,
-      "x": 0,
-      "y": 8425
-    },
-    "21-02-Profil.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.02 Profil détaillé et compatibilité",
-      "w": 390,
-      "x": 470,
-      "y": 8425
-    },
-    "21-03-Interactions.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.03 Interactions romantiques",
-      "w": 390,
-      "x": 940,
-      "y": 8425
-    },
-    "21-04-Relation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.04 Jauge et historique de la relation",
-      "w": 390,
-      "x": 1410,
-      "y": 8425
-    },
-    "21-05-Officialisation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.05 Officialisation du couple",
-      "w": 390,
-      "x": 1880,
-      "y": 8425
-    },
-    "21-06-Couple.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.06 Vie quotidienne du couple",
-      "w": 390,
-      "x": 2350,
-      "y": 8425
-    },
-    "21-07-Demande.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.07 Événement de demande en mariage",
-      "w": 390,
-      "x": 2820,
-      "y": 8425
-    },
-    "21-08-Preparation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.08 Préparation du mariage",
-      "w": 390,
-      "x": 0,
-      "y": 9519
-    },
-    "21-09-Confirmation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.09 Confirmation du mariage",
-      "w": 390,
-      "x": 470,
-      "y": 9519
-    },
-    "21-10-Separation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.10 Séparation et conséquences",
-      "w": 390,
-      "x": 940,
-      "y": 9519
-    },
-    "21-10b-Rupture.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.10b Rupture décidée par le partenaire",
-      "w": 390,
-      "x": 1410,
-      "y": 9519
-    },
-    "21-11-Enfant.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.11 Profil de l'enfant et étape d'âge",
-      "w": 390,
-      "x": 1880,
-      "y": 9519
-    },
-    "21-12-Parent-enfant.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.12 Interactions parent-enfant",
-      "w": 390,
-      "x": 2350,
-      "y": 9519
-    },
-    "21-13-Evenements.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.13 Événements familiaux et décisions",
-      "w": 390,
-      "x": 2820,
-      "y": 9519
-    },
-    "21-14-Bilan-familial.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.14 Bilan familial de fin de journée",
-      "w": 390,
-      "x": 3290,
-      "y": 9519
-    },
-    "21-A0-Catalogue.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.A0 Catalogue des sons",
-      "w": 390,
-      "x": 0,
-      "y": 13895
-    },
-    "21-A0b-Titre.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.A0b Fiche d'un titre : streams, ventes, date, label, crédits",
-      "w": 390,
-      "x": 470,
-      "y": 13895
-    },
-    "21-A1-Projet.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.A1 Créer un EP ou un album (05-5 rendu jouable)",
-      "w": 390,
-      "x": 940,
-      "y": 13895
-    },
-    "21-A2-Projet-sorti.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.A2 Résultats d'un EP ou d'un album",
-      "w": 390,
-      "x": 1410,
-      "y": 13895
-    },
-    "21-B1-Battle.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.B1 Battle contre K-Zer (06-3 réintégré)",
-      "w": 390,
-      "x": 1410,
-      "y": 6237
-    },
-    "21-B2-Battle-resultat.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.B2 Résultat de battle (06-5 réintégré)",
-      "w": 390,
-      "x": 1880,
-      "y": 6237
-    },
-    "21-C1-Popularite.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.C1 Popularité par ville et par continent",
-      "w": 390,
-      "x": 2820,
-      "y": 6237
-    },
-    "21-C2-Scene.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.C2 Scène (06-1 complété)",
-      "w": 390,
-      "x": 940,
-      "y": 6237
-    },
-    "21-C3-Concert.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.C3 Résultats de concert (07-3 complété)",
-      "w": 390,
-      "x": 2350,
-      "y": 6237
-    },
-    "21-D1-Plateformes.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.D1 Plateformes de diffusion (fictives)",
-      "w": 390,
-      "x": 0,
-      "y": 11707
-    },
-    "21-D2-Ondea.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.D2 Ondéa · page artiste",
-      "w": 390,
-      "x": 470,
-      "y": 11707
-    },
-    "21-D3-Klipo.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.D3 Klipo · chaîne de l'artiste",
-      "w": 390,
-      "x": 940,
-      "y": 11707
-    },
-    "21-D4-Cauri-Music.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.D4 Cauri Music · écoute premium",
-      "w": 390,
-      "x": 1410,
-      "y": 11707
-    },
-    "21-E1-Business.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.E1 Business (09-1 complété)",
-      "w": 390,
-      "x": 0,
-      "y": 7331
-    },
-    "21-E2-Boulot.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.E2 Résultat d'un petit boulot",
-      "w": 390,
-      "x": 470,
-      "y": 7331
-    },
-    "21-E3-Entreprises.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.E3 Entreprises",
-      "w": 390,
-      "x": 940,
-      "y": 7331
-    },
-    "21-E4-Patrimoine.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.E4 Patrimoine et effets",
-      "w": 390,
-      "x": 1410,
-      "y": 7331
-    },
-    "21-E5-Achat-bien.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.E5 Confirmation d'achat d'un bien",
-      "w": 390,
-      "x": 1880,
-      "y": 7331
-    },
-    "21-J1-Journal.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.J1 Journal et missions (03-3, 10-1 complétés)",
-      "w": 390,
-      "x": 940,
-      "y": 4049
-    },
-    "21-K1-Personnages.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.K1 Galerie des personnages",
-      "w": 390,
-      "x": 2350,
-      "y": 11707
-    },
-    "21-L1-Labels-merch.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.L1 Merchandising et déblocages label",
-      "w": 390,
-      "x": 2350,
-      "y": 7331
-    },
-    "21-L2-Labels.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.L2 Les 10 labels et leurs logos",
-      "w": 390,
-      "x": 1880,
-      "y": 11707
-    },
-    "21-M1-Creation.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M1 Studio (04-1 / 04-5 complétés)",
-      "w": 390,
-      "x": 0,
-      "y": 5143
-    },
-    "21-M2-Featurings.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M2 Featurings à plusieurs (08-3 complété)",
-      "w": 390,
-      "x": 1880,
-      "y": 5143
-    },
-    "21-M3-Sortie.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M3 Préparer la sortie (05-1 complété)",
-      "w": 390,
-      "x": 2350,
-      "y": 5143
-    },
-    "21-M3b-Resultats.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M3b Résultats de sortie (05-4 complété)",
-      "w": 390,
-      "x": 2820,
-      "y": 5143
-    },
-    "21-M4-Clip.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M4 Clip : préparer, tourner, publier",
-      "w": 390,
-      "x": 3290,
-      "y": 5143
-    },
-    "21-M5-Clip-publie.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M5 Résultats du clip",
-      "w": 390,
-      "x": 3760,
-      "y": 5143
-    },
-    "21-M6-Instru.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M6 Choix de l'instru (04-3 réintégré)",
-      "w": 390,
-      "x": 470,
-      "y": 5143
-    },
-    "21-M7-Cabine.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M7 Cabine et mini-jeu (04-7 / 04-8 réintégrés)",
-      "w": 390,
-      "x": 940,
-      "y": 5143
-    },
-    "21-M8-Mix.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.M8 Mix et note (04-9 réintégré)",
-      "w": 390,
-      "x": 1410,
-      "y": 5143
-    },
-    "21-P1-Profil.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.P1 Profil (03-4 complété)",
-      "w": 390,
-      "x": 0,
-      "y": 10613
-    },
-    "21-Q0-Demarrer.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Q0 Lancer la démo",
-      "w": 390,
-      "x": 2820,
-      "y": 4049
-    },
-    "21-Q1-QG.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Q1 QG du jour (03-1 complété)",
-      "w": 390,
-      "x": 0,
-      "y": 4049
-    },
-    "21-Q2-Journee.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Q2 Choisir ses activités",
-      "w": 390,
-      "x": 1410,
-      "y": 4049
-    },
-    "21-Q3-Bilan.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Q3 Bilan de fin de journée (03-6 complété)",
-      "w": 390,
-      "x": 1880,
-      "y": 4049
-    },
-    "21-Q4-Annee.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Q4 Âge, énergie et nouvelle année",
-      "w": 390,
-      "x": 2350,
-      "y": 4049
-    },
-    "21-R1-Rang.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.R1 Rang de carrière (10-4 complété)",
-      "w": 390,
-      "x": 0,
-      "y": 6237
-    },
-    "21-R2-Classements.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.R2 Classements reliés aux données (13-1 complété)",
-      "w": 390,
-      "x": 470,
-      "y": 6237
-    },
-    "21-S0-Splash.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S0 Splash (02-1 complété)",
-      "w": 390,
-      "x": 0,
-      "y": 2955
-    },
-    "21-S0b-Nouvelle-partie.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S0b Nouvelle partie · confirmation",
-      "w": 390,
-      "x": 470,
-      "y": 2955
-    },
-    "21-S1-Univers.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S1 Univers 1 à 3 (02-2 à 02-4 complétés)",
-      "w": 390,
-      "x": 940,
-      "y": 2955
-    },
-    "21-S2-Identite.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S2 Identité (02-5 / 02-5b complétés)",
-      "w": 390,
-      "x": 1410,
-      "y": 2955
-    },
-    "21-S3-Look.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S3 Look (02-6 complété)",
-      "w": 390,
-      "x": 1880,
-      "y": 2955
-    },
-    "21-S4-Style.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S4 Styles musicaux (02-7 complété)",
-      "w": 390,
-      "x": 2350,
-      "y": 2955
-    },
-    "21-S5-Objectif.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.S5 Objectif et récapitulatif (02-8 complété)",
-      "w": 390,
-      "x": 2820,
-      "y": 2955
-    },
-    "21-V1-Evenement.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.V1 Événement (03-5, 16-A, 16-B reliés)",
-      "w": 390,
-      "x": 470,
-      "y": 4049
-    },
-    "21-X0-Scenes.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.X0 Scènes narratives et conditions",
-      "w": 390,
-      "x": 0,
-      "y": 12801
-    },
-    "21-X1-Dialogue.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.X1 Dialogue interactif (16-A à 16-G, 19-6, 19-8)",
-      "w": 390,
-      "x": 470,
-      "y": 12801
-    },
-    "21-Z1-Illegal.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Z1 Activités illégales (petits boulots à risque)",
-      "w": 390,
-      "x": 0,
-      "y": 14989
-    },
-    "21-Z2-Garde-a-vue.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Z2 Arrestation et garde à vue",
-      "w": 390,
-      "x": 470,
-      "y": 14989
-    },
-    "21-Z3-Avocat.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Z3 Choisir un avocat",
-      "w": 390,
-      "x": 940,
-      "y": 14989
-    },
-    "21-Z4-Tribunal.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Z4 Procès au tribunal",
-      "w": 390,
-      "x": 1410,
-      "y": 14989
-    },
-    "21-Z5-Prison.dc.html": {
-      "h": 844,
-      "is_interactive": true,
-      "title": "21.Z5 Prison",
-      "w": 390,
-      "x": 1880,
-      "y": 14989
-    },
-    "21-W1-Garde-robe.dc.html": {
-      "h": 844,
-      "title": "21.W1 Garde-robe : tenues préfabriquées",
-      "w": 390,
-      "x": 0,
-      "y": 16083,
-      "is_interactive": true
-    },
-    "21-W2-Tenue.dc.html": {
-      "h": 844,
-      "title": "21.W2 Tenue : aperçus jeune et mature, achat, équipement",
-      "w": 390,
-      "x": 470,
-      "y": 16083,
-      "is_interactive": true
-    },
-    "21-W3-Achat-tenue.dc.html": {
-      "h": 844,
-      "title": "21.W3 Confirmation d'achat d'une tenue (12-5b)",
-      "w": 390,
-      "x": 940,
-      "y": 16083,
-      "is_interactive": true
-    },
-    "21-W0-Tenues.dc.html": {
-      "h": 4170,
-      "title": "21.W0 Tenues préfabriquées : audit, architecture, tests",
-      "w": 1400,
-      "x": 1410,
-      "y": 16083
-    }
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "21-00-Consolidation.dc.html": {
+   "h": 2842,
+   "title": "21.00 Nouveautés intégrées dans la v21",
+   "w": 1600,
+   "x": 0,
+   "y": 130
   },
-  "createdOnFiles": {
-    "at": "2026-10-15T18:00:00Z",
-    "v": 1
+  "21-00b-Reglages.dc.html": {
+   "h": 2575,
+   "title": "21.00b Réglages provisoires centralisés",
+   "w": 1400,
+   "x": 1680,
+   "y": 130
   },
-  "designSystems": [],
-  "launch": {
-    "view": "canvas"
+  "21-00c-Parcours.dc.html": {
+   "h": 1376,
+   "title": "21.00c Parcours et contrôles qualité",
+   "w": 1400,
+   "x": 3160,
+   "y": 130
   },
-  "notes": {
-    "t0": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21 — Nouveautés intégrées dans la v21 : ce qui est nouveau, ce qui complète l’existant, réglages, parcours vérifiés",
-      "w": 240,
-      "x": 0,
-      "y": 40
-    },
-    "t1": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.Q — Journée : QG, événement, journal et fin de journée complétés (03-1, 03-3, 03-5, 03-6), agenda et âge nouveaux",
-      "w": 240,
-      "x": 0,
-      "y": 3959
-    },
-    "t1s": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.S — NOUVEAU · Démarrage : splash, univers, création de l’artiste (blaze, âge, origine, styles, look, objectif)",
-      "w": 240,
-      "x": 0,
-      "y": 2865
-    },
-    "t2": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.M — Studio : création, instru, cabine avec mini-jeu, mix (04-3 à 04-9 réintégrés), featurings, sortie, résultats, clips",
-      "w": 240,
-      "x": 0,
-      "y": 5053
-    },
-    "t3": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.R / 21.C — Rang et classements reliés aux données (10-4, 13-1 complétés), scène, battle (06-3 réintégrée) et résultats de concert (06-1, 07-3 complétés), popularité géographique",
-      "w": 240,
-      "x": 0,
-      "y": 6147
-    },
-    "t4": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.E / 21.L — Business complété (09-1) : petits boulots, entreprises, patrimoine, merch nouveaux (D-G02, D-G06, D-G08)",
-      "w": 240,
-      "x": 0,
-      "y": 7241
-    },
-    "t5": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.01 à 21.07 — NOUVEAU · Relations amoureuses, reliées au QG et à la fin de journée (D-G07)",
-      "w": 240,
-      "x": 0,
-      "y": 8335
-    },
-    "t6": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.08 à 21.14 — NOUVEAU · Mariage, séparation, famille (D-G07)",
-      "w": 240,
-      "x": 0,
-      "y": 9300
-    },
-    "t7": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.P — Profil (03-4 complété)",
-      "w": 240,
-      "x": 0,
-      "y": 10523
-    },
-    "t8": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.D / 21.K — NOUVEAU · À valider : plateformes fictives (Ondéa, Klipo, Cauri Music), logos des 10 labels, galerie des personnages",
-      "w": 240,
-      "x": 0,
-      "y": 11490
-    },
-    "t9": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.X — NOUVEAU · Scènes narratives et dialogues interactifs, déclenchés par la carrière (16-A à 16-G, 19-6, 19-8)",
-      "w": 240,
-      "x": 0,
-      "y": 12597
-    },
-    "ta": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.A — NOUVEAU · Catalogue des sons (streams, ventes, date, label, crédits), création d’EP et d’album (05-5 rendu jouable)",
-      "w": 240,
-      "x": -69,
-      "y": 13645
-    },
-    "tz": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.Z — NOUVEAU · 16+ · À valider : activités illégales, garde à vue, avocat, tribunal, prison",
-      "w": 240,
-      "x": 72,
-      "y": 14739
-    },
-    "tw": {
-      "kind": "title1",
-      "maxW": 3800,
-      "text": "21.W — PROPOSÉ · À valider : garde-robe à tenues préfabriquées (une illustration complète par tenue, variante jeune et mature, résolveur d’apparence)",
-      "w": 240,
-      "x": 0,
-      "y": 15993
-    }
+  "21-01-Candidats.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.01 Sélection parmi les 8 candidat(e)s",
+   "w": 390,
+   "x": 0,
+   "y": 8425
   },
-  "order": [
-    "21-00-Consolidation.dc.html",
-    "21-00b-Reglages.dc.html",
-    "21-00c-Parcours.dc.html",
-    "21-S0-Splash.dc.html",
-    "21-S0b-Nouvelle-partie.dc.html",
-    "21-S1-Univers.dc.html",
-    "21-S2-Identite.dc.html",
-    "21-S3-Look.dc.html",
-    "21-S4-Style.dc.html",
-    "21-S5-Objectif.dc.html",
-    "21-Q1-QG.dc.html",
-    "21-V1-Evenement.dc.html",
-    "21-J1-Journal.dc.html",
-    "21-Q2-Journee.dc.html",
-    "21-Q3-Bilan.dc.html",
-    "21-Q4-Annee.dc.html",
-    "21-Q0-Demarrer.dc.html",
-    "21-M1-Creation.dc.html",
-    "21-M6-Instru.dc.html",
-    "21-M7-Cabine.dc.html",
-    "21-M8-Mix.dc.html",
-    "21-M2-Featurings.dc.html",
-    "21-M3-Sortie.dc.html",
-    "21-M3b-Resultats.dc.html",
-    "21-M4-Clip.dc.html",
-    "21-M5-Clip-publie.dc.html",
-    "21-R1-Rang.dc.html",
-    "21-R2-Classements.dc.html",
-    "21-C2-Scene.dc.html",
-    "21-B1-Battle.dc.html",
-    "21-B2-Battle-resultat.dc.html",
-    "21-C3-Concert.dc.html",
-    "21-C1-Popularite.dc.html",
-    "21-E1-Business.dc.html",
-    "21-E2-Boulot.dc.html",
-    "21-E3-Entreprises.dc.html",
-    "21-E4-Patrimoine.dc.html",
-    "21-E5-Achat-bien.dc.html",
-    "21-L1-Labels-merch.dc.html",
-    "21-01-Candidats.dc.html",
-    "21-02-Profil.dc.html",
-    "21-03-Interactions.dc.html",
-    "21-04-Relation.dc.html",
-    "21-05-Officialisation.dc.html",
-    "21-06-Couple.dc.html",
-    "21-07-Demande.dc.html",
-    "21-08-Preparation.dc.html",
-    "21-09-Confirmation.dc.html",
-    "21-10-Separation.dc.html",
-    "21-10b-Rupture.dc.html",
-    "21-11-Enfant.dc.html",
-    "21-12-Parent-enfant.dc.html",
-    "21-13-Evenements.dc.html",
-    "21-14-Bilan-familial.dc.html",
-    "21-P1-Profil.dc.html",
-    "21-D1-Plateformes.dc.html",
-    "21-D2-Ondea.dc.html",
-    "21-D3-Klipo.dc.html",
-    "21-D4-Cauri-Music.dc.html",
-    "21-L2-Labels.dc.html",
-    "21-K1-Personnages.dc.html",
-    "21-X0-Scenes.dc.html",
-    "21-X1-Dialogue.dc.html",
-    "21-A0-Catalogue.dc.html",
-    "21-A0b-Titre.dc.html",
-    "21-A1-Projet.dc.html",
-    "21-A2-Projet-sorti.dc.html",
-    "21-Z1-Illegal.dc.html",
-    "21-Z2-Garde-a-vue.dc.html",
-    "21-Z3-Avocat.dc.html",
-    "21-Z4-Tribunal.dc.html",
-    "21-Z5-Prison.dc.html",
-    "21-W1-Garde-robe.dc.html",
-    "21-W2-Tenue.dc.html",
-    "21-W3-Achat-tenue.dc.html",
-    "21-W0-Tenues.dc.html"
-  ],
-  "pages": [],
-  "title": "RAP EMPIRE — Consolidation globale des améliorations (v21)"
+  "21-02-Profil.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.02 Profil détaillé et compatibilité",
+   "w": 390,
+   "x": 470,
+   "y": 8425
+  },
+  "21-03-Interactions.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.03 Interactions romantiques",
+   "w": 390,
+   "x": 940,
+   "y": 8425
+  },
+  "21-04-Relation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.04 Jauge et historique de la relation",
+   "w": 390,
+   "x": 1410,
+   "y": 8425
+  },
+  "21-05-Officialisation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.05 Officialisation du couple",
+   "w": 390,
+   "x": 1880,
+   "y": 8425
+  },
+  "21-06-Couple.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.06 Vie quotidienne du couple",
+   "w": 390,
+   "x": 2350,
+   "y": 8425
+  },
+  "21-07-Demande.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.07 Événement de demande en mariage",
+   "w": 390,
+   "x": 2820,
+   "y": 8425
+  },
+  "21-08-Preparation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.08 Préparation du mariage",
+   "w": 390,
+   "x": 0,
+   "y": 9519
+  },
+  "21-09-Confirmation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.09 Confirmation du mariage",
+   "w": 390,
+   "x": 470,
+   "y": 9519
+  },
+  "21-10-Separation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.10 Séparation et conséquences",
+   "w": 390,
+   "x": 940,
+   "y": 9519
+  },
+  "21-10b-Rupture.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.10b Rupture décidée par le partenaire",
+   "w": 390,
+   "x": 1410,
+   "y": 9519
+  },
+  "21-11-Enfant.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.11 Profil de l'enfant et étape d'âge",
+   "w": 390,
+   "x": 1880,
+   "y": 9519
+  },
+  "21-12-Parent-enfant.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.12 Interactions parent-enfant",
+   "w": 390,
+   "x": 2350,
+   "y": 9519
+  },
+  "21-13-Evenements.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.13 Événements familiaux et décisions",
+   "w": 390,
+   "x": 2820,
+   "y": 9519
+  },
+  "21-14-Bilan-familial.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.14 Bilan familial de fin de journée",
+   "w": 390,
+   "x": 3290,
+   "y": 9519
+  },
+  "21-A0-Catalogue.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.A0 Catalogue des sons",
+   "w": 390,
+   "x": 0,
+   "y": 13895
+  },
+  "21-A0b-Titre.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.A0b Fiche d'un titre : streams, ventes, date, label, crédits",
+   "w": 390,
+   "x": 470,
+   "y": 13895
+  },
+  "21-A1-Projet.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.A1 Créer un EP ou un album (05-5 rendu jouable)",
+   "w": 390,
+   "x": 940,
+   "y": 13895
+  },
+  "21-A2-Projet-sorti.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.A2 Résultats d'un EP ou d'un album",
+   "w": 390,
+   "x": 1410,
+   "y": 13895
+  },
+  "21-B1-Battle.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.B1 Battle contre K-Zer (06-3 réintégré)",
+   "w": 390,
+   "x": 1410,
+   "y": 6237
+  },
+  "21-B2-Battle-resultat.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.B2 Résultat de battle (06-5 réintégré)",
+   "w": 390,
+   "x": 1880,
+   "y": 6237
+  },
+  "21-C1-Popularite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.C1 Popularité par ville et par continent",
+   "w": 390,
+   "x": 2820,
+   "y": 6237
+  },
+  "21-C2-Scene.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.C2 Scène (06-1 complété)",
+   "w": 390,
+   "x": 940,
+   "y": 6237
+  },
+  "21-C3-Concert.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.C3 Résultats de concert (07-3 complété) · public et média partenaire",
+   "w": 390,
+   "x": 2350,
+   "y": 6237
+  },
+  "21-D1-Plateformes.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.D1 Plateformes de diffusion (fictives) (ancienne version, remplacée par 21.N)",
+   "w": 390,
+   "x": 0,
+   "y": 11707
+  },
+  "21-D2-Ondea.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.D2 Ondéa · page artiste (ancienne version, remplacée par 21.N)",
+   "w": 390,
+   "x": 470,
+   "y": 11707
+  },
+  "21-D3-Klipo.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.D3 Klipo · chaîne de l'artiste (ancienne version, remplacée par 21.N)",
+   "w": 390,
+   "x": 940,
+   "y": 11707
+  },
+  "21-D4-Cauri-Music.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.D4 Cauri Music · écoute premium (ancienne version, remplacée par 21.N)",
+   "w": 390,
+   "x": 1410,
+   "y": 11707
+  },
+  "21-E1-Business.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.E1 Business (09-1 complété)",
+   "w": 390,
+   "x": 0,
+   "y": 7331
+  },
+  "21-E2-Boulot.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.E2 Résultat d'un petit boulot",
+   "w": 390,
+   "x": 470,
+   "y": 7331
+  },
+  "21-E3-Entreprises.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.E3 Entreprises",
+   "w": 390,
+   "x": 940,
+   "y": 7331
+  },
+  "21-E4-Patrimoine.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.E4 Patrimoine et effets",
+   "w": 390,
+   "x": 1410,
+   "y": 7331
+  },
+  "21-E5-Achat-bien.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.E5 Confirmation d'achat d'un bien",
+   "w": 390,
+   "x": 1880,
+   "y": 7331
+  },
+  "21-J1-Journal.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.J1 Journal et missions (03-3, 10-1 complétés)",
+   "w": 390,
+   "x": 940,
+   "y": 4049
+  },
+  "21-K1-Personnages.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.K1 Galerie des personnages",
+   "w": 390,
+   "x": 2350,
+   "y": 11707
+  },
+  "21-L1-Labels-merch.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.L1 Merchandising et déblocages label",
+   "w": 390,
+   "x": 2350,
+   "y": 7331
+  },
+  "21-L2-Labels.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.L2 Les 10 labels et leurs logos",
+   "w": 390,
+   "x": 1880,
+   "y": 11707
+  },
+  "21-M1-Creation.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M1 Studio (04-1 / 04-5 complétés)",
+   "w": 390,
+   "x": 0,
+   "y": 5143
+  },
+  "21-M2-Featurings.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M2 Featurings à plusieurs (08-3 complété)",
+   "w": 390,
+   "x": 1880,
+   "y": 5143
+  },
+  "21-M3-Sortie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M3 Préparer la sortie (05-1 complété)",
+   "w": 390,
+   "x": 2350,
+   "y": 5143
+  },
+  "21-M3b-Resultats.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M3b Résultats de sortie (05-4 complété)",
+   "w": 390,
+   "x": 2820,
+   "y": 5143
+  },
+  "21-M4-Clip.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M4 Clip : préparer, tourner, publier",
+   "w": 390,
+   "x": 3290,
+   "y": 5143
+  },
+  "21-M5-Clip-publie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M5 Résultats du clip",
+   "w": 390,
+   "x": 3760,
+   "y": 5143
+  },
+  "21-M6-Instru.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M6 Choix de l'instru (04-3 réintégré)",
+   "w": 390,
+   "x": 470,
+   "y": 5143
+  },
+  "21-M7-Cabine.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M7 Cabine et mini-jeu (04-7 / 04-8 réintégrés)",
+   "w": 390,
+   "x": 940,
+   "y": 5143
+  },
+  "21-M8-Mix.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.M8 Mix et note (04-9 réintégré)",
+   "w": 390,
+   "x": 1410,
+   "y": 5143
+  },
+  "21-P1-Profil.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.P1 Profil (03-4 complété)",
+   "w": 390,
+   "x": 0,
+   "y": 10613
+  },
+  "21-Q0-Demarrer.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Q0 Lancer la démo",
+   "w": 390,
+   "x": 2820,
+   "y": 4049
+  },
+  "21-Q1-QG.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Q1 QG du jour (03-1 complété)",
+   "w": 390,
+   "x": 0,
+   "y": 4049
+  },
+  "21-Q2-Journee.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Q2 Choisir ses activités",
+   "w": 390,
+   "x": 1410,
+   "y": 4049
+  },
+  "21-Q3-Bilan.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Q3 Bilan de fin de journée (03-6 complété)",
+   "w": 390,
+   "x": 1880,
+   "y": 4049
+  },
+  "21-Q4-Annee.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Q4 Âge, énergie et nouvelle année",
+   "w": 390,
+   "x": 2350,
+   "y": 4049
+  },
+  "21-R1-Rang.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.R1 Rang de carrière (10-4 complété)",
+   "w": 390,
+   "x": 0,
+   "y": 6237
+  },
+  "21-R2-Classements.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.R2 Classements reliés aux données (13-1 complété)",
+   "w": 390,
+   "x": 470,
+   "y": 6237
+  },
+  "21-S0-Splash.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S0 Splash (02-1 complété)",
+   "w": 390,
+   "x": 0,
+   "y": 2955
+  },
+  "21-S0b-Nouvelle-partie.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S0b Nouvelle partie · confirmation",
+   "w": 390,
+   "x": 470,
+   "y": 2955
+  },
+  "21-S1-Univers.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S1 Univers 1 à 3 (02-2 à 02-4 complétés)",
+   "w": 390,
+   "x": 940,
+   "y": 2955
+  },
+  "21-S2-Identite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S2 Identité (02-5 / 02-5b complétés)",
+   "w": 390,
+   "x": 1410,
+   "y": 2955
+  },
+  "21-S3-Look.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S3 Look (02-6 complété)",
+   "w": 390,
+   "x": 1880,
+   "y": 2955
+  },
+  "21-S4-Style.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S4 Styles musicaux (02-7 complété)",
+   "w": 390,
+   "x": 2350,
+   "y": 2955
+  },
+  "21-S5-Objectif.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.S5 Objectif et récapitulatif (02-8 complété)",
+   "w": 390,
+   "x": 2820,
+   "y": 2955
+  },
+  "21-V1-Evenement.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.V1 Événement (03-5, 16-A, 16-B reliés)",
+   "w": 390,
+   "x": 470,
+   "y": 4049
+  },
+  "21-X0-Scenes.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.X0 Scènes narratives et conditions",
+   "w": 390,
+   "x": 0,
+   "y": 12801
+  },
+  "21-X1-Dialogue.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.X1 Dialogue interactif (16-A à 16-G, 19-6, 19-8)",
+   "w": 390,
+   "x": 470,
+   "y": 12801
+  },
+  "21-Z1-Illegal.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Z1 Activités illégales (petits boulots à risque)",
+   "w": 390,
+   "x": 0,
+   "y": 14989
+  },
+  "21-Z2-Garde-a-vue.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Z2 Arrestation et garde à vue",
+   "w": 390,
+   "x": 470,
+   "y": 14989
+  },
+  "21-Z3-Avocat.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Z3 Choisir un avocat",
+   "w": 390,
+   "x": 940,
+   "y": 14989
+  },
+  "21-Z4-Tribunal.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Z4 Procès au tribunal",
+   "w": 390,
+   "x": 1410,
+   "y": 14989
+  },
+  "21-Z5-Prison.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.Z5 Prison",
+   "w": 390,
+   "x": 1880,
+   "y": 14989
+  },
+  "21-W1-Garde-robe.dc.html": {
+   "h": 844,
+   "title": "21.W1 Garde-robe : tenues préfabriquées",
+   "w": 390,
+   "x": 0,
+   "y": 16083,
+   "is_interactive": true
+  },
+  "21-W2-Tenue.dc.html": {
+   "h": 844,
+   "title": "21.W2 Tenue : aperçus jeune et mature, achat, équipement",
+   "w": 390,
+   "x": 470,
+   "y": 16083,
+   "is_interactive": true
+  },
+  "21-W3-Achat-tenue.dc.html": {
+   "h": 844,
+   "title": "21.W3 Confirmation d'achat d'une tenue (12-5b)",
+   "w": 390,
+   "x": 940,
+   "y": 16083,
+   "is_interactive": true
+  },
+  "21-W0-Tenues.dc.html": {
+   "h": 4170,
+   "title": "21.W0 Tenues préfabriquées : audit, architecture, tests",
+   "w": 1400,
+   "x": 1410,
+   "y": 16083
+  },
+  "21-N0-Reseau.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N0 Réseau : plateformes, clips, notoriété",
+   "w": 390,
+   "x": 0,
+   "y": 20523
+  },
+  "21-N1-Ondea.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N1 Ondéa · page artiste",
+   "w": 390,
+   "x": 470,
+   "y": 20523
+  },
+  "21-N2-Klipo.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N2 Klipo · accueil, 50 vidéos",
+   "w": 390,
+   "x": 940,
+   "y": 20523
+  },
+  "21-N3-Klipo-lecteur.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N3 Klipo · lecteur",
+   "w": 390,
+   "x": 1410,
+   "y": 20523
+  },
+  "21-N4-Mes-clips.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N4 Mes clips",
+   "w": 390,
+   "x": 1880,
+   "y": 20523
+  },
+  "21-N5-Clip.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N5 Mon clip · statistiques",
+   "w": 390,
+   "x": 2350,
+   "y": 20523
+  },
+  "21-N6-Cauri-Music.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N6 Cauri Music · premium",
+   "w": 390,
+   "x": 2820,
+   "y": 20523
+  },
+  "21-N7-Marketing.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N7 Marketing : Local, National, Global",
+   "w": 390,
+   "x": 3290,
+   "y": 20523
+  },
+  "21-N8-Campagne.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "21.N8 Confirmation de campagne",
+   "w": 390,
+   "x": 3760,
+   "y": 20523
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-15T18:00:00Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "view": "canvas"
+ },
+ "notes": {
+  "t0": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21 — Nouveautés intégrées dans la v21 : ce qui est nouveau, ce qui complète l’existant, réglages, parcours vérifiés",
+   "w": 240,
+   "x": 0,
+   "y": 40
+  },
+  "t1": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.Q — Journée : QG, événement, journal et fin de journée complétés (03-1, 03-3, 03-5, 03-6), agenda et âge nouveaux",
+   "w": 240,
+   "x": 0,
+   "y": 3959
+  },
+  "t1s": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.S — NOUVEAU · Démarrage : splash, univers, création de l’artiste (blaze, âge, origine, styles, look, objectif)",
+   "w": 240,
+   "x": 0,
+   "y": 2865
+  },
+  "t2": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.M — Studio : création, instru, cabine avec mini-jeu, mix (04-3 à 04-9 réintégrés), featurings, sortie, résultats, clips",
+   "w": 240,
+   "x": 0,
+   "y": 5053
+  },
+  "t3": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.R / 21.C — Rang et classements reliés aux données (10-4, 13-1 complétés), scène, battle (06-3 réintégrée) et résultats de concert (06-1, 07-3 complétés), popularité géographique",
+   "w": 240,
+   "x": 0,
+   "y": 6147
+  },
+  "t4": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.E / 21.L — Business complété (09-1) : petits boulots, entreprises, patrimoine, merch nouveaux (D-G02, D-G06, D-G08)",
+   "w": 240,
+   "x": 0,
+   "y": 7241
+  },
+  "t5": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.01 à 21.07 — NOUVEAU · Relations amoureuses, reliées au QG et à la fin de journée (D-G07)",
+   "w": 240,
+   "x": 0,
+   "y": 8335
+  },
+  "t6": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.08 à 21.14 — NOUVEAU · Mariage, séparation, famille (D-G07)",
+   "w": 240,
+   "x": 0,
+   "y": 9300
+  },
+  "t7": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.P — Profil (03-4 complété)",
+   "w": 240,
+   "x": 0,
+   "y": 10523
+  },
+  "t8": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.D / 21.K — NOUVEAU · À valider : plateformes fictives (Ondéa, Klipo, Cauri Music), logos des 10 labels, galerie des personnages",
+   "w": 240,
+   "x": 0,
+   "y": 11490
+  },
+  "t9": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.X — NOUVEAU · Scènes narratives et dialogues interactifs, déclenchés par la carrière (16-A à 16-G, 19-6, 19-8)",
+   "w": 240,
+   "x": 0,
+   "y": 12597
+  },
+  "ta": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.A — NOUVEAU · Catalogue des sons (streams, ventes, date, label, crédits), création d’EP et d’album (05-5 rendu jouable)",
+   "w": 240,
+   "x": -69,
+   "y": 13645
+  },
+  "tz": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.Z — NOUVEAU · 16+ · À valider : activités illégales, garde à vue, avocat, tribunal, prison",
+   "w": 240,
+   "x": 72,
+   "y": 14739
+  },
+  "tw": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.W — PROPOSÉ · À valider : garde-robe à tenues préfabriquées (une illustration complète par tenue, variante jeune et mature, résolveur d’apparence)",
+   "w": 240,
+   "x": 0,
+   "y": 15917
+  },
+  "tn": {
+   "kind": "title1",
+   "maxW": 3800,
+   "text": "21.N — PROPOSÉ · À valider : espace Réseau (Ondéa, Klipo avec 50 vidéos, Cauri Music), mes clips, marketing Local · National · Global, médias et public en concert",
+   "w": 240,
+   "x": 0,
+   "y": 20433
+  }
+ },
+ "order": [
+  "21-00-Consolidation.dc.html",
+  "21-00b-Reglages.dc.html",
+  "21-00c-Parcours.dc.html",
+  "21-S0-Splash.dc.html",
+  "21-S0b-Nouvelle-partie.dc.html",
+  "21-S1-Univers.dc.html",
+  "21-S2-Identite.dc.html",
+  "21-S3-Look.dc.html",
+  "21-S4-Style.dc.html",
+  "21-S5-Objectif.dc.html",
+  "21-Q1-QG.dc.html",
+  "21-V1-Evenement.dc.html",
+  "21-J1-Journal.dc.html",
+  "21-Q2-Journee.dc.html",
+  "21-Q3-Bilan.dc.html",
+  "21-Q4-Annee.dc.html",
+  "21-Q0-Demarrer.dc.html",
+  "21-M1-Creation.dc.html",
+  "21-M6-Instru.dc.html",
+  "21-M7-Cabine.dc.html",
+  "21-M8-Mix.dc.html",
+  "21-M2-Featurings.dc.html",
+  "21-M3-Sortie.dc.html",
+  "21-M3b-Resultats.dc.html",
+  "21-M4-Clip.dc.html",
+  "21-M5-Clip-publie.dc.html",
+  "21-R1-Rang.dc.html",
+  "21-R2-Classements.dc.html",
+  "21-C2-Scene.dc.html",
+  "21-B1-Battle.dc.html",
+  "21-B2-Battle-resultat.dc.html",
+  "21-C3-Concert.dc.html",
+  "21-C1-Popularite.dc.html",
+  "21-E1-Business.dc.html",
+  "21-E2-Boulot.dc.html",
+  "21-E3-Entreprises.dc.html",
+  "21-E4-Patrimoine.dc.html",
+  "21-E5-Achat-bien.dc.html",
+  "21-L1-Labels-merch.dc.html",
+  "21-01-Candidats.dc.html",
+  "21-02-Profil.dc.html",
+  "21-03-Interactions.dc.html",
+  "21-04-Relation.dc.html",
+  "21-05-Officialisation.dc.html",
+  "21-06-Couple.dc.html",
+  "21-07-Demande.dc.html",
+  "21-08-Preparation.dc.html",
+  "21-09-Confirmation.dc.html",
+  "21-10-Separation.dc.html",
+  "21-10b-Rupture.dc.html",
+  "21-11-Enfant.dc.html",
+  "21-12-Parent-enfant.dc.html",
+  "21-13-Evenements.dc.html",
+  "21-14-Bilan-familial.dc.html",
+  "21-P1-Profil.dc.html",
+  "21-D1-Plateformes.dc.html",
+  "21-D2-Ondea.dc.html",
+  "21-D3-Klipo.dc.html",
+  "21-D4-Cauri-Music.dc.html",
+  "21-L2-Labels.dc.html",
+  "21-K1-Personnages.dc.html",
+  "21-X0-Scenes.dc.html",
+  "21-X1-Dialogue.dc.html",
+  "21-A0-Catalogue.dc.html",
+  "21-A0b-Titre.dc.html",
+  "21-A1-Projet.dc.html",
+  "21-A2-Projet-sorti.dc.html",
+  "21-Z1-Illegal.dc.html",
+  "21-Z2-Garde-a-vue.dc.html",
+  "21-Z3-Avocat.dc.html",
+  "21-Z4-Tribunal.dc.html",
+  "21-Z5-Prison.dc.html",
+  "21-W1-Garde-robe.dc.html",
+  "21-W2-Tenue.dc.html",
+  "21-W3-Achat-tenue.dc.html",
+  "21-W0-Tenues.dc.html",
+  "21-N0-Reseau.dc.html",
+  "21-N1-Ondea.dc.html",
+  "21-N2-Klipo.dc.html",
+  "21-N3-Klipo-lecteur.dc.html",
+  "21-N4-Mes-clips.dc.html",
+  "21-N5-Clip.dc.html",
+  "21-N6-Cauri-Music.dc.html",
+  "21-N7-Marketing.dc.html",
+  "21-N8-Campagne.dc.html"
+ ],
+ "pages": [],
+ "title": "RAP EMPIRE — Consolidation globale des améliorations (v21)"
 }

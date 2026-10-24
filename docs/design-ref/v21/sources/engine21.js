@@ -115,7 +115,7 @@
     atelier: { n: 'Atelier d\'écriture', h: 2, e: 20, cost: 6000, sk: 'ecr', gain: 5 }, labelCut: 0.35,
     missions: [{ id: 'm1', t: 'Enregistre ton premier son', cash: 5000, xp: 50 }, { id: 'm2', t: 'Sors ton premier single', cash: 10000, xp: 80 }, { id: 'm3', t: 'Fais un atelier d\'écriture', cash: 4000, xp: 60 }, { id: 'm4', t: 'Atteins 1 000 fans', cash: 15000, xp: 120 }],
     // correctifs issus de l'audit du 16/10 [PROPOSÉ]
-    concertEvery: 7, tourEvery: 28, ticketPrice: 80, capacity: 300, tourAudience: 3, merchScale: 30,
+    confirmAt: 15000, concertEvery: 7, tourEvery: 28, ticketPrice: 80, capacity: 300, tourAudience: 3, merchScale: 30,
     // économie de démonstration reprise de la v20 (D-08)
     listenValue: 0.01, fanSat: 5000, listenCap: 15000000
   };
@@ -145,7 +145,7 @@
   function stageOf(age) { var n = REG.stages[0][1]; REG.stages.forEach(function (p) { if (age >= p[0]) n = p[1]; }); return n; }
 
   function init() {
-    var s = { v: 21, wd: { owned: ['OUTFIT_001'], eq: 'OUTFIT_001', sel: 'OUTFIT_001', ask: null }, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, mature: 0, projects: [], heat: 0, crimeN: 0, cas: null, jail: null, casier: [], dlg: null, dq: [], dseen: {}, rel: {}, mgr: null, lcut: null, duo: null, hype: 0, diss: 0, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
+    var s = { v: 21, mk: { on: [], ask: null, tot: 0, n: 0 }, kv: 0, mcl: 0, wd: { owned: ['OUTFIT_001'], eq: 'OUTFIT_001', sel: 'OUTFIT_001', ask: null }, created: 0, p: { name: '', age: REG.startAge, origin: 'bakoma', main: 'drill', second: null, goal: 'quartier' }, ms: {}, evq: [], ev: null, evDone: {}, kc: { left: 0, bonus: 0, rel: 0, st: '' }, mature: 0, projects: [], heat: 0, crimeN: 0, cas: null, jail: null, casier: [], dlg: null, dq: [], dseen: {}, rel: {}, mgr: null, lcut: null, duo: null, hype: 0, diss: 0, cc: null, lastConcert: -99, lastTour: -99, seed: 7, day: 1, hour: 8, age: REG.startAge, cash: 25000, en: 100, pop: 3, fans: 120, rep: 8, xp: 0, rank: 1,
       sk: { flow: 17, ecr: 14, voix: 10, cha: 8 },
       cur: null, disco: [], shows: 0,
       geo: { bakoma: 4, portambre: 0, selene: 0, tamarel: 0, korvane: 0, aldera: 0 },
@@ -250,6 +250,7 @@
     c.vir = virOf(c, n.ui.promo); var boost = 1; c.feats.forEach(function (f) { boost *= REG.feats[f].boost; });
     var L = Math.round(listensFor(c.Q, n.fans, n.ui.promo) * (0.8 + c.vir / 250) * boost);
     if (n.hype && n.day <= n.hype) { L = Math.round(L * 1.2); c.hype = 1; } n.hype = 0;
+    var mb = mkBoost(n); if (mb) { L = Math.round(L * (1 + mb)); c.mkB = Math.round(mb * 100); }   // [PROPOSÉ] campagnes actives
     if (n.diss) { L = Math.round(L * 1.1); c.diss = 1; n.diss = 0; }
     var gross = Math.round(L * REG.listenValue), rev = n.signed ? Math.round(gross * (1 - (n.lcut || REG.labelCut))) : gross, fg = Math.ceil(L * 0.07 / (1 + n.fans / REG.fanSat)), pg = Math.floor(L / 900);
     if (c.duo) { var dc = Math.round(rev * c.duo / 100); rev -= dc; c.duoCut = dc; }
@@ -322,8 +323,9 @@
     if (s.day - s.lastConcert < REG.concertEvery) return { s: s, err: 'delai' };
     var n = clone(s), e = spend(n, 4, 35 - (s.own.moto ? 5 : 0)); if (e) return { s: s, err: e };
     var A_ = s.en >= 60, tk = tickets(s), ca = Math.round(tk * REG.ticketPrice * (A_ ? 1 : 0.85)), fg = Math.round(tk * (A_ ? 1.6 : 1.1)), rp = A_ ? 10 : 6;
-    n.shows++; n.fans += fg; n.rep += rp; cachet(n, ca); geoAdd(n, 'bakoma', 4); n.pop = clamp(n.pop + 1, 0, 100); addXp(n, 90); n.lastConcert = n.day; n.concertDay = n.day;
-    n.cc = { g: A_ ? 'A' : 'B', tk: tk, cash: ca, fans: fg, rep: rp, day: n.day };
+    var sp = mkSponsor(s), sb = sp ? Math.round(ca * MEDIA[sp].spon) : 0;   // [PROPOSÉ] bonus de partenariat média
+    n.shows++; n.fans += fg; n.rep += rp; cachet(n, ca + sb); geoAdd(n, 'bakoma', 4); n.pop = clamp(n.pop + 1, 0, 100); addXp(n, 90); n.lastConcert = n.day; n.concertDay = n.day;
+    n.cc = { g: A_ ? 'A' : 'B', tk: tk, cash: ca + sb, fans: fg, rep: rp, day: n.day, media: sp, spon: sb, fill: Math.round(100 * tk / REG.capacity) };
     log(n, 'Concert au Parvis : ' + tk + ' billets, note ' + (A_ ? 'A' : 'B') + ' · +' + fmt(fg) + ' fans · billetterie ' + fmt(ca), 'scene'); return { s: n };
   };
   A.tour = function (s) {
@@ -451,6 +453,9 @@
     if (n.own.terrain) { var A_ = REG.assets.terrain, y = Math.round(A_.lo + (A_.hi - A_.lo) * rng(n, 5)); inc += y; ev.push('Loyer du terrain : ' + sg(y)); }
     if (n.merch) { var M = REG.merch[n.merch.id], z = Math.round(M.perFan * Math.sqrt(n.fans) * REG.merchScale); inc += z; n.merch.tot += z; n.merch.left--; ev.push(M.n + ' : ' + sg(z)); if (n.merch.left <= 0) { n.merchDone[n.merch.id] = n.merch.tot; ev.push(M.n + ' : stock écoulé'); n.merch = null; } }
     pay(n, inc);
+    mkActive(n).forEach(function (c) { var M = MEDIA[c.id]; Object.keys(M.geo).forEach(function (g) { geoAdd(n, g, M.geo[g]); }); n.fans += M.fans; n.pop = clamp(Math.round((n.pop + M.pop) * 10) / 10, 0, 100); });
+    (n.mk.on || []).forEach(function (c) { if (c.until === n.day + 1) ev.push('Campagne terminée : ' + MEDIA[c.id].n); });
+    n.mk.on = (n.mk.on || []).filter(function (c) { return c.until > n.day + 1; });
     var cost = 0; if (n.own.appart) cost += REG.assets.appart.upkeep;
     if (n.rom.off) cost += REG.coupleCost; cost += n.fam.kids.length * REG.kidCost;
     if (cost) { pay(n, -cost); ev.push('Charges du foyer : ' + sg(-cost)); }
@@ -493,6 +498,8 @@
       s.geo = { bakoma: 14, portambre: 4, selene: 3, tamarel: 0, korvane: 0, aldera: 0 }; s.d0 = dayStart(s); return s; },
     star: function () { var s = PRE.carriere(); s.xp = 6200; s.rank = 5; s.fans = 14800; s.pop = 41; s.cash = 1400000; s.shows = 6;
       s.disco.unshift({ id: 'T2', title: 'Monter au sommet', theme: 'ambition', amb: 'fiere', mode: 'manuel', tx: 76, st: 'sorti', Q: 70, feats: ['nadia'], clip: { st: 'publie', dir: 'ombre', vir: 15 }, clipL: 21000, clipF: 600, vir0: 54, L: 84000, rev: 840, fg: 2100, pg: 14, tier: 'Bon', promo: 2, vir: 69, day: 25 });
+      s.disco.splice(1, 0, { id: 'T3', title: 'Lumière de Lumbé', theme: 'ambition', amb: 'fiere', mode: 'manuel', tx: 70, st: 'sorti', Q: 66, feats: [], clip: { st: 'publie', dir: 'sika', vir: 10 }, clipL: 12600, clipF: 380, vir0: 41, L: 46000, rev: 460, fg: 1200, pg: 9, tier: 'Correct', promo: 1, vir: 52, day: 18 },
+        { id: 'T4', title: 'Port-Ambre la nuit', theme: 'amour', amb: 'legere', mode: 'manuel', tx: 68, st: 'sorti', Q: 63, feats: [], clip: { st: 'publie', dir: 'ilan', vir: 8 }, clipL: 7400, clipF: 210, vir0: 36, L: 31000, rev: 310, fg: 820, pg: 6, tier: 'Correct', promo: 1, vir: 44, day: 12 });   // [PROPOSÉ] démo de l'espace Réseau : 3 clips publiés
       s.geo = { bakoma: 46, portambre: 22, selene: 19, tamarel: 3, korvane: 0, aldera: 1 }; s.own.moto = { since: 12 }; s.d0 = dayStart(s); return s; }
   };
   // ---------- création de l'artiste ----------
@@ -783,6 +790,33 @@
     matureRank: 4,          // [À CONCEVOIR] aucun seuil n'existe dans les sources : valeur de test configurable
     confirmAt: 15000,       // I-08 [EXISTANT] : confirmation dès 15 000 cauris
     outfits: [{"id": "OUTFIT_001", "n": "Hoodie Néon", "d": "Le hoodie rose de tes débuts, patch BKM sur la poitrine.", "price": 0, "rank": 1, "start": true, "images": {"young": "young/OUTFIT_001.webp", "mature": "mature/OUTFIT_001.webp"}, "status": "disponible"}, {"id": "OUTFIT_002", "n": "Survêt Soleil", "d": "Survêtement jaune soleil, zip et bandes magenta.", "price": 6000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_002.webp", "mature": "mature/OUTFIT_002.webp"}, "status": "disponible"}, {"id": "OUTFIT_003", "n": "Veste Brume", "d": "Veste gris-violet, baskets cyan. Le look des sessions studio.", "price": 18000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_003.webp", "mature": "mature/OUTFIT_003.webp"}, "status": "disponible"}, {"id": "OUTFIT_004", "n": "Veste Nuit", "d": "Blazer bleu nuit et détails or, pour les grandes scènes.", "price": 30000, "rank": 3, "start": false, "images": {"young": "young/OUTFIT_004.webp", "mature": "mature/OUTFIT_004.webp"}, "status": "disponible"}, {"id": "OUTFIT_005", "n": "Hoodie Jade", "d": "Hoodie vert jade. Illustration mature pas encore produite.", "price": 12000, "rank": 1, "start": false, "images": {"young": "young/OUTFIT_005.webp", "mature": null}, "status": "indisponible"}] };
+  // [PROPOSÉ] Marketing : médias fictifs, prix et effets provisoires (à calibrer, D-08). Un achat dès 15 000 cauris passe par une confirmation (I-08).
+  var MEDIA = {
+    lagune:   { n: 'Radio Lagune FM', lvl: 'local', kind: 'Radio', c: 5000, d: 7, rank: 1, geo: { bakoma: 0.8 }, fans: 15, pop: 0.3, boost: 0.05, spon: 0.04, col: '#3CD6F2' },
+    affiches: { n: 'Affiches Ndolo', lvl: 'local', kind: 'Affichage urbain', c: 3000, d: 7, rank: 1, geo: { bakoma: 0.5 }, fans: 8, pop: 0.2, boost: 0.03, spon: 0.03, col: '#FFC83D' },
+    bktv:     { n: 'Bakoma TV', lvl: 'national', kind: 'Télévision', c: 40000, d: 7, rank: 3, geo: { bakoma: 1.2, portambre: 1, selene: 1 }, fans: 90, pop: 0.8, boost: 0.15, spon: 0.1, col: '#F43F9D' },
+    solomag:  { n: 'Sôlo Mag', lvl: 'national', kind: 'Presse', c: 15000, d: 14, rank: 3, geo: { portambre: 0.5, selene: 0.5 }, fans: 30, pop: 0.3, boost: 0.06, spon: 0.05, col: '#8B5CF6' },
+    spot:     { n: 'Ondéa Spotlight', lvl: 'national', kind: 'Plateforme', c: 20000, d: 7, rank: 3, geo: { bakoma: 0.4, portambre: 0.4, selene: 0.4 }, fans: 40, pop: 0.4, boost: 0.2, spon: 0, col: '#3CD6F2' },
+    tamtv:    { n: 'Tamarel Live TV', lvl: 'global', kind: 'Télévision', c: 150000, d: 7, rank: 5, geo: { tamarel: 2 }, fans: 300, pop: 1, boost: 0.18, spon: 0.12, col: '#FF6BB8' },
+    korradio: { n: 'Korvane Beats Radio', lvl: 'global', kind: 'Radio', c: 90000, d: 7, rank: 5, geo: { korvane: 1.6 }, fans: 180, pop: 0.6, boost: 0.1, spon: 0.08, col: '#3DDC97' },
+    aldwave:  { n: 'Aldéra Wave', lvl: 'global', kind: 'Média web', c: 120000, d: 7, rank: 5, geo: { aldera: 1.8 }, fans: 220, pop: 0.8, boost: 0.14, spon: 0.1, col: '#FFC83D' }
+  };
+  var MEDIA_ORDER = ['lagune', 'affiches', 'bktv', 'solomag', 'spot', 'tamtv', 'korradio', 'aldwave'];
+  var LVL_N = { local: 'Local', national: 'National', global: 'Global' };
+  // [PROPOSÉ] Klipo : 50 vidéos de l'univers (données de démonstration, artistes fictifs du Top 10 et du registre)
+  var KLIPO = [{"id": "K001", "t": "Minuit Doré", "a": "Kaïra Nox", "k": "Clip officiel", "du": "3:48", "v": 41200000, "img": "assets/klipo/thumbs/T001.svg", "age": 2}, {"id": "K002", "t": "Pluie d'Argent", "a": "Zaki Mbela", "k": "Clip officiel", "du": "3:21", "v": 36800000, "img": "assets/klipo/thumbs/T002.svg", "age": 7}, {"id": "K003", "t": "Orage Intérieur", "a": "Madame Orage", "k": "Clip officiel", "du": "4:02", "v": 30100000, "img": "assets/klipo/thumbs/T003.svg", "age": 12}, {"id": "K004", "t": "Brume sur Ndo", "a": "Tito Brume", "k": "Clip officiel", "du": "3:12", "v": 24500000, "img": "assets/klipo/thumbs/T004.svg", "age": 17}, {"id": "K005", "t": "Verre Bleu", "a": "Lazuli", "k": "Clip officiel", "du": "3:35", "v": 22900000, "img": "assets/klipo/thumbs/T005.svg", "age": 22}, {"id": "K006", "t": "Rives Lentes", "a": "Sôlo Vance", "k": "Clip officiel", "du": "3:58", "v": 19300000, "img": "assets/klipo/thumbs/T006.svg", "age": 27}, {"id": "K007", "t": "Douce Lagune", "a": "Nadia Kolo", "k": "Clip officiel", "du": "3:27", "v": 17700000, "img": "assets/klipo/thumbs/T007.svg", "age": 32}, {"id": "K008", "t": "Flux Tendu", "a": "Bako Flux", "k": "Visualizer", "du": "2:54", "v": 15200000, "img": "assets/klipo/thumbs/T008.svg", "age": 37}, {"id": "K009", "t": "Sable Chaud", "a": "Dr. Sable", "k": "Clip officiel", "du": "3:09", "v": 14100000, "img": "assets/klipo/thumbs/T009.svg", "age": 2}, {"id": "K010", "t": "Cendres", "a": "Yaya Cendre", "k": "Clip officiel", "du": "3:44", "v": 12800000, "img": "assets/klipo/thumbs/T010.svg", "age": 7}, {"id": "K011", "t": "Ambre, live au stade", "a": "Kaïra Nox", "k": "Live", "du": "6:12", "v": 11600000, "img": "assets/klipo/thumbs/T011.svg", "age": 12}, {"id": "K012", "t": "Freestyle du carrefour", "a": "K-Zer d'Mabaya", "k": "Freestyle", "du": "2:31", "v": 9400000, "img": "assets/klipo/thumbs/T012.svg", "age": 17}, {"id": "K013", "t": "Une nuit au Studio Kôrô", "a": "DJ Kôrô", "k": "Coulisses", "du": "8:40", "v": 8800000, "img": "assets/klipo/thumbs/T013.svg", "age": 22}, {"id": "K014", "t": "Session afro-soul", "a": "Ayana Dembé", "k": "Live", "du": "5:05", "v": 8100000, "img": "assets/klipo/thumbs/T014.svg", "age": 27}, {"id": "K015", "t": "Ndolo by night", "a": "Zaki Mbela", "k": "Visualizer", "du": "3:02", "v": 7600000, "img": "assets/klipo/thumbs/T015.svg", "age": 32}, {"id": "K016", "t": "Finale des Quatre Quartiers", "a": "Coupe des Quatre Quartiers", "k": "Battle", "du": "12:18", "v": 7300000, "img": "assets/klipo/thumbs/T016.svg", "age": 37}, {"id": "K017", "t": "Lumbé Express", "a": "Bako Flux", "k": "Clip officiel", "du": "3:16", "v": 6900000, "img": "assets/klipo/thumbs/T017.svg", "age": 2}, {"id": "K018", "t": "Fils du port", "a": "Sôlo Vance", "k": "Clip officiel", "du": "3:50", "v": 6400000, "img": "assets/klipo/thumbs/T018.svg", "age": 7}, {"id": "K019", "t": "Kôtoro Bass", "a": "Dr. Sable", "k": "Clip officiel", "du": "2:58", "v": 6100000, "img": "assets/klipo/thumbs/T019.svg", "age": 12}, {"id": "K020", "t": "Reine de Mabaya", "a": "Madame Orage", "k": "Clip officiel", "du": "3:33", "v": 5800000, "img": "assets/klipo/thumbs/T020.svg", "age": 17}, {"id": "K021", "t": "Feu de brousse", "a": "Yaya Cendre", "k": "Visualizer", "du": "3:20", "v": 5300000, "img": "assets/klipo/thumbs/T021.svg", "age": 22}, {"id": "K022", "t": "Néon Lagune", "a": "Lazuli", "k": "Clip officiel", "du": "3:41", "v": 5000000, "img": "assets/klipo/thumbs/T022.svg", "age": 27}, {"id": "K023", "t": "Gbaka royal", "a": "Tito Brume", "k": "Clip officiel", "du": "3:05", "v": 4700000, "img": "assets/klipo/thumbs/T023.svg", "age": 32}, {"id": "K024", "t": "Cauris d'or", "a": "Kaïra Nox", "k": "Clip officiel", "du": "3:29", "v": 4400000, "img": "assets/klipo/thumbs/T024.svg", "age": 37}, {"id": "K025", "t": "Sélène nocturne", "a": "Nadia Kolo", "k": "Live", "du": "4:47", "v": 4100000, "img": "assets/klipo/thumbs/T025.svg", "age": 2}, {"id": "K026", "t": "Ring de Kôtoro, demi-finale", "a": "Ring de Kôtoro", "k": "Battle", "du": "10:02", "v": 3900000, "img": "assets/klipo/thumbs/T026.svg", "age": 7}, {"id": "K027", "t": "Pont des Griots, live", "a": "Ayana Dembé", "k": "Live", "du": "5:36", "v": 3600000, "img": "assets/klipo/thumbs/T027.svg", "age": 12}, {"id": "K028", "t": "Marée haute", "a": "Zaki Mbela", "k": "Clip officiel", "du": "3:14", "v": 3300000, "img": "assets/klipo/thumbs/T028.svg", "age": 17}, {"id": "K029", "t": "Silence radio", "a": "Madame Orage", "k": "Visualizer", "du": "3:00", "v": 3100000, "img": "assets/klipo/thumbs/T029.svg", "age": 22}, {"id": "K030", "t": "Tamarel calling", "a": "Kaïra Nox", "k": "Clip officiel", "du": "3:52", "v": 2900000, "img": "assets/klipo/thumbs/T030.svg", "age": 27}, {"id": "K031", "t": "Korvane froid", "a": "Tito Brume", "k": "Clip officiel", "du": "3:26", "v": 2700000, "img": "assets/klipo/thumbs/T031.svg", "age": 32}, {"id": "K032", "t": "Îles d'Aldéra", "a": "Lazuli", "k": "Clip officiel", "du": "4:10", "v": 2500000, "img": "assets/klipo/thumbs/T032.svg", "age": 37}, {"id": "K033", "t": "Béton tendre", "a": "Bako Flux", "k": "Freestyle", "du": "2:22", "v": 2300000, "img": "assets/klipo/thumbs/T033.svg", "age": 2}, {"id": "K034", "t": "Premier jet", "a": "Sôlo Vance", "k": "Freestyle", "du": "2:45", "v": 2100000, "img": "assets/klipo/thumbs/T034.svg", "age": 7}, {"id": "K035", "t": "Lettre à Ndolo", "a": "Yaya Cendre", "k": "Clip officiel", "du": "4:18", "v": 1900000, "img": "assets/klipo/thumbs/T035.svg", "age": 12}, {"id": "K036", "t": "Coulisses du Parvis", "a": "DJ Kôrô", "k": "Coulisses", "du": "7:14", "v": 1750000, "img": "assets/klipo/thumbs/T036.svg", "age": 17}, {"id": "K037", "t": "Danse du sable", "a": "Dr. Sable", "k": "Clip officiel", "du": "3:11", "v": 1600000, "img": "assets/klipo/thumbs/T037.svg", "age": 22}, {"id": "K038", "t": "Vague argentée", "a": "Nadia Kolo", "k": "Clip officiel", "du": "3:38", "v": 1450000, "img": "assets/klipo/thumbs/T038.svg", "age": 27}, {"id": "K039", "t": "Corps céleste", "a": "Ayana Dembé", "k": "Clip officiel", "du": "4:01", "v": 1300000, "img": "assets/klipo/thumbs/T039.svg", "age": 32}, {"id": "K040", "t": "Rue lumière", "a": "K-Zer d'Mabaya", "k": "Clip officiel", "du": "3:07", "v": 1180000, "img": "assets/klipo/thumbs/T040.svg", "age": 37}, {"id": "K041", "t": "Trône de verre", "a": "Kaïra Nox", "k": "Visualizer", "du": "3:24", "v": 1060000, "img": "assets/klipo/thumbs/T041.svg", "age": 2}, {"id": "K042", "t": "Halle des Griots, live", "a": "Madame Orage", "k": "Live", "du": "6:30", "v": 960000, "img": "assets/klipo/thumbs/T042.svg", "age": 7}, {"id": "K043", "t": "Sur la lagune", "a": "Tito Brume", "k": "Coulisses", "du": "9:12", "v": 870000, "img": "assets/klipo/thumbs/T043.svg", "age": 12}, {"id": "K044", "t": "Ciel de Kôtoro", "a": "Lazuli", "k": "Visualizer", "du": "3:19", "v": 790000, "img": "assets/klipo/thumbs/T044.svg", "age": 17}, {"id": "K045", "t": "Huit mille voix", "a": "Zaki Mbela", "k": "Live", "du": "5:48", "v": 720000, "img": "assets/klipo/thumbs/T045.svg", "age": 22}, {"id": "K046", "t": "Clé de sol", "a": "Nadia Kolo", "k": "Clip officiel", "du": "3:03", "v": 650000, "img": "assets/klipo/thumbs/T046.svg", "age": 27}, {"id": "K047", "t": "Dernier gbaka", "a": "Bako Flux", "k": "Clip officiel", "du": "3:27", "v": 590000, "img": "assets/klipo/thumbs/T047.svg", "age": 32}, {"id": "K048", "t": "Carnaval des Sables, live", "a": "Dr. Sable", "k": "Live", "du": "7:02", "v": 530000, "img": "assets/klipo/thumbs/T048.svg", "age": 37}, {"id": "K049", "t": "Mains levées", "a": "Yaya Cendre", "k": "Freestyle", "du": "2:39", "v": 480000, "img": "assets/klipo/thumbs/T049.svg", "age": 2}, {"id": "K050", "t": "Ndo City, remix", "a": "DJ Kôrô", "k": "Visualizer", "du": "3:45", "v": 430000, "img": "assets/klipo/thumbs/T050.svg", "age": 7}];
+  var MYTHUMB = 8;   // miniatures des clips du joueur : assets/klipo/mine/M1 à M8.svg
+  function fmtK(v) { return v >= 1e6 ? (Math.round(v / 1e5) / 10 + ' M').replace('.', ',') : v >= 1e3 ? Math.round(v / 1e3) + ' k' : String(v); }
+  var GEO_N = { bakoma: 'Bakoma', portambre: 'Port-Ambre', selene: 'Sélène', tamarel: 'Tamarel', korvane: 'Korvane', aldera: 'Aldéra' };
+  function mkActive(s) { return (s.mk.on || []).filter(function (c) { return c.until > s.day; }); }
+  function mkBoost(s) { return mkActive(s).reduce(function (a, c) { return a + MEDIA[c.id].boost; }, 0); }
+  function mkSponsor(s) { var b = null; mkActive(s).forEach(function (c) { var M = MEDIA[c.id]; if (M.spon && (!b || M.spon > MEDIA[b].spon)) b = c.id; }); return b; }
+  function mkCheck(s, id) { var M = MEDIA[id]; if (!M) return 'inconnu'; if (s.rank < M.rank) return 'rang'; if (mkActive(s).some(function (c) { return c.id === id; })) return 'campagne'; if (s.cash < M.c) return 'cash'; return null; }
+  function notoriety(s) { var g = s.geo; return { local: g.bakoma, national: Math.round((g.bakoma + g.portambre + g.selene) / 3 * 10) / 10, global: Math.round((g.bakoma + g.portambre + g.selene + g.tamarel + g.korvane + g.aldera) / 6 * 10) / 10 }; }
+  function myClips(s) { return s.disco.filter(function (x) { return x.clip && x.clip.st === 'publie'; }); }
+  function clipStats(t, i) { var v = Math.round((t.clipL || 0) * REG.platforms.klipo.viewsPerClipListen), r = 0.42 + ((t.vir || 0) % 23) / 100;
+    return { v: v, lk: Math.round(v * (0.05 + (t.Q || 50) / 2000)), cm: Math.round(v * 0.006), ret: Math.round(r * 100), img: 'assets/klipo/mine/M' + ((i % MYTHUMB) + 1) + '.svg' }; }
+  function crowdLevel(f) { return f < 0.25 ? 1 : f < 0.5 ? 2 : f < 0.8 ? 3 : 4; }
   function wOutfit(id) { return WARDROBE.outfits.filter(function (o) { return o.id === id; })[0] || null; }
   function wComplete(o) { return !!(o && o.images && o.images.young && o.images.mature); }
   function ageVariant(s) { return s.rank >= WARDROBE.matureRank ? 'mature' : 'young'; }   // dérivée de la progression, jamais stockée
@@ -792,6 +826,18 @@
     var fb = !ch ? 'look' : !o ? 'tenue' : !rel ? 'image' : null;
     return { character: ch, variant: v, outfit: o ? o.id : null, path: fb ? null : WARDROBE.base + rel, fallback: fb };
   }
+  // [PROPOSÉ] Réseau : vidéos Klipo, clips du joueur, campagnes marketing
+  A.kv = function (s, i) { i = +i; if (!(i >= 0 && i < KLIPO.length)) return { s: s, err: 'inconnu' }; var n = clone(s); n.kv = i; return { s: n }; };
+  A.mcl = function (s, i) { i = +i; if (!(i >= 0 && i < myClips(s).length)) return { s: s, err: 'inconnu' }; var n = clone(s); n.mcl = i; return { s: n }; };
+  A.mkask = function (s, id) { var e = mkCheck(s, id); if (e) return { s: s, err: e }; var n = clone(s); n.mk.ask = id; return { s: n }; };
+  A.mkcancel = function (s) { var n = clone(s); n.mk.ask = null; return { s: n }; };
+  A.mkbuy = function (s, id, ok) {
+    var e = mkCheck(s, id); if (e) return { s: s, err: e }; var M = MEDIA[id];
+    if (M.c >= REG.confirmAt && !ok) return { s: s, err: 'confirm' };
+    var n = clone(s); pay(n, -M.c); n.mk.on.push({ id: id, from: n.day, until: n.day + M.d }); n.mk.ask = null; n.mk.tot += M.c; n.mk.n++;
+    log(n, 'Campagne ' + LVL_N[M.lvl] + ' : ' + M.n + ' (' + M.d + ' j, −' + fmt(M.c) + ' cauris)', 'eco'); return { s: n };
+  };
+  A.mkconfirm = function (s) { if (!s.mk.ask) return { s: s, err: 'rien' }; return A.mkbuy(s, s.mk.ask, true); };
   A.osel = function (s, id) { if (!wOutfit(id)) return { s: s, err: 'inconnu' }; var n = clone(s); n.wd.sel = id; n.wd.ask = null; return { s: n }; };
   A.oask = function (s, id) {   // ouvre la confirmation d'un achat ≥ 15 000
     var o = wOutfit(id), e = wCheck(s, o); if (e) return { s: s, err: e }; var n = clone(s); n.wd.sel = id; n.wd.ask = id; return { s: n };
@@ -818,7 +864,7 @@
   };
   A.preset = function (s, id) { var f = PRE[id]; if (!f) return { s: s, err: 'inconnu' }; var x = f(); if (!x.created) { x.created = 1; x.p.name = 'Djo Kéné'; } if (id === 'debut') { x.ev = 'kzer'; } else { x.evDone.kzer = 'b'; x.dseen.kore = 'Accord à 35 % (préréglage)'; x.kc = x.kc && x.kc.st ? x.kc : { st: 'Accord à 35 %, mix signé', bonus: 12, left: 0, rel: 8 }; x.ms = {}; var dn = { m1: x.disco.length > 0, m2: x.disco.length > 0, m3: !!x.trained, m4: x.fans >= 1000 }; Object.keys(dn).forEach(function (k) { if (dn[k]) x.ms[k] = 1; }); } return { s: x }; };
 
-  var JAIL_OK = ['endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk', 'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel'];
+  var JAIL_OK = ['endDay', 'jw', 'js', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk', 'ctki', 'ptype', 'ptk', 'ptki', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'kv', 'mcl', 'mkcancel'];
   function act(s, name, arg) { s = norm(s); var f = A[name]; if (!f) return { s: s, err: 'inconnu' }; if (s.jail && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'prison' }; if (s.cas && s.cas.stage === 'garde' && ['bail', 'detention', 'lawyer', 'ctk'].indexOf(name) < 0 && JAIL_OK.indexOf(name) < 0) return { s: s, err: 'garde' }; var r = f(s, arg); if (!r.err && r.s !== s) { norm(r.s); missions(r.s); triggers(r.s); } r.s.t = Date.now(); return r; }
 
   // ---------- vue : toutes les valeurs affichées ----------
@@ -1017,6 +1063,33 @@
     var gr = ip.i >= 76.3 ? Math.max(1, Math.round(10 * Math.pow(ip.i / 76.3, -1 / 1.19))) : 0; o.gRank = gr ? '#' + gr : 'Non classé'; o.gIn = !!gr; o.gOut = !gr; o.gGap = d1(Math.max(0, 76.3 - ip.i));
     // garde-robe
     var RL = resolveLook(s), W = WARDROBE, wd = s.wd, so = wOutfit(wd.sel) || wOutfit(wd.eq);
+    // [PROPOSÉ] Réseau, marketing et public
+    var NT = notoriety(s); o.notL = String(NT.local); o.notN = String(NT.national); o.notG = String(NT.global); o.notLw = NT.local; o.notNw = NT.national; o.notGw = NT.global;
+    var act0 = mkActive(s); o.mkN = String(act0.length); o.mkAny = !!act0.length; o.mkNone = !act0.length; o.mkTot = fmt(s.mk.tot); o.mkBoost = String(Math.round(mkBoost(s) * 100));
+    var spn = mkSponsor(s); o.mkSpon = spn ? MEDIA[spn].n : 'Aucun'; o.mkSponOn = !!spn; o.mkSponPct = spn ? String(Math.round(MEDIA[spn].spon * 100)) : '0';
+    MEDIA_ORDER.forEach(function (id) { var M = MEDIA[id], on = act0.filter(function (c) { return c.id === id; })[0], e = mkCheck(s, id);
+      o['m_' + id + 'On'] = !!on; o['m_' + id + 'Left'] = on ? String(on.until - s.day) : ''; o['m_' + id + 'Lk'] = s.rank < M.rank; o['m_' + id + 'Cash'] = e === 'cash';
+      o['m_' + id + 'Buy'] = !e; o['m_' + id + 'Conf'] = !e && M.c >= REG.confirmAt; o['m_' + id + 'Dir'] = !e && M.c < REG.confirmAt; o['m_' + id + 'P'] = fmt(M.c); });
+    var ak = s.mk.ask ? MEDIA[s.mk.ask] : null; o.maOn = !!ak; o.maN = ak ? ak.n : ''; o.maP = ak ? fmt(ak.c) : ''; o.maAfter = ak ? fmt(s.cash - ak.c) : ''; o.maD = ak ? String(ak.d) : ''; o.maL = ak ? LVL_N[ak.lvl] : '';
+    o.maFx = ak ? Object.keys(ak.geo).map(function (g) { return GEO_N[g] + ' +' + ak.geo[g] + '/j'; }).join(' · ') + ' · fans +' + ak.fans + '/j' : '';
+    o.maBoost = ak ? String(Math.round(ak.boost * 100)) : ''; o.maSpon = ak ? String(Math.round(ak.spon * 100)) : '';
+    // Klipo
+    var kv = KLIPO[s.kv || 0]; o.kvT = kv.t; o.kvA = kv.a; o.kvK = kv.k; o.kvD = kv.du; o.kvV = fmtK(kv.v); o.kvImg = kv.img; o.kvAge = 'il y a ' + kv.age + ' j';
+    o.kvLk = fmtK(Math.round(kv.v * 0.048)); o.kvCm = fmtK(Math.round(kv.v * 0.0042));
+    // clips du joueur
+    var mc = myClips(s); o.mcN = String(mc.length); o.mcAny = !!mc.length; o.mcNone = !mc.length; var mtot = 0;
+    for (var q = 0; q < 6; q++) { var T = mc[q], st = T ? clipStats(T, q) : null; o['mc' + q + 'On'] = !!T; o['mc' + q + 'T'] = T ? T.title : ''; o['mc' + q + 'V'] = st ? fmt(st.v) : ''; o['mc' + q + 'Img'] = st ? st.img : 'assets/klipo/mine/M1.svg'; o['mc' + q + 'S'] = q === (s.mcl || 0); }
+    mc.forEach(function (T, q) { mtot += clipStats(T, q).v; }); o.mcTot = fmt(mtot);
+    var mi = Math.min(s.mcl || 0, Math.max(0, mc.length - 1)), MS = mc[mi], ms = MS ? clipStats(MS, mi) : null;
+    o.mcsT = MS ? MS.title : ''; o.mcsV = ms ? fmt(ms.v) : '0'; o.mcsLk = ms ? fmt(ms.lk) : '0'; o.mcsCm = ms ? fmt(ms.cm) : '0'; o.mcsRet = ms ? String(ms.ret) : '0'; o.mcsRetW = ms ? ms.ret : 0;
+    o.mcsImg = ms ? ms.img : 'assets/klipo/mine/M1.svg'; o.mcsDir = MS ? (({ sika: 'Sika Nébo', ombre: 'Studio Ombre', ilan: 'Ilan Kéré' })[MS.clip.dir] || MS.clip.dir) : ''; o.mcsFans = MS ? sg(MS.clipF || 0) : ''; o.mcsL = MS ? fmt(MS.clipL || 0) : '';
+    o.mcsVir = MS ? String(MS.vir) : '0'; o.mcsDay = MS ? 'J' + MS.day : '';
+    // public au concert
+    var tk0 = tickets(s), f0 = tk0 / REG.capacity; o.crowdPrev = 'assets/scene/crowd_' + crowdLevel(f0) + '.svg'; o.crowdPrevPct = String(Math.round(f0 * 100)); o.crowdPrevW = Math.round(f0 * 100);
+    var C2 = s.cc; var cf = C2 ? (C2.tour ? 0.9 : (C2.fill != null ? C2.fill / 100 : C2.tk / REG.capacity)) : f0;
+    o.ccCrowd = 'assets/scene/crowd_' + crowdLevel(cf) + '.svg'; o.ccFill = String(Math.round(cf * 100)); o.ccFillW = Math.round(cf * 100);
+    o.ccMediaOn = !!(C2 && C2.media); o.ccMediaOff = !(C2 && C2.media); o.ccMedia = C2 && C2.media ? MEDIA[C2.media].n : ''; o.ccSpon = C2 && C2.spon ? '+' + fmt(C2.spon) : '';
+    o.ledN = spn ? MEDIA[spn].n : ''; o.ledOn = !!spn;
     o.wdImg = RL.path || ''; o.wdHas = !!RL.path; o.wdFb = !RL.path; o.wdVar = RL.variant === 'mature' ? 'Mature' : 'Jeune'; o.wdMature = RL.variant === 'mature'; o.wdYoung = RL.variant === 'young';
     o.wdFbWhy = RL.fallback === 'look' ? 'Illustrations préfabriquées produites pour le look par défaut seulement (teint 3, twists hi-top) : avatar provisoire affiché.' : RL.fallback === 'image' ? 'Illustration manquante pour cette variante : avatar provisoire affiché.' : RL.fallback === 'tenue' ? 'Tenue inconnue : avatar provisoire affiché.' : '';
     o.wdRule = 'Variante mature dès le rang N' + W.matureRank + ' (valeur de test, règle à concevoir)'; o.wdRankN = 'N' + s.rank; o.wdToMature = s.rank >= W.matureRank ? 'Variante mature active' : 'Encore ' + (W.matureRank - s.rank) + ' rang(s) avant la variante mature';
@@ -1039,5 +1112,5 @@
     ip.i = 0.25 * ip.f + 0.15 * ip.g + 0.30 * ip.c + 0.20 * ip.s + 0.10 * ip.n; return ip;
   }
   function csq(x) { var p = []; if (x.g) p.push('relation ' + sg(x.g)); if (x.l) p.push('lien enfant ' + sg(x.l)); if (x.cash) p.push(sg(x.cash) + ' cauris'); if (x.e) p.push('énergie ' + sg(x.e)); if (x.h) p.push(x.h + ' h'); return p.join(' · '); }
-  return { WARDROBE: WARDROBE, resolveLook: resolveLook, ageVariant: ageVariant, LBL: LBL, PERK: PERK, DLG: DLG, DLG_ORDER: DLG_ORDER, CASTN: CASTN, EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
+  return { MEDIA: MEDIA, MEDIA_ORDER: MEDIA_ORDER, KLIPO: KLIPO, notoriety: notoriety, WARDROBE: WARDROBE, resolveLook: resolveLook, ageVariant: ageVariant, LBL: LBL, PERK: PERK, DLG: DLG, DLG_ORDER: DLG_ORDER, CASTN: CASTN, EVT: EVT, nameOk: nameOk, REG: REG, CANDS: CANDS, PROMO: PROMO, ENTRY: ENTRY, init: init, act: act, view: view, fmt: fmt, A: A, PRE: PRE, enMaxAge: enMaxAge, FEV: FEV };
 });
