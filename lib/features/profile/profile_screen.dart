@@ -13,10 +13,8 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/rules.dart';
 import '../../domain/studio.dart';
 import '../../domain/training.dart';
-import '../shell/toast.dart';
 
-/// Profil (03.4) : bannière, progression vers le niveau suivant, fans, popularité, réputation, compétences, accès aux finances.
-/// « Mes tenues » (éditeur d'avatar) n'est pas porté. « Recommencer la démo » (A.reset) demande une confirmation : cet écran n'existe pas dans la planche.
+/// Profil (03.4) : progression, réputation, compétences, accès aux finances et tenue actuellement équipée.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -51,16 +49,15 @@ class ProfileScreen extends ConsumerWidget {
         nameSize: 32,
         role: 'N${s.level} · ${s.levelName}',
         name: 'Djo Kéné',
-        subtitle: '${s.hood} · ${styleNames[s.style] ?? ''}',
-        top: Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: const Color.fromRGBO(20, 16, 43, .62), borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color.fromRGBO(255, 255, 255, .14))),
-            child: Text('DIRECTION D’AVATAR NON CHOISIE (D-01)', style: V20Text.lab(color: Colors.white)),
+        subtitle: '${s.hood} · ${styleNames[s.style] ?? ''} · ${s.equippedOutfit}',
+        chars: [
+          BannerChar(
+            'Djo Kéné',
+            width: 120,
+            left: 250,
+            asset: 'assets/characters/rapper_001/${s.avatarStage}/v21b_${s.equippedOutfit}.svg',
           ),
-        ),
-        chars: const [BannerChar('djo', mood: 'cool', crop: 'torso', width: 120, left: 250)],
+        ],
       ),
       const SizedBox(height: 8),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -75,7 +72,7 @@ class ProfileScreen extends ConsumerWidget {
       const SizedBox(height: 8),
       IntrinsicHeight(
         child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Expanded(child: ActionTile(icon: 'user', title: 'Mes tenues', subtitle: 'Éditeur et garde-robe', onTap: () => showInfo(context, 'Mes tenues : bientôt'))),
+          Expanded(child: ActionTile(icon: 'user', title: 'Mes tenues', subtitle: 'Éditeur et garde-robe', onTap: () => context.go('/profil/tenues'))),
           const SizedBox(width: 10),
           Expanded(child: ActionTile(icon: 'trend', title: 'Mes finances', subtitle: 'Cauris, revenus', onTap: () => context.go('/business/finances'))),
         ]),

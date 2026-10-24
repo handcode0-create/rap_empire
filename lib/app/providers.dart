@@ -75,6 +75,26 @@ class GameNotifier extends AsyncNotifier<GameState> {
     await apply((s) => s.koreIntro ? s.copyWith(koreIntro: false) : s);
   }
 
+  /// Garde-robe v21 : achat inscrit au registre boutique et sauvegardé avec la partie.
+  Future<void> buyOutfit({required String id, required String name, required int price, required int requiredLevel}) => apply((s) {
+        if (s.outfitOwned.contains(id)) throw const GameError('deja');
+        if (s.level < requiredLevel) throw const GameError('niveau');
+        final paid = pay(s, -price, cat: 'boutique', label: 'Tenue — $name');
+        return paid.copyWith(outfitOwned: [...paid.outfitOwned, id], equippedOutfit: id);
+      });
+
+  /// Équipe une tenue déjà possédée sans coût supplémentaire.
+  Future<void> equipOutfit(String id) => apply((s) {
+        if (!s.outfitOwned.contains(id)) throw const GameError('tenue');
+        return s.copyWith(equippedOutfit: id);
+      });
+
+  /// Variante illustrée du personnage. La progression d'âge n'étant pas encore modélisée dans GameState, le choix est explicite.
+  Future<void> setAvatarStage(String stage) => apply((s) {
+        if (stage != 'young' && stage != 'mature') throw const GameError('variante');
+        return s.copyWith(avatarStage: stage);
+      });
+
   /// Matériel et formation (Business).
   Future<void> buyMicro() => apply(studio.buyMicro);
   Future<void> train(String id) => apply((s) => training.train(s, id));
