@@ -49,7 +49,6 @@ class ProfileScreen extends ConsumerWidget {
         nameSize: 32,
         role: 'N${s.level} · ${s.levelName}',
         name: 'Djo Kéné',
-        subtitle: '${s.hood} · ${styleNames[s.style] ?? ''}',
         subtitle: '${s.hood} · ${styleNames[s.style] ?? ''} · ${s.equippedOutfit}',
         chars: [
           BannerChar(
