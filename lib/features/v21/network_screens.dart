@@ -319,6 +319,16 @@ class ReseauScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
+      GameCard(
+        onTap: () => context.go('/media-tv'),
+        child: Row(children: [
+          Container(width: 58, height: 58, decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: const LinearGradient(colors: [Color(0xFF6E21A8), Color(0xFF15162D)])), child: const Icon(Icons.live_tv_rounded, color: Tk.gold, size: 32)),
+          const SizedBox(width: 12),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Plateaux TV & médias', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)), SizedBox(height: 4), Text('Interviews, choix de mots et réactions du public', style: TextStyle(fontSize: 12))])),
+          const Icon(Icons.arrow_forward_rounded, color: Tk.ink),
+        ]),
+      ),
+      const SizedBox(height: 12),
       const GameHint(
           icon: 'info',
           text: 'Trois plateformes fictives se partagent les écoutes déjà calculées par le jeu (aucune écoute en plus). La notoriété Local, National et Global vient de ta popularité par ville.'),
