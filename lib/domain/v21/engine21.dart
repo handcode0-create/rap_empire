@@ -1134,7 +1134,10 @@ void _releaseProject(J n, J draft) {
     if (promo != 0) 'promoName': promos21[promo]['n'],
     if (promo != 0) 'promoCost': _n(draft['promoCost']),
     'labelAt': _t(n['signed']) ? lblName21(n) : 'Indépendant',
-    if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {'id': x['id'], 'title': x['title'], 'Q': x['Q']}],
+    if (inedits.isNotEmpty) 'inedits': [for (final x in inedits) {
+      'id': x['id'], 'title': x['title'], 'Q': x['Q'],
+      'L': 0, 'sales': 0, 'rev': 0,
+    }],
   });
   _l(n['stock']).removeWhere((x) => ids.contains(_m(x)['id']));
   _log(n, '$type sorti : ${draft['title']} · ${tr.length} titres · ${fmt21(sales)} ventes · campagne ${promos21[promo]['n']} · ${rank != 0 ? '#$rank au Top $top' : 'non classé'}', 'musique');
@@ -3253,6 +3256,73 @@ Res _endDay(J s) {
     n['fans'] = _n(n['fans']) +
         (catalogListensTotal * 0.07 / (1 + _n(n['fans']) / Reg21.fanSat))
             .ceil();
+  }
+  // Catalogue des EP/albums : les projets et leurs titres inédits continuent à générer des streams,
+  // des ventes et des revenus chaque jour, avec la même décroissance que les singles.
+  // lastCatalogDay rend le traitement idempotent si une transition de journée est rejouée.
+  for (final rawProject in _l(n['projects'])) {
+    final project = _m(rawProject);
+    final age = _n(n['day']) - _n(project['day']);
+    if (age < 1 || age > Reg21.catalogDays ||
+        _n(project['lastCatalogDay']) >= _n(n['day'])) {
+      continue;
+    }
+    final launch = _n(project['launchL'] ?? project['L']);
+    project['launchL'] ??= launch;
+    project['lastCatalogDay'] = _n(n['day']);
+    project['lastDayL'] = 0;
+    project['lastDaySales'] = 0;
+    project['lastDayRev'] = 0;
+    project['signed'] ??= project['labelAt'] != 'Indépendant' ? 1 : 0;
+    final daily = math.max(1, jsRound(launch * Reg21.catalogDaily *
+        math.pow(Reg21.catalogDecay, age - 1))).toInt();
+    final dailySales = math.max(1, jsRound(daily * 0.004)).toInt();
+    final streamGross = jsRound(daily * Reg21.listenValue);
+    final salesGross = dailySales * Reg21.salePrice;
+    final gross = streamGross + salesGross;
+    final signed = _t(project['signed']);
+    final cutRate = _t(n['lcut']) ? _n(n['lcut']) : Reg21.labelCut;
+    final cut = signed ? jsRound(gross * cutRate) : 0;
+    final net = gross - cut;
+    project['L'] = _n(project['L']) + daily;
+    project['sales'] = _n(project['sales']) + dailySales;
+    project['rev'] = _n(project['rev']) + net;
+    project['cut'] = _n(project['cut']) + cut;
+    project['lastDayL'] = daily;
+    project['lastDaySales'] = dailySales;
+    project['lastDayRev'] = net;
+    project['lastCatalogDay'] = _n(n['day']);
+    final rawPlatforms = project['platforms'];
+    final platforms = rawPlatforms is Map
+        ? Map<String, dynamic>.from(rawPlatforms)
+        : <String, dynamic>{
+            'ondea': platformSplit21(launch).ondea,
+            'cauri': platformSplit21(launch).cauri,
+          };
+    project['platforms'] = platforms;
+    final split = _platformStreams21(daily);
+    for (final platform in split.keys) {
+      platforms[platform] = _n(platforms[platform]) + _n(split[platform]);
+    }
+    // Répartit aussi l'évolution entre les titres inédits du projet.
+    final inedits = project['inedits'];
+    if (inedits is List && inedits.isNotEmpty) {
+      final perTrack = math.max(1, jsRound(daily / inedits.length)).toInt();
+      for (final rawTrack in inedits) {
+        final track = _m(rawTrack);
+        final trackDailySales = math.max(1, jsRound(perTrack * 0.004)).toInt();
+        track['L'] = _n(track['L']) + perTrack;
+        track['sales'] = _n(track['sales']) + trackDailySales;
+        track['rev'] = _n(track['rev']) + perTrack * Reg21.listenValue +
+            trackDailySales * Reg21.salePrice;
+        track['lastDayL'] = perTrack;
+        track['lastDaySales'] = trackDailySales;
+        track['lastCatalogDay'] = _n(n['day']);
+      }
+    }
+    inc += net;
+    catalogListensTotal += daily;
+    ev.add('${project['title']} : +$daily écoutes · +$dailySales ventes');
   }
   for (final id in _m(n['biz']).keys.toList()) {
     final b = Reg21.biz[id]!;
