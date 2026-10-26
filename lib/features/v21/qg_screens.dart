@@ -67,7 +67,9 @@ class QgScreen extends ConsumerWidget {
     final nextRank = rankOf(s) < Reg21.ranks.length ? Reg21.ranks[rankOf(s)]['n'] as String : 'Rang maximal';
     final cas = s['cas'] as J?;
     final dl = s['dlg'] == null ? null : _m(s['dlg']);
-    return LayoutBuilder(builder: (context, constraints) {\n      final desktop = constraints.maxWidth >= 1000;\n      return Center(child: ConstrainedBox(maxWidth: 1480, child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
+    return LayoutBuilder(builder: (context, constraints) {
+      final desktop = constraints.maxWidth >= 1000;
+      return Center(child: ConstrainedBox(maxWidth: 1480, child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
       _Hero(s),
       if (s['jail'] != null) ...[
         const SizedBox(height: 12),
@@ -178,7 +180,6 @@ class QgScreen extends ConsumerWidget {
           ]),
         ]),
       ),
-      const SizedBox(height: 12),
       const SizedBox(height: 12),
       Row(children: [
         Expanded(child: Text('ACCÈS RAPIDES', style: V20Text.lab())),
