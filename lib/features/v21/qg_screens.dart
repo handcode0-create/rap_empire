@@ -38,7 +38,7 @@ class _ActionGrid21 extends StatelessWidget {
   const _ActionGrid21({required this.children});
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
-    final columns = constraints.maxWidth >= 1100 ? 3 : 2;
+    final columns = constraints.maxWidth >= 1400 ? 4 : constraints.maxWidth >= 1000 ? 3 : 2;
     const gap = 12.0;
     final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
     return Wrap(spacing: gap, runSpacing: gap, children: [for (final child in children) SizedBox(width: width, child: child)]);
@@ -67,7 +67,7 @@ class QgScreen extends ConsumerWidget {
     final nextRank = rankOf(s) < Reg21.ranks.length ? Reg21.ranks[rankOf(s)]['n'] as String : 'Rang maximal';
     final cas = s['cas'] as J?;
     final dl = s['dlg'] == null ? null : _m(s['dlg']);
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return LayoutBuilder(builder: (context, constraints) {\n      final desktop = constraints.maxWidth >= 1000;\n      return Center(child: ConstrainedBox(maxWidth: 1480, child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
       _Hero(s),
       if (s['jail'] != null) ...[
         const SizedBox(height: 12),
@@ -179,22 +179,19 @@ class QgScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
+      const SizedBox(height: 12),
+      Row(children: [
+        Expanded(child: Text('ACCÈS RAPIDES', style: V20Text.lab())),
+        if (desktop) const GameTag('CENTRE DE CONTRÔLE'),
+      ]),
+      const SizedBox(height: 10),
       _ActionGrid21(children: [
         GlassTile(icon: 'mic', title: 'Studio', subtitle: 'Créer · sortir · clip', onTap: () => context.go('/studio')),
         GlassTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic · tournée', onTap: () => context.go('/scene')),
-      ]),
-      const SizedBox(height: 12),
-      _ActionGrid21(children: [
         GlassTile(icon: 'briefcase', title: 'Petits boulots', subtitle: 'Gagner des cauris', onTap: () => context.go('/business')),
         GlassTile(icon: 'users', title: 'Vie perso', subtitle: '$left action(s) romantique(s)', onTap: () => context.go('/perso')),
-      ]),
-      const SizedBox(height: 12),
-      _ActionGrid21(children: [
         GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang')),
         GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee')),
-      ]),
-      const SizedBox(height: 12),
-      _ActionGrid21(children: [
         GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes, clips, réseaux', onTap: () => context.go('/profil/reseau')),
         GlassTile(icon: 'flame', title: 'Marketing', subtitle: 'Local · National · Global', onTap: () => context.go('/profil/reseau/marketing')),
       ]),
@@ -204,7 +201,8 @@ class QgScreen extends ConsumerWidget {
         sublabel: 'Nuit · bilan · jour suivant',
         onPressed: () => context.go('/fin-journee'),
       ),
-    ]);
+    ])));
+    });
   }
 }
 
@@ -213,17 +211,24 @@ class _Hero extends StatelessWidget {
   const _Hero(this.s);
 
   @override
-  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
-        SceneBanner(
-          kind: 'studio',
-          height: 150,
-          role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
-          name: 'Semaine ${weekOf21(_n(s['day']))}',
-          nameSize: 30,
-          subtitle: "${const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][((_n(s['day']) - 1) % 7).toInt()]} · ${hoursLeft(s)} h restantes aujourd'hui",
-        ),
-        Positioned(right: 8, top: -40, child: IgnorePointer(child: EquippedAvatar(s, width: 100, height: 150, mood: isTired(s) ? 'worried' : 'smile'))),
-      ]);
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+        final desktop = constraints.maxWidth >= 1000;
+        return Stack(clipBehavior: Clip.none, children: [
+          SceneBanner(
+            kind: 'studio',
+            height: desktop ? 224 : 150,
+            role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
+            name: 'Semaine ${weekOf21(_n(s['day']))}',
+            nameSize: desktop ? 42 : 30,
+            subtitle: "${const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][((_n(s['day']) - 1) % 7).toInt()]} · ${hoursLeft(s)} h restantes aujourd'hui",
+          ),
+          Positioned(
+            right: desktop ? 32 : 8,
+            top: desktop ? -18 : -40,
+            child: IgnorePointer(child: EquippedAvatar(s, width: desktop ? 148 : 100, height: desktop ? 222 : 150, mood: isTired(s) ? 'worried' : 'smile')),
+          ),
+        ]);
+      });
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
