@@ -66,7 +66,7 @@ class Shell21 extends ConsumerWidget {
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (!jailed && showNav)
+                  if (!jailed)
                     _DesktopNav21(
                       currentIndex: shell.currentIndex,
                       onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
