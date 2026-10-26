@@ -109,6 +109,9 @@ class _ProfileHero extends StatelessWidget {
   const _ProfileHero(this.s);
   @override
   Widget build(BuildContext context) {
+    final desktop = MediaQuery.sizeOf(context).width >= 1200;
+    final avatarWidth = desktop ? 176.0 : 128.0;
+    final avatarHeight = desktop ? 276.0 : 220.0;
     final p = _m(s['p']);
     final rk = rankOf(s);
     final xp = _n(s['xp']);
@@ -119,7 +122,7 @@ class _ProfileHero extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 236),
+        constraints: BoxConstraints(minHeight: desktop ? 300 : 236),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white.withValues(alpha: .12), width: 1.5),
@@ -133,20 +136,20 @@ class _ProfileHero extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 4,
+            left: desktop ? 16 : 4,
             bottom: 0,
             child: Semantics(
               button: true,
               label: 'Garde-robe : changer de tenue',
-              child: GestureDetector(onTap: () => context.go('/profil/garde-robe'), child: EquippedAvatar(s, width: 128, height: 220)),
+              child: GestureDetector(onTap: () => context.go('/profil/garde-robe'), child: EquippedAvatar(s, width: avatarWidth, height: avatarHeight)),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(136, 16, 16, 16),
+            padding: EdgeInsets.fromLTRB(avatarWidth + (desktop ? 40 : 8), desktop ? 24 : 16, desktop ? 32 : 16, desktop ? 24 : 16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               GameTag(rankTag(s), style: GameTagStyle.accent),
               const SizedBox(height: 6),
-              FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(playerName(s), style: V20Text.baloo(size: 30, line: 32))),
+              FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(playerName(s), style: V20Text.baloo(size: desktop ? 38 : 30, line: desktop ? 42 : 32))),
               Text('${s['age']} ans · ${Reg21.origins[p['origin']]} · vit à Ndolo', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
               Text('${Reg21.styles[p['main']]!['n']}${p['second'] != null ? ' · ${Reg21.styles[p['second']]!['n']}' : ''}',
                   style: V20Text.poppins(size: 13, line: 17, weight: FontWeight.w700)),
