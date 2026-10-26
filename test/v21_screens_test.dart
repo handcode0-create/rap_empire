@@ -741,8 +741,10 @@ void main() {
     final s = preset('carriere');
     await pump21(tester, s, location: '/profil/trophees/awards', width: 360, height: 800);
     expect(txt('PROCHAINE CÉRÉMONIE'), findsOneWidget);
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(txt('Palmarès'), 300, scrollable: list);
     expect(txt('Palmarès'), findsOneWidget);
-    await tester.scrollUntilVisible(txt('Prochaine'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    await tester.scrollUntilVisible(txt('Prochaine'), 300, scrollable: list);
     expect(txt('Prochaine'), findsOneWidget);
   });
 
