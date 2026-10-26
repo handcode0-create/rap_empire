@@ -548,7 +548,7 @@ class BusinessScreen21 extends ConsumerWidget {
         ]),
       ),
       const _SceneSection('Petits boulots', 'Des cauris vite gagnés. Les plus rentables s’ouvrent avec le rang et les compétences.'),
-      for (final j in jobs) _VenueCard(j),
+      _VenueGrid21(venues: jobs),
       const _SceneSection('Formation', 'Progresser : flow, écriture, voix, charisme.'),
       _SkillsCard(s, onTap: () => context.go('/business/formation')),
       const SizedBox(height: 10),
@@ -580,6 +580,22 @@ class BusinessScreen21 extends ConsumerWidget {
       const GameHint(icon: 'info', text: 'Boulots, entreprises, patrimoine et merch rapportent des cauris, pas de fans ni de rang.'),
     ]);
   }
+}
+
+
+/// Présente les lieux de travail en grille sur PC sans changer l'ordre vertical mobile.
+class _VenueGrid21 extends StatelessWidget {
+  final List<_Venue> venues;
+  const _VenueGrid21({super.key, required this.venues});
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    final desktop = constraints.maxWidth >= 760;
+    final columns = constraints.maxWidth >= 1180 ? 3 : 2;
+    const gap = 12.0;
+    if (!desktop) return Column(children: [for (var i = 0; i < venues.length; i++) ...[if (i > 0) const SizedBox(height: 10), _VenueCard(venues[i])]]);
+    final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+    return Wrap(spacing: gap, runSpacing: gap, children: [for (final venue in venues) SizedBox(width: width, child: _VenueCard(venue))]);
+  });
 }
 
 /// Formations sous forme de lieux (atelier d'écriture puis Reg21.trainings), disponibles d'abord.
