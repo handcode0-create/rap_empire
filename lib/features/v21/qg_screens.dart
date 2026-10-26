@@ -69,7 +69,7 @@ class QgScreen extends ConsumerWidget {
     final dl = s['dlg'] == null ? null : _m(s['dlg']);
     return LayoutBuilder(builder: (context, constraints) {
       final desktop = constraints.maxWidth >= 1000;
-      return Center(child: ConstrainedBox(maxWidth: 1480, child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
+      return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1480), child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
       _Hero(s),
       if (s['jail'] != null) ...[
         const SizedBox(height: 12),
