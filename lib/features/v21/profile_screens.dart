@@ -109,6 +109,9 @@ class _ProfileHero extends StatelessWidget {
   const _ProfileHero(this.s);
   @override
   Widget build(BuildContext context) {
+    final desktop = MediaQuery.sizeOf(context).width >= 1200;
+    final avatarWidth = desktop ? 176.0 : 128.0;
+    final avatarHeight = desktop ? 276.0 : 220.0;
     final p = _m(s['p']);
     final rk = rankOf(s);
     final xp = _n(s['xp']);
@@ -119,7 +122,7 @@ class _ProfileHero extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 236),
+        constraints: BoxConstraints(minHeight: desktop ? 300 : 236),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white.withValues(alpha: .12), width: 1.5),
@@ -133,20 +136,20 @@ class _ProfileHero extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 4,
+            left: desktop ? 16 : 4,
             bottom: 0,
             child: Semantics(
               button: true,
               label: 'Garde-robe : changer de tenue',
-              child: GestureDetector(onTap: () => context.go('/profil/garde-robe'), child: EquippedAvatar(s, width: 128, height: 220)),
+              child: GestureDetector(onTap: () => context.go('/profil/garde-robe'), child: EquippedAvatar(s, width: avatarWidth, height: avatarHeight)),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(136, 16, 16, 16),
+            padding: EdgeInsets.fromLTRB(avatarWidth + (desktop ? 40 : 8), desktop ? 24 : 16, desktop ? 32 : 16, desktop ? 24 : 16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               GameTag(rankTag(s), style: GameTagStyle.accent),
               const SizedBox(height: 6),
-              FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(playerName(s), style: V20Text.baloo(size: 30, line: 32))),
+              FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(playerName(s), style: V20Text.baloo(size: desktop ? 38 : 30, line: desktop ? 42 : 32))),
               Text('${s['age']} ans · ${Reg21.origins[p['origin']]} · vit à Ndolo', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
               Text('${Reg21.styles[p['main']]!['n']}${p['second'] != null ? ' · ${Reg21.styles[p['second']]!['n']}' : ''}',
                   style: V20Text.poppins(size: 13, line: 17, weight: FontWeight.w700)),
@@ -222,52 +225,89 @@ class _Group extends StatelessWidget {
   final String title;
   final List<_Item> items;
   const _Group(this.title, this.items);
-  @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4), child: Text(title.toUpperCase(), style: V20Text.lab())),
-        GlassCard(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(children: [
-            for (var i = 0; i < items.length; i++) ...[
-              if (i > 0) Divider(height: 1, thickness: 1, indent: 64, color: Colors.white.withValues(alpha: .08)),
-              Semantics(
-                button: true,
-                label: '${items[i].title}, ${items[i].sub}',
-                child: InkWell(
-                  onTap: items[i].onTap,
+
+  Widget _itemTile(BuildContext context, _Item item, {bool desktop = false}) {
+    return Semantics(
+      button: true,
+      label: '${item.title}, ${item.sub}',
+      child: InkWell(
+        onTap: item.onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: desktop ? 12 : 8),
+          decoration: desktop
+              ? BoxDecoration(
+                  color: Tk.s1.withValues(alpha: .58),
                   borderRadius: BorderRadius.circular(16),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 60),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: ExcludeSemantics(
-                        child: Row(children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(gradient: V20.tileIcon, borderRadius: BorderRadius.circular(12)),
-                            alignment: Alignment.center,
-                            child: GameIcon(items[i].icon, size: 20, color: Colors.white),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(items[i].title, style: V20Text.poppins(size: 15, line: 19, weight: FontWeight.w700)),
-                              Text(items[i].sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
-                            ]),
-                          ),
-                          const SizedBox(width: 8),
-                          items[i].trailing ?? const GameIcon('arrow', size: 20, color: V20.ink2),
-                        ]),
-                      ),
-                    ),
-                  ),
+                  border: Border.all(color: Colors.white.withValues(alpha: .08)),
+                )
+              : null,
+          child: ExcludeSemantics(
+            child: Row(children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(gradient: V20.tileIcon, borderRadius: BorderRadius.circular(12)),
+                alignment: Alignment.center,
+                child: GameIcon(item.icon, size: 20, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.title, style: V20Text.poppins(size: 15, line: 19, weight: FontWeight.w700)),
+                    Text(item.sub, maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                  ],
                 ),
               ),
-            ],
-          ]),
+              const SizedBox(width: 8),
+              item.trailing ?? const GameIcon('arrow', size: 20, color: V20.ink2),
+            ]),
+          ),
         ),
-      ]);
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) {
+          final desktop = MediaQuery.sizeOf(context).width >= 1000;
+          final columns = (constraints.maxWidth / 360).floor().clamp(2, 3);
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
+              child: Text(title.toUpperCase(), style: V20Text.lab()),
+            ),
+            if (desktop)
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final item in items)
+                    SizedBox(
+                      width: (constraints.maxWidth - (columns - 1) * 12) / columns,
+                      child: _itemTile(context, item, desktop: true),
+                    ),
+                ],
+              )
+            else
+              GlassCard(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(children: [
+                  for (var i = 0; i < items.length; i++) ...[
+                    if (i > 0) Divider(height: 1, thickness: 1, indent: 64, color: Colors.white.withValues(alpha: .08)),
+                    _itemTile(context, items[i]),
+                  ],
+                ]),
+              ),
+          ]);
+        },
+      );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
