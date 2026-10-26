@@ -165,7 +165,7 @@ class _DesktopNav21 extends StatelessWidget {
     margin: const EdgeInsets.fromLTRB(16, 12, 0, 16),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
     decoration: BoxDecoration(
-      color: Tk.s1.withOpacity(.92),
+      color: Tk.s1.withValues(alpha: .92),
       borderRadius: BorderRadius.circular(24),
       border: Border.all(color: Tk.line),
     ),
@@ -182,7 +182,7 @@ class _DesktopNav21 extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Material(
-            color: i == currentIndex ? Tk.acc.withOpacity(.16) : Colors.transparent,
+            color: i == currentIndex ? Tk.acc.withValues(alpha: .16) : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
@@ -211,7 +211,7 @@ class _DesktopNav21 extends StatelessWidget {
       const Spacer(),
       Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Tk.bg.withOpacity(.65), borderRadius: BorderRadius.circular(14)),
+        decoration: BoxDecoration(color: Tk.bg.withValues(alpha: .65), borderRadius: BorderRadius.circular(14)),
         child: Text('Chaque décision construit ta carrière.', style: V20Text.poppins(
           size: 11, line: 16, weight: FontWeight.w500, color: V20.ink2,
         )),
