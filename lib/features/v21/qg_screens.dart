@@ -32,6 +32,19 @@ num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
 List _l(dynamic x) => x as List;
 
+/// Grille d’accès rapide : deux colonnes sur mobile, trois sur les grands écrans.
+class _ActionGrid21 extends StatelessWidget {
+  final List<Widget> children;
+  const _ActionGrid21({required this.children});
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    final columns = constraints.maxWidth >= 1100 ? 3 : 2;
+    const gap = 12.0;
+    final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+    return Wrap(spacing: gap, runSpacing: gap, children: [for (final child in children) SizedBox(width: width, child: child)]);
+  });
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // 21-Q1 QG
 // ---------------------------------------------------------------------------------------------------------------------
@@ -166,28 +179,24 @@ class QgScreen extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'mic', title: 'Studio', subtitle: 'Créer · sortir · clip', onTap: () => context.go('/studio'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic · tournée', onTap: () => context.go('/scene'))),
+      _ActionGrid21(children: [
+        GlassTile(icon: 'mic', title: 'Studio', subtitle: 'Créer · sortir · clip', onTap: () => context.go('/studio')),
+        GlassTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic · tournée', onTap: () => context.go('/scene')),
       ]),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'briefcase', title: 'Petits boulots', subtitle: 'Gagner des cauris', onTap: () => context.go('/business'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'users', title: 'Vie perso', subtitle: '$left action(s) romantique(s)', onTap: () => context.go('/perso'))),
+      _ActionGrid21(children: [
+        GlassTile(icon: 'briefcase', title: 'Petits boulots', subtitle: 'Gagner des cauris', onTap: () => context.go('/business')),
+        GlassTile(icon: 'users', title: 'Vie perso', subtitle: '$left action(s) romantique(s)', onTap: () => context.go('/perso')),
       ]),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee'))),
+      _ActionGrid21(children: [
+        GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang')),
+        GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee')),
       ]),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes, clips, réseaux', onTap: () => context.go('/profil/reseau'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'flame', title: 'Marketing', subtitle: 'Local · National · Global', onTap: () => context.go('/profil/reseau/marketing'))),
+      _ActionGrid21(children: [
+        GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes, clips, réseaux', onTap: () => context.go('/profil/reseau')),
+        GlassTile(icon: 'flame', title: 'Marketing', subtitle: 'Local · National · Global', onTap: () => context.go('/profil/reseau/marketing')),
       ]),
       const SizedBox(height: 16),
       PrimaryGlowButton(
