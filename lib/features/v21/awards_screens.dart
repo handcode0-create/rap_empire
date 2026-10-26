@@ -347,6 +347,85 @@ class _MyPosition extends StatelessWidget {
   }
 }
 
+
+/// Scène narrative interactive des awards. Les choix modifient la scène jouée, sans truquer les résultats du jury.
+class _AwardSceneLauncher extends StatelessWidget {
+  final String title, subtitle, actionLabel;
+  final IconData icon;
+  final Color accent;
+  final VoidCallback onTap;
+  const _AwardSceneLauncher({required this.title, required this.subtitle, required this.icon, required this.accent, required this.actionLabel, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: GameCard(child: Row(children: [
+      Container(width: 48, height: 54, decoration: BoxDecoration(color: accent.withValues(alpha: .12), borderRadius: BorderRadius.circular(14)), child: Icon(icon, color: accent, size: 28)),
+      const SizedBox(width: 12),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title, style: V20Text.nm()),
+        const SizedBox(height: 3),
+        Text(subtitle, style: V20Text.bs()),
+        const SizedBox(height: 8),
+        Align(alignment: Alignment.centerLeft, child: TextButton.icon(onPressed: onTap, icon: Icon(Icons.play_arrow_rounded, color: accent), label: Text(actionLabel, style: TextStyle(color: accent, fontWeight: FontWeight.w700)))),
+      ])),
+    ])),
+  );
+}
+
+Future<void> _openAwardScene(BuildContext context, {required String title, required String subtitle, required String art, required List<(String, String)> choices}) async {
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => Dialog(
+      backgroundColor: Tk.deep,
+      insetPadding: const EdgeInsets.all(18),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: Tk.gold.withValues(alpha: .65))),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(children: [
+            const Icon(Icons.auto_awesome, color: Tk.gold),
+            const SizedBox(width: 8),
+            Expanded(child: Text('SCÈNE INTERACTIVE · AWARDS', style: V20Text.lab(color: V20.hintGoldText))),
+          ]),
+          const SizedBox(height: 14),
+          Container(
+            height: 172, width: double.infinity,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A175E), Color(0xFF100D20), Color(0xFF50330C)])),
+            child: Stack(alignment: Alignment.center, children: [
+              Positioned(top: 12, right: 14, child: Icon(Icons.flash_on_rounded, color: Tk.gold.withValues(alpha: .5), size: 32)),
+              SizedBox(width: 104, height: 140, child: SvgPicture.asset(art, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.emoji_events_rounded, size: 88, color: Tk.gold))),
+              Positioned(bottom: 10, child: Text('RAP EMPIRE AWARDS', style: V20Text.lab(color: Tk.gold))),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          Text(title, textAlign: TextAlign.center, style: V20Text.baloo(size: 25, line: 29)),
+          const SizedBox(height: 6),
+          Text(subtitle, textAlign: TextAlign.center, style: V20Text.bs()),
+          const SizedBox(height: 16),
+          for (final choice in choices)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SizedBox(width: double.infinity, child: OutlinedButton(
+                style: OutlinedButton.styleFrom(foregroundColor: Tk.ink, side: BorderSide(color: Tk.acc4.withValues(alpha: .8)), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
+                onPressed: () => showDialog<void>(
+                  context: dialogContext,
+                  builder: (resultContext) => AlertDialog(
+                    backgroundColor: Tk.s1,
+                    title: Text(choice.$1, style: V20Text.nm()),
+                    content: Text(choice.$2, style: V20Text.bs()),
+                    actions: [TextButton(onPressed: () { Navigator.of(resultContext).pop(); Navigator.of(dialogContext).pop(); }, child: const Text('Continuer'))],
+                  ),
+                ),
+                child: Text(choice.$1, textAlign: TextAlign.center),
+              )),
+            ),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Quitter la scène')),
+        ])),
+      ),
+    ),
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Salle des trophées : le hall, avec deux portes (chambre des certifications, salon des awards)
 // ---------------------------------------------------------------------------------------------------------------------
@@ -683,6 +762,63 @@ class SalonAwardsScreen21 extends ConsumerWidget {
               _Count('Cérémonies', '${hist.map((h) => '${h['y']}-${h['c']}').toSet().length}', Tk.cy),
             ]),
           ]),
+        ),
+      ),
+      const _Sec('Scènes spéciales', 'vis tes awards'),
+      _AwardSceneLauncher(
+        title: 'La salle des nominations',
+        subtitle: 'Regards froids, rivalité et tension avant l’annonce',
+        icon: Icons.groups_rounded,
+        accent: Tk.acc4,
+        actionLabel: 'Entrer dans la salle',
+        onTap: () => _openAwardScene(
+          context,
+          title: 'La salle des nominations',
+          subtitle: 'Les artistes rivaux se jaugent. Les caméras sont braquées sur toi.',
+          art: 'assets/awards/trophee_grandprix.svg',
+          choices: const [
+            ('Garder ton calme', 'Tu restes concentré. Tu laisses ton travail parler sur scène.'),
+            ('Fixer ton rival', 'La tension monte. Les photographes capturent votre duel de regards.'),
+            ('Aller saluer les autres artistes', 'Tu échanges quelques mots et renforces ton image professionnelle.'),
+          ],
+        ),
+      ),
+      _AwardSceneLauncher(
+        title: 'Le moment du verdict',
+        subtitle: 'Le présentateur ouvre l’enveloppe et annonce le lauréat',
+        icon: Icons.mic_external_on_rounded,
+        accent: Tk.gold,
+        actionLabel: 'Vivre l’annonce',
+        onTap: () => _openAwardScene(
+          context,
+          title: 'Le moment du verdict',
+          subtitle: 'La salle retient son souffle. Le présentateur approche le micro.',
+          art: next.trophy,
+          choices: const [
+            ('Monter sur scène avec assurance', 'Tu rejoins la scène sous les projecteurs, prêt à entendre le verdict.'),
+            ('Remercier ton équipe', 'Tu fais signe à ton équipe de rester près de toi, quel que soit le résultat.'),
+            ('Regarder ton rival', 'Un dernier regard traverse la salle avant l’annonce du nom.'),
+          ],
+        ),
+      ),
+      _AwardSceneLauncher(
+        title: 'Le trophée entre tes mains',
+        subtitle: 'Une scène souvenir spéciale si tu as remporté un award',
+        icon: Icons.emoji_events_rounded,
+        accent: Tk.gold,
+        actionLabel: 'Ouvrir la scène souvenir',
+        onTap: () => _openAwardScene(
+          context,
+          title: awardWins21(s) > 0 ? 'Tu tiens ton trophée' : 'Le rêve avant la victoire',
+          subtitle: awardWins21(s) > 0
+              ? 'Les lumières dorées éclairent ton trophée. La foule scande ton nom : ${playerName(s)}.'
+              : 'Tu visualises le moment où tu soulèveras ton premier trophée. Chaque sortie te rapproche de la scène.',
+          art: awardWins21(s) > 0 ? 'assets/awards/trophee_bakoma.svg' : next.trophy,
+          choices: const [
+            ('Lever le trophée', 'Tu lèves le trophée au-dessus de ta tête. Les flashs crépitent et la foule explose.'),
+            ('Dédier la victoire à tes fans', 'Tu portes une main au cœur et remercies celles et ceux qui t’ont soutenu.'),
+            ('Lancer un message aux rivaux', 'Tu souris aux caméras : la compétition continue, et tu comptes revenir.'),
+          ],
         ),
       ),
       const _Sec('Tes catégories', 'score estimé'),
