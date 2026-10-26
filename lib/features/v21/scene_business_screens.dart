@@ -586,7 +586,7 @@ class BusinessScreen21 extends ConsumerWidget {
 /// Présente les lieux de travail en grille sur PC sans changer l'ordre vertical mobile.
 class _VenueGrid21 extends StatelessWidget {
   final List<_Venue> venues;
-  const _VenueGrid21({super.key, required this.venues});
+  const _VenueGrid21({required this.venues});
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
     final desktop = constraints.maxWidth >= 760;
