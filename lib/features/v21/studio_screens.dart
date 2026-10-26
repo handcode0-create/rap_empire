@@ -112,25 +112,23 @@ class _AtelierTile extends StatelessWidget {
   final VoidCallback onTap;
   const _AtelierTile(this.icon, this.title, this.sub, this.onTap, {this.extra});
   @override
-  Widget build(BuildContext context) => Expanded(
-        child: GlassCard(
-          padding: const EdgeInsets.all(12),
-          halo: false,
-          onTap: onTap,
-          semanticLabel: '$title, $sub',
-          child: SizedBox(
-            height: 112,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Container(width: 36, height: 36, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(12)), child: GameIcon(icon, size: 18, color: Tk.acc4)),
-                const Spacer(),
-                if (extra != null) extra!,
-              ]),
+  Widget build(BuildContext context) => GlassCard(
+        padding: const EdgeInsets.all(12),
+        halo: false,
+        onTap: onTap,
+        semanticLabel: '$title, $sub',
+        child: SizedBox(
+          height: 112,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Container(width: 36, height: 36, alignment: Alignment.center, decoration: BoxDecoration(color: Tk.tint, borderRadius: BorderRadius.circular(12)), child: GameIcon(icon, size: 18, color: Tk.acc4)),
               const Spacer(),
-              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 15, line: 18)),
-              Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+              if (extra != null) extra!,
             ]),
-          ),
+            const Spacer(),
+            Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 15, line: 18)),
+            Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 11, line: 14, color: V20.ink2)),
+          ]),
         ),
       );
 }
@@ -350,25 +348,20 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
       Text('L’ATELIER', style: V20Text.baloo(size: 18, line: 22)),
       Text('Tout ce qui entoure tes titres.', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
       const SizedBox(height: 10),
-      Row(children: [
-        _AtelierTile('users', 'Featurings', cur == null ? '${Reg21.feats.length} artistes · écris d’abord un titre' : '${feats.length}/${Reg21.maxFeats} sur ce titre', () => context.go('/studio/feats'),
-            extra: feats.isEmpty ? null : GameTag('${feats.length}', style: GameTagStyle.ok)),
-        const SizedBox(width: 10),
-        _AtelierTile('trend', 'Clip', 'À préparer avant la sortie', () => context.go('/studio/clip')),
-      ]),
-      const SizedBox(height: 10),
-      Row(children: [
-        _AtelierTile('clock', 'Sorties à venir', _l(s['stock']).isEmpty ? 'Programme une sortie ou garde un titre pour un projet' : '${_l(s['stock']).length} titre(s) en attente', () => context.go('/studio/reserve'),
-            extra: _l(s['stock']).isEmpty ? null : GameTag('${_l(s['stock']).length}')),
-        const SizedBox(width: 10),
-        _AtelierTile('music', 'Catalogue, EP et album', '${_l(s['disco']).length} titre(s) sorti(s) · projets', () => context.go('/studio/catalogue')),
-      ]),
-      const SizedBox(height: 10),
-      Row(children: [
-        _AtelierTile('flame', 'Pochettes', '${coverThemes21.length * coverAmbs21.length * 6} au choix pour chaque son', () => context.go('/studio/pochettes')),
-        const SizedBox(width: 10),
-        const Expanded(child: SizedBox()),
-      ]),
+      LayoutBuilder(builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 1100 ? 3 : (constraints.maxWidth >= 620 ? 2 : 1);
+        const gap = 10.0;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(spacing: gap, runSpacing: gap, children: [
+          SizedBox(width: width, child: _AtelierTile('users', 'Featurings', cur == null ? '${Reg21.feats.length} artistes · écris d’abord un titre' : '${feats.length}/${Reg21.maxFeats} sur ce titre', () => context.go('/studio/feats'),
+              extra: feats.isEmpty ? null : GameTag('${feats.length}', style: GameTagStyle.ok))),
+          SizedBox(width: width, child: _AtelierTile('trend', 'Clip', 'À préparer avant la sortie', () => context.go('/studio/clip'))),
+          SizedBox(width: width, child: _AtelierTile('clock', 'Sorties à venir', _l(s['stock']).isEmpty ? 'Programme une sortie ou garde un titre pour un projet' : '${_l(s['stock']).length} titre(s) en attente', () => context.go('/studio/reserve'),
+              extra: _l(s['stock']).isEmpty ? null : GameTag('${_l(s['stock']).length}'))),
+          SizedBox(width: width, child: _AtelierTile('music', 'Catalogue, EP et album', '${_l(s['disco']).length} titre(s) sorti(s) · projets', () => context.go('/studio/catalogue'))),
+          SizedBox(width: width, child: _AtelierTile('flame', 'Pochettes', '${coverThemes21.length * coverAmbs21.length * 6} au choix pour chaque son', () => context.go('/studio/pochettes'))),
+        ]);
+      }),
       const SizedBox(height: 12),
       GameHint(
           icon: 'info',
