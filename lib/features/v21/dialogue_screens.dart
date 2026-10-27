@@ -123,7 +123,7 @@ class DialogueScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         const GameHint(
             icon: 'info',
-            text: 'Chaque choix affiche ses conséquences avant de répondre : Certain (coût fixe), Estimé (calculé), Incertain (dépend de l’autre), Risque.'),
+            text: 'Certain · Estimé · Incertain · Risque : chaque pastille annonce l’effet avant ton choix.'),
       ] else ...[
         GlassCard(
             accent: GlassAccent.magenta,
