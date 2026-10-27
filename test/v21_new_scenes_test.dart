@@ -109,6 +109,16 @@ void main() {
       s = act21(s, 'endDay', null).s;
       expect(pendingNew(s), lessThanOrEqualTo(1), reason: 'jour ${s['day']}');
       if (pendingNew(s) == 1 && (starts.isEmpty || starts.last != s['nsAt'])) starts.add(s['nsAt'] as num);
+      // le joueur joue la scène ouverte jusqu'au bout, ce qui libère la place de la suivante
+      var guard = 0;
+      while (s['dlg'] != null && guard++ < 12) {
+        final dl = s['dlg'] as Map<String, dynamic>;
+        if (dl['done'] == 1) {
+          s = act21(s, 'dclose', null).s;
+        } else {
+          s = act21(s, 'dch', dlg21[dl['id']]!.nodes[dl['node']]!.ch.first.id).s;
+        }
+      }
     }
     expect(starts.length, greaterThanOrEqualTo(2));
     for (var i = 1; i < starts.length; i++) {
