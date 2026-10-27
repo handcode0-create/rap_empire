@@ -869,7 +869,18 @@ void _triggers(J n) {
   if (!_t(n['created'])) return;
   final seen = _m(n['dseen']);
   for (final id in dlgOrder21) {
-    if (!_t(seen[id]) && dlg21[id]!.cond(n)) _queueDlg(n, id);
+    if (_t(seen[id]) || !dlg21[id]!.cond(n)) continue;
+    if (newSceneOrder21.contains(id)) {
+      // Une seule scène de vie à la fois, et au moins 3 jours entre deux : elles n'arrivent jamais ensemble.
+      final day = _n(n['day']);
+      final pending = _l(n['dq']).any((x) => newSceneOrder21.contains(_m(x)['id'])) ||
+          (n['dlg'] != null && newSceneOrder21.contains(_m(n['dlg'])['id']));
+      if (pending || (n['nsAt'] != null && day - _n(n['nsAt']) < 3)) continue;
+      _queueDlg(n, id);
+      n['nsAt'] = day;
+      continue;
+    }
+    _queueDlg(n, id);
   }
   if (n['dlg'] == null) {
     final dq = _l(n['dq']);

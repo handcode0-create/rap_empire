@@ -96,4 +96,23 @@ void main() {
     final r = act21(act21(s0, 'dstart', 'photo').s, 'dch', 'a');
     expect(r.err, isNotNull);
   });
+
+  test('les scènes de vie arrivent une par une, espacées d’au moins 3 jours', () {
+    var s = rich();
+    s['created'] = 1;
+    s['day'] = 1;
+    final starts = <num>[];
+    int pendingNew(J x) =>
+        (x['dq'] as List).where((e) => newSceneOrder21.contains((e as Map)['id'])).length +
+        (x['dlg'] != null && newSceneOrder21.contains((x['dlg'] as Map)['id']) ? 1 : 0);
+    for (var i = 0; i < 40; i++) {
+      s = act21(s, 'endDay', null).s;
+      expect(pendingNew(s), lessThanOrEqualTo(1), reason: 'jour ${s['day']}');
+      if (pendingNew(s) == 1 && (starts.isEmpty || starts.last != s['nsAt'])) starts.add(s['nsAt'] as num);
+    }
+    expect(starts.length, greaterThanOrEqualTo(2));
+    for (var i = 1; i < starts.length; i++) {
+      expect(starts[i] - starts[i - 1], greaterThanOrEqualTo(3));
+    }
+  });
 }

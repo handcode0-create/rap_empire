@@ -7,6 +7,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
 import '../../core/widgets/choice_card.dart';
+import '../../core/widgets/enter_anim.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
@@ -405,6 +406,70 @@ class _Door extends StatelessWidget {
       );
 }
 
+/// Une case de vitrine : objet posé sur l'étagère, ou emplacement vide estompé.
+class _Slot extends StatelessWidget {
+  final String asset, label;
+  final bool filled;
+  final double w, h;
+  const _Slot(this.asset, this.label, {required this.filled, this.w = 64, this.h = 80});
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: label,
+        excludeSemantics: true,
+        child: SizedBox(
+          width: w,
+          height: h,
+          child: Opacity(opacity: filled ? 1 : .32, child: SvgPicture.asset(asset)),
+        ),
+      );
+}
+
+/// Étagère : une rangée d'objets posés sur une planche lumineuse, avec reflet sous les objets.
+class _Shelf extends StatelessWidget {
+  final List<Widget> items;
+  final Color glow;
+  const _Shelf(this.items, this.glow);
+  @override
+  Widget build(BuildContext context) => Column(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.end, children: [
+          for (var i = 0; i < items.length; i++) EnterAnim(index: i + 1, from: const Offset(0, 22), baseMs: 420, child: items[i]),
+        ]),
+        const SizedBox(height: 4),
+        Container(
+          height: 5,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(3),
+            gradient: LinearGradient(colors: [glow.withValues(alpha: .08), glow.withValues(alpha: .75), glow.withValues(alpha: .08)]),
+            boxShadow: [BoxShadow(color: glow.withValues(alpha: .35), blurRadius: 12, spreadRadius: 1)],
+          ),
+        ),
+      ]);
+}
+
+class _Chip extends StatelessWidget {
+  final IconData icon;
+  final String value, lab;
+  final Color c;
+  const _Chip(this.icon, this.value, this.lab, this.c);
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Semantics(
+          label: '$lab : $value',
+          excludeSemantics: true,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(color: c.withValues(alpha: .12), borderRadius: BorderRadius.circular(14), border: Border.all(color: c.withValues(alpha: .35))),
+            child: Column(children: [
+              Icon(icon, size: 18, color: c),
+              Text(value, style: V20Text.baloo(size: 24, line: 26, color: c)),
+              Text(lab.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab()),
+            ]),
+          ),
+        ),
+      );
+}
+
 class TropheesScreen extends ConsumerWidget {
   const TropheesScreen({super.key});
   @override
@@ -412,38 +477,18 @@ class TropheesScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
     final certs = certs21(s);
-    final best = certs.where((c) => c.level >= 0).toList();
+    final best = certs.where((c) => c.level >= 0).toList()..sort((a, b) => b.level != a.level ? b.level.compareTo(a.level) : b.units.compareTo(a.units));
+    final chasing = certs.where((c) => c.next != null && c.units > 0).toList()..sort((a, b) => _progress(b).compareTo(_progress(a)));
+    final target = chasing.isEmpty ? null : chasing.first;
+    final wins = awardWins21(s);
     final (next, days) = nextCeremony21(s);
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      BackHeader(title: 'Salle des trophées', step: 'T1', onBack: () => context.go('/profil')),
-      const SizedBox(height: 12),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF2A1F08), Tk.s1, Tk.deep])),
-          child: Column(children: [
-            Row(children: [
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('TA VITRINE', style: V20Text.lab(color: V20.hintGoldText)),
-                  Text(playerName(s), style: V20Text.baloo(size: 26, line: 28)),
-                ]),
-              ),
-              SizedBox(width: 64, height: 86, child: SvgPicture.asset('assets/awards/trophee_${awardWins21(s) > 0 ? 'bakoma' : 'vide'}.svg')),
-            ]),
-            const SizedBox(height: 12),
-            Row(children: [
-              _Count('Certifications', '${certCount21(s)}', Tk.cy),
-              _Count('Trophées', '${awardWins21(s)}', Tk.gold),
-              _Count('Nominations', '${awardNoms21(s)}', Tk.acc4),
-            ]),
-            const SizedBox(height: 8),
-            Container(height: 6, decoration: BoxDecoration(borderRadius: BorderRadius.circular(3), gradient: LinearGradient(colors: [Tk.gold.withValues(alpha: .1), Tk.gold.withValues(alpha: .6), Tk.gold.withValues(alpha: .1)]))),
-          ]),
-        ),
-      ),
-      const SizedBox(height: 12),
+    final shelfPlaques = [
+      for (var i = 0; i < 3; i++) i < best.length ? _Slot(best[i].plaque, '${best[i].name} · ${best[i].title}', filled: true) : const _Slot('assets/awards/plaque_vide.svg', 'Emplacement libre', filled: false),
+    ];
+    final shelfTrophies = [
+      for (var i = 0; i < 3; i++) i < wins ? const _Slot('assets/awards/trophee_bakoma.svg', 'Trophée remporté', filled: true, w: 48, h: 64) : const _Slot('assets/awards/trophee_vide.svg', 'Emplacement libre', filled: false, w: 48, h: 64),
+    ];
+    final doors = [
       _Door(
         key: const ValueKey('door-certifs'),
         title: 'Chambre des certifications',
@@ -454,7 +499,6 @@ class TropheesScreen extends ConsumerWidget {
         accent: GlassAccent.cyan,
         onTap: () => context.go('/profil/trophees/certifications'),
       ),
-      const SizedBox(height: 12),
       _Door(
         key: const ValueKey('door-awards'),
         title: 'Salon des awards',
@@ -465,6 +509,87 @@ class TropheesScreen extends ConsumerWidget {
         accent: GlassAccent.gold,
         onTap: () => context.go('/profil/trophees/awards'),
       ),
+    ];
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      BackHeader(title: 'Salle des trophées', step: 'T1', onBack: () => context.go('/profil')),
+      const SizedBox(height: 12),
+      EnterAnim(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF2A1F08), Tk.s1, Tk.deep]),
+              border: Border.all(color: Tk.gold.withValues(alpha: .35), width: 1.5),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(children: [
+              Row(children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('TA VITRINE', style: V20Text.lab(color: V20.hintGoldText)),
+                    Text(playerName(s), style: V20Text.baloo(size: 26, line: 28)),
+                  ]),
+                ),
+                Icon(Icons.emoji_events_outlined, color: Tk.gold.withValues(alpha: .8), size: 28),
+              ]),
+              const SizedBox(height: 14),
+              _Shelf(shelfPlaques, Tk.cy),
+              const SizedBox(height: 14),
+              _Shelf(shelfTrophies, Tk.gold),
+              const SizedBox(height: 14),
+              Row(children: [
+                _Chip(Icons.workspace_premium_outlined, '${certCount21(s)}', 'Certifs', Tk.cy),
+                _Chip(Icons.emoji_events_outlined, '$wins', 'Trophées', Tk.gold),
+                _Chip(Icons.star_outline, '${awardNoms21(s)}', 'Nominations', Tk.acc4),
+              ]),
+            ]),
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      EnterAnim(
+        index: 2,
+        child: GlassCard(
+          key: const ValueKey('goal-card'),
+          accent: GlassAccent.gold,
+          halo: false,
+          child: Row(children: [
+            SizedBox(width: 44, height: 56, child: SvgPicture.asset(target?.plaque ?? 'assets/awards/plaque_vide.svg')),
+            const SizedBox(width: 12),
+            Expanded(
+              child: target == null
+                  ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('OBJECTIF', style: V20Text.lab(color: V20.hintGoldText)),
+                      Text('Sors un titre pour viser ta première plaque.', style: V20Text.bs(color: Tk.ink)),
+                    ])
+                  : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('OBJECTIF', style: V20Text.lab(color: V20.hintGoldText)),
+                      Text(target.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm()),
+                      const SizedBox(height: 4),
+                      MeterBar(value: _progress(target), tone: MeterTone.gold, thin: true),
+                      const SizedBox(height: 2),
+                      Text('${(_progress(target) * 100).round()} % vers ${target.level < 0 ? 'le Disque d\'or' : certNames21[certLevels21[target.level + 1]]}', style: V20Text.poppins(size: 12, line: 16, color: V20.ink2)),
+                    ]),
+            ),
+          ]),
+        ),
+      ),
+      const SizedBox(height: 12),
+      LayoutBuilder(builder: (context, c) {
+        if (c.maxWidth >= 620) {
+          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: EnterAnim(index: 3, child: doors[0])),
+            const SizedBox(width: 12),
+            Expanded(child: EnterAnim(index: 4, child: doors[1])),
+          ]);
+        }
+        return Column(children: [
+          EnterAnim(index: 3, child: doors[0]),
+          const SizedBox(height: 12),
+          EnterAnim(index: 4, child: doors[1]),
+        ]);
+      }),
     ]);
   }
 }
@@ -521,10 +646,14 @@ class _CertificationsState extends ConsumerState<CertificationsScreen21> {
                   child: Semantics(
                     label: '${certNames21[certLevels21[i]]} : ${perLevel[i]}',
                     excludeSemantics: true,
-                    child: Column(children: [
-                      SizedBox(height: 44, child: Opacity(opacity: perLevel[i] > 0 ? 1 : .35, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg'))),
-                      Text('${perLevel[i]}', style: V20Text.baloo(size: 18, line: 20, color: perLevel[i] > 0 ? Tk.gold : V20.ink2)),
-                    ]),
+                    child: EnterAnim(
+                      index: i,
+                      from: const Offset(0, 18),
+                      child: Column(children: [
+                        SizedBox(height: 44, child: Opacity(opacity: perLevel[i] > 0 ? 1 : .35, child: SvgPicture.asset('assets/awards/plaque_${certLevels21[i]}.svg'))),
+                        Text('${perLevel[i]}', style: V20Text.baloo(size: 18, line: 20, color: perLevel[i] > 0 ? Tk.gold : V20.ink2)),
+                      ]),
+                    ),
                   ),
                 ),
             ]),
