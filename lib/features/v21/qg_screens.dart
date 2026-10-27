@@ -9,10 +9,10 @@ import '../../core/widgets/back_header.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
+import '../../core/widgets/game_icon.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/glass_tile.dart';
-import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/scene_banner.dart';
@@ -22,6 +22,9 @@ import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
 import 'shell21.dart';
 import 'wardrobe_screens.dart';
+import 'awards_screens.dart' show AwardNewsCard21;
+import 'cast21.dart';
+import 'festival_screens.dart';
 import 'widgets21.dart';
 
 /// QG du jour (21-Q1), journée (21-Q2), bilan (21-Q3), année (21-Q4), journal (21-J1) et événements (21-V1).
@@ -29,6 +32,19 @@ import 'widgets21.dart';
 num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
 List _l(dynamic x) => x as List;
+
+/// Grille d’accès rapide : deux colonnes sur mobile, trois sur les grands écrans.
+class _ActionGrid21 extends StatelessWidget {
+  final List<Widget> children;
+  const _ActionGrid21({required this.children});
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    final columns = constraints.maxWidth >= 1400 ? 4 : constraints.maxWidth >= 1000 ? 3 : 2;
+    const gap = 12.0;
+    final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+    return Wrap(spacing: gap, runSpacing: gap, children: [for (final child in children) SizedBox(width: width, child: child)]);
+  });
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // 21-Q1 QG
@@ -52,7 +68,9 @@ class QgScreen extends ConsumerWidget {
     final nextRank = rankOf(s) < Reg21.ranks.length ? Reg21.ranks[rankOf(s)]['n'] as String : 'Rang maximal';
     final cas = s['cas'] as J?;
     final dl = s['dlg'] == null ? null : _m(s['dlg']);
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return LayoutBuilder(builder: (context, constraints) {
+      final desktop = constraints.maxWidth >= 1000;
+      return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1480), child: ListView(padding: EdgeInsets.all(desktop ? 28 : 16), children: [
       _Hero(s),
       if (s['jail'] != null) ...[
         const SizedBox(height: 12),
@@ -131,59 +149,135 @@ class QgScreen extends ConsumerWidget {
         ),
       ],
       const SizedBox(height: 12),
-      GlassCard(
-        onTap: mission == null ? null : () => context.go('/journal'),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      if (mission != null)
+        GlassCard(
+          onTap: () => context.go('/journal'),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('MISSION ${missionsDone(s)}/${Reg21.missions.length} FAITES', style: V20Text.lab()),
-            const GameTag('Existant · 10.1', style: GameTagStyle.normal),
+            const SizedBox(height: 6),
+            Text(mission['t'] as String, style: V20Text.nm()),
+            Text('+${fmt21(mission['cash'] as num)} cauris · +${mission['xp']} XP', style: V20Text.bs()),
           ]),
-          const SizedBox(height: 6),
-          Text(mission == null ? 'Toutes les missions de départ sont faites' : mission['t'] as String, style: V20Text.nm()),
-          if (mission != null) Text('+${fmt21(mission['cash'] as num)} cauris · +${mission['xp']} XP', style: V20Text.bs()),
-        ]),
-      ),
+        )
+      else
+        CareerMissionCard21(s),
+      AwardNewsCard21(s),
+      FestivalNewsCard21(s),
       const SizedBox(height: 12),
-      GlassCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("AUJOURD'HUI", style: V20Text.lab()), Text('${today.length} action(s)', style: V20Text.bs(color: Tk.ink))]),
-          const SizedBox(height: 6),
-          if (today.isEmpty) Text('Rien encore. Choisis tes activités : studio, scène, boulots, vie perso.', style: V20Text.bs()),
-          for (final l in today.take(3)) Padding(padding: const EdgeInsets.only(bottom: 2), child: Text(l['t'] as String, style: V20Text.bs(color: Tk.ink))),
-          const SizedBox(height: 8),
-          Wrap(spacing: 6, runSpacing: 6, children: [
-            GameTag('Cash ${sg21(_n(s['cash']) - _n(d0['cash']))}'),
-            GameTag('Fans ${sg21(_n(s['fans']) - _n(d0['fans']))}'),
-            GameTag('Pop. ${sg21(_n(s['pop']) - _n(d0['pop']))}'),
-          ]),
-        ]),
-      ),
+      _TodayCard(today: today, cash: _n(s['cash']) - _n(d0['cash']), fans: _n(s['fans']) - _n(d0['fans']), pop: _n(s['pop']) - _n(d0['pop'])),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'mic', title: 'Studio', subtitle: 'Créer · sortir · clip', onTap: () => context.go('/studio'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic · tournée', onTap: () => context.go('/scene'))),
-      ]),
+      Text('QUE FAIS-TU ?', style: V20Text.lab()),
+      const SizedBox(height: 10),
+      LayoutBuilder(builder: (context, c) {
+        final cols = c.maxWidth >= 900 ? 4 : 2;
+        const gap = 12.0;
+        final w = (c.maxWidth - gap * (cols - 1)) / cols;
+        Widget big(String icon, String title, String sub, String route) => SizedBox(
+              width: w,
+              child: GlassCard(
+                padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+                onTap: () => context.go(route),
+                semanticLabel: '$title, $sub',
+                child: ExcludeSemantics(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(gradient: V20.tileIcon, borderRadius: BorderRadius.circular(16)),
+                      alignment: Alignment.center,
+                      child: GameIcon(icon, size: 30, color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 22, line: 24)),
+                    Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 15, color: V20.ink2)),
+                  ]),
+                ),
+              ),
+            );
+        return Wrap(spacing: gap, runSpacing: gap, children: [
+          big('mic', 'Studio', 'Créer · sortir', '/studio'),
+          big('flame', 'Scène', 'Open mic · tournée', '/scene'),
+          big('briefcase', 'Boulots', 'Gagner des cauris', '/business'),
+          big('users', 'Vie perso', '$left action(s) du jour', '/perso'),
+        ]);
+      }),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'briefcase', title: 'Petits boulots', subtitle: 'Gagner des cauris', onTap: () => context.go('/business'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'users', title: 'Vie perso', subtitle: '$left action(s) romantique(s)', onTap: () => context.go('/perso'))),
-      ]),
-      const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang'))),
-        const SizedBox(width: 12),
-        Expanded(child: GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee'))),
+      _MoreAccess(children: [
+        GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang')),
+        GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee')),
+        GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes, clips, réseaux', onTap: () => context.go('/profil/reseau')),
+        GlassTile(icon: 'flame', title: 'Marketing', subtitle: 'Local · National · Global', onTap: () => context.go('/profil/reseau/marketing')),
       ]),
       const SizedBox(height: 16),
       PrimaryGlowButton(
         label: 'Terminer la journée',
         sublabel: 'Nuit · bilan · jour suivant',
-        onPressed: () => doAct(context, ref, 'endDay', null, () => context.go('/bilan')),
+        onPressed: () => context.go('/fin-journee'),
       ),
-    ]);
+    ])));
+    });
   }
+}
+
+/// Bilan du jour replié : trois variations en une ligne ; le détail des actions s'ouvre au toucher.
+class _TodayCard extends StatefulWidget {
+  final List today;
+  final num cash, fans, pop;
+  const _TodayCard({required this.today, required this.cash, required this.fans, required this.pop});
+  @override
+  State<_TodayCard> createState() => _TodayCardState();
+}
+
+class _TodayCardState extends State<_TodayCard> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) => GlassCard(
+        onTap: () => setState(() => _open = !_open),
+        semanticLabel: "Aujourd'hui, ${widget.today.length} action(s)",
+        child: ExcludeSemantics(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text("AUJOURD'HUI · ${widget.today.length} ACTION(S)", style: V20Text.lab())),
+              Icon(_open ? Icons.expand_less : Icons.expand_more, color: V20.ink2, size: 22),
+            ]),
+            const SizedBox(height: 6),
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              GameTag('Cash ${sg21(widget.cash)}'),
+              GameTag('Fans ${sg21(widget.fans)}'),
+              GameTag('Pop. ${sg21(widget.pop)}'),
+            ]),
+            if (_open) ...[
+              const SizedBox(height: 8),
+              if (widget.today.isEmpty) Text('Rien encore. Choisis une activité ci-dessous.', style: V20Text.bs()),
+              for (final l in widget.today.take(6)) Padding(padding: const EdgeInsets.only(bottom: 2), child: Text(l['t'] as String, style: V20Text.bs(color: Tk.ink))),
+            ],
+          ]),
+        ),
+      );
+}
+
+/// Accès secondaires repliés : le QG ne montre que quatre grandes actions, le reste est à un toucher.
+class _MoreAccess extends StatefulWidget {
+  final List<Widget> children;
+  const _MoreAccess({required this.children});
+  @override
+  State<_MoreAccess> createState() => _MoreAccessState();
+}
+
+class _MoreAccessState extends State<_MoreAccess> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        PrimaryButton(
+          label: _open ? 'Moins d’accès' : 'Plus d’accès',
+          style: GameButtonStyle.ghost,
+          onPressed: () => setState(() => _open = !_open),
+        ),
+        if (_open) ...[
+          const SizedBox(height: 8),
+          _ActionGrid21(children: widget.children),
+        ],
+      ]);
 }
 
 class _Hero extends StatelessWidget {
@@ -191,17 +285,24 @@ class _Hero extends StatelessWidget {
   const _Hero(this.s);
 
   @override
-  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
-        SceneBanner(
-          kind: 'studio',
-          height: 150,
-          role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
-          name: 'Jour ${dayInYear(s)}',
-          nameSize: 30,
-          subtitle: "${hoursLeft(s)} h restantes aujourd'hui",
-        ),
-        Positioned(right: 8, top: -40, child: IgnorePointer(child: EquippedAvatar(s, width: 100, height: 150, mood: isTired(s) ? 'worried' : 'smile'))),
-      ]);
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+        final desktop = constraints.maxWidth >= 1000;
+        return Stack(clipBehavior: Clip.none, children: [
+          SceneBanner(
+            kind: 'studio',
+            height: desktop ? 224 : 150,
+            role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
+            name: 'Semaine ${weekOf21(_n(s['day']))}',
+            nameSize: desktop ? 42 : 30,
+            subtitle: "${const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][((_n(s['day']) - 1) % 7).toInt()]} · ${hoursLeft(s)} h restantes aujourd'hui",
+          ),
+          Positioned(
+            right: desktop ? 32 : 8,
+            top: desktop ? -18 : -40,
+            child: IgnorePointer(child: EquippedAvatar(s, width: desktop ? 148 : 100, height: desktop ? 222 : 150, mood: isTired(s) ? 'worried' : 'smile')),
+          ),
+        ]);
+      });
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -238,7 +339,7 @@ class JourneeScreen extends ConsumerWidget {
       row('Concert au Parvis', '4 h · −${35 - moto} énergie · rang N3', '/scene'),
       row('Tournée régionale', '10 h · −${50 - moto} énergie · −30 000 cauris de frais · N3', '/scene'),
       const Lab21('Argent'),
-      for (final e in Reg21.jobs.entries) row(e.value['n'] as String, '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · +${fmt21(e.value['cash'] as num)} cauris', '/business/boulot'),
+      for (final e in Reg21.jobs.entries) row(e.value['n'] as String, '${e.value['h']} h · −${(e.value['e'] as num) - moto} énergie · +${fmt21(e.value['cash'] as num)} cauris${jobLock21(s, e.key) != null ? ' · verrouillé : ${e.value['need']}' : ''}', '/business'),
       Lab21('Vie perso · $left/${Reg21.romPerDay} restantes'),
       for (final e in Reg21.romActs.entries)
         row(e.value['n'] as String, '${e.value['h']} h${(e.value['e'] as num) != 0 ? ' · −${e.value['e']} énergie' : ''}${(e.value['c'] as num) != 0 ? ' · −${fmt21(e.value['c'] as num)} cauris' : ''}', '/perso'),
@@ -270,7 +371,8 @@ class BilanScreen extends ConsumerWidget {
     final rel = b['rel'] as num?, rel0 = b['rel0'] as num?;
     final evs = [..._l(b['ev']), ..._l(b['acts'])].cast<String>();
     final kids = _n(b['kids']).toInt();
-    return Frame21(children: [
+    // Le bilan reste visible en prison : « Commencer la journée » ramène ensuite à la cellule.
+    return Frame21(allowInJail: true, children: [
       BackHeader(title: 'Bilan de la journée', onBack: () => context.go('/')),
       const SizedBox(height: 12),
       Container(
@@ -383,6 +485,8 @@ class JournalScreen extends ConsumerWidget {
       const SizedBox(height: 4),
       Align(alignment: Alignment.centerRight, child: GameTag('${missionsDone(s)} / ${Reg21.missions.length} missions')),
       const SizedBox(height: 8),
+      CareerMissions21(s),
+      const SizedBox(height: 12),
       GlassCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('MISSIONS DE DÉPART', style: V20Text.lab()), const GameTag('Existant · 10.1')]),
@@ -409,7 +513,7 @@ class JournalScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                SizedBox(width: 92, child: Text('J${_m(l)['d']} · ${_cats[_m(l)['c']] ?? 'Jeu'}', style: V20Text.bs())),
+                SizedBox(width: 92, child: Text('S${weekOf21(_m(l)['d'] as num)} ${weekDay21(_m(l)['d'] as num)} · ${_cats[_m(l)['c']] ?? 'Jeu'}', style: V20Text.bs())),
                 Expanded(child: Text(_m(l)['t'] as String, style: V20Text.bs(color: Tk.ink))),
               ]),
             ),
@@ -445,7 +549,7 @@ class EvenementScreen extends ConsumerWidget {
         ],
       ] else ...[
         Row(children: [
-          Portrait((e['who'] as String).split(' ').map((w) => w[0]).take(2).join().toUpperCase(), size: 96),
+          CastAvatar(e['who'] as String, size: 96, mood: 'poised'),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text((e['who'] as String).toUpperCase(), style: V20Text.lab()), Text((e['t'] as String).toUpperCase(), style: V20Text.baloo(size: 22, line: 24))])),
         ]),
@@ -456,7 +560,7 @@ class EvenementScreen extends ConsumerWidget {
           GameCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(c['n'] as String, style: V20Text.nm()),
-              Conseq21(ConsequenceKind.certain, c['c'] as String),
+              Conseq21(switch (c['k']) { 'r' => ConsequenceKind.risk, 'i' => ConsequenceKind.uncertain, 'e' => ConsequenceKind.estimated, _ => ConsequenceKind.certain }, c['c'] as String),
               const SizedBox(height: 8),
               PrimaryButton(
                 label: 'Choisir',
@@ -471,4 +575,136 @@ class EvenementScreen extends ConsumerWidget {
       ],
     ]);
   }
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Missions de carrière (six chapitres, récompense à récupérer). Valeurs provisoires (D-08).
+// ---------------------------------------------------------------------------------------------------------------------
+
+String _goal(Mission21 m, num v) {
+  String f(num x) => m.metric == 'signed' ? (x >= 1 ? 'oui' : 'non') : fmt21(x);
+  return m.metric == 'signed' ? f(v) : '${f(v < m.goal ? v : m.goal)} / ${f(m.goal)}';
+}
+
+/// Carte du QG : mission de carrière à récupérer ou à viser.
+class CareerMissionCard21 extends StatelessWidget {
+  final J s;
+  const CareerMissionCard21(this.s, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    final claim = missionsToClaim21(s);
+    final ch = missionChapter21(s);
+    final next = missions21.where((m) => m.ch == ch && missionState21(s, m) == 'open').firstOrNull;
+    final (cash, xp) = next == null ? (0, 0) : missionReward21(next);
+    return GlassCard(
+      accent: claim > 0 ? GlassAccent.magenta : GlassAccent.none,
+      halo: false,
+      onTap: () => context.go('/journal'),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Expanded(child: Text('CHAPITRE $ch · ${missionChapters21[ch - 1].$1.toUpperCase()}', style: V20Text.lab())),
+          if (claim > 0) GameTag('$claim à récupérer', style: GameTagStyle.accent),
+        ]),
+        const SizedBox(height: 6),
+        if (claim > 0)
+          Text('Mission accomplie : récupère ta récompense', style: V20Text.nm())
+        else if (next != null) ...[
+          Text(next.t, style: V20Text.nm()),
+          Text('${_goal(next, missionMetric21(s, next.metric))} · +${fmt21(cash)} cauris · +$xp XP', style: V20Text.bs()),
+        ] else
+          Text('Toutes les missions sont récupérées', style: V20Text.nm()),
+      ]),
+    );
+  }
+}
+
+/// Liste du Journal : missions à récupérer, puis chapitre en cours avec la progression de chaque mission.
+class CareerMissions21 extends ConsumerWidget {
+  final J s;
+  const CareerMissions21(this.s, {super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ch = missionChapter21(s);
+    final toClaim = missions21.where((m) => missionState21(s, m) == 'done').toList();
+    final cur = missions21.where((m) => m.ch == ch && missionState21(s, m) == 'open').toList();
+    final inCh = missions21.where((m) => m.ch == ch).length;
+    final claimedCh = missions21.where((m) => m.ch == ch && missionState21(s, m) == 'claimed').length;
+    Widget row(Mission21 m) {
+      final st = missionState21(s, m);
+      final v = missionMetric21(s, m.metric);
+      final (cash, xp) = missionReward21(m);
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: GameCard(
+          selected: st == 'done',
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text(m.t, style: V20Text.nm())),
+              if (st == 'claimed') const GameTag('✓ Récupérée', style: GameTagStyle.ok),
+            ]),
+            Text('${_goal(m, v)} · +${fmt21(cash)} cauris · +$xp XP', style: V20Text.bs()),
+            if (st == 'open' && m.metric != 'signed') ...[
+              const SizedBox(height: 6),
+              MeterBarLite((v / m.goal).clamp(0, 1).toDouble()),
+            ],
+            if (st == 'done') ...[
+              const SizedBox(height: 8),
+              PrimaryButton(
+                label: 'Récupérer',
+                sublabel: '+${fmt21(cash)} cauris · +$xp XP',
+                compact: true,
+                onPressed: () => doAct(context, ref, 'mclaim', m.id, null, 'Mission récupérée : +${fmt21(cash)} cauris, +$xp XP'),
+              ),
+            ],
+          ]),
+        ),
+      );
+    }
+
+    return GlassCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Expanded(child: Text('MISSIONS DE CARRIÈRE · CHAPITRE $ch / ${missionChapters21.length}', style: V20Text.lab())),
+          GameTag('${missionsClaimed21(s)} / ${missions21.length}'),
+        ]),
+        const SizedBox(height: 4),
+        Text(missionChapters21[ch - 1].$1, style: V20Text.baloo(size: 22, line: 24)),
+        Text('$claimedCh / $inCh missions récupérées dans ce chapitre. Le chapitre suivant s\'ouvre quand toutes sont récupérées.', style: V20Text.bs()),
+        if (toClaim.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text('À RÉCUPÉRER', style: V20Text.lab(color: V20.accText)),
+          for (final m in toClaim) row(m),
+        ],
+        if (cur.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text('EN COURS', style: V20Text.lab()),
+          for (final m in cur) row(m),
+        ],
+        const SizedBox(height: 8),
+        Text('Les missions se terminent toutes seules, même hors du chapitre en cours ; la récompense attend que tu la récupères. Valeurs provisoires.', style: V20Text.bs()),
+      ]),
+    );
+  }
+}
+
+/// Jauge fine de progression (6 px) aux couleurs du jeu.
+class MeterBarLite extends StatelessWidget {
+  final double v;
+  const MeterBarLite(this.v, {super.key});
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(99),
+        child: SizedBox(
+          height: 6,
+          child: Stack(fit: StackFit.expand, children: [
+            const ColoredBox(color: Tk.line),
+            FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: v,
+              child: const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(colors: [Tk.acc, Tk.violet]))),
+            ),
+          ]),
+        ),
+      );
 }

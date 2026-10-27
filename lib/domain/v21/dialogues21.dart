@@ -62,6 +62,9 @@ class Lbl {
       required this.cl, required this.q1, required this.q2, required this.alt, this.risk = false});
 }
 
+/// Les offres de label n'arrivent qu'une fois l'intérêt des labels suffisant (D-08).
+bool labelReady21(J s) => _n(s['lbz']) >= Reg21.lbzGate;
+
 bool _seen(J s, String k) => _m(s['dseen'])[k] != null && _m(s['dseen'])[k] != 0;
 int _disco(J s) => _l(s['disco']).length;
 
@@ -135,19 +138,27 @@ final Map<String, Lbl> lbl21 = {
 /// Ordre de déclenchement des scènes (le premier déclenchable passe en tête).
 const dlgOrder21 = [
   'kore', 'mgr', 'lb_AUB', 'lb_NUG', 'lb_SIC', 'lb_VAG', 'lb_BLG', 'lb_LYR', 'lb_SKP', 'lb_AMG', 'label', 'lb_RCD',
-  'rival', 'collab', 'bad', 'success', 'festival', 'crisis', 'kore2'
+  'rival', 'collab', 'bad', 'success', 'festival', 'crisis', 'kore2',
+  ...newSceneOrder21,
+];
+
+/// Scènes ajoutées après la v21 de référence : leurs conditions sont échelonnées par jour pour qu'elles n'arrivent pas toutes ensemble.
+const newSceneOrder21 = [
+  'radio', 'photo', 'ecole', 'beat', 'stylist', 'presse', 'fan', 'atelier', 'underground', 'revanche', 'sample', 'playlist', 'mentor', 'nuit',
 ];
 
 /// Noms affichés des personnages de dialogue (complété par les directeurs de labels).
 final Map<String, String> castn21 = {
   'kore': 'DJ Kôrô', 'nadia': 'Maya Tessé', 'orage': 'Madame Orage', 'zaki': 'Zaki Mbela',
   'ayana': 'Ayana Dembé', 'zamba': 'Kouassi Zamba', 'rosine': 'Rosine Adjoua',
+  'teo': 'Téo Gbéli', 'yao': 'Yao Bellam', 'kadi': 'Kadi Sora', 'sanko': 'Sanko Beats', 'ines': 'Inès Waly', 'sefa': 'Sefa Doumbé',
+  'kzer': "K-Zer d'Mabaya", 'amara': 'Amara Teki', 'sadia': 'Sadia Kouamé', 'lina': 'Lina Mbaré',
   for (final l in lbl21.values) l.who: l.dn,
 };
 
 J _lblSet(String code, Lbl L, int adv, double cut, String? perk, String relKey, int rel) => {
       'cash': adv,
-      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk},
+      'set': {'signed': 1, 'label': code, 'lcut': cut, 'lperk': perk ?? L.perk, 'ladv': adv},
       'rel': {relKey: rel},
     };
 
@@ -160,7 +171,7 @@ Dlg _lblDlg(String code, Lbl L) {
   final rt = L.risk ? ' · Risque : label en difficulté, soutien incertain' : '';
   return Dlg(
       t: 'Offre · ${L.n}', ref: '18-1 · $code', place: L.place, who: L.who, role: L.role,
-      cond: (s) => !_t(s['signed']) && L.cond(s), cl: L.cl, lbl: code,
+      cond: (s) => !_t(s['signed']) && labelReady21(s) && L.cond(s), cl: '${L.cl} · intérêt des labels ${Reg21.lbzGate}', lbl: code,
       nodes: {
         'n1': DlgNode('poised', L.q1, [
           DlgChoice('a', 'Signer', '+${_fmt(L.adv)} cauris · ${p(L.cut)} des écoutes · ${L.dur} · ${perk21[L.perk]}$rt',
@@ -249,19 +260,19 @@ final Map<String, Dlg> dlg21 = {
   ),
   'label': Dlg(
     t: 'Contrat de label', ref: '16-B · 08-2', place: 'office', who: 'orage', role: 'Directrice artistique · Bakoma Sound Records',
-    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']), cl: 'Réputation 30',
+    cond: (s) => _n(s['rep']) >= Reg21.labelRep && !_t(s['signed']) && labelReady21(s), cl: 'Réputation 30 · intérêt des labels ${Reg21.lbzGate}',
     nodes: {
       'n1': const DlgNode('poised', '« Bakoma Sound Records te propose six mois, 150 000 d\'avance, 35 % sur tes écoutes et deux sons par trimestre. On signe ? »', [
         DlgChoice('a', 'Signer', '+150 000 cauris · 35 % des écoutes au label · 6 mois',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('b', 'Contre-proposer', 'réponse incertaine', k: 'i', go: 'n2'),
         DlgChoice('c', 'Réfléchir 7 jours', "l'offre revient dans 7 jours", k: 'i', e: {'q': ['label', 7]}, end: 'Réflexion'),
       ]),
       'n2': const DlgNode('neutral', "« Je peux monter l'avance à 180 000, mais la part passe à 40 %. Ou on garde l'offre de départ. »", [
         DlgChoice('a', '180 000 et 40 %', '+180 000 cauris · 40 % des écoutes au label',
-            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio'}}, end: 'Contrat signé (40 %)'),
+            e: {'cash': 180000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.40, 'lperk': 'radio', 'ladv': 180000}}, end: 'Contrat signé (40 %)'),
         DlgChoice('b', '150 000 et 35 %', '+150 000 cauris · 35 % des écoutes au label',
-            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio'}}, end: 'Contrat signé (35 %)'),
+            e: {'cash': 150000, 'set': {'signed': 1, 'label': 'BSR', 'lcut': 0.35, 'lperk': 'radio', 'ladv': 150000}}, end: 'Contrat signé (35 %)'),
         DlgChoice('c', 'Rester indépendant', 'relation −5 · Bakoma Sound Records ne revient pas', k: 'r',
             e: {'rel': {'orage': -5}}, end: 'Indépendant'),
       ]),
@@ -351,6 +362,204 @@ final Map<String, Dlg> dlg21 = {
         DlgChoice('b', 'Laisser Rosine gérer', '−5 000 cauris · +2 réputation · relation Rosine +10',
             e: {'cash': -5000, 'rep': 2, 'rel': {'rosine': 10}}, end: 'Rosine a géré la crise'),
         DlgChoice('c', 'Ne rien dire', '−3 popularité', k: 'r', e: {'pop': -3}, end: 'Silence'),
+      ]),
+    },
+  ),
+
+  // ---------- scènes ajoutées : vie de quartier, presse, production, scène (valeurs PROVISOIRES) ----------
+  'radio': Dlg(
+    t: 'Invitation à la radio', ref: '21-S1', place: 'studio', who: 'teo', role: 'Animateur · Radio Lagune, la nuit',
+    cond: (s) => _n(s['day']) >= 4 && _n(s['fans']) >= 150 && _disco(s) >= 1, cl: 'Jour 4 · 150 fans · 1 single sorti',
+    nodes: {
+      'n1': const DlgNode('smile', "« Salut la street ! Ici Téo, la nuit sur Radio Lagune. Ton titre tourne dans le quartier. Tu viens en direct jeudi ? »", [
+        DlgChoice('a', "Venir à l'interview", '1 h · −10 énergie · +90 fans · +2 popularité · relation Téo +6',
+            e: {'h': 1, 'en': 10, 'fans': 90, 'pop': 2, 'rel': {'teo': 6}}, end: 'Interview en direct'),
+        DlgChoice('b', 'Proposer un freestyle en direct', "il décide s'il te donne l'antenne", k: 'i', go: 'n2'),
+        DlgChoice('c', 'Décliner', 'relation Téo −2', k: 'r', e: {'rel': {'teo': -2}}, end: 'Invitation déclinée'),
+      ]),
+      'n2': const DlgNode('poised', "« Un freestyle, en direct ? Les auditeurs adorent… ou zappent. Tu as dix minutes pour t'échauffer. »", [
+        DlgChoice('a', 'Se lancer', '2 h · −20 énergie · +220 fans · +4 popularité · +40 XP · relation Téo +10',
+            e: {'h': 2, 'en': 20, 'fans': 220, 'pop': 4, 'xp': 40, 'rel': {'teo': 10}}, end: 'Freestyle à l\'antenne'),
+        DlgChoice('b', "Revenir à l'interview", '1 h · −10 énergie · +90 fans · +2 popularité',
+            e: {'h': 1, 'en': 10, 'fans': 90, 'pop': 2, 'rel': {'teo': 3}}, end: 'Interview en direct'),
+      ]),
+    },
+  ),
+  'photo': Dlg(
+    t: 'Séance photo', ref: '21-S2', place: 'street', who: 'yao', role: 'Photographe · Ndolo',
+    cond: (s) => _n(s['day']) >= 6 && _n(s['pop']) >= 6, cl: 'Jour 6 · popularité 6',
+    nodes: {
+      'n1': const DlgNode('cool', "« J'ai shooté la moitié des pochettes du quartier. Une série sur les toits de Ndolo, à la tombée du jour ? »", [
+        DlgChoice('a', 'Séance complète', '−3 000 cauris · 2 h · −10 énergie · +150 fans · +2 popularité · relation Yao +8',
+            e: {'cash': -3000, 'h': 2, 'en': 10, 'fans': 150, 'pop': 2, 'rel': {'yao': 8}}, end: 'Séance complète'),
+        DlgChoice('b', 'Quelques portraits rapides', '−1 000 cauris · 1 h · +40 fans · relation Yao +3',
+            e: {'cash': -1000, 'h': 1, 'fans': 40, 'rel': {'yao': 3}}, end: 'Portraits rapides'),
+        DlgChoice('c', 'Une autre fois', 'aucun effet', end: 'Reporté'),
+      ]),
+    },
+  ),
+  'ecole': Dlg(
+    t: 'Atelier au lycée de Ndolo', ref: '21-S3', place: 'stage', who: 'kadi', role: 'Infirmière · bénévole au lycée de Ndolo',
+    cond: (s) => _n(s['day']) >= 8 && _n(s['rep']) >= 6, cl: 'Jour 8 · réputation 6',
+    nodes: {
+      'n1': const DlgNode('smile', "« On organise un atelier d'écriture au lycée. Les jeunes écoutent ton titre en boucle. Tu viens leur parler ? »", [
+        DlgChoice('a', "Animer l'atelier", '2 h · −15 énergie · +3 réputation · +120 fans · relation Kadi +8',
+            e: {'h': 2, 'en': 15, 'rep': 3, 'fans': 120, 'rel': {'kadi': 8}}, end: 'Atelier animé'),
+        DlgChoice('b', 'Offrir des places de concert', '−2 000 cauris · +1 réputation · relation Kadi +4',
+            e: {'cash': -2000, 'rep': 1, 'rel': {'kadi': 4}}, end: 'Places offertes'),
+        DlgChoice('c', 'Refuser poliment', 'relation Kadi −2', k: 'r', e: {'rel': {'kadi': -2}}, end: 'Refus poli'),
+      ]),
+    },
+  ),
+  'beat': Dlg(
+    t: 'Un beat sur mesure', ref: '21-S4', place: 'studio', who: 'sanko', role: 'Beatmaker · Pont des Griots',
+    cond: (s) => _n(s['day']) >= 9 && _disco(s) >= 1 && _n(s['cash']) >= 5000, cl: 'Jour 9 · 1 single sorti · 5 000 cauris',
+    nodes: {
+      'n1': const DlgNode('cool', "« J'ai un beat qui t'attend depuis ton dernier titre. Je te le laisse en exclu, ou on le partage ? »", [
+        DlgChoice('a', 'Beat en exclusivité', '−5 000 cauris · +1 Flow · +40 XP · relation Sanko +8',
+            e: {'cash': -5000, 'set': {'sk.flow': 1}, 'xp': 40, 'rel': {'sanko': 8}}, end: 'Beat exclusif'),
+        DlgChoice('b', 'Partager le beat', 'gratuit · +20 XP · relation Sanko +3', e: {'xp': 20, 'rel': {'sanko': 3}}, end: 'Beat partagé'),
+        DlgChoice('c', 'Négocier le prix', 'réponse incertaine', k: 'i', go: 'n2'),
+      ]),
+      'n2': const DlgNode('smirk', "« Tu veux le prix d'ami ? 3 500, mais tu me cites dans les crédits. »", [
+        DlgChoice('a', 'Accepter', '−3 500 cauris · +1 Flow · +40 XP · relation Sanko +6',
+            e: {'cash': -3500, 'set': {'sk.flow': 1}, 'xp': 40, 'rel': {'sanko': 6}}, end: 'Beat à prix d\'ami'),
+        DlgChoice('b', 'Laisser tomber', 'relation Sanko −3', k: 'r', e: {'rel': {'sanko': -3}}, end: 'Pas de beat'),
+      ]),
+    },
+  ),
+  'stylist': Dlg(
+    t: 'Nouveau look', ref: '21-S5', place: 'backstage', who: 'ines', role: 'Styliste · Ndolo',
+    cond: (s) => _n(s['day']) >= 11 && _n(s['shows']) >= 1, cl: 'Jour 11 · 1 date sur scène',
+    nodes: {
+      'n1': const DlgNode('poised', "« Sur scène, tu as du flow, mais ta tenue ne raconte rien. Je te monte un look qui se voit du fond de la salle. »", [
+        DlgChoice('a', 'Le grand look', '−6 000 cauris · 2 h · +2 Charisme · +2 popularité · relation Inès +8',
+            e: {'cash': -6000, 'h': 2, 'set': {'sk.cha': 2}, 'pop': 2, 'rel': {'ines': 8}}, end: 'Grand look'),
+        DlgChoice('b', 'Juste des accessoires', '−2 000 cauris · +1 Charisme · relation Inès +3',
+            e: {'cash': -2000, 'set': {'sk.cha': 1}, 'rel': {'ines': 3}}, end: 'Accessoires'),
+        DlgChoice('c', 'Garder ton style', 'relation Inès −1', end: 'Style maison', e: {'rel': {'ines': -1}}),
+      ]),
+    },
+  ),
+  'presse': Dlg(
+    t: 'Interview pour un magazine', ref: '21-S6', place: 'office', who: 'sefa', role: 'Journaliste musique · magazine de Lumbé',
+    cond: (s) => _n(s['day']) >= 13 && _n(s['pop']) >= 10 && _disco(s) >= 2, cl: 'Jour 13 · popularité 10 · 2 singles',
+    nodes: {
+      'n1': const DlgNode('neutral', "« Deux titres, déjà un public. Je prépare un portrait des nouveaux visages de Bakoma. On parle de quoi : la musique, la rue, ou ta rivalité ? »", [
+        DlgChoice('a', 'Parler de la musique', '1 h · −5 énergie · +3 popularité · +1 réputation · relation Sefa +6',
+            e: {'h': 1, 'en': 5, 'pop': 3, 'rep': 1, 'rel': {'sefa': 6}}, end: 'Portrait sur la musique'),
+        DlgChoice('b', 'Parler de ta rivalité', '1 h · −5 énergie · +5 popularité · réputation −1 · relation Zaki −4',
+            k: 'e', e: {'h': 1, 'en': 5, 'pop': 5, 'rep': -1, 'rel': {'zaki': -4, 'sefa': 3}}, end: 'Portrait polémique'),
+        DlgChoice('c', 'Refuser les photos', '1 h · +2 popularité · relation Sefa −2', e: {'h': 1, 'pop': 2, 'rel': {'sefa': -2}}, end: 'Entretien sans photos'),
+      ]),
+    },
+  ),
+  'fan': Dlg(
+    t: 'Une fan t\'attend dehors', ref: '21-S7', place: 'street', who: 'lina', role: 'Danseuse · fan de la première heure',
+    cond: (s) => _n(s['day']) >= 15 && _n(s['fans']) >= 400, cl: 'Jour 15 · 400 fans',
+    nodes: {
+      'n1': const DlgNode('laugh', "« C'est toi ! J'ai dansé sur ton single toute la semaine. Une photo ? Et si je faisais une chorégraphie pour ton prochain titre ? »", [
+        DlgChoice('a', 'Accepter la chorégraphie', '1 h · −10 énergie · +180 fans · +2 popularité · relation Lina +8',
+            e: {'h': 1, 'en': 10, 'fans': 180, 'pop': 2, 'rel': {'lina': 8}}, end: 'Chorégraphie lancée'),
+        DlgChoice('b', 'Juste la photo', '+40 fans · relation Lina +3', e: {'fans': 40, 'rel': {'lina': 3}}, end: 'Photo souvenir'),
+        DlgChoice('c', 'Presser le pas', 'réputation −1 · relation Lina −3', k: 'r', e: {'rep': -1, 'rel': {'lina': -3}}, end: 'Tu passes ton chemin'),
+      ]),
+    },
+  ),
+  'atelier': Dlg(
+    t: "Atelier d'écriture de Mazé", ref: '21-S8', place: 'studio', who: 'maze', role: 'Fondateur · Lyrik Atelier (Mabaya)',
+    cond: (s) => _n(s['day']) >= 17 && _n(_m(s['sk'])['ecr']) >= 18, cl: 'Jour 17 · Écriture 18',
+    nodes: {
+      'n1': const DlgNode('serious', "« Tes rimes sont propres, mais elles ne prennent aucun risque. Je lance un atelier de deux jours : images, rythme, silences. »", [
+        DlgChoice('a', "L'atelier complet", '−4 000 cauris · 3 h · −15 énergie · +3 Écriture · relation Mazé +8',
+            e: {'cash': -4000, 'h': 3, 'en': 15, 'set': {'sk.ecr': 3}, 'rel': {'maze': 8}}, end: 'Atelier complet'),
+        DlgChoice('b', 'Une séance', '−1 500 cauris · 1 h · −5 énergie · +1 Écriture · relation Mazé +3',
+            e: {'cash': -1500, 'h': 1, 'en': 5, 'set': {'sk.ecr': 1}, 'rel': {'maze': 3}}, end: 'Une séance'),
+        DlgChoice('c', 'Pas besoin', 'relation Mazé −2', k: 'r', e: {'rel': {'maze': -2}}, end: 'Atelier refusé'),
+      ]),
+    },
+  ),
+  'underground': Dlg(
+    t: 'Soirée underground', ref: '21-S9', place: 'street', who: 'bakary', role: 'Fondateur · Ndolo Underground',
+    cond: (s) => _n(s['day']) >= 19 && _n(s['shows']) >= 2, cl: 'Jour 19 · 2 dates sur scène',
+    nodes: {
+      'n1': const DlgNode('cool', "« Cette nuit, cave de Mabaya, pas de sono, pas de micro, juste ta voix. Les vrais fans viennent écouter. T'en es ? »", [
+        DlgChoice('a', 'Rapper a cappella', '2 h · −20 énergie · +4 réputation · +160 fans · relation Bakary +8',
+            e: {'h': 2, 'en': 20, 'rep': 4, 'fans': 160, 'rel': {'bakary': 8}}, end: 'Nuit a cappella'),
+        DlgChoice('b', 'Passer en invité', '1 h · −10 énergie · +2 réputation · +60 fans', e: {'h': 1, 'en': 10, 'rep': 2, 'fans': 60, 'rel': {'bakary': 3}}, end: 'Passage en invité'),
+        DlgChoice('c', 'Décliner', 'relation Bakary −3', k: 'r', e: {'rel': {'bakary': -3}}, end: 'Soirée manquée'),
+      ]),
+    },
+  ),
+  'revanche': Dlg(
+    t: 'K-Zer demande la revanche', ref: '21-S10', place: 'stage', who: 'kzer', role: "Rappeur · rival de Mabaya",
+    cond: (s) => _n(s['day']) >= 21 && _n(s['rep']) >= 12 && _n(s['shows']) >= 1, cl: 'Jour 21 · réputation 12 · 1 date',
+    nodes: {
+      'n1': const DlgNode('angry', "« Tu crois que c'est fini ? Mabaya veut une revanche, sur ta scène, devant ton public. À toi de dire oui. »", [
+        DlgChoice('a', 'Relever le défi', '2 h · −25 énergie · +5 réputation · +200 fans · relation K-Zer −5',
+            e: {'h': 2, 'en': 25, 'rep': 5, 'fans': 200, 'rel': {'kzer': -5}}, end: 'Revanche acceptée'),
+        DlgChoice('b', 'Proposer un duo de paix', 'réponse incertaine', k: 'i', go: 'n2'),
+        DlgChoice('c', 'Ignorer', 'réputation −1 · relation K-Zer −2', k: 'r', e: {'rep': -1, 'rel': {'kzer': -2}}, end: 'Défi ignoré'),
+      ]),
+      'n2': const DlgNode('smirk', "« Un duo ? Toi et moi ? Les gens vont devenir fous… Va pour un titre, mais je veux le dernier couplet. »", [
+        DlgChoice('a', 'Accepter le duo', '−3 000 cauris · +4 popularité · +2 réputation · relation K-Zer +10',
+            e: {'cash': -3000, 'pop': 4, 'rep': 2, 'rel': {'kzer': 10}}, end: 'Duo de paix'),
+        DlgChoice('b', 'Revenir au défi', '2 h · −25 énergie · +5 réputation · +200 fans',
+            e: {'h': 2, 'en': 25, 'rep': 5, 'fans': 200, 'rel': {'kzer': -5}}, end: 'Revanche acceptée'),
+      ]),
+    },
+  ),
+  'sample': Dlg(
+    t: 'Un sample litigieux', ref: '21-S11', place: 'office', who: 'amara', role: 'Étudiante en droit · amie du quartier',
+    cond: (s) => _n(s['day']) >= 23 && _disco(s) >= 2 && _n(s['cash']) >= 8000, cl: 'Jour 23 · 2 singles · 8 000 cauris',
+    nodes: {
+      'n1': const DlgNode('worried', "« J'ai écouté ton dernier titre : ta boucle ressemble beaucoup à un vieux disque de Lumbé. Si son auteur s'en aperçoit… »", [
+        DlgChoice('a', 'Faire vérifier par un avocat', '−6 000 cauris · réputation +1 · relation Amara +8',
+            e: {'cash': -6000, 'rep': 1, 'rel': {'amara': 8}}, end: 'Vérification faite'),
+        DlgChoice('b', "Contacter l'auteur toi-même", '1 h · −5 énergie · +2 popularité · relation Amara +4',
+            e: {'h': 1, 'en': 5, 'pop': 2, 'rel': {'amara': 4}}, end: "Accord à l'amiable"),
+        DlgChoice('c', 'Ne rien faire', 'popularité −3 · réputation −1', k: 'r', e: {'pop': -3, 'rep': -1, 'rel': {'amara': -4}}, end: 'Tu prends le risque'),
+      ]),
+    },
+  ),
+  'playlist': Dlg(
+    t: 'Une playlist te veut', ref: '21-S12', place: 'call', who: 'sadia', role: 'Curatrice · Ondéa',
+    cond: (s) => _n(s['day']) >= 25 && _n(s['pop']) >= 15 && _disco(s) >= 2, cl: 'Jour 25 · popularité 15 · 2 singles',
+    nodes: {
+      'n1': const DlgNode('smile', "« Ton single revient dans mes recherches. Je prépare « Drill de Bakoma » : je peux te mettre en tête, si tu fais un effort de promo. »", [
+        DlgChoice('a', 'Payer le coup de pouce', '−4 000 cauris · +300 fans · +3 popularité · relation Sadia +8',
+            e: {'cash': -4000, 'fans': 300, 'pop': 3, 'rel': {'sadia': 8}}, end: 'En tête de playlist'),
+        DlgChoice('b', 'Envoyer un message personnel', '30 min · +120 fans · relation Sadia +3', e: {'fans': 120, 'rel': {'sadia': 3}}, end: 'Message envoyé'),
+        DlgChoice('c', 'Laisser faire', 'aucun effet', end: 'Playlist sans toi'),
+      ]),
+    },
+  ),
+  'mentor': Dlg(
+    t: 'Le conseil de Madame Orage', ref: '21-S13', place: 'office', who: 'orage', role: 'Directrice artistique · Bakoma Sound Records',
+    cond: (s) => _n(s['day']) >= 28 && _n(s['rep']) >= 20, cl: 'Jour 28 · réputation 20',
+    nodes: {
+      'n1': const DlgNode('poised', "« Je t'ai observé de loin. Un conseil de carrière, gratuit : qu'est-ce que tu veux construire, un nom ou un catalogue ? »", [
+        DlgChoice('a', 'Un nom', '+3 popularité · +1 réputation · relation Orage +5', e: {'pop': 3, 'rep': 1, 'rel': {'orage': 5}}, end: 'Cap sur le nom'),
+        DlgChoice('b', 'Un catalogue', '+60 XP · +1 Écriture · relation Orage +5', e: {'xp': 60, 'set': {'sk.ecr': 1}, 'rel': {'orage': 5}}, end: 'Cap sur le catalogue'),
+        DlgChoice('c', 'Les deux', 'réponse incertaine', k: 'i', go: 'n2'),
+      ]),
+      'n2': const DlgNode('smirk', "« Ambitieux. Alors montre-le : une date cette semaine, et on en reparle. »", [
+        DlgChoice('a', 'Jouer une date', '2 h · −20 énergie · +3 réputation · +150 fans · relation Orage +8',
+            e: {'h': 2, 'en': 20, 'rep': 3, 'fans': 150, 'rel': {'orage': 8}}, end: 'Date promise'),
+        DlgChoice('b', 'Plus tard', 'relation Orage −2', k: 'r', e: {'rel': {'orage': -2}}, end: 'Remis à plus tard'),
+      ]),
+    },
+  ),
+  'nuit': Dlg(
+    t: 'Nuit dans Ndolo', ref: '21-S14', place: 'street', who: 'zaki', role: 'Rappeur · rival de Ndolo',
+    cond: (s) => _n(s['day']) >= 30 && _n(s['rep']) >= 15, cl: 'Jour 30 · réputation 15',
+    nodes: {
+      'n1': const DlgNode('cool', "« Même rival, même rue. Cette nuit, Ndolo est à nous deux. On traîne, ou chacun chez soi ? »", [
+        DlgChoice('a', 'Traîner ensemble', '2 h · −15 énergie · +2 réputation · relation Zaki +10',
+            e: {'h': 2, 'en': 15, 'rep': 2, 'rel': {'zaki': 10}}, end: 'Nuit à Ndolo'),
+        DlgChoice('b', 'Un freestyle sur le trottoir', '1 h · −10 énergie · +3 popularité · +80 fans · relation Zaki +3',
+            e: {'h': 1, 'en': 10, 'pop': 3, 'fans': 80, 'rel': {'zaki': 3}}, end: 'Freestyle de rue'),
+        DlgChoice('c', 'Rentrer dormir', 'énergie +0 · relation Zaki −1', end: 'Retour à la maison', e: {'rel': {'zaki': -1}}),
       ]),
     },
   ),

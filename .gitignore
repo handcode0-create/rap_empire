@@ -27,3 +27,4 @@ google-services.json
 *.pem
 *.p12
 .env.*
+__pycache__/

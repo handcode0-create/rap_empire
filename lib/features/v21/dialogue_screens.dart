@@ -6,6 +6,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/theme/v20.dart';
 import '../../core/widgets/back_header.dart';
 import '../../core/widgets/choice_card.dart';
+import '../../core/widgets/enter_anim.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
@@ -48,6 +49,7 @@ class DialogueBanner extends StatelessWidget {
     return LayoutBuilder(
         builder: (context, c) => SceneBanner(
               kind: d.place,
+              animate: true,
               height: 190,
               role: d.ref,
               chars: [
@@ -99,33 +101,43 @@ class DialogueScreen extends ConsumerWidget {
       DialogueBanner(d, nodeKey),
       const SizedBox(height: 12),
       if (!done) ...[
-        GlassCard(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: Text('${castn21[d.who] ?? d.who} · ${d.role}'.toUpperCase(), style: V20Text.lab())),
-            const SizedBox(width: 8),
-            Text('Échange $step/$steps', style: V20Text.bs()),
-          ]),
-          const SizedBox(height: 6),
-          Text(node!.q, style: V20Text.bm.copyWith(fontSize: 16, height: 1.3)),
-        ])),
-        for (final c in node.ch) ...[
+        EnterAnim(
+            key: ValueKey('q-$nodeKey'),
+            from: const Offset(0, 10),
+            child: GlassCard(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(child: Text('${castn21[d.who] ?? d.who} · ${d.role}'.toUpperCase(), style: V20Text.lab())),
+                const SizedBox(width: 8),
+                Text('Échange $step/$steps', style: V20Text.bs()),
+              ]),
+              const SizedBox(height: 6),
+              Text(node!.q, style: V20Text.bm.copyWith(fontSize: 16, height: 1.3)),
+            ]))),
+        for (final (i, c) in node.ch.indexed) ...[
           const SizedBox(height: 10),
-          GameCard(
+          EnterAnim(
+              key: ValueKey('c-$nodeKey-${c.id}'),
+              index: i + 2,
+              child: GameCard(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(c.n, style: V20Text.nm()),
             const SizedBox(height: 4),
             Conseq21(_kind(c.k), c.c),
             const SizedBox(height: 8),
             PrimaryGlowButton(label: 'Choisir', onPressed: () => doAct(context, ref, 'dch', c.id)),
-          ])),
+          ]))),
         ],
         const SizedBox(height: 12),
         const GameHint(
             icon: 'info',
-            text: 'Chaque choix affiche ses conséquences avant de répondre : Certain (coût fixe), Estimé (calculé), Incertain (dépend de l’autre), Risque.'),
+            text: 'Certain · Estimé · Incertain · Risque : chaque pastille annonce l’effet avant ton choix.'),
       ] else ...[
-        GlassCard(
+        EnterAnim(
+            key: const ValueKey('fin-card'),
+            from: const Offset(0, 24),
+            baseMs: 480,
+            child: GlassCard(
             accent: GlassAccent.magenta,
             halo: false,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -138,9 +150,11 @@ class DialogueScreen extends ConsumerWidget {
               const SizedBox(height: 6),
               Conseq21(ConsequenceKind.certain, '${dl['c']}'),
               const Conseq21(ConsequenceKind.certain, 'Conséquences appliquées et inscrites au journal. Le personnage s’en souviendra (relations, page Scènes).'),
-            ])),
+            ]))),
         const SizedBox(height: 12),
-        PrimaryGlowButton(
+        EnterAnim(
+            index: 3,
+            child: PrimaryGlowButton(
           label: 'Continuer',
           sublabel: waiting > 0 ? 'Encore $waiting scène(s) en attente' : null,
           onPressed: () async {
@@ -150,7 +164,7 @@ class DialogueScreen extends ConsumerWidget {
             // une autre scène peut s'ouvrir tout de suite : on reste ici, sinon retour au QG
             if (ref.read(game21Provider).valueOrNull?['dlg'] == null) context.go('/');
           },
-        ),
+        )),
         const SizedBox(height: 8),
         PrimaryButton(label: 'Toutes les scènes', style: GameButtonStyle.secondary, onPressed: () => context.go('/scenes')),
       ],

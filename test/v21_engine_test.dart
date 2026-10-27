@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:io';
+import 'package:rap_empire/domain/v21/artists21.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
@@ -25,7 +27,7 @@ void main() {
     expect(r.err, isNull);
     s = must(s, 'job', 'livraison');
     r = run(s, 'job', 'mc');
-    expect(r.err, 'tard');
+    expect(r.err, 'rang'); // MC : rang N2 requis (boulots rentables plus tard)
     s = must(s, 'endDay');
     expect([s['day'], s['hour'], s['en']], [2, 8, 100]);
     expect(m(s['bil'])['cash'], 3500 + 3000 + 4500 + 3500);
@@ -174,6 +176,7 @@ void main() {
     expect(tot, inInclusiveRange(3000, 5000));
     final c0 = (s['cash'] as num) + 200000;
     s['cash'] = c0;
+    s['rep'] = 12;
     s = must(s, 'ask', 'homestudio');
     s = must(s, 'assetBuy');
     expect(m(s['own'])['homestudio'], isNotNull);
@@ -214,6 +217,7 @@ void main() {
     var y2 = init21();
     y2['age'] = 29;
     y2['cash'] = 400000;
+    y2['rep'] = 15;
     y2 = must(y2, 'ask', 'appart');
     y2 = must(y2, 'assetBuy');
     y2 = must(y2, 'skipYear');
@@ -498,5 +502,89 @@ void main() {
     expect(result.s['day'], 2);
     expect(m(l(result.s['disco']).single)['L'], greaterThan(10000));
     expect(m(m(l(result.s['disco']).single)['platforms'])['ondea'], greaterThan(7000));
+  });
+
+  test('battle : zone du mini-jeu de Flow, plus large avec le Flow ; au-delà de 40 la réussite annonce le bon style', () {
+    expect(Reg21.flowZone(17), closeTo(.1825, 1e-9));
+    expect(Reg21.flowZone(40), greaterThan(Reg21.flowZone(17)));
+    expect(Reg21.flowZone(1000), Reg21.flowZoneMax);
+    expect(Reg21.flowZone(0), Reg21.flowZoneMin);
+    expect(Reg21.flowHintLevel(17), 1); // une mauvaise réponse écartée
+    expect(Reg21.flowHintLevel(39), 1);
+    expect(Reg21.flowHintLevel(40), 2); // le bon style est annoncé
+  });
+
+  test('patrimoine : catégories, déblocage par réputation, effets sans cumul abusif', () {
+    for (final e in Reg21.assets.entries) {
+      expect(Reg21.assetCats.containsKey(e.value['cat']), isTrue, reason: e.key);
+      expect(e.value['rep'], isA<int>(), reason: e.key);
+    }
+    for (final cat in Reg21.assetCats.keys) {
+      final items = Reg21.assets.values.where((a) => a['cat'] == cat).toList();
+      expect(items.length, greaterThanOrEqualTo(3), reason: cat);
+      // dans une catégorie, plus un bien est cher, plus la réputation demandée est élevée (ou égale)
+      items.sort((a, b) => (a['cost'] as num).compareTo(b['cost'] as num));
+      for (var i = 1; i < items.length; i++) {
+        expect(items[i]['rep'] as num, greaterThanOrEqualTo(items[i - 1]['rep'] as num), reason: cat);
+      }
+    }
+    var s = init21();
+    s['cash'] = 20000000;
+    s['rep'] = 8;
+    expect(assetLock21(s, 'villa'), 'rep');
+    expect(run(s, 'ask', 'villa').err, 'rep');
+    expect(run(s, 'assetBuy', 'villa').err, 'rep');
+    expect(assetLock21(s, 'bague'), isNull); // rep 8 : accessible dès le départ
+    s = must(s, 'ask', 'bague');
+    s = must(s, 'assetBuy');
+    expect(s['rep'], 10); // prestige +2
+    expect(assetLock21(s, 'bague'), 'deja');
+    // logements : cumul d'énergie plafonné
+    s['rep'] = 100;
+    for (final id in ['studiomeuble', 'appart', 'maison', 'villa', 'penthouse']) {
+      s = must(s, 'ask', id);
+      s = must(s, 'assetBuy');
+    }
+    expect(homeEnergy21(s), Reg21.homeEnergyCap);
+    // véhicules : le meilleur compte, pas la somme
+    s = must(s, 'ask', 'scooter');
+    s = must(s, 'assetBuy');
+    s = must(s, 'ask', 'moto');
+    s = must(s, 'assetBuy');
+    expect(bestAsset21(s, 'saveAll'), 5);
+    expect(bestAsset21(s, 'sceneEnergy'), 0);
+    s = must(s, 'ask', 'suv');
+    s = must(s, 'assetBuy');
+    s = must(s, 'ask', 'voiture');
+    s = must(s, 'assetBuy');
+    expect(bestAsset21(s, 'sceneEnergy'), 10);
+  });
+
+  test('annuaire des artistes : 1 000 fiches, recherche sans accent, filtres et tri', () {
+    final d = parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync());
+    expect(d.artists.length, 1000);
+    expect(d.artists.first.nom, 'Kaïra Nox');
+    expect(d.artists.map((a) => a.id).toSet().length, 1000);
+    expect(d.labels.length, 10);
+    expect(filterArtists21(d, q: 'KAIRA').map((a) => a.nom), ['Kaïra Nox']);
+    expect(filterArtists21(d, q: 'bakoma sound').every((a) => a.label == 'BSR'), isTrue);
+    final signes = filterArtists21(d, statut: 'signé');
+    expect(signes.length, 520);
+    expect(signes.every((a) => a.label != null), isTrue);
+    final genre = d.genres.first;
+    expect(filterArtists21(d, genre: genre).every((a) => a.genre == genre), isTrue);
+    final pop = filterArtists21(d, tri: 'pop');
+    for (var i = 1; i < pop.length; i++) {
+      expect(pop[i].popularite, lessThanOrEqualTo(pop[i - 1].popularite));
+    }
+    expect(filterArtists21(d, tri: 'hausse').first.tendance, 'en hausse');
+    // alliés et rivaux pointent vers des fiches existantes
+    for (final a in d.artists) {
+      for (final id in [...a.allies, ...a.rivaux]) {
+        expect(d.byId(id), isNotNull, reason: '${a.id} → $id');
+      }
+    }
+    expect(rivalKeyOf21('Zaki Mbela'), 'zaki');
+    expect(rivalKeyOf21('Kaïra Nox'), isNull);
   });
 }

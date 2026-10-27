@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,8 +8,11 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/core/widgets/back_header.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
-import 'package:rap_empire/domain/v21/view21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/domain/v21/artists21.dart' show parseDirectory21;
+import 'package:rap_empire/features/v21/day_clock21.dart';
+import 'package:rap_empire/features/v21/own_label_screens.dart' show OwnLogo21;
+import 'package:rap_empire/features/v21/artists_screens.dart' show directory21Provider;
 import 'package:rap_empire/features/v21/studio_screens.dart' show Cabine21Screen;
 
 import 'support.dart' show navTab, tapText, txt;
@@ -29,7 +34,10 @@ Future<FakeRepo21> pump21(WidgetTester tester, J start, {String location = '/', 
   final repo = FakeRepo21(start);
   await tester.pumpWidget(ProviderScope(
     key: UniqueKey(),
-    overrides: [save21RepoProvider.overrideWithValue(repo)],
+    overrides: [
+      save21RepoProvider.overrideWithValue(repo),
+      directory21Provider.overrideWith((_) async => parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync())),
+    ],
     child: MaterialApp.router(theme: ThemeData.dark(useMaterial3: true), routerConfig: buildRouter21(initialLocation: location)),
   ));
   if (location == '/studio/cabine') {
@@ -63,14 +71,14 @@ void main() {
     expect(txt('Choisis un nom de scène pour continuer.'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'Young SM');
     await tester.pumpAndSettle();
-    await tester.tap(txt('Tamarel'));
-    await tester.pumpAndSettle();
+    await tapText(tester, 'Tamarel');
     await tapText(tester, 'Continuer');
     expect(txt('Ton look'), findsOneWidget);
-    await tester.tap(txt('Afro'));
-    await tester.pumpAndSettle();
+    await tapText(tester, 'Afro');
     await tapText(tester, 'Continuer');
     expect(txt('Ton style musical'), findsOneWidget);
+    await tester.ensureVisible(txt('Principal').at(1));
+    await tester.pumpAndSettle();
     await tester.tap(txt('Principal').at(1));
     await tester.pumpAndSettle();
     await tapText(tester, 'Continuer');
@@ -81,7 +89,7 @@ void main() {
     expect((repo.current['p'] as J)['origin'], 'tamarel');
     expect((repo.current['ap'] as J)['hair'], 'afro');
     expect((repo.current['p'] as J)['goal'], 'label');
-    expect(txt('JOUR 1'), findsOneWidget);
+    expect(txt('SEMAINE 1'), findsOneWidget);
     expect(txt("K-Zer d'Mabaya te défie"), findsOneWidget);
 
     // défi de K-Zer : la carte du QG ouvre l'événement, la battle se joue en 3 rounds
@@ -125,7 +133,7 @@ void main() {
     await tester.tap(navTab('Profil'));
     await tester.pumpAndSettle();
     await tapText(tester, 'Classements');
-    expect(txt('Top 100 Singles'), findsOneWidget);
+    expect(txt('Top 100 Singles'), findsWidgets); // onglet et en-tête du classement
   });
 
   testWidgets('journée : événement, boulot, bilan', (tester) async {
@@ -162,7 +170,7 @@ void main() {
     expect(txt('Bilan de la journée'), findsOneWidget);
     expect(repo.current['day'], 2);
     await tapText(tester, 'Commencer la journée');
-    expect(txt('JOUR 2'), findsOneWidget);
+    expect(txt('SEMAINE 1'), findsOneWidget);
   });
 
   testWidgets('catalogue accepte les plateformes immuables des anciennes sauvegardes', (tester) async {
@@ -195,13 +203,17 @@ void main() {
     }
     expect(txt('Prêt à sortir'), findsOneWidget);
     await tapText(tester, 'Sortir le projet');
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Confirmer la sortie');
+    await tester.pumpAndSettle();
     expect(txt('Projet sorti'), findsOneWidget);
     final p = (repo.current['projects'] as List).first as J;
     expect([p['type'], (p['tracks'] as List).length, (p['rank'] as num) > 0], ['EP', 3, true]);
     await tapText(tester, 'Voir les classements');
-    await tester.scrollUntilVisible(txt('Top 50 EPs'), 300, scrollable: find.byType(Scrollable).first);
-    expect(txt('Top 50 EPs'), findsOneWidget);
-    expect(find.textContaining('Ton meilleur EP'), findsOneWidget);
+    await tapText(tester, 'Top 50 EPs'); // onglet du classement
+    await tester.scrollUntilVisible(txt('TA POSITION'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    expect(txt('TA POSITION'), findsOneWidget);
+    expect(find.textContaining('${p['title']}'), findsWidgets);
   });
 
   /// Touche le bouton « Choisir » de la n-ième réponse d'un dialogue.
@@ -240,6 +252,7 @@ void main() {
       {'id': 'T1', 'title': 'Gbaka', 'theme': 'quartier', 'amb': 'sombre', 'mode': 'manuel', 'tx': 72, 'st': 'sorti', 'Q': 60, 'feats': <dynamic>[], 'clip': {'st': 'aucun'}, 'L': 5000, 'rev': 0, 'fg': 0, 'pg': 0, 'tier': 'Discret', 'promo': 0, 'vir': 30, 'day': 1},
     ];
     st['dseen'] = {'kore': 'x', 'mgr': 'x'};
+    st['lbz'] = Reg21.lbzGate; // les labels s'intéressent enfin au joueur
     st = act21(st, 'setui', 'th=amour').s; // déclenche les scènes
     expect((st['dlg'] as J)['id'], 'lb_AUB');
     final repo = await pump21(tester, st, location: '/dialogue');
@@ -289,7 +302,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo3.current['cas'], isNull);
     expect(repo3.current['verdict'], isNotNull);
-    expect(find.textContaining('Coupable'), findsWidgets);
+    // Le verdict peut condamner à la prison : dans ce cas, le verrou V21 redirige immédiatement
+    // l'interface vers la cellule. Vérifier le verdict dans l'état plutôt que chercher le texte hors prison.
+    expect((repo3.current['verdict'] as J)['txt'], contains('Coupable'));
     expect((repo3.current['casier'] as List).length, 1);
     final prison = clone21(repo3.current);
     prison['jail'] = {'until': (prison['day'] as num) + 2, 'days': 2};
@@ -304,7 +319,7 @@ void main() {
 
   testWidgets('réseau artistique : interaction puis battle avec dialogue du rival', (tester) async {
     final repo = await pump21(tester, preset('debut'), location: '/scene/rivalites');
-    expect(txt('Zaki Mbela'), findsOneWidget);
+    expect(txt('Zaki Mbela'), findsWidgets);
     await tapText(tester, 'Discuter');
     expect((repo.current['rivals'] as J)['zaki']['relation'], 5);
     await tapText(tester, 'Répondre en freestyle');
@@ -389,6 +404,195 @@ void main() {
     expect(r2.current['hour'], 9);
   });
 
+  testWidgets('espace enfant : hero, développement, changer de garde, souvenirs', (tester) async {
+    final repo = await pump21(tester, preset('parent'), location: '/famille/enfant');
+    expect(find.byKey(const ValueKey('enfant-hero')), findsOneWidget);
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('garde-Nounou')), 300);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('garde-Nounou')));
+    await tester.pumpAndSettle();
+    expect((((repo.current['fam'] as J)['kids'] as List)[0] as J)['garde'], 'Nounou');
+  });
+
+  testWidgets('famille : la carte de l’enfant ouvre son espace', (tester) async {
+    await pump21(tester, preset('parent'), location: '/famille');
+    await tester.tap(find.byKey(const ValueKey('enfant-0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('enfant-hero')), findsOneWidget);
+  });
+
+  testWidgets('création : le nom apparaît en direct, look et origine se choisissent en tuiles', (tester) async {
+    final repo = await pump21(tester, init21(), location: '/artiste/identite');
+    expect(txt('TON NOM DE SCÈNE'), findsWidgets);
+    await tester.enterText(find.byType(TextField), 'Young SM');
+    await tester.pumpAndSettle();
+    expect(txt('YOUNG SM'), findsOneWidget);
+    await tapText(tester, 'Sélène');
+    expect((repo.current['p'] as J)['origin'], 'selene');
+    await tapText(tester, 'Continuer');
+    await tapText(tester, 'Nattes collées');
+    await tapText(tester, 'Bomber violet');
+    expect(((repo.current['ap'] as J)['hair'], (repo.current['ap'] as J)['top']), ('cornrows', 'bomber'));
+    await tapText(tester, 'Ébène');
+    expect((repo.current['ap'] as J)['skin'], '6');
+    await tapText(tester, 'Surprends-moi');
+    expect(Reg21.skins.containsKey((repo.current['ap'] as J)['skin']), isTrue);
+  });
+
+  testWidgets('espace merchandising : catalogue illustré, détail estimé, lancement', (tester) async {
+    final s = preset('carriere')..['fans'] = 1500..['cash'] = 100000;
+    final repo = await pump21(tester, s, location: '/business/labels');
+    expect(txt('AUCUNE PRODUCTION EN VENTE'), findsOneWidget);
+    expect(find.byKey(const ValueKey('merch-tshirt')), findsOneWidget);
+    expect(find.byKey(const ValueKey('merch-capsule')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('merch-tshirt')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('merch-tshirt')));
+    await tester.pumpAndSettle();
+    expect(txt('Total estimé'), findsOneWidget);
+    expect(find.textContaining('Bénéfice estimé').evaluate().length + find.textContaining('Perte estimée').evaluate().length, 1);
+    await tester.tap(txt('Lancer la production'));
+    await tester.pumpAndSettle();
+    expect((repo.current['merch'] as J)['id'], 'tshirt');
+    expect(repo.current['cash'], 80000);
+    expect(txt('EN VENTE MAINTENANT'), findsOneWidget);
+  });
+
+  testWidgets('ton label : écurie, sources de revenus, libération', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('REVENU NET ESTIMÉ PAR JOUR'), findsOneWidget);
+    expect(txt('Streams'), findsOneWidget);
+    expect(find.byKey(const ValueKey('ecurie-ART-9')), findsOneWidget);
+    await tapText(tester, 'Libérer l’artiste');
+    await tester.tap(txt('Libérer').last);
+    await tester.pumpAndSettle();
+    expect(((repo.current['olabel'] as J)['roster'] as List), isEmpty);
+  });
+
+  testWidgets('espace artiste : demande de sortie, accepter, statistiques', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    for (var i = 0; i < 8 && ((s['olabel'] as J)['roster'] as List)[0]['req'] == null; i++) {
+      s = act21(s, 'endDay').s;
+    }
+    final repo = await pump21(tester, s, location: '/business/mon-label/artiste/ART-9');
+    expect(find.byKey(const ValueKey('artiste-hero')), findsOneWidget);
+    expect(find.byKey(const ValueKey('artiste-demande')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('demande-accepter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('demande-accepter')));
+    await tester.pumpAndSettle();
+    final a = ((repo.current['olabel'] as J)['roster'] as List)[0] as J;
+    expect(a['req'], isNull);
+    expect((a['rel'] as List).length, 1);
+  });
+
+  testWidgets('ton label : le bouton ouvre l’espace de l’artiste', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    s = act21(s, 'lsignart', {'id': 'ART-9', 'nom': 'Sô Lune', 'palier': 'Débutant', 'genre': 'Rap conscient', 'ville': 'Sélène', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    await pump21(tester, s, location: '/business/mon-label');
+    await tester.ensureVisible(find.byKey(const ValueKey('espace-ART-9')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('espace-ART-9')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('artiste-hero')), findsOneWidget);
+    expect(find.byKey(const ValueKey('artiste-commande')), findsOneWidget);
+  });
+
+  testWidgets('fonder le label : nommer et choisir un logo', (tester) async {
+    final s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    final repo = await pump21(tester, s, location: '/business/labels');
+    await tester.scrollUntilVisible(txt('Fonder mon label'), 300);
+    await tester.pumpAndSettle();
+    await tester.tap(txt('Fonder mon label'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('label-nom')), 'Ndo Records');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('logo-flamme')));
+    await tester.tap(find.byKey(const ValueKey('logo-flamme')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('label-valider')));
+    await tester.tap(find.byKey(const ValueKey('label-valider')));
+    await tester.pumpAndSettle();
+    final ol = repo.current['olabel'] as J;
+    expect(ol['name'], 'Ndo Records');
+    expect(ol['logo'], 'flamme');
+    expect(repo.current['cash'], 1500000);
+  });
+
+  testWidgets('ton label : modifier le nom et le logo', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel', {'name': 'Ndo Records', 'logo': 'vinyle'}).s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('Ndo Records'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('label-modifier')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('label-nom')), 'Lagune Sons');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('logo-micro')));
+    await tester.tap(find.byKey(const ValueKey('logo-micro')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('label-valider')));
+    await tester.tap(find.byKey(const ValueKey('label-valider')));
+    await tester.pumpAndSettle();
+    expect((repo.current['olabel'] as J)['name'], 'Lagune Sons');
+    expect((repo.current['olabel'] as J)['logo'], 'micro');
+    expect(txt('Lagune Sons'), findsOneWidget);
+  });
+
+  testWidgets('ton label : embaucher un profil de l’équipe', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel').s;
+    final repo = await pump21(tester, s, location: '/business/mon-label');
+    expect(txt('ÉQUIPE'), findsOneWidget);
+    await tapText(tester, 'Embaucher');
+    await tester.tap(txt('Embaucher').last);
+    await tester.pumpAndSettle();
+    expect(((repo.current['olabel'] as J)['staff'] as Map)['ar'], 'moussa');
+    expect(repo.current['cash'], 2000000 - 500000 - 4200);
+    expect(txt('Pourvu'), findsOneWidget);
+  });
+
+  testWidgets('espace manager : recruter, voir le contrat, quitter', (tester) async {
+    final repo = await pump21(tester, preset('carriere'), location: '/business/manager');
+    expect(txt('AUCUN MANAGER'), findsOneWidget);
+    await tapText(tester, 'Recruter');
+    await tapText(tester, 'Signer le contrat');
+    expect(repo.current['mgr'], 'maya');
+    expect(txt('Mettre fin au contrat'), findsOneWidget);
+    await tapText(tester, 'Mettre fin au contrat');
+    await tester.tap(txt('Mettre fin au contrat').last); // bouton de la feuille de confirmation
+    await tester.pumpAndSettle();
+    expect(repo.current['mgr'], isNull);
+    await tester.scrollUntilVisible(txt('Séraphine Aboa'), 300, scrollable: find.byType(Scrollable).first); // M6 listé avec son profil
+    expect(txt('Séraphine Aboa'), findsOneWidget);
+  });
+
+  testWidgets('espace label : contrat en héros, rupture avec pénalité chiffrée', (tester) async {
+    final s = preset('carriere')
+      ..['signed'] = 1
+      ..['label'] = 'BLG'
+      ..['lcut'] = 0.4
+      ..['lperk'] = 'scene'
+      ..['ladv'] = 80000
+      ..['cash'] = 200000;
+    final repo = await pump21(tester, s, location: '/business/labels/tous');
+    expect(txt('SOUS CONTRAT'), findsOneWidget);
+    await tapText(tester, 'Rompre le contrat');
+    expect(find.textContaining('96 000'), findsWidgets);
+    await tapText(tester, 'Payer 96 000 cauris et rompre');
+    expect(repo.current['signed'], 0);
+    expect(repo.current['cash'], 104000);
+    await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await tester.pumpAndSettle();
+    expect(txt('Artiste indépendant'), findsOneWidget);
+  });
+
   testWidgets('partie sans artiste : le QG renvoie au démarrage', (tester) async {
     await pump21(tester, init21(), location: '/');
     expect(txt('Commencer'), findsOneWidget);
@@ -406,7 +610,7 @@ void main() {
     expect(repo.current['cash'], 54000);
     await tapText(tester, 'Équiper');
     expect((repo.current['wd'] as J)['eq'], 'OUTFIT_002');
-    await tapText(tester, 'Retour à la garde-robe');
+    // après « Équiper », retour direct à la garde-robe
     await tapText(tester, 'Veste Brume');
     await tapText(tester, 'Acheter · 18 000 cauris');
     expect(txt("Confirmer l'achat"), findsOneWidget);
@@ -419,6 +623,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.current['cash'], 36000);
     expect(((repo.current['wd'] as J)['owned'] as List), contains('OUTFIT_003'));
+  });
+
+  testWidgets('garde-robe : onglets Coiffures et Tatouages, achat et équipement', (tester) async {
+    final s = preset('carriere')..['cash'] = 60000;
+    final repo = await pump21(tester, s, location: '/profil/garde-robe');
+    await tester.tap(find.byKey(const ValueKey('onglet-Coiffures')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('apercu-look')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cos-fade')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('cos-fade')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cos-fade')));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Acheter · 1 500 cauris');
+    expect((repo.current['wd'] as J)['hair'], 'fade');
+    expect(repo.current['cash'], 58500);
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('onglet-Tatouages')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('cos-main_phalanges')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cos-main_phalanges')));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Acheter · 3 000 cauris');
+    expect(((repo.current['wd'] as J)['tat'] as Map)['mains'], 'main_phalanges');
+    expect(repo.current['cash'], 55500);
+    await tapText(tester, 'Retirer ce tatouage');
+    expect(((repo.current['wd'] as J)['tat'] as Map).containsKey('mains'), isFalse);
   });
 
   testWidgets('sortie programmée : date choisie, réserve, titre sorti le jour venu', (tester) async {
@@ -445,7 +679,32 @@ void main() {
     s = act21(s, 'record').s;
     s = act21(s, 'shelve').s;
     await pump21(tester, s, location: '/studio/catalogue/projet');
+    await tester.scrollUntilVisible(txt('Inédit'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
     expect(txt('Inédit'), findsOneWidget);
+  });
+
+  testWidgets('pochettes : choisir la pochette d\'un son depuis le Studio, puis revenir à l\'automatique', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    final title = (s['cur'] as J)['title'] as String;
+    final repo = await pump21(tester, s, location: '/studio/pochettes');
+    expect(txt(title), findsOneWidget);
+    expect(txt('Automatique'), findsWidgets);
+    await tester.tap(txt(title));
+    await tester.pumpAndSettle();
+    expect(txt('POCHETTE'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel(RegExp('ambiance sombre, variante 3')).first);
+    await tester.pumpAndSettle();
+    final chosen = (repo.current['cur'] as J)['cover'] as String;
+    expect(isCoverPath21(chosen), isTrue);
+    expect(chosen.endsWith('_sombre_2.svg'), isTrue);
+    expect(txt('Choisie'), findsOneWidget);
+    await tester.tap(txt(title));
+    await tester.pumpAndSettle();
+    await tester.tap(txt('Pochette automatique'));
+    await tester.pumpAndSettle();
+    expect((repo.current['cur'] as J)['cover'], isNull);
   });
 
   testWidgets('réserve : titres programmés et sans date, sans débordement à 360 px', (tester) async {
@@ -463,11 +722,53 @@ void main() {
     expect(txt('Sortir maintenant'), findsNWidgets(2));
   });
 
+  testWidgets('trophées : le hall mène à la chambre des certifications et au salon des awards', (tester) async {
+    final s = preset('carriere');
+    await pump21(tester, s, location: '/profil/trophees');
+    expect(txt('Chambre des certifications'), findsOneWidget);
+    expect(txt('Salon des awards'), findsOneWidget);
+    await tester.tap(txt('Chambre des certifications'));
+    await tester.pumpAndSettle();
+    expect(txt('Albums'), findsOneWidget);
+    await tester.tap(txt('Albums'));
+    await tester.pumpAndSettle();
+    expect(txt('Aucune œuvre ici. Chaque single, EP ou album peut être certifié : or, platine, double, triple, diamant.'), findsOneWidget);
+    await tester.scrollUntilVisible(txt('Échelle des paliers'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    expect(txt('Échelle des paliers'), findsOneWidget);
+  });
+
+  testWidgets('salon des awards : prochaine cérémonie, palmarès et calendrier', (tester) async {
+    final s = preset('carriere');
+    await pump21(tester, s, location: '/profil/trophees/awards', width: 360, height: 800);
+    expect(txt('PROCHAINE CÉRÉMONIE'), findsOneWidget);
+    expect(txt('Palmarès'), findsOneWidget);
+    await tester.scrollUntilVisible(txt('Prochaine'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    expect(txt('Prochaine'), findsOneWidget);
+  });
+
+  testWidgets('catalogue : filtres Singles / EP et albums', (tester) async {
+    var s = preset('carriere');
+    s = act21(s, 'create', ['ambition', 'fiere']).s;
+    s = act21(s, 'record').s;
+    await pump21(tester, s, location: '/studio/catalogue');
+    expect(find.byKey(const ValueKey('catalogue-hero')), findsOneWidget);
+    await tester.tap(find.textContaining('EP et albums ·'));
+    await tester.pumpAndSettle();
+    expect(txt('Singles sortis'), findsNothing);
+    expect(txt('Aucun EP ni album pour l’instant.'), findsOneWidget);
+    await tester.tap(find.textContaining('Singles ·'));
+    await tester.pumpAndSettle();
+    expect(txt('Singles sortis'), findsOneWidget);
+  });
+
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
       '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
-      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
-      '/profil', '/profil/rang', '/profil/classements', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri', '/profil/annee', '/profil/reglages',
+      '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/festivals', '/scene/booking', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/formation', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
+      '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/trophees/certifications', '/profil/trophees/awards', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/studio/pochettes', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
+      '/profil/reseau', '/profil/reseau/ondea', '/profil/reseau/klipo', '/profil/reseau/klipo/video', '/profil/reseau/clips', '/profil/reseau/clips/clip', '/profil/reseau/cauri', '/profil/reseau/marketing',
+      '/profil/reseau/ondea/titres', '/profil/reseau/ondea/sortie', '/profil/reseau/ondea/playlist', '/profil/reseau/ondea/playlist/pitch', '/profil/reseau/cauri/titres', '/profil/reseau/cauri/sortie',
+      '/profil/reseau/social', '/profil/reseau/social/lueur', '/profil/reseau/social/bakoz', '/profil/reseau/social/griot', '/profil/annee', '/profil/reglages',
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',
@@ -487,5 +788,177 @@ void main() {
         });
       }
     }
+  });
+
+  testWidgets('patrimoine : catégories, filtres, biens verrouillés par la réputation, fiche et achat', (tester) async {
+    final st = preset('carriere');
+    st['cash'] = 600000;
+    st['rep'] = 8;
+    final repo = await pump21(tester, st, location: '/business/patrimoine');
+    expect(find.byKey(const ValueKey('patrimoine-hero')), findsOneWidget);
+    expect(txt('VALEUR DU PATRIMOINE'), findsOneWidget);
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    // la bague (réputation 8) est disponible, pas la villa (55)
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-bague')), 300, scrollable: list);
+    expect(find.byKey(const ValueKey('prod-bague')), findsOneWidget);
+    // filtre : véhicules seulement
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('patrimoine-cats')), -300, scrollable: list);
+    await tester.tap(find.textContaining('Véhicules ·'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-scooter')), 200, scrollable: list);
+    expect(find.byKey(const ValueKey('prod-scooter')), findsOneWidget);
+    expect(find.byKey(const ValueKey('prod-bague'), skipOffstage: false), findsNothing);
+    // filtre d'état : verrouillés
+    await tester.scrollUntilVisible(txt('Verrouillés'), -200, scrollable: list);
+    await tester.tap(txt('Verrouillés'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('prod-scooter'), skipOffstage: false), findsNothing); // rep 0, accessible
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-berline')), 200, scrollable: list);
+    expect(find.byKey(const ValueKey('prod-berline')), findsOneWidget);
+    expect(txt('RÉPUTATION 70'), findsOneWidget);
+    // un bien verrouillé ne s'ouvre pas
+    await tester.ensureVisible(find.byKey(const ValueKey('prod-berline')));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('prod-berline')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(txt('Réputation insuffisante'), findsWidgets);
+    await tester.pumpAndSettle();
+    expect(repo.current['ui']['buy'], isNull);
+    // disponible : fiche puis achat
+    await tester.scrollUntilVisible(txt('Disponibles'), -200, scrollable: list);
+    await tester.tap(txt('Disponibles'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('prod-scooter')), 200, scrollable: list);
+    await tester.ensureVisible(find.byKey(const ValueKey('prod-scooter')));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('prod-scooter')));
+    await tester.pumpAndSettle();
+    expect(txt('Fiche du bien'), findsOneWidget);
+    expect(txt('Scooter'), findsWidgets);
+    await tester.scrollUntilVisible(txt('Acheter'), 300, scrollable: find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first);
+    await tester.tap(txt('Acheter'));
+    await tester.pumpAndSettle();
+    expect((repo.current['own'] as Map)['scooter'], isNotNull);
+    expect(repo.current['cash'], 600000 - 25000);
+  });
+
+  testWidgets('battle : mini-jeu de Flow, une tentative par round, aucune animation tant qu’il n’est pas lancé', (tester) async {
+    final st = preset('carriere');
+    st['btq'] = 'kzer';
+    await pump21(tester, st, location: '/scene/battle');
+    expect(find.byKey(const ValueKey('battle-flow-hint')), findsOneWidget);
+    expect(txt('Écouter le flow'), findsOneWidget);
+    await tester.tap(txt('Écouter le flow'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(txt('Fige le flow'), findsOneWidget);
+    await tester.tap(txt('Fige le flow'));
+    await tester.pumpAndSettle(); // le curseur est arrêté : plus d'animation
+    expect(txt('Écouter le flow'), findsNothing);
+    expect(find.textContaining('Raté').evaluate().length + find.textContaining('Bien calé').evaluate().length, greaterThan(0));
+  });
+
+  testWidgets('réseau artistique : annuaire des 1 000 artistes, recherche, filtres, fiche', (tester) async {
+    await pump21(tester, preset('debut'), location: '/scene/rivalites');
+    expect(find.byKey(const ValueKey('reseau-hero')), findsOneWidget);
+    expect(txt('1 000 artistes'), findsOneWidget);
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('annuaire-recherche')), 300, scrollable: list);
+    expect(find.byKey(const ValueKey('annuaire-compte')), findsOneWidget);
+    // recherche sans accent ni casse
+    await tester.enterText(find.byKey(const ValueKey('annuaire-recherche')), 'kaira');
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(txt('Kaïra Nox'), 200, scrollable: list);
+    expect(txt('1 artiste(s)'), findsOneWidget);
+    // fiche d'un artiste
+    await tester.ensureVisible(txt('Kaïra Nox'));
+    await tester.pump();
+    await tester.drag(list, const Offset(0, -120));
+    await tester.pump();
+    await tester.tap(txt('Kaïra Nox'));
+    await tester.pumpAndSettle();
+    expect(txt('Superstar internationale'), findsWidgets);
+  });
+
+  testWidgets('réseau artistique : un artiste signé chez ton label affiche le logo de ton label', (tester) async {
+    var s = preset('carriere')..['rank'] = 4..['cash'] = 2000000..['signed'] = 0;
+    s = act21(s, 'olabel', {'name': 'Étoile Noire', 'logo': 'etoile'}).s;
+    s = act21(s, 'lsignart', {'id': 'ART-0005', 'nom': 'Tempo', 'palier': 'Débutant', 'genre': 'Rap', 'ville': 'Ndolo', 'statut': 'indépendant', 'fans': 2400, 'ecoutes': 15000, 'pop': 20, 'talent': 40}).s;
+    await pump21(tester, s, location: '/scene/rivalites');
+    final list = find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('annuaire-recherche')), 300, scrollable: list);
+    await tester.enterText(find.byKey(const ValueKey('annuaire-recherche')), 'tempo');
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('artiste-ART-0005')), 200, scrollable: list);
+    expect(find.descendant(of: find.byKey(const ValueKey('artiste-ART-0005')), matching: find.byType(OwnLogo21)), findsOneWidget);
+  });
+
+  testWidgets('scène de fin de journée : la nuit tombe, la journée se termine, le bilan s\'ouvre', (tester) async {
+    final repo = await pump21(tester, preset('debut'), location: '/fin-journee');
+    expect(txt('Bilan de la journée'), findsOneWidget);
+    expect(repo.current['day'], 2);
+    expect(repo.current['hour'], Reg21.dayStart);
+  });
+
+  testWidgets('scène de fin de journée : « Passer » ne saute pas la fin de la journée', (tester) async {
+    final repo = await pump21(tester, preset('debut'), location: '/');
+    await tapText(tester, 'Terminer la journée');
+    expect(txt('Bilan de la journée'), findsOneWidget);
+    expect(repo.current['day'], 2);
+  });
+
+  testWidgets('horloge : l\'heure avance seule, minuit ouvre la scène de fin de journée, pause hors jeu', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final s = preset('debut');
+    s['hour'] = 22;
+    final repo = FakeRepo21(s);
+    final router = buildRouter21(initialLocation: '/');
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        save21RepoProvider.overrideWithValue(repo),
+        directory21Provider.overrideWith((_) async => parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync())),
+      ],
+      child: MaterialApp.router(
+        theme: ThemeData.dark(useMaterial3: true),
+        routerConfig: router,
+        builder: (_, child) => DayClock21(router: router, tick: const Duration(seconds: 1), child: child!),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(repo.current['hour'], 24);
+    expect(repo.current['day'], 1);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/fin-journee');
+    await tester.pumpAndSettle();
+    expect(repo.current['day'], 2);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/bilan');
+    await tester.pump(const Duration(seconds: 5));
+    expect(repo.current['hour'], Reg21.dayStart, reason: 'le temps est en pause sur le bilan');
+  });
+
+  test('horloge : tick = une heure, bloqué à minuit, autorisé en prison ; une journée dure ≈ 1 min 30', () {
+    var s = preset('debut');
+    for (var i = Reg21.dayStart; i < Reg21.dayEnd; i++) {
+      final r = act21(s, 'tick');
+      expect(r.err, isNull);
+      s = r.s;
+    }
+    expect(s['hour'], Reg21.dayEnd);
+    expect(act21(s, 'tick').err, 'tard');
+    expect(act21(preset('prison'), 'tick').err, isNull);
+    const dayMs = Reg21.tickMs * (Reg21.dayEnd - Reg21.dayStart + 1);
+    expect(dayMs, inInclusiveRange(89000, 91000));
+    expect(clockPaused21('/studio/cabine'), isTrue);
+    expect(clockPaused21('/bilan'), isTrue);
+    expect(clockPaused21('/'), isFalse);
+    expect(clockPaused21('/scene'), isFalse);
   });
 }

@@ -12,12 +12,12 @@ import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
-import '../../core/widgets/portrait.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/primary_glow_button.dart';
 import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
+import 'child_space_screens.dart' show KidPortrait21;
 import 'shell21.dart';
 import 'widgets21.dart';
 
@@ -345,7 +345,7 @@ class RelationScreen extends ConsumerWidget {
           for (final h in hist)
             Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('J${_m(h)['d']} · ${_m(h)['t']}',
+                child: Text('${dateLabel21(_m(h)['d'] as num)} · ${_m(h)['t']}',
                     style: V20Text.bs(color: Tk.ink))),
         ]),
       ),
@@ -497,6 +497,16 @@ class CoupleScreen extends ConsumerWidget {
             subtitle: '${_l(_m(s['fam'])['kids']).length} enfant(s)',
             trailing: ActionRow.arrow(),
             onTap: () => context.go('/famille')),
+        for (var ki = 0; ki < _l(_m(s['fam'])['kids']).length; ki++) ...[
+          const SizedBox(height: 8),
+          ActionRow(
+              key: ValueKey('relation-enfant-$ki'),
+              title: 'Espace de ${_m(_l(_m(s['fam'])['kids'])[ki])['n']}',
+              subtitle:
+                  '${kidAge(s, _m(_l(_m(s['fam'])['kids'])[ki]))} an(s) · ${stageOf(kidAge(s, _m(_l(_m(s['fam'])['kids'])[ki])))} · lien ${_n(_m(_l(_m(s['fam'])['kids'])[ki])['l']).round()}',
+              trailing: ActionRow.arrow(),
+              onTap: () => context.go('/famille/enfant?i=$ki')),
+        ],
         const SizedBox(height: 8),
         ActionRow(
             title: 'Séparation',
@@ -680,7 +690,7 @@ class ConfirmationMariageScreen extends ConsumerWidget {
         Text('VOUS ÊTES MARIÉ(E)S', style: V20Text.dm(size: 28)),
         const SizedBox(height: 8),
         KeyVal('Avec', cands21[rom['off']]?['n'] as String? ?? '—'),
-        KeyVal('Jour du mariage', 'J${rom['wed']}'),
+        KeyVal('Jour du mariage', dateLabel21(rom['wed'] as num)),
         KeyVal('Relation', '${partner(s)?['g'] ?? 0}/100'),
         const SizedBox(height: 16),
         PrimaryGlowButton(
@@ -785,7 +795,7 @@ class SeparationScreen extends ConsumerWidget {
             for (final h in hist)
               Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text('J${_m(h)['d']} · ${_m(h)['t']}',
+                  child: Text('${dateLabel21(_m(h)['d'] as num)} · ${_m(h)['t']}',
                       style: V20Text.bs(color: Tk.ink))),
           ]),
         ),
@@ -817,12 +827,18 @@ class FamilleScreen extends ConsumerWidget {
           step: '${kids.length} enfant(s)',
           onBack: () => context.go('/')),
       const SizedBox(height: 12),
-      for (final k in kids) ...[
-        GlassCard(
+      for (var ki = 0; ki < kids.length; ki++) ...[
+        Builder(builder: (context) {
+          final k = kids[ki];
+          return GestureDetector(
+          key: ValueKey('enfant-$ki'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context.go('/famille/enfant?i=$ki'),
+          child: GlassCard(
           accent: GlassAccent.magenta,
           halo: false,
           child: Row(children: [
-            Portrait(_m(k)['n'].toString()[0], size: 56),
+            KidPortrait21(_m(k)['n'].toString(), age: kidAge(s, _m(k)), bond: _n(_m(k)['l']), shared: _n(_m(k)['today']) == 1, size: 64, crop: 'head'),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -833,10 +849,13 @@ class FamilleScreen extends ConsumerWidget {
                         '${kidAge(s, _m(k))} an${kidAge(s, _m(k)) > 1 ? 's' : ''} · ${stageOf(kidAge(s, _m(k)))} · ${_m(k)['garde']}',
                         style: V20Text.bs()),
                     Gauge21('Lien', _n(_m(k)['l'])),
+                    const SizedBox(height: 4),
+                    Text('Ouvrir son espace', style: V20Text.lab(color: V20.accText)),
                   ]),
             ),
           ]),
-        ),
+        ));
+        }),
         const SizedBox(height: 8),
       ],
       if (kids.isEmpty) ...[
@@ -884,8 +903,8 @@ class FamilleScreen extends ConsumerWidget {
       if (kids.isNotEmpty) ...[
         const SizedBox(height: 12),
         PrimaryGlowButton(
-            label: 'Passer du temps ensemble',
-            sublabel: 'Interactions selon l’âge',
+            label: 'Espace enfant',
+            sublabel: 'Moments, garde, développement, souvenirs',
             onPressed: () => context.go('/famille/enfant')),
       ],
       const SizedBox(height: 12),
@@ -902,69 +921,6 @@ class FamilleScreen extends ConsumerWidget {
               style: V20Text.bs()),
         ]),
       ),
-    ]);
-  }
-}
-
-class ParentEnfantScreen extends ConsumerWidget {
-  const ParentEnfantScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(game21Provider).valueOrNull;
-    if (s == null) return const SizedBox();
-    final kids = _l(_m(s['fam'])['kids']);
-    return Frame21(children: [
-      BackHeader(
-          title: kids.isEmpty ? 'Enfant' : 'Avec ${_m(kids.first)['n']}',
-          onBack: () => context.go('/famille')),
-      const SizedBox(height: 12),
-      if (kids.isEmpty)
-        const GameHint(icon: 'info', text: 'Aucun enfant au foyer.'),
-      for (var i = 0; i < kids.length; i++) ...[
-        Builder(builder: (context) {
-          final k = _m(kids[i]);
-          final age = kidAge(s, k);
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GlassCard(
-                  child: Row(children: [
-                    Portrait(k['n'].toString()[0], size: 48),
-                    const SizedBox(width: 12),
-                    Expanded(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Text('${k['n']}', style: V20Text.nm()),
-                          Text(
-                              '$age an${age > 1 ? 's' : ''} · ${stageOf(age)} · ${k['garde']}',
-                              style: V20Text.bs()),
-                          Gauge21('Lien', _n(k['l']))
-                        ])),
-                  ]),
-                ),
-                for (final e in Reg21.kidActs.entries) ...[
-                  const SizedBox(height: 8),
-                  ActionRow(
-                    title: e.value['n'] as String,
-                    subtitle:
-                        '${e.value['h']} h · −${e.value['e']} énergie · +${e.value['l']} lien',
-                    note: age < (e.value['min'] as num)
-                        ? 'À partir de ${e.value['min']} an${(e.value['min'] as num) > 1 ? 's' : ''}'
-                        : null,
-                    disabled: age < (e.value['min'] as num),
-                    trailing: ActionRow.arrow(
-                        disabled: age < (e.value['min'] as num)),
-                    onTap: () => doAct(context, ref, 'kid', ['$i', e.key]),
-                  ),
-                ],
-                const SizedBox(height: 12),
-              ]);
-        }),
-      ],
-      const Conseq21(ConsequenceKind.certain,
-          'Chaque moment coûte du temps et de l’énergie : la carrière reste possible le même jour.'),
     ]);
   }
 }

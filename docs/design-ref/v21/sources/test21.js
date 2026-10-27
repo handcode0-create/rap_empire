@@ -250,3 +250,31 @@ console.log('tests v21.2 réussis', ok2, 'échecs', ko2); if (ko2) process.exitC
   ok(r3.path === null && r3.fallback === 'look', 'test 9 (moteur) : look non couvert → secours maîtrisé, pas de chemin cassé');
   ok(E.ageVariant(Object.assign({}, s, { rank: W.matureRank - 1 })) === 'young', 'variante d\'âge dérivée du rang, jamais stockée');
 }
+// ---- Réseau, marketing, médias en concert, public (proposé) ----
+{
+  const ok = (c, t) => { console.log((c ? 'ok' : 'ÉCHEC') + ' ' + t); if (!c) process.exitCode = 1; };
+  const fs = require('fs'), path = require('path'); const ROOT = path.join(__dirname, '..');
+  ok(E.KLIPO.length === 50 && new Set(E.KLIPO.map(k => k.id)).size === 50, 'Klipo : 50 vidéos, identifiants uniques');
+  ok(E.KLIPO.every(k => fs.existsSync(path.join(ROOT, k.img))), 'Klipo : chaque miniature existe sur disque');
+  ok(E.KLIPO.every(k => !/<text/.test(fs.readFileSync(path.join(ROOT, k.img), 'utf8'))), 'miniatures sans texte SVG (compatibles flutter_svg)');
+  for (let i = 1; i <= 8; i++) ok(fs.existsSync(path.join(ROOT, 'assets/klipo/mine/M' + i + '.svg')), 'miniature de clip du joueur M' + i);
+  for (let i = 1; i <= 4; i++) ok(fs.existsSync(path.join(ROOT, 'assets/scene/crowd_' + i + '.svg')), 'scène de public, densité ' + i);
+  let s = E.act(E.init(), 'preset', 'debut').s;
+  ok(E.act(s, 'mkbuy', 'bktv').err === 'rang', 'campagne nationale verrouillée avant N3');
+  ok(E.act(s, 'mkbuy', 'tamtv').err === 'rang', 'campagne globale verrouillée avant N5');
+  const c0 = s.cash; let a = E.act(s, 'mkbuy', 'lagune'); ok(!a.err && a.s.cash === c0 - 5000, 'campagne locale achetée sans confirmation (5 000 < 15 000)');
+  ok(E.act(a.s, 'mkbuy', 'lagune').err === 'campagne', 'même campagne déjà en cours : refusée');
+  const b0 = a.s.geo.bakoma, f0 = a.s.fans; let d1 = E.act(a.s, 'endDay').s; ok(d1.geo.bakoma > b0 && d1.fans >= f0 + 15, 'effet quotidien sur Bakoma et les fans');
+  for (let i = 0; i < 7; i++) d1 = E.act(d1, 'endDay').s; ok(d1.mk.on.length === 0, 'campagne terminée après sa durée');
+  let st = E.act(E.init(), 'preset', 'star').s; ok(E.act(st, 'mkbuy', 'bktv').err === 'confirm', 'Bakoma TV (40 000) exige une confirmation (I-08)');
+  st = E.act(E.act(st, 'mkask', 'bktv').s, 'mkconfirm').s; ok(st.mk.on.length === 1 && E.view(st).mkSpon === 'Bakoma TV', 'confirmation : campagne active, sponsor visible');
+  const v0 = E.view(E.act(E.init(), 'preset', 'star').s); ok(+v0.notG < +v0.notN && +v0.notN < +v0.notL, 'notoriété : Local > National > Global (star)');
+  ok(v0.mcN === '3' && v0.mc0Img.endsWith('M1.svg') && v0.mc1Img.endsWith('M2.svg'), 'trois clips du joueur, miniatures distinctes');
+  ok(E.view(E.act(st, 'mcl', 2).s).mcsT === 'Port-Ambre la nuit', 'sélection d\'un clip');
+  ok(E.act(st, 'mcl', 9).err === 'inconnu' && E.act(st, 'kv', 50).err === 'inconnu', 'index hors limites refusés');
+  ok(E.view(E.act(st, 'kv', 4).s).kvT === 'Verre Bleu', 'sélection d\'une vidéo Klipo');
+  let cs = JSON.parse(JSON.stringify(st)); cs.hour = 10; cs.en = 100; const cash0 = cs.cash; const r = E.act(cs, 'concert');
+  ok(!r.err && r.s.cc.media === 'bktv' && r.s.cc.spon > 0, 'concert : média partenaire visible et bonus de sponsor');
+  ok(/crowd_[1-4]\.svg$/.test(E.view(r.s).ccCrowd) && +E.view(r.s).ccFill === r.s.cc.fill, 'concert : image du public selon le remplissage');
+  const rl = JSON.parse(JSON.stringify(E.act(E.init(), 'preset', 'debut').s)); ok(E.view(rl).crowdPrev === 'assets/scene/crowd_1.svg', 'début de carrière : salle peu remplie');
+}
