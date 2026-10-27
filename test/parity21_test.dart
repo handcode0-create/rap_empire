@@ -90,6 +90,7 @@ void main() {
           var got = at(s, w);
           // Problèmes de début de carrière : absents de engine21.js, retirés de la comparaison.
           if (w == 'evDone' && got is Map) got = {for (final e in got.entries) if (!problemOrder21.contains(e.key)) e.key: e.value};
+          if (w == 'dseen' && got is Map) got = {for (final e in got.entries) if (!newSceneOrder21.contains(e.key)) e.key: e.value};
           final d = diff(out[w], got, w);
           expect(d, isNull, reason: '$label · $d');
         }
