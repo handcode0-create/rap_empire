@@ -9,6 +9,7 @@ import '../../core/widgets/back_header.dart';
 import '../../core/widgets/choice_card.dart';
 import '../../core/widgets/game_card.dart';
 import '../../core/widgets/game_hint.dart';
+import '../../core/widgets/game_icon.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/glass_tile.dart';
@@ -152,10 +153,7 @@ class QgScreen extends ConsumerWidget {
         GlassCard(
           onTap: () => context.go('/journal'),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('MISSION ${missionsDone(s)}/${Reg21.missions.length} FAITES', style: V20Text.lab()),
-              const GameTag('Existant · 10.1', style: GameTagStyle.normal),
-            ]),
+            Text('MISSION ${missionsDone(s)}/${Reg21.missions.length} FAITES', style: V20Text.lab()),
             const SizedBox(height: 6),
             Text(mission['t'] as String, style: V20Text.nm()),
             Text('+${fmt21(mission['cash'] as num)} cauris · +${mission['xp']} XP', style: V20Text.bs()),
@@ -166,31 +164,45 @@ class QgScreen extends ConsumerWidget {
       AwardNewsCard21(s),
       FestivalNewsCard21(s),
       const SizedBox(height: 12),
-      GlassCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("AUJOURD'HUI", style: V20Text.lab()), Text('${today.length} action(s)', style: V20Text.bs(color: Tk.ink))]),
-          const SizedBox(height: 6),
-          if (today.isEmpty) Text('Rien encore. Choisis tes activités : studio, scène, boulots, vie perso.', style: V20Text.bs()),
-          for (final l in today.take(3)) Padding(padding: const EdgeInsets.only(bottom: 2), child: Text(l['t'] as String, style: V20Text.bs(color: Tk.ink))),
-          const SizedBox(height: 8),
-          Wrap(spacing: 6, runSpacing: 6, children: [
-            GameTag('Cash ${sg21(_n(s['cash']) - _n(d0['cash']))}'),
-            GameTag('Fans ${sg21(_n(s['fans']) - _n(d0['fans']))}'),
-            GameTag('Pop. ${sg21(_n(s['pop']) - _n(d0['pop']))}'),
-          ]),
-        ]),
-      ),
+      _TodayCard(today: today, cash: _n(s['cash']) - _n(d0['cash']), fans: _n(s['fans']) - _n(d0['fans']), pop: _n(s['pop']) - _n(d0['pop'])),
       const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: Text('ACCÈS RAPIDES', style: V20Text.lab())),
-        if (desktop) const GameTag('CENTRE DE CONTRÔLE'),
-      ]),
+      Text('QUE FAIS-TU ?', style: V20Text.lab()),
       const SizedBox(height: 10),
-      _ActionGrid21(children: [
-        GlassTile(icon: 'mic', title: 'Studio', subtitle: 'Créer · sortir · clip', onTap: () => context.go('/studio')),
-        GlassTile(icon: 'flame', title: 'Scène', subtitle: 'Open mic · tournée', onTap: () => context.go('/scene')),
-        GlassTile(icon: 'briefcase', title: 'Petits boulots', subtitle: 'Gagner des cauris', onTap: () => context.go('/business')),
-        GlassTile(icon: 'users', title: 'Vie perso', subtitle: '$left action(s) romantique(s)', onTap: () => context.go('/perso')),
+      LayoutBuilder(builder: (context, c) {
+        final cols = c.maxWidth >= 900 ? 4 : 2;
+        const gap = 12.0;
+        final w = (c.maxWidth - gap * (cols - 1)) / cols;
+        Widget big(String icon, String title, String sub, String route) => SizedBox(
+              width: w,
+              child: GlassCard(
+                padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+                onTap: () => context.go(route),
+                semanticLabel: '$title, $sub',
+                child: ExcludeSemantics(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(gradient: V20.tileIcon, borderRadius: BorderRadius.circular(16)),
+                      alignment: Alignment.center,
+                      child: GameIcon(icon, size: 30, color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.baloo(size: 22, line: 24)),
+                    Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: V20Text.poppins(size: 12, line: 15, color: V20.ink2)),
+                  ]),
+                ),
+              ),
+            );
+        return Wrap(spacing: gap, runSpacing: gap, children: [
+          big('mic', 'Studio', 'Créer · sortir', '/studio'),
+          big('flame', 'Scène', 'Open mic · tournée', '/scene'),
+          big('briefcase', 'Boulots', 'Gagner des cauris', '/business'),
+          big('users', 'Vie perso', '$left action(s) du jour', '/perso'),
+        ]);
+      }),
+      const SizedBox(height: 12),
+      _MoreAccess(children: [
         GlassTile(icon: 'trophy', title: 'Rang', subtitle: 'N${rankOf(s)} · prochain : $nextRank', onTap: () => context.go('/profil/rang')),
         GlassTile(icon: 'clock', title: 'Toutes les activités', subtitle: 'Coûts et effets', onTap: () => context.go('/journee')),
         GlassTile(icon: 'trend', title: 'Réseau', subtitle: 'Plateformes, clips, réseaux', onTap: () => context.go('/profil/reseau')),
@@ -205,6 +217,67 @@ class QgScreen extends ConsumerWidget {
     ])));
     });
   }
+}
+
+/// Bilan du jour replié : trois variations en une ligne ; le détail des actions s'ouvre au toucher.
+class _TodayCard extends StatefulWidget {
+  final List today;
+  final num cash, fans, pop;
+  const _TodayCard({required this.today, required this.cash, required this.fans, required this.pop});
+  @override
+  State<_TodayCard> createState() => _TodayCardState();
+}
+
+class _TodayCardState extends State<_TodayCard> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) => GlassCard(
+        onTap: () => setState(() => _open = !_open),
+        semanticLabel: "Aujourd'hui, ${widget.today.length} action(s)",
+        child: ExcludeSemantics(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text("AUJOURD'HUI · ${widget.today.length} ACTION(S)", style: V20Text.lab())),
+              Icon(_open ? Icons.expand_less : Icons.expand_more, color: V20.ink2, size: 22),
+            ]),
+            const SizedBox(height: 6),
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              GameTag('Cash ${sg21(widget.cash)}'),
+              GameTag('Fans ${sg21(widget.fans)}'),
+              GameTag('Pop. ${sg21(widget.pop)}'),
+            ]),
+            if (_open) ...[
+              const SizedBox(height: 8),
+              if (widget.today.isEmpty) Text('Rien encore. Choisis une activité ci-dessous.', style: V20Text.bs()),
+              for (final l in widget.today.take(6)) Padding(padding: const EdgeInsets.only(bottom: 2), child: Text(l['t'] as String, style: V20Text.bs(color: Tk.ink))),
+            ],
+          ]),
+        ),
+      );
+}
+
+/// Accès secondaires repliés : le QG ne montre que quatre grandes actions, le reste est à un toucher.
+class _MoreAccess extends StatefulWidget {
+  final List<Widget> children;
+  const _MoreAccess({required this.children});
+  @override
+  State<_MoreAccess> createState() => _MoreAccessState();
+}
+
+class _MoreAccessState extends State<_MoreAccess> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        PrimaryButton(
+          label: _open ? 'Moins d’accès' : 'Plus d’accès',
+          style: GameButtonStyle.ghost,
+          onPressed: () => setState(() => _open = !_open),
+        ),
+        if (_open) ...[
+          const SizedBox(height: 8),
+          _ActionGrid21(children: widget.children),
+        ],
+      ]);
 }
 
 class _Hero extends StatelessWidget {
