@@ -915,8 +915,9 @@ String? _applyEff(J n, J? e) {
   }
   if (e['set'] != null) {
     _m(e['set']).forEach((k, v) {
-      if (k == 'sk.ecr') {
-        _m(n['sk'])['ecr'] = _n(_m(n['sk'])['ecr']) + (v as num);
+      if (k.startsWith('sk.')) {
+        final sk = k.substring(3);
+        _m(n['sk'])[sk] = _n(_m(n['sk'])[sk]) + (v as num);
       } else {
         n[k] = _copy(v);
       }

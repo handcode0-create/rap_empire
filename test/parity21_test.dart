@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rap_empire/domain/v21/dialogues21.dart' show newSceneOrder21;
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
@@ -69,6 +70,8 @@ void main() {
       // pour comparer les règles communes. Ils ont leurs propres tests (v21_career_test.dart).
       s['lbz'] = Reg21.lbzMax;
       s['evDone'] = <String, dynamic>{...(s['evDone'] as Map<String, dynamic>? ?? const {}), for (final p in problemOrder21) p: 'parite'};
+      // Scènes ajoutées après engine21.js : marquées vues pour ne pas changer la file de dialogues comparée.
+      s['dseen'] = <String, dynamic>{...(s['dseen'] as Map<String, dynamic>? ?? const {}), for (final id in newSceneOrder21) id: 'parite'};
       final watch = (sc['watch'] as List).cast<String>();
       var i = 0;
       for (final st in (sc['steps'] as List).cast<Map<String, dynamic>>()) {
