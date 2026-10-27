@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rap_empire/domain/v21/dialogues21.dart' show newSceneOrder21;
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
@@ -90,6 +89,7 @@ void main() {
           var got = at(s, w);
           // Problèmes de début de carrière : absents de engine21.js, retirés de la comparaison.
           if (w == 'evDone' && got is Map) got = {for (final e in got.entries) if (!problemOrder21.contains(e.key)) e.key: e.value};
+          if (w == 'dq' && got is List) got = got.where((e) => !newSceneOrder21.contains((e as Map)['id'])).toList();
           if (w == 'dseen' && got is Map) got = {for (final e in got.entries) if (!newSceneOrder21.contains(e.key)) e.key: e.value};
           final d = diff(out[w], got, w);
           expect(d, isNull, reason: '$label · $d');
