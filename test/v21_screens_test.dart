@@ -110,6 +110,8 @@ void main() {
     await tapText(tester, 'Écrire le texte');
     await tapText(tester, 'Choisir l’instru, puis la cabine');
     await tapText(tester, 'Nuit à Ndo');
+    // Six instrus en trois familles : le bouton de la cabine est en bas de la liste.
+    await tester.scrollUntilVisible(txt('Passer en cabine'), 300, scrollable: find.byType(Scrollable).first);
     await tester.tap(txt('Passer en cabine'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
@@ -151,7 +153,7 @@ void main() {
     expect(txt('Résultat de la battle'), findsNothing);
     await tapText(tester, 'Voir le résultat');
     expect(txt('BATTLE GAGNÉE · 3 / 3'), findsOneWidget);
-    expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 28000]);
+    expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 25000]); // battle de quartier sans cachet (04/11/2026)
     await tapText(tester, 'Retour au QG');
     await tester.tap(navTab('Business'));
     await tester.pumpAndSettle();
@@ -340,6 +342,8 @@ void main() {
     await tapText(tester, 'Choisir l’instru, puis la cabine');
     await tapText(tester, 'Gbaka de 6h');
     expect([repo.current['cash'], (repo.current['ui'] as J)['inst']], [312000, 'gbaka']);
+    // Six instrus en trois familles : le bouton de la cabine est en bas de la liste.
+    await tester.scrollUntilVisible(txt('Passer en cabine'), 300, scrollable: find.byType(Scrollable).first);
     await tester.tap(txt('Passer en cabine'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));

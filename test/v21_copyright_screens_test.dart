@@ -45,7 +45,7 @@ J _m(dynamic x) => x as J;
 
 /// Carrière avec un titre viral sur une instru non autorisée, jusqu'à l'avis de réclamation.
 J claimState() {
-  var s = act21(init21(), 'preset', 'carriere').s;
+  var s = clone21(act21(init21(), 'preset', 'carriere').s);
   (s['disco'] as List).insert(0, <String, dynamic>{
     'id': 'T90', 'title': 'Titre test', 'day': s['day'], 'L': 3000000, 'launchL': 3000000, 'rev': 400000, 'inst': 'brume', 'signed': 0,
     'platforms': <String, dynamic>{}, 'clip': <String, dynamic>{'st': 'aucun'}, 'st': 'sorti',
@@ -159,7 +159,7 @@ void main() {
   });
 
   testWidgets('fiche du titre : statut des droits et licence à acheter', (tester) async {
-    final s = act21(init21(), 'preset', 'carriere').s;
+    final s = clone21(act21(init21(), 'preset', 'carriere').s);
     final t = _m((s['disco'] as List).first);
     t['inst'] = 'minuit';
     t['L'] = 600000;

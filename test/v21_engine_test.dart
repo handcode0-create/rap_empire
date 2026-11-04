@@ -256,7 +256,7 @@ void main() {
     expect(m(c['ms'])['m3'], isNull);
     expect(act21(c, 'evc', 'a').err, 'rien');
     c = act21(c, 'battle', 2).s;
-    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 28000, 60]);
+    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 25000, 60]); // battle de quartier sans cachet (04/11/2026)
     c = act21(c, 'setui', 'title=Ndolo en feu').s;
     c = act21(c, 'create', ['quartier', 'sombre']).s;
     expect(m(c['cur'])['title'], 'Ndolo en feu');
