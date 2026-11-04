@@ -3769,7 +3769,7 @@ List<String> _playlistsDay(J n) {
     final x = plc[p.id];
     if (x is! Map) continue;
     final t = _l(n['disco']).map(_m).where((d) => d['id'] == x['tid']).firstOrNull;
-    if (t != null && _n(x['until']) >= _n(n['day'])) {
+    if (t != null && !copyrightIsBlocked21(t) && _n(x['until']) >= _n(n['day'])) {
       final g = playlistDaily21(p, t);
       t['plL'] = _n(t['plL']) + g;
       n['fans'] = _n(n['fans']) + (g / 100).round();
