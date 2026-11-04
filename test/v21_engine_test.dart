@@ -264,7 +264,7 @@ void main() {
     c = act21(c, 'record').s;
     expect(m(c['ms'])['m1'], isNotNull);
     // L'offre de Kôrô est une scène de dialogue (plus un événement) déclenchée par le premier enregistrement.
-    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 33000]);
+    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 30000]); // battle de quartier sans cachet (04/11/2026)
     final poor = clone21(c)..['cash'] = 100;
     c = act21(c, 'dch', 'a').s;
     expect(act21(poor, 'dch', 'a').s['dlg'], isNotNull);

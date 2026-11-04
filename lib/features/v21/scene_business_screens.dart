@@ -1375,7 +1375,7 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
         ),
         const SizedBox(height: 12),
       ],
-      Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +60 XP. Pas de cachet pour une battle de quartier. Sinon : +12 fans.'),
+      const Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +60 XP. Pas de cachet pour une battle de quartier. Sinon : +12 fans.'),
       if (_done) ...[
         const SizedBox(height: 12),
         PrimaryGlowButton(label: 'Voir le résultat', onPressed: () => context.go('/scene/battle-result')),
