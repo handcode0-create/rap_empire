@@ -230,13 +230,13 @@ final Map<String, Dlg> dlg21 = {
     role: 'Producteur · représentant des droits', cond: copyrightHasOpenClaim21,
     cl: 'Une réclamation concerne un morceau à forte audience',
     nodes: {
-      'n1': const DlgNode('angry', '« Ton morceau a pris de l’ampleur. Je reconnais mon instrumentale et je n’ai jamais autorisé cette exploitation commerciale. On doit trouver une solution. »', [
+      'n1': DlgNode('angry', '« Ton morceau a pris de l’ampleur. Je reconnais mon instrumentale et je n’ai jamais autorisé cette exploitation commerciale. On doit trouver une solution. »', [
         DlgChoice('a', 'Négocier une compensation', 'Une proposition réduite sera présentée · résultat incertain', k: 'i', e: {'copyrightAction': 'negotiate'}, go: 'n2'),
         DlgChoice('b', 'Régler la réclamation', 'Payer la compensation calculée sur les revenus du morceau', k: 'e', e: {'copyrightAction': 'settle'}, end: 'Réclamation réglée'),
         DlgChoice('c', 'Contester la réclamation', 'Le litige reste ouvert · risque de suspension', k: 'r', e: {'copyrightAction': 'contest'}, end: 'Réclamation contestée'),
         DlgChoice('d', 'Ignorer le producteur', 'Aucun paiement immédiat · risque de suspension ultérieure', k: 'r', e: {'copyrightAction': 'ignore'}, end: 'Réclamation ignorée'),
       ]),
-      'n2': const DlgNode('poised', '« Je peux revoir ma demande si tu reconnais le problème et qu’on règle ça maintenant. »', [
+      'n2': DlgNode('poised', '« Je peux revoir ma demande si tu reconnais le problème et qu’on règle ça maintenant. »', [
         DlgChoice('a', 'Accepter la compensation négociée', 'Payer le montant renégocié', k: 'e', e: {'copyrightAction': 'settle'}, end: 'Accord négocié et réglé'),
         DlgChoice('b', 'Contester', 'Le litige reste ouvert · risque de suspension', k: 'r', e: {'copyrightAction': 'contest'}, end: 'Réclamation contestée'),
         DlgChoice('c', 'Refuser et ignorer', 'Aucun paiement immédiat · risque de suspension ultérieure', k: 'r', e: {'copyrightAction': 'ignore'}, end: 'Négociation refusée'),
