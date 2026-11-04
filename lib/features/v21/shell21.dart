@@ -29,7 +29,7 @@ class Hud21 extends ConsumerWidget {
       cash: fmt21(s['cash'] as num),
       energy: energyLabel(s),
       time: timeLabel(s),
-      bellBadge: s['ev'] != null || (s['fam'] as J)['ev'] != null,
+      bellBadge: s['ev'] != null || (s['fam'] as J)['ev'] != null || crBell21(s),
       onBell: () => context.go('/journal'),
     );
   }

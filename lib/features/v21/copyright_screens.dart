@@ -711,3 +711,92 @@ class RightsCard extends ConsumerWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Téléphone en jeu : notifications officielles des droits d'auteur, en tête du Journal (ouvert par la cloche du HUD)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// Notifications du téléphone : litige en cours et litiges clos (les plus récents d'abord).
+List<({String label, String title, String sub, num day, bool live})> crPhone21(J s) {
+  final out = <({String label, String title, String sub, num day, bool live})>[];
+  final c = crClaim21(s);
+  if (c != null && c['st'] != 'decouvert') {
+    final t = '« ${c['title']} »';
+    out.add(switch (c['st']) {
+      'intervention' => (label: 'INTERVENTION OFFICIELLE', title: t, sub: 'Titre suspendu · ${fmt21(crDue21(s))} cauris pour le rétablir', day: _n(c['due']) + 1, live: true),
+      'conteste' => (label: 'PROCÉDURE EN COURS', title: t, sub: 'Décision le jour ${c['trial']} · revenus gelés', day: _n(c['trial']) - CrReg21.contestDays, live: true),
+      'nego' => (label: 'RENDEZ-VOUS EN COURS', title: t, sub: '${crOwnerName21(c['owner'])} attend ta proposition', day: _n(c['at']), live: true),
+      _ => (label: 'AVIS DE RÉCLAMATION', title: t, sub: '${fmt21(_n(c['amt']))} cauris réclamés par ${crOwnerName21(c['owner'])}', day: _n(c['at']), live: true),
+    });
+  }
+  const res = {'paye': 'Litige réglé', 'negocie': 'Accord conclu', 'partage': 'Accord de partage', 'rejete': 'Réclamation rejetée', 'contest_perdu': 'Contestation perdue', 'retire': 'Titre retiré'};
+  for (final h in (s['crHist'] as List? ?? const []).reversed.take(4)) {
+    final x = _m(h);
+    final paid = _n(x['paid']);
+    out.add((label: (res[x['res']] ?? 'Litige clos').toUpperCase(), title: '« ${x['title']} »', sub: paid > 0 ? '${fmt21(paid)} cauris versés à ${crOwnerName21(x['owner'])}' : crOwnerName21(x['owner']), day: _n(x['day']), live: false));
+  }
+  return out;
+}
+
+class PhoneInbox21 extends StatelessWidget {
+  final J s;
+  const PhoneInbox21(this.s, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = crPhone21(s);
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        accent: items.first.live ? GlassAccent.magenta : GlassAccent.none,
+        halo: false,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Icon(Icons.smartphone_rounded, size: 16, color: Tk.ink2),
+            const SizedBox(width: 6),
+            Expanded(child: Text('TÉLÉPHONE · NOTIFICATIONS OFFICIELLES', style: V20Text.lab())),
+          ]),
+          for (final (i, n) in items.indexed) ...[
+            const SizedBox(height: 8),
+            EnterAnim(
+              index: i,
+              child: Semantics(
+                button: n.live,
+                label: '${n.label}, ${n.title}, ${n.sub}',
+                child: GestureDetector(
+                  onTap: n.live ? () => context.go('/droits') : null,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Tk.deep.withValues(alpha: .7),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: n.live ? Tk.acc7 : Tk.line, width: 1.5),
+                    ),
+                    child: Row(children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(color: n.live ? Tk.acc7 : Tk.s2, borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.gavel_rounded, color: Tk.ink, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(n.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.lab(color: n.live ? Tk.acc4 : Tk.ink2)),
+                        Text(n.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm()),
+                        Text(n.sub, style: V20Text.bs()),
+                      ])),
+                      const SizedBox(width: 6),
+                      Text('J${n.day}', style: V20Text.bs()),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ]),
+      ),
+    );
+  }
+}
