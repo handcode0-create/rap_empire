@@ -225,7 +225,7 @@ final Map<String, Dlg> dlg21 = {
       ]),
     },
   ),
-  'copyright': Dlg(
+  'copyright': const Dlg(
     t: 'Litige de droits d’auteur', ref: '21-CR1', place: 'office', who: 'sanko',
     role: 'Producteur · représentant des droits', cond: copyrightHasOpenClaim21,
     cl: 'Une réclamation concerne un morceau à forte audience',
