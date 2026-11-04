@@ -485,7 +485,7 @@ class _InstruCard extends ConsumerWidget {
           Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(data['n'] as String, style: V20Text.nm()),
-            Text('${data['who']}${data['src'] != null ? ' · ${data['src']}' : ''} · qualité de production ${data['Q']}', style: V20Text.bs()),
+            Text('${[if (data['who'] != 'Gratuite') data['who'], if (data['src'] != null) data['src']].join(' · ')} · qualité de production ${data['Q']}', style: V20Text.bs()),
             if (rankLock) Text('Rang N${data['rank']} requis', style: V20Text.bs(color: V20.hintGoldText)),
             if (repLock) Text('Réputation ${data['rep']} requise', style: V20Text.bs(color: V20.hintGoldText)),
             if (short) Text('Il manque ${fmt21(price - _n(s['cash']))} cauris', style: V20Text.bs(color: V20.hintGoldText)),

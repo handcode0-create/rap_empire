@@ -38,6 +38,9 @@ ROUTES = [
     ('feats', '/studio/feats'),
     ('pochettes', '/studio/pochettes'),
 ]
+# SHOT_ROUTES="nom=/route,nom2=/route2" : capture seulement ces écrans (ex. droits d'auteur avec un état dédié).
+if os.environ.get('SHOT_ROUTES'):
+    ROUTES = [tuple(x.split('=', 1)) for x in os.environ['SHOT_ROUTES'].split(',') if '=' in x]
 os.makedirs(OUT, exist_ok=True)
 LIVE = WEB.startswith('http')  # adresse du site déployé : on le capture tel quel (aucun serveur local)
 BASE = WEB.rstrip('/') if LIVE else 'http://127.0.0.1:8765'
