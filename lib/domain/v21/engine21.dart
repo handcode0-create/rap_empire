@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import '../title_dictionary.dart';
 import 'awards21.dart';
+import 'copyright21.dart';
 import 'playlists21.dart';
 import 'dialogues21.dart';
 import 'missions21.dart';
@@ -12,6 +13,7 @@ import 'reg21.dart';
 import 'wardrobe21.dart';
 
 export 'awards21.dart';
+export 'copyright21.dart';
 export 'charts21.dart';
 export 'playlists21.dart';
 export 'dialogues21.dart';
@@ -251,6 +253,7 @@ J init21() {
     'ui': {'promo': 0, 'ppromo': 0, 'feat': null},
     't': 0,
     'evId': 0,
+    'cr': initCopyright21(),
   };
   for (final k in cands21.keys) {
     _m(_m(s['rom'])['c'])[k] = {'g': 0};
@@ -301,6 +304,7 @@ J norm21(J s) {
     s.remove('battlePending');
   }
   _migrateInedits(s);
+  s['cr'] = normCopyright21(s['cr']);
   return s;
 }
 
@@ -898,7 +902,10 @@ void _triggers(J n) {
 String? _applyEff(J n, J? e) {
   if (e == null) return null;
   final cash = e['cash'] as num?;
+  final copyrightAction = e['copyrightAction'] as String?;
+  final copyrightCost = copyrightAction == null ? 0 : copyrightActionCost21(n, copyrightAction);
   if (_t(cash) && cash! < 0 && _n(n['cash']) < -cash) return 'cash';
+  if (copyrightCost > _n(n['cash'])) return 'cash';
   if (_t(e['h']) || _t(e['en'])) {
     final er = _spend(n, _n(e['h']), _n(e['en']));
     if (er != null) return er;
@@ -936,6 +943,10 @@ String? _applyEff(J n, J? e) {
     if (_m(e['set'])['lperk'] == 'prod') {
       n['kc'] = {'st': 'Label Studio Kôrô Productions', 'bonus': 12, 'left': 3, 'rel': _n(_m(n['rel'])['kore'])};
     }
+  }
+  if (copyrightAction != null) {
+    final paid = applyCopyrightAction21(n, copyrightAction);
+    if (paid > 0) _pay(n, -paid);
   }
   if (_t(e['hype'])) n['hype'] = _n(n['day']) + (e['hype'] as num);
   if (e['q'] != null) _queueDlg(n, _l(e['q'])[0] as String, _l(e['q'])[1] as num);
@@ -1361,6 +1372,7 @@ final Map<String, Action> actions21 = {
     cur['takes'] = tk;
     cur['inst'] = iid;
     ui['inst'] = null;
+    cur['rights'] = copyrightRightsFor21(iid, _n(n['day']).toInt());
     cur['prodBy'] = kb != 0
         ? 'DJ Kôrô (Studio Kôrô)'
         : inst['who'] == 'Gratuite'
@@ -1782,7 +1794,9 @@ final Map<String, Action> actions21 = {
     if (d == null) return _ok(s);
     if (!_t(_m(d)['done'])) return _no(s, 'encours');
     final n = clone21(s);
+    final closedId = _m(d)['id'];
     n['dlg'] = null;
+    if (closedId == 'copyright') _m(n['dseen']).remove('copyright');
     _triggers(n);
     return _ok(n);
   },
@@ -3219,7 +3233,8 @@ Res _endDay(J s) {
     // puis perd 20 % par jour et s'arrête après 14 jours.
     final age = _n(n['day']) - _n(song['day']) + 1;
     final launchListens = _n(song['launchL'] ?? song['L']);
-    final daily = age < 1 || age > Reg21.catalogDays
+    final blockedByCopyright = copyrightIsBlocked21(song);
+    final daily = blockedByCopyright || age < 1 || age > Reg21.catalogDays
         ? 0
         : math
             .max(
@@ -3232,6 +3247,13 @@ Res _endDay(J s) {
       song['lastDayL'] = 0;
       song['lastDayRev'] = 0;
       song['lastDayViews'] = 0;
+      // Un litige ignoré/contesté peut évoluer même après la fin de la fenêtre
+      // de revenus du catalogue : la procédure ne dépend pas des streams du jour.
+      if (copyrightAdvance21(n, song, _n(n['day']).toInt(),
+          rng21(n, copyrightSalt21(song['id']) + 17))) {
+        ev.add('Suspension de « ${song['title']} » : litige de droits non résolu');
+        _log(n, 'Morceau suspendu pour litige de droits : ${song['title']}', 'justice');
+      }
       continue;
     }
     final gross = jsRound(daily * Reg21.listenValue);
@@ -3263,6 +3285,17 @@ Res _endDay(J s) {
     catalogListensTotal += daily;
     ev.add(
         '${song['title']} : +$daily écoutes${cut > 0 ? ' · label −$cut' : ''}');
+    if (!blockedByCopyright && daily > 0) {
+      final salt = copyrightSalt21(song['id']);
+      if (copyrightTryClaim21(n, song, _n(n['day']).toInt(), rng21(n, salt))) {
+        ev.add('Réclamation de droits d’auteur : ${song['title']}');
+        _log(n, 'Réclamation de droits d’auteur sur « ${song['title']} »', 'justice');
+      }
+    }
+    if (copyrightAdvance21(n, song, _n(n['day']).toInt(), rng21(n, copyrightSalt21(song['id']) + 17))) {
+      ev.add('Suspension de « ${song['title']} » : litige de droits non résolu');
+      _log(n, 'Morceau suspendu pour litige de droits : ${song['title']}', 'justice');
+    }
   }
   if (catalogListensTotal > 0) {
     n['fans'] = _n(n['fans']) +
@@ -3743,7 +3776,7 @@ List<String> _playlistsDay(J n) {
     final x = plc[p.id];
     if (x is! Map) continue;
     final t = _l(n['disco']).map(_m).where((d) => d['id'] == x['tid']).firstOrNull;
-    if (t != null && _n(x['until']) >= _n(n['day'])) {
+    if (t != null && !copyrightIsBlocked21(t) && _n(x['until']) >= _n(n['day'])) {
       final g = playlistDaily21(p, t);
       t['plL'] = _n(t['plL']) + g;
       n['fans'] = _n(n['fans']) + (g / 100).round();

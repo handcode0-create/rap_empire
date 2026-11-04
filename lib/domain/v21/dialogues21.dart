@@ -2,6 +2,7 @@
 // Port de DLG, DLG_ORDER, CASTN, LBL, PERK et lblDlg de docs/design-ref/v21/sources/engine21.js.
 // Données seulement : les effets sont appliqués par engine21.dart (applyEff21). Valeurs PROVISOIRES.
 import 'reg21.dart';
+import 'copyright21.dart';
 
 num _n(dynamic x) => (x ?? 0) as num;
 J _m(dynamic x) => x as J;
@@ -138,7 +139,7 @@ final Map<String, Lbl> lbl21 = {
 /// Ordre de déclenchement des scènes (le premier déclenchable passe en tête).
 const dlgOrder21 = [
   'kore', 'mgr', 'lb_AUB', 'lb_NUG', 'lb_SIC', 'lb_VAG', 'lb_BLG', 'lb_LYR', 'lb_SKP', 'lb_AMG', 'label', 'lb_RCD',
-  'rival', 'collab', 'bad', 'success', 'festival', 'crisis', 'kore2',
+  'rival', 'collab', 'bad', 'success', 'festival', 'crisis', 'kore2', 'copyright',
   ...newSceneOrder21,
 ];
 
@@ -221,6 +222,24 @@ final Map<String, Dlg> dlg21 = {
             e: {'cash': -7000, 'kc': {'st': 'Accord à 35 % (tendu)', 'bonus': 12, 'left': 3}, 'rel': {'kore': 3}}, end: 'Accord à 35 %'),
         DlgChoice('b', 'Refuser', 'relation −10 · il reviendra dans 3 semaines, plus cher', k: 'r',
             e: {'rel': {'kore': -10}, 'q': ['kore2', 21]}, end: 'Refus'),
+      ]),
+    },
+  ),
+  'copyright': const Dlg(
+    t: 'Litige de droits d’auteur', ref: '21-CR1', place: 'office', who: 'sanko',
+    role: 'Producteur · représentant des droits', cond: copyrightHasOpenClaim21,
+    cl: 'Une réclamation concerne un morceau à forte audience',
+    nodes: {
+      'n1': DlgNode('angry', '« Ton morceau a pris de l’ampleur. Je reconnais mon instrumentale et je n’ai jamais autorisé cette exploitation commerciale. On doit trouver une solution. »', [
+        DlgChoice('a', 'Négocier une compensation', 'Une proposition réduite sera présentée · résultat incertain', k: 'i', e: {'copyrightAction': 'negotiate'}, go: 'n2'),
+        DlgChoice('b', 'Régler la réclamation', 'Payer la compensation calculée sur les revenus du morceau', k: 'e', e: {'copyrightAction': 'settle'}, end: 'Réclamation réglée'),
+        DlgChoice('c', 'Contester la réclamation', 'Le litige reste ouvert · risque de suspension', k: 'r', e: {'copyrightAction': 'contest'}, end: 'Réclamation contestée'),
+        DlgChoice('d', 'Ignorer le producteur', 'Aucun paiement immédiat · risque de suspension ultérieure', k: 'r', e: {'copyrightAction': 'ignore'}, end: 'Réclamation ignorée'),
+      ]),
+      'n2': DlgNode('poised', '« Je peux revoir ma demande si tu reconnais le problème et qu’on règle ça maintenant. »', [
+        DlgChoice('a', 'Accepter la compensation négociée', 'Payer le montant renégocié', k: 'e', e: {'copyrightAction': 'settle'}, end: 'Accord négocié et réglé'),
+        DlgChoice('b', 'Contester', 'Le litige reste ouvert · risque de suspension', k: 'r', e: {'copyrightAction': 'contest'}, end: 'Réclamation contestée'),
+        DlgChoice('c', 'Refuser et ignorer', 'Aucun paiement immédiat · risque de suspension ultérieure', k: 'r', e: {'copyrightAction': 'ignore'}, end: 'Négociation refusée'),
       ]),
     },
   ),
