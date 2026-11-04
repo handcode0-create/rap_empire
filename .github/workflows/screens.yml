@@ -34,6 +34,13 @@ jobs:
           python -m pip install playwright
           python -m playwright install --with-deps chromium webkit
       - run: python tool/screens/shoot.py build/web shots
+      - name: Droits d'auteur (avis animé, détail, rendez-vous, instrus, fiche du titre)
+        run: |
+          python tool/screens/make_litige.py /tmp/lit
+          SHOT_ROUTES="litige-avis=/droits,instru=/studio/instru,titre-droits=/studio/catalogue/titre" python tool/screens/shoot.py build/web shots /tmp/lit/litige_avis.json
+          SHOT_ROUTES="litige-detail=/droits,qg-litige=/" python tool/screens/shoot.py build/web shots /tmp/lit/litige_detail.json
+          SHOT_ROUTES="litige-rdv=/droits/rendez-vous" python tool/screens/shoot.py build/web shots /tmp/lit/litige_rdv.json
+          SHOT_ENGINE=webkit SHOT_ROUTES="litige-avis=/droits" python tool/screens/shoot.py build/web shots /tmp/lit/litige_avis.json || echo 'WebKit indisponible'
       - name: Mêmes écrans avec le moteur de Safari (WebKit)
         run: SHOT_ENGINE=webkit python tool/screens/shoot.py build/web shots || echo 'WebKit indisponible'
       - name: Publier les captures sur la branche ci-screens

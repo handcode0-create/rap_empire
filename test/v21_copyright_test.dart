@@ -307,6 +307,30 @@ void main() {
       expect(first, anyOf('T90', 'T91'));
     });
 
+    test('EP : les inédits gardent le statut de leur instru et restent surveillés comme des singles', () {
+      var s = base();
+      final ids = <String>[];
+      for (var i = 0; i < 3; i++) {
+        s = must(s, 'create', ['quartier', 'sombre']);
+        s = must(s, 'pick', 'brume');
+        s = must(s, 'record');
+        ids.add(m(s['cur'])['id'] as String);
+        s = must(s, 'shelve');
+        s = must(s, 'endDay');
+      }
+      s = must(s, 'ptype', 'EP');
+      for (final id in ids) {
+        s = must(s, 'ptk', id);
+      }
+      s = must(s, 'prel');
+      for (final id in ids) {
+        final t = song(s, id);
+        expect(crStatus21(t), 'nonaut', reason: id);
+        t['L'] = 3000000;
+        expect(crDailyChance21(s, t), greaterThan(0), reason: id);
+      }
+    });
+
     test('anciennes sauvegardes : un titre sans statut est réputé licencié', () {
       expect(crStatus21({'inst': 'gbaka'}), 'sec');
       expect(crStatus21({'inst': 'nuit'}), 'libre');
