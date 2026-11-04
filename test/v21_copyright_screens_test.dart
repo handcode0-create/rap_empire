@@ -73,7 +73,7 @@ void main() {
       ),
     ));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(txt('AVIS DE RÉCLAMATION · DROITS D’AUTEUR'), findsWidgets);
+    expect(txt('RÉCLAMATION · DROITS D’AUTEUR'), findsWidgets);
     await tester.pumpAndSettle();
     expect(txt('LITIGE DE DROITS D’AUTEUR'), findsOneWidget);
     expect(txt('${fmt21(140000)} cauris'), findsOneWidget);
@@ -167,6 +167,6 @@ void main() {
     (s['ui'] as J)['ctk'] = t['id'];
     await _pump(tester, s, '/studio/catalogue/titre', height: 2600);
     expect(find.textContaining('DROITS D’AUTEUR'), findsWidgets);
-    expect(find.textContaining('Acheter la licence', findRichText: true).evaluate().isNotEmpty || txt('Acheter la licence · ${fmt21(crRegPrice21(t))} cauris').evaluate().isNotEmpty, isTrue);
+    expect(find.textContaining('Acheter la licence', findRichText: true).evaluate().isNotEmpty || txt('Acheter la licence · ${fmt21(crRegPrice21(t))}').evaluate().isNotEmpty, isTrue);
   });
 }

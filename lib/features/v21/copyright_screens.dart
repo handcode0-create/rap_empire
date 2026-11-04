@@ -166,8 +166,8 @@ class _CopyrightStrikeState extends State<CopyrightStrike> with SingleTickerProv
                         ),
                       const SizedBox(height: 16),
                       Opacity(
-                        opacity: _iv(.92, 1),
-                        child: PrimaryGlowButton(label: widget.action, onPressed: _c.value >= .92 ? widget.onDone : null),
+                        opacity: _iv(.84, .92),
+                        child: PrimaryGlowButton(label: widget.action, onPressed: _c.value >= .88 ? widget.onDone : null),
                       ),
                     ]),
                   ),
@@ -205,7 +205,7 @@ class _Notif extends StatelessWidget {
                         ? 'RETRAIT DES PLATEFORMES'
                         : kind == 'verdict'
                             ? 'DÉCISION DE LA PROCÉDURE'
-                            : 'AVIS DE RÉCLAMATION · DROITS D’AUTEUR',
+                            : 'RÉCLAMATION · DROITS D’AUTEUR',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: V20Text.lab(color: Tk.acc4)),
@@ -347,7 +347,7 @@ class LitigeScreen extends ConsumerWidget {
                 halo: false,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
-                    Expanded(child: Text(inter ? 'INTERVENTION OFFICIELLE' : 'AVIS DE RÉCLAMATION · DROITS D’AUTEUR', style: V20Text.lab(color: Tk.acc4))),
+                    Expanded(child: Text(inter ? 'INTERVENTION OFFICIELLE' : 'AVIS DE RÉCLAMATION', style: V20Text.lab(color: Tk.acc4))),
                     GameTag(crStatusLabel21[song == null ? 'litige' : crStatus21(song)] ?? '', style: GameTagStyle.accent),
                   ]),
                   const SizedBox(height: 6),
@@ -358,10 +358,12 @@ class LitigeScreen extends ConsumerWidget {
                       style: V20Text.bm),
                   const SizedBox(height: 8),
                   KeyVal('Titulaire des droits', owner),
-                  KeyVal('Instru', '${Reg21.instrus[song?['inst']]?['n'] ?? '—'} · ${crStatusLabel21[c['kind']] ?? ''}'),
+                  KeyVal('Instru', '${Reg21.instrus[song?['inst']]?['n'] ?? '—'}'),
+                  KeyVal('Statut de l’instru', crShortLabel21(c['kind'] as String)),
                   KeyVal('Écoutes du titre', fmt21(_n(song?['L'] ?? c['L']))),
                   KeyVal('Revenus du titre', '${fmt21(_n(song?['rev'] ?? c['rev']))} cauris'),
-                  KeyVal('Montant réclamé', '${fmt21(_n(c['amt']))} cauris (${(_n(c['pct']) * 100).round()} % des revenus, au moins le prix de la licence)'),
+                  KeyVal('Montant réclamé', '${fmt21(_n(c['amt']))} cauris'),
+                  Text('${(_n(c['pct']) * 100).round()} % des revenus du titre, jamais moins que le prix de la licence.', style: V20Text.bs()),
                   if (inter) KeyVal('À payer maintenant', '${fmt21(crDue21(s))} cauris (retard +${(CrReg21.latePct * 100).round()} %)'),
                   KeyVal('Délai', inter ? 'Retrait le jour ${_n(c['due2']) + 1}' : st == 'conteste' ? 'Décision le jour ${c['trial']}' : 'Réponse avant le jour ${_n(c['due']) + 1}'),
                   if (_t(s['signed'])) KeyVal('Ton label', '${lblName21(s)} prend ${(CrReg21.labelLegal * 100).round()} % des frais de négociation et d’avocat'),
@@ -437,6 +439,12 @@ class LitigeScreen extends ConsumerWidget {
 }
 
 bool _t(dynamic x) => x != null && x != 0 && x != false && x != '';
+
+/// Statut court pour les pastilles (le libellé complet reste dans crStatusLabel21).
+String crShortLabel21(String st) => const {
+      'libre': 'Libre de droits', 'sec': 'Sécurisé', 'lic': 'Licence valide', 'exp': 'Licence expirée', 'cond': 'Avec conditions',
+      'nonaut': 'Non autorisée', 'litige': 'Litige en cours', 'susp': 'Suspendu', 'regle': 'Réglé', 'rejete': 'Rejeté', 'retire': 'Retiré',
+    }[st] ?? st;
 
 class _Choice extends StatelessWidget {
   final int index;
@@ -555,7 +563,7 @@ class RendezVousScreen extends ConsumerWidget {
     final q = switch (node) {
       'counter' => '« La moitié ? Non. Je descends à ${fmt21(_n(c['counter']))}, pas un cauri de moins. Mon instru a fait ton succès. »',
       'refus' => '« Tu me prends pour qui ? Mon nom n’est même pas crédité. C’est ${fmt21(amt)}, ou on se revoit devant un juge. »',
-      _ => '« « ${c['title']} » tourne partout, et c’est mon instru. Je réclame ${fmt21(amt)} cauris. Qu’est-ce que tu proposes ? »',
+      _ => '« Ton morceau tourne partout, et c’est mon instru. Je réclame ${fmt21(amt)} cauris. Qu’est-ce que tu proposes ? »',
     };
     final song = _song(s, c['id']);
     return Frame21(children: [
@@ -674,7 +682,7 @@ class RightsCard extends ConsumerWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(child: Text('DROITS D’AUTEUR', style: V20Text.lab())),
-          GameTag(crStatusLabel21[st] ?? st, style: off ? GameTagStyle.accent : (risky ? GameTagStyle.outline : GameTagStyle.ok)),
+          GameTag(crShortLabel21(st), style: off ? GameTagStyle.accent : (risky ? GameTagStyle.outline : GameTagStyle.ok)),
         ]),
         KeyVal('Instru', inst == null ? '—' : '${inst['n']} · ${inst['who']}'),
         if (cr['lic'] == 'nonexcl') KeyVal('Licence', 'Non exclusive · ${fmt21(_n(cr['cap']))} écoutes · jusqu’au jour ${cr['until'] ?? '—'}'),
@@ -686,7 +694,7 @@ class RightsCard extends ConsumerWidget {
           Conseq21(risk == 'Faible' || risk == 'Aucun' ? ConsequenceKind.estimated : ConsequenceKind.risk, 'Risque de réclamation : $risk (grandit avec les écoutes et le classement)'),
           const SizedBox(height: 8),
           PrimaryButton(
-            label: 'Acheter la licence · ${fmt21(crRegPrice21(t))} cauris',
+            label: 'Acheter la licence · ${fmt21(crRegPrice21(t))}',
             style: GameButtonStyle.secondary,
             onPressed: () async {
               final ok = await confirmSheet(context, title: 'Acheter la licence ?', body: '${fmt21(crRegPrice21(t))} cauris à ${crOwnerName21(cr['owner'])}. Le titre ne pourra plus faire l’objet d’une réclamation.', action: 'Acheter');
@@ -694,6 +702,7 @@ class RightsCard extends ConsumerWidget {
             },
           ),
         ],
+        if (st == 'retire' || st == 'susp' || st == 'litige') Padding(padding: const EdgeInsets.only(top: 4), child: Text(crStatusLabel21[st] ?? st, style: V20Text.bs())),
         if (st == 'litige' || st == 'susp') ...[
           const SizedBox(height: 8),
           PrimaryGlowButton(label: 'Voir le litige', onPressed: () => context.go('/droits')),
