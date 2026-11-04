@@ -73,6 +73,19 @@ void main() {
     expect(copyrightIsBlocked21(song), isTrue);
   });
 
+  test('la scène de litige propose les quatre décisions et reste rejouable', () {
+    final scene = dlg21['copyright'];
+    expect(scene, isNotNull);
+    expect(scene!.cond(init21()..['cr'] = {
+      'nextId': 2,
+      'claims': [
+        {'id': 'CR1', 'status': 'open', 'songId': 'T1'}
+      ],
+    }), isTrue);
+    expect(scene.nodes['n1']!.ch.map((choice) => choice.id), ['a', 'b', 'c', 'd']);
+    expect(scene.nodes['n2']!.ch, hasLength(3));
+  });
+
   test('les anciennes sauvegardes sans état copyright sont normalisées sans risque rétroactif', () {
     final old = init21()..remove('cr');
     final normalized = norm21(old);
