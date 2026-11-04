@@ -3247,6 +3247,13 @@ Res _endDay(J s) {
       song['lastDayL'] = 0;
       song['lastDayRev'] = 0;
       song['lastDayViews'] = 0;
+      // Un litige ignoré/contesté peut évoluer même après la fin de la fenêtre
+      // de revenus du catalogue : la procédure ne dépend pas des streams du jour.
+      if (copyrightAdvance21(n, song, _n(n['day']).toInt(),
+          rng21(n, copyrightSalt21(song['id']) + 17))) {
+        ev.add('Suspension de « ${song['title']} » : litige de droits non résolu');
+        _log(n, 'Morceau suspendu pour litige de droits : ${song['title']}', 'justice');
+      }
       continue;
     }
     final gross = jsRound(daily * Reg21.listenValue);
