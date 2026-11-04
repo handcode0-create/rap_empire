@@ -110,6 +110,8 @@ void main() {
     await tapText(tester, 'Écrire le texte');
     await tapText(tester, 'Choisir l’instru, puis la cabine');
     await tapText(tester, 'Nuit à Ndo');
+    // Six instrus en trois familles : le bouton de la cabine est en bas de la liste.
+    await tester.scrollUntilVisible(txt('Passer en cabine'), 300, scrollable: find.byType(Scrollable).first);
     await tester.tap(txt('Passer en cabine'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
@@ -151,7 +153,7 @@ void main() {
     expect(txt('Résultat de la battle'), findsNothing);
     await tapText(tester, 'Voir le résultat');
     expect(txt('BATTLE GAGNÉE · 3 / 3'), findsOneWidget);
-    expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 28000]);
+    expect([repo.current['fans'], repo.current['rep'], repo.current['cash']], [270, 14, 25000]); // battle de quartier sans cachet (04/11/2026)
     await tapText(tester, 'Retour au QG');
     await tester.tap(navTab('Business'));
     await tester.pumpAndSettle();
@@ -340,6 +342,8 @@ void main() {
     await tapText(tester, 'Choisir l’instru, puis la cabine');
     await tapText(tester, 'Gbaka de 6h');
     expect([repo.current['cash'], (repo.current['ui'] as J)['inst']], [312000, 'gbaka']);
+    // Six instrus en trois familles : le bouton de la cabine est en bas de la liste.
+    await tester.scrollUntilVisible(txt('Passer en cabine'), 300, scrollable: find.byType(Scrollable).first);
     await tester.tap(txt('Passer en cabine'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
@@ -763,7 +767,7 @@ void main() {
 
   group('balayage de toutes les routes (aucun débordement ni exception)', () {
     const routes = [
-      '/', '/studio', '/dialogue', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
+      '/', '/studio', '/dialogue', '/droits', '/droits/rendez-vous', '/scenes', '/studio/catalogue', '/studio/catalogue/titre', '/studio/catalogue/projet', '/studio/catalogue/projet-sorti', '/studio/instru', '/studio/cabine', '/studio/mix', '/studio/feats', '/studio/sortie', '/studio/resultats', '/studio/clip', '/studio/clip-publie',
       '/scene', '/scene/battle', '/scene/battle-result', '/scene/rivalites', '/scene/festivals', '/scene/booking', '/scene/rival-battle/zaki', '/scene/resultat', '/scene/popularite', '/business', '/business/boulot', '/business/entreprises', '/business/patrimoine', '/business/achat', '/business/formation', '/business/labels', '/business/labels/tous', '/business/manager', '/business/justice', '/business/justice/garde', '/business/justice/avocat', '/business/justice/tribunal', '/business/justice/prison',
       '/profil', '/profil/rang', '/profil/classements', '/profil/trophees', '/profil/wiki', '/profil/trophees/annonce', '/profil/trophees/certifications', '/profil/trophees/awards', '/profil/personnages', '/profil/garde-robe', '/studio/reserve', '/studio/pochettes', '/profil/garde-robe/tenue', '/profil/plateformes', '/profil/plateformes/ondea', '/profil/plateformes/klipo', '/profil/plateformes/cauri',
       '/profil/reseau', '/profil/reseau/ondea', '/profil/reseau/klipo', '/profil/reseau/klipo/video', '/profil/reseau/clips', '/profil/reseau/clips/clip', '/profil/reseau/cauri', '/profil/reseau/marketing',

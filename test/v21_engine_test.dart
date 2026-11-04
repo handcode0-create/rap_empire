@@ -30,7 +30,8 @@ void main() {
     expect(r.err, 'rang'); // MC : rang N2 requis (boulots rentables plus tard)
     s = must(s, 'endDay');
     expect([s['day'], s['hour'], s['en']], [2, 8, 100]);
-    expect(m(s['bil'])['cash'], 3500 + 3000 + 4500 + 3500);
+    // Open mic sans cachet (décision de Smith du 04/11/2026) : seuls les trois boulots rapportent.
+    expect(m(s['bil'])['cash'], 3500 + 4500 + 3500);
     expect(l(m(s['bil'])['acts']).length, greaterThanOrEqualTo(3));
   });
 
@@ -255,7 +256,7 @@ void main() {
     expect(m(c['ms'])['m3'], isNull);
     expect(act21(c, 'evc', 'a').err, 'rien');
     c = act21(c, 'battle', 2).s;
-    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 28000, 60]);
+    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 25000, 60]); // battle de quartier sans cachet (04/11/2026)
     c = act21(c, 'setui', 'title=Ndolo en feu').s;
     c = act21(c, 'create', ['quartier', 'sombre']).s;
     expect(m(c['cur'])['title'], 'Ndolo en feu');
@@ -263,14 +264,14 @@ void main() {
     c = act21(c, 'record').s;
     expect(m(c['ms'])['m1'], isNotNull);
     // L'offre de Kôrô est une scène de dialogue (plus un événement) déclenchée par le premier enregistrement.
-    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 33000]);
+    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 30000]); // battle de quartier sans cachet (04/11/2026)
     final poor = clone21(c)..['cash'] = 100;
     c = act21(c, 'dch', 'a').s;
     expect(act21(poor, 'dch', 'a').s['dlg'], isNotNull);
     expect(act21(act21(poor, 'dch', 'a').s, 'dch', 'a').err, 'cash');
     c = act21(c, 'dch', 'b').s;
     c = act21(c, 'dch', 'a').s;
-    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 26000, 'Accord à 35 %']);
+    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 23000, 'Accord à 35 %']); // 3 000 de moins : battle sans cachet (04/11/2026)
     c = act21(c, 'dclose').s;
     c = act21(c, 'release').s;
     expect(m(c['ms'])['m2'], isNotNull);
@@ -377,7 +378,8 @@ void main() {
     var win = act21(init21(), 'preset', 'debut').s;
     win = act21(win, 'evc', 'a').s;
     win = act21(win, 'battle', 3).s;
-    expect([win['cash'], win['fans'], win['rep'], win['xp'], m(win['btl'])['win']], [28000, 270, 14, 60, 1]);
+    // Battle de quartier sans cachet (décision de Smith du 04/11/2026).
+    expect([win['cash'], win['fans'], win['rep'], win['xp'], m(win['btl'])['win']], [25000, 270, 14, 60, 1]);
     var loss = act21(init21(), 'preset', 'debut').s;
     loss = act21(loss, 'evc', 'a').s;
     loss = act21(loss, 'battle', 1).s;
@@ -411,7 +413,8 @@ void main() {
     // Le rang du concert n’est pas requis ici, on vérifie la commission via un cachet open mic.
     final opened = act21(hired.s, 'openmic');
     expect(opened.err, isNull);
-    expect(opened.s['cash'], 27700); // 3 000 − 10 %
+    // L'open mic ne paie plus de cachet (04/11/2026) : aucune commission prélevée.
+    expect([opened.s['cash'], opened.s['mgrTot'] ?? 0], [25000, hired.s['mgrTot'] ?? 0]);
     final charged = act21(hired.s, 'endDay');
     expect(charged.s['cash'], hired.s['cash']! - 1500);
     expect(commissioned.err, anyOf(isNull, 'rang'));

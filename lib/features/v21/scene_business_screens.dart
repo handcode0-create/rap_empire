@@ -57,8 +57,6 @@ class SceneScreen21 extends ConsumerWidget {
     final tWait = (Reg21.tourEvery - (day - _n(s['lastTour']))).clamp(0, 999).toInt();
     final aud = tourAudience(s);
     final tk = tickets21(s);
-    final mgrTier = managerTier21(s);
-    final hasManager = mgrTier != null;
     final fee = (Reg21.tour['fee'] as num) + jsRound((Reg21.tour['feeGeo'] as num) * (_n(_m(s['geo'])['portambre']) + _n(_m(s['geo'])['selene'])));
     final cc = s['cc'] as J?;
     final sponsor = mkSponsor21(s) == null ? null : media21[mkSponsor21(s)];
@@ -69,12 +67,11 @@ class SceneScreen21 extends ConsumerWidget {
         : _Venue("Battle contre K-Zer d'Mabaya", 'Défi accepté · 3 rounds face au rival de Mabaya', 'assets/scenes/street.svg',
             meta: const [('clock', '1 h'), ('zap', '−15')], status: ('En attente', GameTagStyle.ok), verb: 'Entrer dans la battle', onTap: () => context.go('/scene/battle'));
     final omPlayed = _n(s['omDay']) == day;
-    final omNet = hasManager ? '+${fmt21(3000 - jsRound(3000 * (mgrTier['rate'] as num)))} cauris net' : '+3 000 cauris';
     final openMic = omPlayed
         ? const _Venue('Open mic de Ndolo', 'Déjà joué aujourd’hui · reviens demain', 'assets/scenes/street.svg', status: ('Demain', GameTagStyle.outline), off: true)
         : _Venue('Open mic de Ndolo',
             'Jusqu’à +${jsRound(Reg21.omFans * openMicEffect(s) / 100)} fans si énergie ≥ 40 · effet actuel ${openMicEffect(s)} % (baisse si tu y retournes souvent)', 'assets/scenes/street.svg',
-            meta: [('clock', '1 h'), ('zap', '−${15 - moto}'), ('cash', omNet)],
+            meta: [('clock', '1 h'), ('zap', '−${15 - moto}'), ('flame', 'sans cachet')],
             status: ('Ouvert', GameTagStyle.ok),
             verb: 'Monter sur scène',
             onTap: () => doAct(context, ref, 'openmic', null, () => context.go('/scene/resultat')));
@@ -355,7 +352,7 @@ class ConcertResultScreen extends ConsumerWidget {
               style: V20Text.nm()),
           Text(
               _n(s['om']) == 1
-                  ? '+${jsRound(Reg21.omFans * _n(s['omK'] ?? 1))} fans · +${fmt21(_n(s['omCash']))} cauris nets · réputation +${_n(s['omK'] ?? 1) >= 0.7 ? 6 : 3} · XP +${jsRound(60 * _n(s['omK'] ?? 1))}'
+                  ? '+${jsRound(Reg21.omFans * _n(s['omK'] ?? 1))} fans · réputation +${_n(s['omK'] ?? 1) >= 0.7 ? 6 : 3} · XP +${jsRound(60 * _n(s['omK'] ?? 1))}'
                   : '+12 fans · XP +10',
               style: V20Text.bm),
           Text('Effet de ce passage : ${jsRound(_n(s['omK'] ?? 1) * 100)} % (baisse si tu y retournes souvent)', style: V20Text.bs()),
@@ -1264,8 +1261,6 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
     final wrong = _answers.where((a) => a != good).toList();
     final played = _flowHit[rIdx];
     final struck = played == true && hint == 1 ? wrong[rIdx % 2] : null;
-    final tier = managerTier21(s);
-    final prime = tier == null ? '3 000' : '${fmt21(3000 - jsRound(3000 * (tier['rate'] as num)))} net après manager';
     final back = BackHeader(title: 'Battle', step: '1 h · −15 énergie', onBack: () => context.go('/scene'));
     if (!pending) {
       return ListView(padding: const EdgeInsets.all(16), children: [
@@ -1380,7 +1375,7 @@ class _Battle21ScreenState extends ConsumerState<Battle21Screen> {
         ),
         const SizedBox(height: 12),
       ],
-      Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +$prime cauris. Sinon : +12 fans.'),
+      const Conseq21(ConsequenceKind.certain, 'Gagne 2 rounds sur 3 : +150 fans, +6 réputation, +60 XP. Pas de cachet pour une battle de quartier. Sinon : +12 fans.'),
       if (_done) ...[
         const SizedBox(height: 12),
         PrimaryGlowButton(label: 'Voir le résultat', onPressed: () => context.go('/scene/battle-result')),
@@ -1429,7 +1424,7 @@ class BattleResult21Screen extends ConsumerWidget {
       ]),
       const SizedBox(height: 8),
       KpiRow(children: [
-        StatKpi(label: 'Prime', value: win ? '+${fmt21(_n(r['gross']))}' : '0'),
+        if (_n(r['gross']) > 0) StatKpi(label: 'Prime', value: '+${fmt21(_n(r['gross']))}') else StatKpi(label: 'XP', value: '+${_n(r['xp'])}'),
         const StatKpi(label: 'Énergie', value: '−15'),
       ]),
       if (_n(r['managerCut']) > 0) ...[

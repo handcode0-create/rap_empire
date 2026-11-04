@@ -96,6 +96,17 @@ class QgScreen extends ConsumerWidget {
           ]),
         ),
       ],
+      if (_crCard(s) case final card?) ...[
+        const SizedBox(height: 12),
+        GlassCard(
+          accent: GlassAccent.magenta,
+          onTap: () => context.go('/droits'),
+          child: Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(card.$1, style: V20Text.lab(color: Tk.acc4)), Text(card.$2, style: V20Text.nm()), Text(card.$3, style: V20Text.bs())])),
+            const GameTag('Urgent', style: GameTagStyle.accent),
+          ]),
+        ),
+      ],
       if (dl != null) ...[
         const SizedBox(height: 12),
         GlassCard(
@@ -707,4 +718,20 @@ class MeterBarLite extends StatelessWidget {
           ]),
         ),
       );
+}
+
+/// Carte du QG pour un litige de droits d'auteur visible (avis, procédure, intervention) ou une issue pas encore vue.
+(String, String, String)? _crCard(J s) {
+  final c = crClaim21(s);
+  if (c != null && c['st'] != 'decouvert') {
+    final t = '« ${c['title']} »';
+    return switch (c['st']) {
+      'intervention' => ('INTERVENTION OFFICIELLE', t, 'Titre suspendu · ${fmt21(crDue21(s))} cauris pour le rétablir'),
+      'conteste' => ('PROCÉDURE EN COURS', t, 'Décision le jour ${c['trial']} · revenus gelés'),
+      _ => ('LITIGE DE DROITS D’AUTEUR', t, '${fmt21((c['amt'] ?? 0) as num)} cauris réclamés · réponse avant le jour ${((c['due'] ?? 0) as num) + 1}'),
+    };
+  }
+  final o = s['crOut'];
+  if (o is Map && o['seen'] == 0) return ('DROITS D’AUTEUR', '« ${o['title']} »', o['type'] == 'retrait' ? 'Titre retiré des plateformes' : 'Décision rendue');
+  return null;
 }
