@@ -1,0 +1,27 @@
+{
+ "hairs": [
+  "hitwist",
+  "fade",
+  "afro",
+  "braids",
+  "locks",
+  "cornrows",
+  "knots",
+  "twists",
+  "hightop",
+  "mohawk",
+  "puffs",
+  "bald"
+ ],
+ "tattoos": {
+  "vis_tempe": "visage",
+  "vis_etoile": "visage",
+  "vis_ligne": "visage",
+  "cou_cauris": "cou",
+  "cou_bande": "cou",
+  "cou_soleil": "cou",
+  "main_cauri": "mains",
+  "main_soleil": "mains",
+  "main_phalanges": "mains"
+ }
+}

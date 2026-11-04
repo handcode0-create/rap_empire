@@ -1,32 +1,35 @@
 {
-    "name": "rap_empire",
-    "short_name": "rap_empire",
-    "start_url": ".",
+    "name": "RAP EMPIRE",
+    "short_name": "RAP EMPIRE",
+    "id": "/",
+    "start_url": "/",
+    "scope": "/",
+    "lang": "fr",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#140F22",
+    "theme_color": "#140F22",
+    "description": "Jeu mobile de carrière de rappeur dans l’univers fictif de Bakoma.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
         {
-            "src": "icons/Icon-192.png",
+            "src": "/icons/Icon-192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-512.png",
+            "src": "/icons/Icon-512.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-maskable-192.png",
+            "src": "/icons/Icon-maskable-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "icons/Icon-maskable-512.png",
+            "src": "/icons/Icon-maskable-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"

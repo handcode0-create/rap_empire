@@ -1,0 +1,34 @@
+name: Captures du site en ligne
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/v21-project-release-workflow]
+    paths: ['.github/workflows/screens-live.yml', 'tool/screens/**']
+
+permissions:
+  contents: write
+
+jobs:
+  shoot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attendre le déploiement Render de ce commit
+        run: sleep 300
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium webkit
+      - run: SHOT_ENGINE=webkit python tool/screens/shoot.py https://rap-empire-v21.onrender.com shots
+      - run: python tool/screens/shoot.py https://rap-empire-v21.onrender.com shots || true
+      - name: Publier les captures sur la branche ci-screens-live
+        run: |
+          mkdir -p /tmp/pub && cp shots/*.png /tmp/pub/
+          cd /tmp/pub
+          git init -q -b ci-screens-live
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -q -m "captures du site en ligne"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screens-live

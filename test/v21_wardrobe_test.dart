@@ -25,7 +25,7 @@ void main() {
       }
     }
     // une tenue sans ses deux variantes est indisponible
-    expect(Wardrobe21.outfits.where((o) => !outfitComplete21(o)).every((o) => o['status'] == 'indisponible'), isTrue);
+    expect(Wardrobe21.outfits.every((o) => outfitComplete21(o) && o['status'] == 'disponible'), isTrue);
   });
 
   test('achat, équipement, variante mature et sauvegarde', () {
@@ -42,7 +42,7 @@ void main() {
     var r = act21(s, 'obuy', 'OUTFIT_002');
     expect([r.err, r.s['cash']], ['deja', c0 - 6000]);
     expect(act21(s, 'obuy', 'OUTFIT_003').err, 'confirm'); // I-08 : 18 000 sans confirmation
-    expect(act21(s, 'obuy', 'OUTFIT_005').err, 'indispo');
+    expect(Wardrobe21.outfits.firstWhere((o) => o['id'] == 'OUTFIT_005')['status'], 'disponible'); // variante mature générée
     expect(act21(s, 'obuy', 'OUTFIT_004').err, 'rang');
     final poor = clone21(s)..['cash'] = 100;
     expect(act21(poor, 'oask', 'OUTFIT_003').err, 'cash');
@@ -50,12 +50,12 @@ void main() {
 
     s = must(s, 'oeq', 'OUTFIT_002');
     var look = resolveLook21(s);
-    expect([look.path, look.variant], ['${Wardrobe21.base}young/OUTFIT_002.webp', 'young']);
+    expect([look.path, look.variant], ['${Wardrobe21.base}young/v21b_OUTFIT_002.svg', 'young']);
 
     s['rank'] = Wardrobe21.matureRank;
     s = must(s, 'endDay');
     look = resolveLook21(s);
-    expect([look.variant, look.outfit, look.path], ['mature', 'OUTFIT_002', '${Wardrobe21.base}mature/OUTFIT_002.webp']);
+    expect([look.variant, look.outfit, look.path], ['mature', 'OUTFIT_002', '${Wardrobe21.base}mature/v21b_OUTFIT_002.svg']);
     expect(((s['wd'] as J)['owned'] as List).length, 2);
 
     final saved = jsonDecode(jsonEncode(s)) as J;
@@ -79,7 +79,7 @@ void main() {
     // le look choisi à la création ne bloque pas l'affichage des tenues
     final other = must(start(), 'ap', 'hair=afro');
     final look = resolveLook21(other);
-    expect([look.path, look.fallback], ['${Wardrobe21.base}young/OUTFIT_001.webp', null]);
+    expect([look.path, look.fallback], ['${Wardrobe21.base}young/v21b_OUTFIT_001.svg', null]);
   });
 
   test('en prison : sélection et annulation restent possibles, pas l\'achat', () {

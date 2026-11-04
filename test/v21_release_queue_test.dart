@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
-/// Réserve de titres enregistrés et sorties programmées (date de jeu), EP / album avec titres non sortis.
 J must(J s, String name, [dynamic arg]) {
   final r = act21(s, name, arg);
   expect(r.err, isNull, reason: '$name $arg');
@@ -12,7 +11,7 @@ J must(J s, String name, [dynamic arg]) {
 List l(dynamic x) => x as List;
 J m(dynamic x) => x as J;
 
-/// Écrit et enregistre un titre (énergie et heures remises à plein pour enchaîner les prises).
+/// Écrit et enregistre un titre, avec assez d'énergie et d'heures pour la prise.
 J recorded(J s) {
   s = clone21(s)
     ..['en'] = 100
@@ -28,7 +27,7 @@ void main() {
     expect(s['cur'], isNull);
     expect(l(s['stock']).length, 1);
     expect(l(s['disco']), isEmpty);
-    s = recorded(s); // on peut enchaîner un deuxième titre
+    s = recorded(s);
     expect(m(s['cur'])['id'], isNot(m(l(s['stock'])[0])['id']));
   });
 
@@ -67,7 +66,10 @@ void main() {
 
   test('réserve limitée', () {
     var s = init21();
-    s['stock'] = [for (var i = 0; i < Reg21.stockMax; i++) {'id': 'X$i', 'title': 'x', 'st': 'enregistre', 'Q': 50}];
+    s['stock'] = [
+      for (var i = 0; i < Reg21.stockMax; i++)
+        {'id': 'X$i', 'title': 'x', 'st': 'enregistre', 'Q': 50}
+    ];
     s = recorded(s);
     expect(act21(s, 'shelve').err, 'reserve');
   });
@@ -84,18 +86,94 @@ void main() {
     for (final id in ids) {
       s = must(s, 'ptk', id);
     }
-    s['en'] = 100;
-    s['hour'] = 8;
     s = must(s, 'prel');
     expect(l(s['stock']), isEmpty);
-    expect(l(s['disco']), isEmpty, reason: 'aucun single créé');
+    expect(l(s['disco']).length, 3, reason: 'les trois inédits deviennent des pistes de catalogue, sans sortie single');
+    for (final raw in l(s['disco'])) {
+      final track = m(raw);
+      expect(track['st'], 'sorti');
+      expect(track['L'], greaterThan(0));
+      expect(track['launchL'], track['L']);
+      expect(track['sales'], greaterThanOrEqualTo(0));
+      expect(m(track['platforms']), isNotEmpty);
+    }
     final p = m(l(s['projects'])[0]);
     expect(l(p['tracks']).length, 3);
     expect(l(p['inedits']).length, 3);
     expect(p['sales'], greaterThan(0));
-    // un nouveau titre ne reprend pas un numéro déjà donné
     final next = m(recorded(s)['cur'])['id'];
     expect(ids.contains(next), isFalse);
     expect(act21(s, 'ptk', 'T999').err, 'inconnu');
+  });
+
+  test('un projet mélange les singles déjà sortis et les inédits sélectionnés manuellement', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 100000;
+    s = recorded(s);
+    final unreleasedId = m(s['cur'])['id'] as String;
+    s = must(s, 'shelve');
+    s = recorded(s);
+    final secondUnreleasedId = m(s['cur'])['id'] as String;
+    s = must(s, 'shelve');
+    s = recorded(s);
+    s = must(s, 'release');
+    final releasedId = m(l(s['disco']).first)['id'] as String;
+    s = must(s, 'ptype', 'EP');
+    for (final id in [releasedId, unreleasedId, secondUnreleasedId]) {
+      s = must(s, 'ptk', id);
+    }
+    s = must(s, 'ppromo', 1);
+    s = must(s, 'prel');
+    expect(l(s['projects']).length, 1);
+    final p = m(l(s['projects']).first);
+    expect(p['tracks'], [releasedId, unreleasedId, secondUnreleasedId]);
+    expect(l(p['inedits']).length, 2);
+    expect(l(s['disco']).length, 3, reason: 'le single existant reste unique et les deux inédits rejoignent le catalogue');
+    expect(l(s['disco']).where((raw) => m(raw)['st'] == 'sorti').length, 3);
+    expect(l(s['disco']).map((raw) => m(raw)['id']).toSet().length, 3, reason: 'aucun identifiant dupliqué');
+    expect(l(s['stock']), isEmpty);
+    expect(p['promoName'], 'Réseaux sociaux');
+  });
+
+  test('un EP programmé sort au jour demandé et conserve la campagne choisie', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 100000;
+    for (var i = 0; i < 3; i++) {
+      s = recorded(s);
+      s = must(s, 'shelve');
+    }
+    s = must(s, 'ptype', 'EP');
+    for (final song in l(s['stock'])) {
+      s = must(s, 'ptk', m(song)['id']);
+    }
+    s = must(s, 'ppromo', 1);
+    final day = s['day'] as num;
+    s = must(s, 'pschedule', 2);
+    expect(l(s['pendingProjects']).length, 1);
+    expect(l(s['stock']), isEmpty, reason: 'les pistes réservées ne doivent pas être réutilisées');
+    expect(l(s['projects']), isEmpty, reason: 'le projet ne sort pas avant sa date');
+    s = must(s, 'endDay');
+    expect(l(s['projects']), isEmpty);
+    s = must(s, 'endDay');
+    expect(l(s['pendingProjects']), isEmpty);
+    expect(l(s['projects']).length, 1);
+    final project = m(l(s['projects']).first);
+    expect([project['day'], project['promoName'], l(project['inedits']).length],
+        [day + 2, 'Réseaux sociaux', 3]);
+  });
+
+  test('programmation EP : date invalide et fonds insuffisants ne débitent rien', () {
+    var s = init21()..['fans'] = 5000..['cash'] = 16000;
+    for (var i = 0; i < 3; i++) {
+      s = recorded(s);
+      s = must(s, 'shelve');
+    }
+    s = must(s, 'ptype', 'EP');
+    for (final song in l(s['stock'])) {
+      s = must(s, 'ptk', m(song)['id']);
+    }
+    s = must(s, 'ppromo', 1);
+    final before = s['cash'];
+    expect(act21(s, 'pschedule', 0).err, 'inconnu');
+    expect(act21(s, 'pschedule', 1).err, 'cash');
+    expect(s['cash'], before);
   });
 }

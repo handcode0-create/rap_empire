@@ -283,7 +283,7 @@ def chain_front(c):
 
 # ---------- assemblage de face ----------
 def figure(style='3d', view='front', skin=SKINS[3], hair='hitwist', hc='#1B1424', beard='stubble', mood='cool',
-           outfit=None, acc=('chain',), crop='full', bg=None, face='', mic=False, extra='', pose=''):
+           outfit=None, acc=('chain',), crop='full', bg=None, face='', mic=False, extra='', pose='', kid=None):
     c = C(style)
     of = dict(top='#F43F9D', pants='#2B2459', shoe='#F43F9D', accent='#FFC83D', kind='hoodie', skin=skin)
     if outfit: of.update(outfit)
@@ -299,6 +299,10 @@ def figure(style='3d', view='front', skin=SKINS[3], hair='hitwist', hc='#1B1424'
     hs = {'3d': 1.0, '2d': 0.96, 'semi': 0.84}[style]
     tilt = {'angry': 0, 'smirk': 5, 'poised': 3, 'laugh': -6, 'sing': -10, 'worried': 4, 'serious': 0}.get(mood, 0) if style == '2d' else 0
     dy = {'angry': 13, 'worried': 6, 'serious': 2}.get(mood, 0) if style == '2d' else 0
+    if kid:   # enfant : corps plus petit, tête plus grande (proportions de dessin animé), jamais de barbe
+        bs, hx, hy, dy = kid
+        g = '<g transform="translate(150 214) scale(%s) translate(-150 -214)">%s</g>' % (bs, g)
+        head = '<g transform="translate(0 %s) translate(150 190) scale(%s %s) translate(-150 -190)">%s</g>' % (dy, hx, hy, head)
     g += '<g transform="translate(150 150) rotate(%s) translate(0 %s) scale(%s %s) translate(-150 -150)">%s</g>' % (tilt, dy, hs * (.92 if 'fem' in acc else 1), hs, head)
     g += extra
     if mic: g += '<g transform="translate(60 380)">%s</g>' % ('<rect x="-6" y="-10" width="12" height="46" rx="6" fill="#2B2459" %s/><circle cx="0" cy="-18" r="14" fill="#B6B0DD" %s/>' % (c.ol, c.ol))
