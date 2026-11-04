@@ -67,7 +67,10 @@ class SplashScreen extends ConsumerWidget {
       backgroundColor: Tk.bg,
       body: ScreenBackground(
         child: SafeArea(
-          child: Padding(
+          child: Center(
+           child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(children: [
               const Spacer(flex: 2),
@@ -90,6 +93,7 @@ class SplashScreen extends ConsumerWidget {
               Align(alignment: Alignment.center, child: TextButton(onPressed: () => context.go('/demo'), child: Text('OUTIL DE DÉMO', style: V20Text.lab(color: V20.ink2)))),
             ]),
           ),
+          )),
         ),
       ),
     );

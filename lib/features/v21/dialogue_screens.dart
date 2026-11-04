@@ -50,7 +50,7 @@ class DialogueBanner extends StatelessWidget {
         builder: (context, c) => SceneBanner(
               kind: d.place,
               animate: true,
-              height: 190,
+              height: c.maxWidth >= 600 ? 250 : 190,
               role: d.ref,
               chars: [
                 if (_hasExtractedPortrait(d.who))
@@ -96,6 +96,10 @@ class DialogueScreen extends ConsumerWidget {
     final steps = d.nodes.length, step = done ? steps : d.nodes.keys.toList().indexOf(dl['node'] as String) + 1;
     final waiting = _l(s['dq']).length;
     return Frame21(children: [
+      Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       BackHeader(title: 'Scène', step: d.ref.split(' · ').first, onBack: () => context.go('/')),
       const SizedBox(height: 12),
       DialogueBanner(d, nodeKey),
@@ -168,6 +172,7 @@ class DialogueScreen extends ConsumerWidget {
         const SizedBox(height: 8),
         PrimaryButton(label: 'Toutes les scènes', style: GameButtonStyle.secondary, onPressed: () => context.go('/scenes')),
       ],
+      ]))),
     ]);
   }
 }
