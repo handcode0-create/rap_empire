@@ -271,7 +271,7 @@ void main() {
     expect(act21(act21(poor, 'dch', 'a').s, 'dch', 'a').err, 'cash');
     c = act21(c, 'dch', 'b').s;
     c = act21(c, 'dch', 'a').s;
-    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 26000, 'Accord à 35 %']);
+    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 23000, 'Accord à 35 %']); // 3 000 de moins : battle sans cachet (04/11/2026)
     c = act21(c, 'dclose').s;
     c = act21(c, 'release').s;
     expect(m(c['ms'])['m2'], isNotNull);
