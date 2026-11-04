@@ -27,7 +27,7 @@ class CreditsScreen extends StatelessWidget {
                     child: Semantics(
                       image: true,
                       label: 'Logo RAP EMPIRE',
-                      child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset('assets/logos/rap_empire_logo.png', fit: BoxFit.cover, height: 190, width: double.infinity)),
+                      child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset('assets/logos/rap_empire_logo.jpg', fit: BoxFit.contain, height: 280, width: double.infinity)),
                     ),
                   ),
                   const SizedBox(height: 16),

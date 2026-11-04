@@ -80,7 +80,7 @@ class SplashScreen extends ConsumerWidget {
                 header: true,
                 label: 'RAP EMPIRE, de Ndolo au monde',
                 child: ExcludeSemantics(
-                  child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset('assets/logos/rap_empire_logo.png', height: 150, fit: BoxFit.contain)),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset('assets/logos/rap_empire_logo.jpg', height: 190, fit: BoxFit.contain)),
                 ),
               ),
               const Spacer(),
