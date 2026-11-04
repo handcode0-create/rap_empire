@@ -85,7 +85,7 @@ void main() {
     test('licence expirée quand les écoutes couvertes sont dépassées', () {
       var s = withSong(base(), 'lic', CrReg21.licCapL + 1, owner: 'kore', inst: 'gbaka');
       m(song(s)['cr'])['cap'] = CrReg21.licCapL;
-      m(song(s)['cr'])['until'] = s['day'] as num + 100;
+      m(song(s)['cr'])['until'] = (s['day'] as num) + 100;
       s = must(s, 'endDay');
       expect(crStatus21(song(s)), 'exp');
     });
