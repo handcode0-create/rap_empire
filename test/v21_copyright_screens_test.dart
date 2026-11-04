@@ -146,6 +146,19 @@ void main() {
     expect(find.byType(CopyrightStrike), findsOneWidget);
   });
 
+  testWidgets('téléphone : la cloche signale l’avis, le Journal le montre en notification officielle', (tester) async {
+    final s = claimState();
+    expect(crBell21(s), isTrue);
+    await _pump(tester, s, '/journal');
+    expect(txt('TÉLÉPHONE · NOTIFICATIONS OFFICIELLES'), findsOneWidget);
+    expect(txt('AVIS DE RÉCLAMATION'), findsOneWidget);
+    await tester.tap(txt('AVIS DE RÉCLAMATION'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CopyrightStrike), findsOneWidget);
+    _m(s['crc'])['seen'] = 1;
+    expect(crBell21(s), isFalse);
+  });
+
   testWidgets('instrus : trois familles, conditions affichées, licence exclusive', (tester) async {
     var s = act21(init21(), 'preset', 'carriere').s;
     s = act21(s, 'create', ['quartier', 'sombre']).s;

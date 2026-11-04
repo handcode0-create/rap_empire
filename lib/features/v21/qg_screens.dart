@@ -24,6 +24,7 @@ import 'shell21.dart';
 import 'wardrobe_screens.dart';
 import 'awards_screens.dart' show AwardNewsCard21;
 import 'cast21.dart';
+import 'copyright_screens.dart' show PhoneInbox21;
 import 'festival_screens.dart';
 import 'widgets21.dart';
 
@@ -496,6 +497,7 @@ class JournalScreen extends ConsumerWidget {
       const SizedBox(height: 4),
       Align(alignment: Alignment.centerRight, child: GameTag('${missionsDone(s)} / ${Reg21.missions.length} missions')),
       const SizedBox(height: 8),
+      PhoneInbox21(s),
       CareerMissions21(s),
       const SizedBox(height: 12),
       GlassCard(

@@ -119,6 +119,14 @@ J? _crSong(J n, dynamic id) => _l(n['disco']).map(_m).where((x) => x['id'] == id
 
 void _crSet(J song, J cr) => song['cr'] = cr;
 
+/// Pastille de la cloche du HUD : un avis, une intervention ou une issue que le joueur n'a pas encore ouvert.
+bool crBell21(J s) {
+  final c = s['crc'];
+  if (c is Map && c['st'] != 'decouvert' && _n(c['seen']) == 0) return true;
+  final o = s['crOut'];
+  return o is Map && o['seen'] == 0;
+}
+
 /// Litige actif sur ce titre ?
 J? crClaim21(J n) => n['crc'] == null ? null : _m(n['crc']);
 
