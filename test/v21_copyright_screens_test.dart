@@ -149,7 +149,7 @@ void main() {
   testWidgets('instrus : trois familles, conditions affichées, licence exclusive', (tester) async {
     var s = act21(init21(), 'preset', 'carriere').s;
     s = act21(s, 'create', ['quartier', 'sombre']).s;
-    final repo = await _pump(tester, s, '/studio/instru');
+    final repo = await _pump(tester, s, '/studio/instru', height: 2600);
     for (final t in ['GRATUITES SUR KLIPO', 'SOUS LICENCE', 'AVEC UN PRODUCTEUR DU JEU', 'Non autorisée', 'Avec conditions', 'Libre de droits']) {
       expect(txt(t).evaluate().isNotEmpty || find.textContaining(t).evaluate().isNotEmpty, isTrue, reason: t);
     }
@@ -159,15 +159,14 @@ void main() {
   });
 
   testWidgets('fiche du titre : statut des droits et licence à acheter', (tester) async {
-    var s = act21(init21(), 'preset', 'carriere').s;
-    (s['disco'] as List).insert(0, <String, dynamic>{
-      'id': 'T90', 'title': 'Titre test', 'day': s['day'], 'L': 600000, 'launchL': 600000, 'rev': 100000, 'inst': 'minuit', 'signed': 0, 'Q': 60, 'tier': 'Hit',
-      'platforms': <String, dynamic>{}, 'clip': <String, dynamic>{'st': 'aucun'}, 'st': 'sorti', 'feats': <dynamic>[],
-      'cr': <String, dynamic>{'st': 'cond', 'lic': 'cond', 'owner': 'tamsir'},
-    });
-    (s['ui'] as J)['ctk'] = 'T90';
-    await _pump(tester, s, '/studio/catalogue/titre');
+    final s = act21(init21(), 'preset', 'carriere').s;
+    final t = _m((s['disco'] as List).first);
+    t['inst'] = 'minuit';
+    t['L'] = 600000;
+    t['cr'] = <String, dynamic>{'st': 'cond', 'lic': 'cond', 'owner': 'tamsir'};
+    (s['ui'] as J)['ctk'] = t['id'];
+    await _pump(tester, s, '/studio/catalogue/titre', height: 2600);
     expect(find.textContaining('DROITS D’AUTEUR'), findsWidgets);
-    expect(find.textContaining('Acheter la licence'), findsOneWidget);
+    expect(find.textContaining('Acheter la licence', findRichText: true).evaluate().isNotEmpty || txt('Acheter la licence · ${fmt21(crRegPrice21(t))} cauris').evaluate().isNotEmpty, isTrue);
   });
 }

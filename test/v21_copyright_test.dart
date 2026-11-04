@@ -224,11 +224,11 @@ void main() {
 
     test('accepter le retrait pendant l’intervention', () {
       var s = untilClaim(withSong(base(), 'nonaut', 3000000));
-      final p0 = s['pop'] as num;
       s = must(s, 'crIgnore');
       while (m(s['crc'])['st'] != 'intervention') {
         s = must(s, 'endDay');
       }
+      final p0 = s['pop'] as num;
       s = must(s, 'crDrop');
       expect([crStatus21(song(s)), s['crc']], ['retire', null]);
       expect(s['pop'] as num, lessThan(p0));

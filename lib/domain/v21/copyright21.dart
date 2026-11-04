@@ -134,7 +134,7 @@ int crNegoScore21(J n) {
   if (_n(_m(n['rel'])[c['owner']]) >= 10) sc++;
   sc -= _n(c['tension']).toInt();
   sc -= _l(n['crHist']).length >= 2 ? 1 : 0;
-  return sc.clamp(0, 5);
+  return sc < 0 ? 0 : (sc > 5 ? 5 : sc);
 }
 
 /// Risque affiché d'un refus en négociation pour une proposition (moitié : seuil 3 ; partage : seuil 2).
