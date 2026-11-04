@@ -76,9 +76,13 @@ class SplashScreen extends ConsumerWidget {
               const Spacer(flex: 2),
               Text('handCode Studio', style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: V20.ink2, spacing: 1.4)),
               const SizedBox(height: 8),
-              Text('RAP\nEMPIRE', textAlign: TextAlign.center, style: V20Text.baloo(size: 54, line: 56)),
-              const SizedBox(height: 8),
-              Text('De Ndolo au monde.', style: V20Text.bm),
+              Semantics(
+                header: true,
+                label: 'RAP EMPIRE, de Ndolo au monde',
+                child: ExcludeSemantics(
+                  child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset('assets/logos/rap_empire_logo.png', height: 150, fit: BoxFit.contain)),
+                ),
+              ),
               const Spacer(),
               SizedBox(height: 230, child: s == null ? const SizedBox() : EquippedAvatar(s, width: 153, height: 230)),
               if (saved) ...[
@@ -90,7 +94,10 @@ class SplashScreen extends ConsumerWidget {
               ] else
                 PrimaryGlowButton(label: 'Commencer', sublabel: 'Créer ton artiste', onPressed: s == null ? null : () => context.go('/univers')),
               const SizedBox(height: 8),
-              Align(alignment: Alignment.center, child: TextButton(onPressed: () => context.go('/demo'), child: Text('OUTIL DE DÉMO', style: V20Text.lab(color: V20.ink2)))),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                TextButton(onPressed: () => context.push('/credits'), child: Text('CRÉDITS', style: V20Text.lab(color: V20.ink2))),
+                TextButton(onPressed: () => context.go('/demo'), child: Text('OUTIL DE DÉMO', style: V20Text.lab(color: V20.ink2))),
+              ]),
             ]),
           ),
           )),

@@ -18,6 +18,7 @@ import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
 import '../features/v21/own_label_screens.dart';
 import '../features/v21/playlist_screens.dart';
+import '../features/v21/credits_screen.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
 import '../features/v21/reserve_screens.dart';
@@ -43,7 +44,8 @@ const startPaths = [
   '/artiste/look',
   '/artiste/style',
   '/artiste/objectif',
-  '/demo'
+  '/demo',
+  '/credits'
 ];
 
 GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
@@ -77,6 +79,10 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             path: '/artiste/objectif',
             name: '21-S5-Objectif',
             builder: (_, __) => const ObjectifScreen()),
+        GoRoute(
+            path: '/credits',
+            name: '21-S9-Credits',
+            builder: (_, __) => const CreditsScreen()),
         GoRoute(
             path: '/demo',
             name: '21-Q0-Demarrer',

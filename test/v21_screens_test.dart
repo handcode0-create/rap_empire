@@ -772,7 +772,7 @@ void main() {
       '/journee', '/bilan', '/journal', '/evenement',
       '/perso', '/perso/profil', '/perso/interactions', '/perso/relation', '/perso/officialiser', '/perso/couple', '/perso/demande', '/perso/mariage', '/perso/confirmation', '/perso/separation',
       '/famille', '/famille/enfant', '/famille/evenement', '/famille/bilan',
-      '/demarrer', '/nouvelle-partie', '/univers', '/artiste/identite', '/artiste/look', '/artiste/style', '/artiste/objectif', '/demo',
+      '/demarrer', '/nouvelle-partie', '/univers', '/artiste/identite', '/artiste/look', '/artiste/style', '/artiste/objectif', '/demo', '/credits',
     ];
     for (final size in [(390.0, 844.0), (360.0, 800.0)]) {
       for (final p in ['debut', 'carriere', 'star', 'parent', 'prison']) {

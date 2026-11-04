@@ -12,7 +12,8 @@ RUN V=$(date -u +%Y%m%d%H%M) \
  && cp tool/web/kill_sw.js build/web/flutter_service_worker.js \
  && mv build/web /out/b/$V \
  && cp /out/b/$V/index.html /out/index.html \
- && cp /out/b/$V/favicon.png /out/favicon.png \
+ && for f in favicon.png favicon.ico apple-touch-icon.png og-image.png manifest.json; do cp /out/b/$V/$f /out/$f; done \
+ && cp -r /out/b/$V/icons /out/icons \
  && cp tool/web/kill_sw.js /out/flutter_service_worker.js
 
 FROM nginx:alpine

@@ -391,6 +391,8 @@ class ReglagesScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         const GameHint(icon: 'info', text: 'Toutes les valeurs chiffrées de la zone v21 sont provisoires et regroupées dans lib/domain/v21/reg21.dart. Aucune n’est validée, sauf mention contraire.'),
         const SizedBox(height: 12),
+        ActionRow(title: 'Crédits', subtitle: 'Équipe, outils, polices, mentions', trailing: ActionRow.arrow(), onTap: () => context.push('/credits')),
+        const SizedBox(height: 12),
         ActionRow(title: 'Lancer la démo', subtitle: 'Charger un état complet : carrière, couple, famille', trailing: ActionRow.arrow(), onTap: () => context.go('/demo')),
         const SizedBox(height: 12),
         PrimaryButton(

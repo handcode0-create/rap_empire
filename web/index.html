@@ -6,16 +6,24 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="RAP EMPIRE — jeu mobile de carrière musicale dans l’univers fictif de Bakoma.">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="RAP EMPIRE">
+  <meta name="application-name" content="RAP EMPIRE">
+  <meta name="format-detection" content="telephone=no">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="manifest" href="manifest.json">
+  <!-- Chemins absolus : le manifeste et les icônes vivent à la racine du site (stables), pas dans /b/<build>/ qui change à chaque déploiement. -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="manifest" href="/manifest.json">
+  <meta property="og:title" content="RAP EMPIRE">
+  <meta property="og:description" content="De Ndolo au monde. Simulateur de carrière de rappeur dans l’univers fictif de Bakoma.">
+  <meta property="og:image" content="/og-image.png">
   <meta name="theme-color" content="#14102B">
   <title>RAP EMPIRE</title>
   <style>
-    html, body { margin: 0; width: 100%; height: 100%; background: #14102B; color: #fff; font-family: Arial, sans-serif; }
+    html, body { margin: 0; width: 100%; height: 100%; background: #14102B; color: #fff; font-family: Arial, sans-serif; overscroll-behavior: none; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
     #boot-status { min-height: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
     #boot-card { max-width: 420px; }
     #boot-title { font-size: 32px; font-weight: 800; letter-spacing: 1px; }
