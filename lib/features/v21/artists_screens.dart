@@ -74,7 +74,7 @@ class _Rivalites21ScreenState extends ConsumerState<Rivalites21Screen> {
         _RivalCard(rival.key, rival.value, links[rival.key], s),
         const SizedBox(height: 12),
       ],
-      const GameHint(icon: 'info', text: 'Une battle se joue en trois rounds. À partir de deux bonnes réponses : +150 fans, +3 000 cauris bruts, +6 réputation et +60 XP. La commission du manager est retenue sur le cachet.'),
+      const GameHint(icon: 'info', text: 'Une battle se joue en trois rounds. À partir de deux bonnes réponses : +150 fans, +6 réputation et +60 XP. Une battle de quartier ne paie pas de cachet.'),
       const SizedBox(height: 20),
       Text('ANNUAIRE DES ARTISTES', style: V20Text.lab()),
       const SizedBox(height: 8),

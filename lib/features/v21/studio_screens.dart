@@ -415,13 +415,35 @@ class Instru21Screen extends ConsumerWidget {
               Text(cur['title'] as String, style: V20Text.nm()),
               Text('Note du texte ${cur['tx']}', style: V20Text.bs()),
             ])),
-      for (final entry in Reg21.instrus.entries) ...[
-        const SizedBox(height: 8),
-        _InstruCard(id: entry.key, data: entry.value, s: s, selected: picked == entry.key),
+      for (final (label, hint, keys) in [
+        ('GRATUITES SUR KLIPO', 'Sans paiement. Lis leurs conditions : certaines interdisent une sortie payante.', ['libre', 'cond', 'nonaut']),
+        ('SOUS LICENCE', 'Payée au producteur. Non exclusive : ${fmt21(CrReg21.licCapL)} écoutes et ${CrReg21.licDays} jours couverts. Exclusive : sans limite.', ['lic']),
+      ]) ...[
+        const SizedBox(height: 16),
+        Text(label, style: V20Text.lab()),
+        Text(hint, style: V20Text.bs()),
+        for (final entry in Reg21.instrus.entries.where((e) => keys.contains(e.value['lic']))) ...[
+          const SizedBox(height: 8),
+          _InstruCard(id: entry.key, data: entry.value, s: s, selected: picked == entry.key),
+        ],
       ],
+      const SizedBox(height: 16),
+      Text('AVEC UN PRODUCTEUR DU JEU', style: V20Text.lab()),
+      const SizedBox(height: 8),
+      GameCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Production Studio Kôrô', style: V20Text.nm()),
+          Text(
+              _n(_m(s['kc'])['left']) > 0
+                  ? 'Accord actif : DJ Kôrô produit tes ${_n(_m(s['kc'])['left'])} prochains titres, droits cédés.'
+                  : 'Un accord avec DJ Kôrô (scène « Premier producteur ») lui fait produire tes titres, droits cédés.',
+              style: V20Text.bs()),
+          const Conseq21(ConsequenceKind.certain, 'Droits sécurisés : aucune réclamation possible sur ces titres'),
+        ]),
+      ),
       const SizedBox(height: 8),
       const Conseq21(ConsequenceKind.certain,
-          'L’instru est payée une fois, au moment du choix. Sans choix, la cabine utilise « Nuit à Ndo », gratuite.'),
+          'L’instru est payée une fois, au moment du choix. Sans choix, la cabine utilise « Nuit à Ndo », gratuite et libre de droits.'),
       const Conseq21(ConsequenceKind.estimated, 'La qualité de l’instru compte pour 35 % de la note finale du titre.'),
       const SizedBox(height: 12),
       PrimaryGlowButton(
@@ -446,24 +468,50 @@ class _InstruCard extends ConsumerWidget {
     final repLock = data['rep'] != null && _n(s['rep']) < _n(data['rep']);
     final lock = rankLock || repLock;
     final short = !lock && !selected && _n(s['cash']) < price;
+    final lic = data['lic'] as String? ?? 'lic';
+    final excl = instruPrice21(id, 'excl');
+    final exclChosen = selected && _m(s['ui'])['instLic'] == 'excl';
+    final (tag, tagStyle) = switch (lic) {
+      'libre' => ('Libre de droits', GameTagStyle.ok),
+      'cond' => ('Avec conditions', GameTagStyle.outline),
+      'nonaut' => ('Non autorisée', GameTagStyle.accent),
+      _ => (exclChosen ? 'Licence exclusive' : 'Licence', GameTagStyle.normal),
+    };
     return GameCard(
       selected: selected,
       onTap: () => doAct(context, ref, 'pick', id),
-      child: Row(children: [
-        Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(data['n'] as String, style: V20Text.nm()),
-          Text('${data['who']} · qualité de production ${data['Q']}', style: V20Text.bs()),
-          if (rankLock) Text('Rang N${data['rank']} requis', style: V20Text.bs(color: V20.hintGoldText)),
-          if (repLock) Text('Réputation ${data['rep']} requise', style: V20Text.bs(color: V20.hintGoldText)),
-          if (short) Text('Il manque ${fmt21(price - _n(s['cash']))} cauris', style: V20Text.bs(color: V20.hintGoldText)),
-        ])),
-        const SizedBox(width: 8),
-        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text(price == 0 ? 'Gratuite' : fmt21(price), style: V20Text.nm(color: Tk.gold)),
-          const SizedBox(height: 4),
-          if (selected) const GameTag('Choisie', style: GameTagStyle.ok) else if (lock) const GameTag('Verrou', style: GameTagStyle.outline),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(data['n'] as String, style: V20Text.nm()),
+            Text('${data['who']}${data['src'] != null ? ' · ${data['src']}' : ''} · qualité de production ${data['Q']}', style: V20Text.bs()),
+            if (rankLock) Text('Rang N${data['rank']} requis', style: V20Text.bs(color: V20.hintGoldText)),
+            if (repLock) Text('Réputation ${data['rep']} requise', style: V20Text.bs(color: V20.hintGoldText)),
+            if (short) Text('Il manque ${fmt21(price - _n(s['cash']))} cauris', style: V20Text.bs(color: V20.hintGoldText)),
+          ])),
+          const SizedBox(width: 8),
+          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Text(price == 0 ? 'Gratuite' : fmt21(exclChosen ? excl : price), style: V20Text.nm(color: Tk.gold)),
+            const SizedBox(height: 4),
+            if (selected) const GameTag('Choisie', style: GameTagStyle.ok) else if (lock) const GameTag('Verrou', style: GameTagStyle.outline),
+          ]),
         ]),
+        const SizedBox(height: 6),
+        GameTag(tag, style: tagStyle),
+        if (data['terms'] != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(data['terms'] as String, style: V20Text.bs())),
+        if (lic == 'libre') const Conseq21(ConsequenceKind.certain, 'Aucun risque de réclamation'),
+        if (lic == 'cond') const Conseq21(ConsequenceKind.risk, 'Risque : Faible à Moyen si le titre marche · licence à acheter plus tard au catalogue'),
+        if (lic == 'nonaut') const Conseq21(ConsequenceKind.risk, 'Risque : Élevé si le titre devient un hit · réclamation du vrai propriétaire'),
+        if (lic == 'lic') Conseq21(ConsequenceKind.certain, 'Non exclusive : ${fmt21(price)} cauris · exclusive : ${fmt21(excl)} cauris'),
+        if (lic == 'lic' && !selected && !lock) ...[
+          const SizedBox(height: 8),
+          PrimaryButton(
+            label: 'Licence exclusive · ${fmt21(excl)}',
+            style: GameButtonStyle.ghost,
+            onPressed: () => doAct(context, ref, 'pick', [id, 'excl']),
+          ),
+        ],
       ]),
     );
   }

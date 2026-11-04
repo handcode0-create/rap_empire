@@ -71,7 +71,11 @@ void main() {
       s['evDone'] = <String, dynamic>{...(s['evDone'] as Map<String, dynamic>? ?? const {}), for (final p in problemOrder21) p: 'parite'};
       // Scènes ajoutées après engine21.js : marquées vues pour ne pas changer la file de dialogues comparée.
       s['dseen'] = <String, dynamic>{...(s['dseen'] as Map<String, dynamic>? ?? const {}), for (final id in newSceneOrder21) id: 'parite'};
-      final watch = (sc['watch'] as List).cast<String>();
+      // Petites scènes sans cachet (décision de Smith du 04/11/2026) : l'open mic et la battle de K-Zer ne paient plus,
+      // donc la trésorerie et la commission du manager ne sont plus comparées dans ces scénarios. Les autres valeurs le restent.
+      final steps = (sc['steps'] as List).cast<Map<String, dynamic>>().map((e) => e['a']).toSet();
+      final unpaid = steps.contains('openmic') || steps.contains('battle');
+      final watch = (sc['watch'] as List).cast<String>().where((w) => !(unpaid && (w == 'cash' || w == 'mgrTot'))).toList();
       var i = 0;
       for (final st in (sc['steps'] as List).cast<Map<String, dynamic>>()) {
         i++;

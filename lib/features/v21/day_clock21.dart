@@ -7,7 +7,7 @@ import '../../domain/v21/reg21.dart';
 
 /// Écrans où le temps s'arrête : création du personnage, scènes à choix, cabine, battles, fin de journée et bilan.
 bool clockPaused21(String path) =>
-    const ['/demarrer', '/nouvelle-partie', '/univers', '/artiste', '/demo', '/fin-journee', '/bilan', '/dialogue', '/evenement', '/famille/evenement', 'cabine', 'battle']
+    const ['/demarrer', '/nouvelle-partie', '/univers', '/artiste', '/demo', '/fin-journee', '/bilan', '/dialogue', '/droits', '/evenement', '/famille/evenement', 'cabine', 'battle']
         .any(path.contains);
 
 /// Horloge en temps réel (une journée ≈ 1 min 30) : l'heure avance toute seule ; à minuit, la scène de fin de journée s'ouvre.

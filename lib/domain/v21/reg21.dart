@@ -738,11 +738,18 @@ class Reg21 {
   // ---------------------------------------------------------------------------------------------------------------------
 
   // studio : instrus payées une fois, cabine à 3 prises
+  // `lic` (droits d'auteur, copyright21.dart) : libre = usage commercial autorisé · cond = gratuite pour un usage non commercial ·
+  // nonaut = mise en ligne sans l'accord de l'auteur · lic = licence payée au producteur. `owner` = titulaire des droits (personnage).
   static const instrus = <String, J>{
-    'nuit': {'n': 'Nuit à Ndo', 'who': 'Gratuite', 'Q': 32, 'cost': 0, 'rank': 1},
-    'gbaka': {'n': 'Gbaka de 6h', 'who': 'DJ Kôrô', 'Q': 56, 'cost': 8000, 'rank': 1},
-    'pont': {'n': 'Pont des Griots', 'who': 'Sanko Beats', 'Q': 68, 'cost': 15000, 'rank': 2},
-    'lagune': {'n': "Lagune d'Ambre", 'who': 'Mister Wôrô', 'Q': 86, 'cost': 40000, 'rank': 1, 'rep': 30},
+    'nuit': {'n': 'Nuit à Ndo', 'who': 'Gratuite', 'Q': 32, 'cost': 0, 'rank': 1, 'lic': 'libre', 'src': 'Klipo',
+      'terms': 'Libre de droits : usage commercial autorisé.'},
+    'minuit': {'n': 'Drill de minuit', 'who': 'Tamsir Koffi', 'Q': 50, 'cost': 0, 'rank': 1, 'lic': 'cond', 'owner': 'tamsir', 'src': 'Klipo',
+      'terms': 'Gratuite pour un usage non commercial. Une sortie payante demande sa licence.'},
+    'brume': {'n': "Brume d'Or (type beat)", 'who': 'Compte « ndo_beatz »', 'Q': 66, 'cost': 0, 'rank': 1, 'lic': 'nonaut', 'owner': 'woro', 'src': 'Klipo',
+      'terms': 'Mise en ligne sans auteur ni licence. Le vrai propriétaire peut réclamer ses droits.'},
+    'gbaka': {'n': 'Gbaka de 6h', 'who': 'DJ Kôrô', 'Q': 56, 'cost': 8000, 'rank': 1, 'lic': 'lic', 'owner': 'kore'},
+    'pont': {'n': 'Pont des Griots', 'who': 'Sanko Beats', 'Q': 68, 'cost': 15000, 'rank': 2, 'lic': 'lic', 'owner': 'sanko'},
+    'lagune': {'n': "Lagune d'Ambre", 'who': 'Mister Wôrô', 'Q': 86, 'cost': 40000, 'rank': 1, 'rep': 30, 'lic': 'lic', 'owner': 'woro'},
   };
   static const takesDefault = [74, 48, 43];
   static const qualityWeights = (text: 0.35, voice: 0.30, prod: 0.35);
@@ -789,7 +796,8 @@ class Reg21 {
   };
 
   // battle de K-Zer : 3 rounds, victoire à 2
-  static const battleWin = 2, battleFee = 3000;
+  // Battle de quartier sans cachet (décision de Smith du 04/11/2026).
+  static const battleWin = 2, battleFee = 0;
 
   /// Indice de battle gagné au mini-jeu de Flow (règle validée par Smith, valeurs provisoires) : la zone à toucher s'élargit avec le Flow ;
   /// une réussite écarte une mauvaise réponse du round ; dès [flowHintReveal] de Flow, elle annonce le bon style.
@@ -798,7 +806,8 @@ class Reg21 {
   static int flowHintLevel(num flow) => flow >= flowHintReveal ? 2 : 1;
 
   // scène : open mic une fois par jour, gains décroissants sur 7 jours glissants
-  static const omWindow = 7, omStep = 0.15, omFloor = 0.3, omFans = 150, omCash = 3000;
+  // Petites scènes sans cachet (décision de Smith du 04/11/2026) : l'open mic rapporte fans, réputation et XP, pas de cauris.
+  static const omWindow = 7, omStep = 0.15, omFloor = 0.3, omFans = 150, omCash = 0;
 }
 
 /// Candidat(e)s de la vie perso : profils et préférences visibles.
@@ -1087,3 +1096,44 @@ const fev21 = <String, J>{
     'b': {'n': 'Décliner', 'g': -4}
   },
 };
+
+
+/// Droits d'auteur des instrumentales (demande de Smith du 04/11/2026). Toutes les valeurs sont PROVISOIRES (D-08) et réglables ici seulement.
+class CrReg21 {
+  /// Licence non exclusive : écoutes couvertes et durée en jours de jeu ; au-delà, la licence expire.
+  static const licCapL = 400000, licDays = 182;
+  /// Licence exclusive : prix de l'instru × [exclMult], sans limite d'écoutes ni de durée.
+  static const exclMult = 3;
+  /// Aucun risque sous [riskMinL] écoutes ; risque plein à partir de [riskFullL]. Surveillance pendant [riskDays] jours après la sortie.
+  static const riskMinL = 50000, riskFullL = 1500000, riskDays = 60;
+  /// Probabilité journalière d'une réclamation au risque plein, selon le statut des droits du titre.
+  static const base = <String, double>{'cond': 0.03, 'exp': 0.025, 'nonaut': 0.08};
+  /// Titre au Top 100 Singles : risque × [chartBoost]. Chaque litige passé : + [histBoost]. Plafond journalier [pMax].
+  static const chartBoost = 1.5, histBoost = 0.5, pMax = 0.25;
+  /// Au moins [gapDays] jours entre deux réclamations ; l'avis arrive [discoverMin] à [discoverMax] jours après la découverte.
+  static const gapDays = 10, discoverMin = 1, discoverMax = 3;
+  /// Montant réclamé : part des revenus du titre, + [histPct] par litige passé, plafond [pctMax] ; jamais moins que le prix de la licence.
+  static const pct = <String, double>{'cond': 0.20, 'exp': 0.15, 'nonaut': 0.35};
+  static const histPct = 0.05, pctMax = 0.5;
+  /// Prix d'une licence commerciale (régularisation, plancher de la réclamation). Pour une licence expirée : le prix d'origine de l'instru.
+  static const licFee = <String, int>{'cond': 12000, 'nonaut': 20000};
+  /// Régularisation spontanée, avant toute réclamation : prix de la licence + [regPct] des revenus déjà touchés.
+  static const regPct = 0.05;
+  /// Délai de réponse à l'avis ; délai final après l'intervention ; majoration de retard.
+  static const replyDays = 5, finalDays = 5, latePct = 0.3;
+  /// Rendez-vous de négociation : frais, heures, énergie.
+  static const negoFee = 2000, negoH = 1, negoEn = 10;
+  /// Contestation : décision après [contestDays] jours ; revenus du titre gelés pendant la procédure.
+  static const contestDays = 3;
+  /// Chances de gagner une contestation (sur 100) selon le dossier, + compétence de l'avocat ÷ 2, + [labelHelp] si signé en label.
+  static const contestBase = <String, int>{'cond': 35, 'exp': 45, 'nonaut': 10};
+  static const labelHelp = 5;
+  /// Défaite en contestation : montant × (1 + [contestLossPct]) et réputation − 2.
+  static const contestLossPct = 0.25;
+  /// Rétrocession : part des revenus futurs du titre versée au titulaire, et acompte (moitié du prix de la licence).
+  static const share = 0.5;
+  /// Signé en label : le label prend en charge cette part des frais de négociation et d'avocat.
+  static const labelLegal = 0.5;
+  /// Retrait du titre : pertes de popularité, de réputation et de fans (fraction).
+  static const popLoss = 4, repLoss = 3, fansLoss = 0.02;
+}

@@ -73,8 +73,11 @@ J? bestSong(J s) {
 
 /// Rang du meilleur titre au Top 100 Singles (0 = non classé), formule de la planche 21-R2 (provisoire).
 int singlesRank(J s) {
-  final b = bestSong(s);
-  final l = b == null ? 0 : _n(b['L']);
+  // Un titre retiré pour litige de droits d'auteur sort du classement.
+  num l = 0;
+  for (final d in _l(s['disco']).map(_m)) {
+    if (!crOff21(d) && _n(d['L']) > l) l = _n(d['L']);
+  }
   return l >= Reg21.entry ? math.max(8, math.min(100, jsRound(7 * math.pow(l / 8e6, -1 / 1.3)))) : 0;
 }
 
@@ -117,7 +120,7 @@ int streamsTotal(J s, J t) {
 int salesOf(J t) => (t['sales'] ?? jsRound(_n(t['L']) * Reg21.singleSales)) as int;
 
 /// Rang d'un single au Top 100 (0 = non classé), formule de la planche 21-R2.
-int singleRankOf(J t) => _n(t['L']) >= Reg21.entry ? math.max(8, math.min(100, jsRound(7 * math.pow(_n(t['L']) / 8e6, -1 / 1.3)))) : 0;
+int singleRankOf(J t) => !crOff21(t) && _n(t['L']) >= Reg21.entry ? math.max(8, math.min(100, jsRound(7 * math.pow(_n(t['L']) / 8e6, -1 / 1.3)))) : 0;
 
 /// « J25 · Indépendant · Bon » : ligne de détail d'une ligne du catalogue.
 String titleMeta(J t) => '${dateLabel21(_n(t['day']))} · ${t['labelAt'] ?? 'Indépendant'} · ${t['tier']}';

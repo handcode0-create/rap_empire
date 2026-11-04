@@ -20,6 +20,8 @@ export 'network21.dart';
 export 'social21.dart';
 export 'wardrobe21.dart';
 
+part 'copyright21.dart';
+
 /// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
 /// Écarts assumés avec le prototype (extensions déjà présentes dans l'application) : 10 thèmes de la bibliothèque musicale, titres générés,
 /// biens supplémentaires, niveaux de manager M1 à M6, revenus de catalogue quotidiens, rivaux autres que K-Zer. Tests de parité : test/parity21_test.dart.
@@ -167,6 +169,11 @@ J init21() {
     'crimeN': 0,
     'cas': null,
     'casier': <dynamic>[],
+    // droits d'auteur (copyright21.dart) : litige actif, litiges clos, dernier verdict ou retrait, jour du dernier litige
+    'crc': null,
+    'crHist': <dynamic>[],
+    'crOut': null,
+    'crAt': null,
     'dlg': null,
     'dq': <dynamic>[],
     'dseen': <String, dynamic>{},
@@ -945,7 +952,8 @@ String? _applyEff(J n, J? e) {
 /// Actions autorisées en prison (avec les écrans de réglage) : le reste répond 'prison'.
 const jailOk21 = {
   'endDay', 'tick', 'jw', 'js', 'jrecord', 'jphone', 'jrio', 'jfight', 'dch', 'dclose', 'dstart', 'preset', 'setui', 'setp', 'uv', 'ap', 'reset', 'skipYear', 'ctk',
-  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'ccancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen'
+  'ctki', 'ptype', 'ptk', 'ptki', 'setcover', 'setthumb', 'rptitle', 'trial', 'lawyer', 'mature', 'osel', 'ocancel', 'ccancel', 'kv', 'mcl', 'mkcancel', 'mclaim', 'awseen',
+  'crSeen', 'crPay', 'crIgnore', 'crContest', 'crDrop'
 };
 
 /// Numéro du prochain titre : croissant même quand des titres restent en réserve ou partent dans un EP / album.
@@ -1223,6 +1231,7 @@ Res _mkBuy(J s, String id, bool ok) {
 }
 
 final Map<String, Action> actions21 = {
+  ...crActions21,
   // ---- Espace Réseau (21-N0 à 21-N8) [VALIDÉ 20/10, valeurs provisoires] ----
   'kv': (s, a) {
     final i = a is num ? a.toInt() : int.tryParse('$a') ?? -1;
@@ -1321,7 +1330,10 @@ final Map<String, Action> actions21 = {
   },
 
   // Instru choisie (04.3), payée au choix ; utilisée à la prochaine prise de cabine.
-  'pick': (s, id) {
+  // `arg` : identifiant, ou [identifiant, licence] avec licence 'nonexcl' (défaut) ou 'excl' (droits d'auteur, copyright21.dart).
+  'pick': (s, arg) {
+    final id = arg is List && arg.isNotEmpty ? arg[0] : arg;
+    final lic = arg is List && arg.length > 1 && arg[1] == 'excl' ? 'excl' : 'nonexcl';
     final i = Reg21.instrus[id];
     if (i == null) return _no(s, 'inconnu');
     final cur = s['cur'];
@@ -1329,11 +1341,14 @@ final Map<String, Action> actions21 = {
     if (_m(s['ui'])['inst'] == id) return _ok(s);
     if (_n(s['rank']) < (i['rank'] as num)) return _no(s, 'rang');
     if (i['rep'] != null && _n(s['rep']) < (i['rep'] as num)) return _no(s, 'rep');
-    if (_n(s['cash']) < (i['cost'] as num)) return _no(s, 'cash');
+    final paid = i['lic'] == 'lic' ? lic : 'nonexcl';
+    final cost = instruPrice21('$id', paid);
+    if (_n(s['cash']) < cost) return _no(s, 'cash');
     final n = clone21(s);
-    if (_n(i['cost']) != 0) _pay(n, -(i['cost'] as num));
+    if (cost != 0) _pay(n, -cost);
     _m(n['ui'])['inst'] = id;
-    _log(n, 'Instru choisie : ${i['n']}${_n(i['cost']) != 0 ? ' (−${fmt21(i['cost'] as num)})' : ' (gratuite)'}', 'musique');
+    _m(n['ui'])['instLic'] = paid;
+    _log(n, 'Instru choisie : ${i['n']}${cost != 0 ? ' (−${fmt21(cost)}${paid == 'excl' ? ', licence exclusive' : ''})' : ' (gratuite)'}', 'musique');
     return _ok(n);
   },
 
@@ -1360,7 +1375,9 @@ final Map<String, Action> actions21 = {
     final mal = math.min(20, math.max(0, 40 - _n(s['en'])) / 2);
     cur['takes'] = tk;
     cur['inst'] = iid;
+    cur['cr'] = crForRecord21(n, iid, kb != 0);
     ui['inst'] = null;
+    ui['instLic'] = null;
     cur['prodBy'] = kb != 0
         ? 'DJ Kôrô (Studio Kôrô)'
         : inst['who'] == 'Gratuite'
@@ -1706,7 +1723,7 @@ final Map<String, Action> actions21 = {
     if (win) {
       n['fans'] = _n(n['fans']) + jsRound(Reg21.omFans * k);
       n['rep'] = _n(n['rep']) + (k >= 0.7 ? 6 : 3);
-      final managerCut = _cachet(n, Reg21.omCash, 'open mic');
+      final managerCut = Reg21.omCash > 0 ? _cachet(n, Reg21.omCash, 'open mic') : 0;
       n['omCash'] = Reg21.omCash - managerCut;
       n['omCut'] = managerCut;
       _geoAdd(n, 'bakoma', 2 * k);
@@ -1733,7 +1750,7 @@ final Map<String, Action> actions21 = {
       fans = 150 + (n['lperk'] == 'street' ? 50 : 0);
       n['fans'] = _n(n['fans']) + fans;
       n['rep'] = _n(n['rep']) + 6;
-      managerCut = _cachet(n, Reg21.battleFee, 'battle');
+      managerCut = Reg21.battleFee > 0 ? _cachet(n, Reg21.battleFee, 'battle') : 0;
       cash = Reg21.battleFee - managerCut;
       _geoAdd(n, 'bakoma', 2);
       _addXp(n, 60);
@@ -1749,7 +1766,7 @@ final Map<String, Action> actions21 = {
       'managerCut': managerCut, 'rep': win ? 6 : 0, 'xp': win ? 60 : 10,
     };
     n['btq'] = null;
-    _log(n, "Battle contre K-Zer d'Mabaya : ${win ? 'victoire ' : 'défaite '}$w / 3${win ? ' (+150 fans, +6 réputation, +3 000)' : ' (+12 fans)'}", 'scene');
+    _log(n, "Battle contre K-Zer d'Mabaya : ${win ? 'victoire ' : 'défaite '}$w / 3${win ? ' (+150 fans, +6 réputation${Reg21.battleFee > 0 ? ', +${fmt21(Reg21.battleFee)}' : ''})' : ' (+12 fans)'}", 'scene');
     return _ok(n);
   },
 
@@ -3234,9 +3251,16 @@ Res _endDay(J s) {
       song['lastDayViews'] = 0;
       continue;
     }
+    // Droits d'auteur : un titre suspendu ou retiré n'a plus d'écoutes ; en litige, ses revenus peuvent être retenus.
+    if (crOff21(song)) {
+      song['lastDayL'] = 0;
+      song['lastDayRev'] = 0;
+      song['lastDayViews'] = 0;
+      continue;
+    }
     final gross = jsRound(daily * Reg21.listenValue);
     final cut = _t(song['signed']) ? jsRound(gross * Reg21.labelCut) : 0;
-    final net = gross - cut;
+    final net = gross - cut - _crHold(n, song, gross - cut);
     song['L'] = _n(song['L']) + daily;
     song['rev'] = _n(song['rev']) + net;
     song['cut'] = _n(song['cut']) + cut;
@@ -3477,6 +3501,7 @@ Res _endDay(J s) {
   ev.addAll(_playlistsDay(n));
   ev.addAll(_awardsDay(n));
   ev.addAll(_festivalsDay(n));
+  ev.addAll(_crDay(n));
   rom['used'] = 0;
   rom['today'] = <String, dynamic>{};
   for (final k in kids) {

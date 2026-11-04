@@ -18,6 +18,7 @@ import '../../core/widgets/stat_kpi.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../domain/v21/view21.dart';
+import 'copyright_screens.dart';
 import 'cover_screens.dart';
 import 'library_screens.dart';
 import 'widgets21.dart';
@@ -345,6 +346,8 @@ class TitreScreen extends ConsumerWidget {
         KeyVal('Clip', '$clipName'),
         KeyVal('Label à la sortie', '${t['labelAt'] ?? 'Indépendant'}'),
       ])),
+      const SizedBox(height: 12),
+      RightsCard(s, t),
       const SizedBox(height: 12),
       GlassCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

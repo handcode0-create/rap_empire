@@ -18,6 +18,7 @@ import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
 import '../features/v21/own_label_screens.dart';
 import '../features/v21/playlist_screens.dart';
+import '../features/v21/copyright_screens.dart';
 import '../features/v21/credits_screen.dart';
 import '../features/v21/profile_screens.dart';
 import '../features/v21/qg_screens.dart';
@@ -336,6 +337,16 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             path: '/journal',
             name: '21-J1-Journal',
             builder: (_, __) => const JournalScreen()),
+        GoRoute(
+            path: '/droits',
+            name: '21-DA1-Litige',
+            builder: (_, __) => const LitigeScreen(),
+            routes: [
+              GoRoute(
+                  path: 'rendez-vous',
+                  name: '21-DA2-Rendez-vous',
+                  builder: (_, __) => const RendezVousScreen()),
+            ]),
         GoRoute(
             path: '/dialogue',
             name: '21-X1-Dialogue',
