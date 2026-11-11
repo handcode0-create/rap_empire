@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -122,6 +123,10 @@ class SceneScreen21 extends ConsumerWidget {
             tag: const GameTag('Prêt', style: GameTagStyle.ok),
             onTap: () => doAct(context, ref, 'concert', null,
                 () => context.go('/scene/resultat'))),
+      if (rank >= 3) ...[
+        const Lab21('Invitations de concert'),
+        for (final o in cvView21(s)) _InviteCard(o: o, s: s),
+      ],
       const Lab21('Tournées'),
       if (rank < 3)
         row('Tournée régionale (Port-Ambre, Sélène)', 'Débloquée au rang N3',
@@ -222,7 +227,7 @@ class ConcertResultScreen extends ConsumerWidget {
           halo: false,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : 'LE PARVIS · NDOLO',
+            Text(cc['tour'] == 1 ? 'TOURNÉE RÉGIONALE' : (cc['v22'] == 1 ? '${cc['title']} · ${cc['city']}'.toUpperCase() : 'LE PARVIS · NDOLO'),
                 style: V20Text.lab(color: V20.accText)),
             Text(cc['tour'] == 1 ? 'Tournée' : 'Note ${cc['g']}',
                 style: V20Text.dm(size: 30)),
@@ -232,12 +237,25 @@ class ConcertResultScreen extends ConsumerWidget {
         CrowdStage(
             fill: cc['tour'] == 1 ? 0.9 : (_n(cc['fill'] ?? jsRound(100 * _n(cc['tk']) / Reg21.capacity)) / 100).clamp(0, 1),
             media: cc['media'] == null ? null : media21[cc['media']]?.n),
-        if (_n(cc['spon']) > 0) ...[
+        if (_n(cc['spon']) > 0 && cc['v22'] != 1) ...[
           const SizedBox(height: 8),
           Conseq21(ConsequenceKind.certain, 'Partenaire ${media21[cc['media']]?.n ?? ''} : bonus de cachet +${fmt21(_n(cc['spon']))} (inclus dans le gain)'),
         ],
         const SizedBox(height: 12),
-        if (cc['tour'] != 1)
+        if (cc['v22'] == 1) ...[
+          GlassCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('PUBLIC ET CACHET', style: V20Text.lab()),
+              KeyVal('Spectateurs', '${cc['tk']} / ${cc['cap']}'),
+              const SizedBox(height: 4),
+              MeterBar(value: (_n(cc['tk']) / math.max(1, _n(cc['cap']))).clamp(0, 1).toDouble()),
+              if (_n(cc['spon']) > 0) KeyVal('Sponsor ${cc['cat']}', '+${fmt21(_n(cc['spon']))}'),
+              if (_n(cc['travel']) > 0) KeyVal('Déplacement', '−${fmt21(_n(cc['travel']))}'),
+              if (_n(cc['managerCut']) > 0) KeyVal('Retenue manager', '−${fmt21(_n(cc['managerCut']))}'),
+            ]),
+          ),
+        ],
+        if (cc['tour'] != 1 && cc['v22'] != 1)
           GlassCard(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1135,4 +1153,63 @@ String? jobLockText21(J s, String id) {
     'rep' => 'Réputation ${j['rep']} requise (tu as ${_n(s['rep']).toInt()})',
     _ => null,
   };
+}
+
+
+/// V22 : une invitation de concert (illustration, cachet, sponsor, public attendu, frais de déplacement).
+class _InviteCard extends ConsumerWidget {
+  final J o;
+  final J s;
+  const _InviteCard({required this.o, required this.s});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final acc = o['status'] == 'accepted';
+    final sp = o['sponsor'] as J?;
+    final travel = cvTravel21(o);
+    final bonus = sp == null ? 0 : _n(sp['bonus']).toInt();
+    final fee = _n(o['fee']).toInt();
+    final wait = Reg21.concertEvery - (_n(s['day']) - _n(s['lastConcert'])).toInt();
+    final fill = (_n(o['fill']) / 100).clamp(0, 1).toDouble();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.asset(o['img'] as String, fit: BoxFit.cover, cacheWidth: 800, errorBuilder: (_, __, ___) => const SizedBox()),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Expanded(child: Text(o['title'] as String, style: V20Text.dm(size: 20))),
+            Text('★' * _n(o['prestige']).toInt(), style: V20Text.bs(color: Tk.gold)),
+          ]),
+          Text('${o['label']} · ${o['cityName']}', style: V20Text.bs()),
+          const SizedBox(height: 6),
+          Text('${fmt21(fee)} cauris', style: V20Text.dm(size: 22, color: Tk.gold)),
+          if (sp != null)
+            Text('Sponsor ${sp['cat']} : +${fmt21(bonus)} cauris${_n(sp['rep']) > 0 ? ' · réputation +${sp['rep']}' : ''} (affiché avant acceptation)', style: V20Text.bs()),
+          Text(travel > 0 ? 'Déplacement : −${fmt21(travel)} cauris (transport et hébergement)' : 'Sur place : aucun frais de déplacement', style: V20Text.bs()),
+          const SizedBox(height: 6),
+          MeterBar(value: fill),
+          const SizedBox(height: 4),
+          Text('${fmt21(_n(o['att']))} / ${fmt21(_n(o['cap']))} spectateurs attendus · ${o['fill']} %', style: V20Text.bs()),
+          const SizedBox(height: 4),
+          Text(acc ? 'Accepté · cachet figé à l’acceptation' : 'Expire au jour ${o['exp']}', style: V20Text.bs()),
+          const SizedBox(height: 8),
+          if (!acc) ...[
+            PrimaryGlowButton(label: 'ACCEPTER', onPressed: () => doAct(context, ref, 'cvAccept', o['id'])),
+            const SizedBox(height: 6),
+            PrimaryButton(label: 'REFUSER', style: GameButtonStyle.ghost, onPressed: () => doAct(context, ref, 'cvDecline', o['id'])),
+          ] else if (wait > 0)
+            GameTag('Prochaine date dans $wait j', style: GameTagStyle.outline)
+          else
+            PrimaryGlowButton(label: 'JOUER LE CONCERT', onPressed: () => doAct(context, ref, 'cvPlay', o['id'], () => context.go('/scene/resultat'))),
+        ]),
+      ),
+    );
+  }
 }
