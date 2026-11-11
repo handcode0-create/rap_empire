@@ -196,11 +196,11 @@ Res cvDecline21(J s, dynamic a) {
 /// Jouer un concert accepté : cachet figé à l'acceptation, payé une seule fois (sponsor compris), frais de déplacement déduits.
 Res cvPlay21(J s, dynamic a) {
   if (_n(s['rank']) < 3) return _no(s, 'rang');
-  if (_n(s['day']) - _n(s['lastConcert']) < Reg21.concertEvery) return _no(s, 'delai');
   final n = clone21(s);
   _cvRefresh(n);
   final o = _cvFind(n, a);
   if (o == null || o['status'] != 'accepted') return _no(s, 'inconnu');
+  if (_n(s['day']) - _n(s['lastConcert']) < Reg21.concertEvery) return _no(s, 'delai');
   final cost = cvTravel21(o);
   if (_n(n['cash']) < cost) return _no(s, 'cash');
   final own = _m(s['own']);
