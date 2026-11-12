@@ -64,32 +64,109 @@ class SplashScreen extends ConsumerWidget {
     final saved = s != null && s['created'] == 1;
     return Scaffold(
       backgroundColor: Tk.bg,
-      body: ScreenBackground(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(children: [
-              const Spacer(flex: 2),
-              Text('handCode Studio', style: V20Text.poppins(size: 13, line: 16, weight: FontWeight.w700, color: V20.ink2, spacing: 1.4)),
-              const SizedBox(height: 8),
-              Text('RAP\nEMPIRE', textAlign: TextAlign.center, style: V20Text.baloo(size: 54, line: 56)),
-              const SizedBox(height: 8),
-              Text('De Ndolo au monde.', style: V20Text.bm),
-              const Spacer(),
-              SizedBox(height: 230, child: s == null ? const SizedBox() : EquippedAvatar(s, width: 153, height: 230)),
-              if (saved) ...[
-                _SavedCard(s),
-                const SizedBox(height: 12),
-                PrimaryGlowButton(label: 'Continuer', sublabel: "Reprendre là où tu t'es arrêté", onPressed: () => context.go('/')),
-                const SizedBox(height: 8),
-                PrimaryButton(label: 'Nouvelle partie', style: GameButtonStyle.ghost, onPressed: () => context.go('/nouvelle-partie')),
-              ] else
-                PrimaryGlowButton(label: 'Commencer', sublabel: 'Créer ton artiste', onPressed: s == null ? null : () => context.go('/univers')),
-              const SizedBox(height: 8),
-              Align(alignment: Alignment.center, child: TextButton(onPressed: () => context.go('/demo'), child: Text('OUTIL DE DÉMO', style: V20Text.lab(color: V20.ink2)))),
-            ]),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/qg2.webp', fit: BoxFit.cover, alignment: Alignment.center),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.fromRGBO(12, 8, 32, .58),
+                  Color.fromRGBO(20, 16, 43, .34),
+                  Color.fromRGBO(12, 8, 32, .96),
+                ],
+                stops: [0, .42, 1],
+              ),
+            ),
           ),
-        ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(0, -.15),
+                radius: .82,
+                colors: [Color.fromRGBO(244, 63, 157, .25), Color.fromRGBO(20, 16, 43, 0)],
+                stops: [0, 1],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(22, 18, 22, 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              'handCode STUDIO  ·  PRÉSENTE',
+                              textAlign: TextAlign.center,
+                              style: V20Text.poppins(size: 10, line: 14, weight: FontWeight.w800, color: const Color(0xFFE8DDFB), spacing: 2.1),
+                            ),
+                            const SizedBox(height: 22),
+                            Text('RAP', style: V20Text.baloo(size: 54, line: 52, color: Colors.white).copyWith(shadows: const [Shadow(color: Color(0xAA000000), blurRadius: 18)])),
+                            Text('EMPIRE', style: V20Text.baloo(size: 62, line: 62, color: const Color(0xFFFFC83D)).copyWith(shadows: const [Shadow(color: Color(0xAA000000), blurRadius: 22)])),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 74,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(99),
+                                gradient: const LinearGradient(colors: [Color(0xFFF43F9D), Color(0xFFFFC83D), Color(0xFF3CD6F2)]),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'DE NDOLO AU MONDE.',
+                              textAlign: TextAlign.center,
+                              style: V20Text.poppins(size: 12, line: 16, weight: FontWeight.w800, color: Colors.white, spacing: 2.2),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Écris ton histoire. Construis ton empire.',
+                              textAlign: TextAlign.center,
+                              style: V20Text.bs(color: const Color(0xFFE7E0F4)),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: SizedBox(
+                            height: 205,
+                            child: s == null ? const SizedBox() : EquippedAvatar(s, width: 137, height: 205),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            if (saved) ...[
+                              _SavedCard(s),
+                              const SizedBox(height: 12),
+                              PrimaryGlowButton(label: 'Continuer', sublabel: "Reprendre là où tu t'es arrêté", onPressed: () => context.go('/')),
+                              const SizedBox(height: 8),
+                              PrimaryButton(label: 'Nouvelle partie', style: GameButtonStyle.ghost, onPressed: () => context.go('/nouvelle-partie')),
+                            ] else
+                              PrimaryGlowButton(label: 'Commencer', sublabel: 'Créer ton artiste · bâtir ta carrière', onPressed: s == null ? null : () => context.go('/univers')),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () => context.go('/demo'),
+                              child: Text('OUTIL DE DÉMO', style: V20Text.lab(color: const Color(0xFFD7CBEA))),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
