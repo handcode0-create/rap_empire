@@ -11,6 +11,7 @@ import '../../core/widgets/game_hint.dart';
 import '../../core/widgets/game_tag.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/meter_bar.dart';
+import '../../core/widgets/scene_banner.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import '../../core/widgets/character_view.dart';
@@ -73,6 +74,16 @@ class LabelsAllScreen extends ConsumerWidget {
     final dl = s['dlg'] == null ? null : s['dlg'] as Map;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Les 10 labels', step: 'Existant · 18.1', onBack: () => context.go('/business/labels')),
+      const SizedBox(height: 12),
+      const SceneBanner(
+        kind: 'office',
+        imageAsset: 'assets/label_hall.webp',
+        height: 165,
+        role: 'INDUSTRIE MUSICALE',
+        name: 'MAISONS DE DISQUES',
+        subtitle: 'Compare les labels et leurs propositions.',
+        nameSize: 23,
+      ),
       const SizedBox(height: 12),
       GlassCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

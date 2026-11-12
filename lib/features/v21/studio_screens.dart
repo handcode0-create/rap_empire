@@ -100,6 +100,16 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
       _title.text = ui['title'] as String;
     }
     return ListView(padding: const EdgeInsets.all(16), children: [
+      SceneBanner(
+        kind: 'studio',
+        imageAsset: hs ? 'assets/studio_high_level.webp' : 'assets/studio.webp',
+        height: 178,
+        role: hs ? 'ESPACE DE PRODUCTION PRIVÉ' : 'ESPACE DE CRÉATION',
+        name: hs ? 'HOME STUDIO' : 'STUDIO D’ENREGISTREMENT',
+        subtitle: hs ? 'Ton équipement personnel est prêt.' : 'Écris, enregistre et façonne ton prochain titre.',
+        nameSize: 24,
+      ),
+      const SizedBox(height: 12),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('STUDIO', style: V20Text.dm()),
         GameTag('${_l(s['disco']).length} sorti(s)'),

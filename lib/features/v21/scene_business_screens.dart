@@ -340,6 +340,16 @@ class BusinessScreen21 extends ConsumerWidget {
           icon: 'info',
           text:
               'Matériel et formation : écrans existants 09.1 et 09.3. Nouveau ici : petits boulots, entreprises, patrimoine, merch. Ces activités rapportent des cauris, pas de fans ni de rang.'),
+      const SceneBanner(
+        kind: 'office',
+        imageAsset: 'assets/training_room.webp',
+        height: 150,
+        role: 'DÉVELOPPEMENT ARTISTIQUE',
+        name: 'ATELIER DE FORMATION',
+        subtitle: 'Fais progresser tes compétences.',
+        nameSize: 22,
+      ),
+      const SizedBox(height: 12),
       const Lab21('Formation'),
       ActionRow(
         title: "Atelier d'écriture",
@@ -813,6 +823,16 @@ class Manager21Screen extends ConsumerWidget {
     final active = tierKey != null;
     return ListView(padding: const EdgeInsets.all(16), children: [
       BackHeader(title: 'Mon manager', onBack: () => context.go('/business')),
+      const SizedBox(height: 12),
+      const SceneBanner(
+        kind: 'office',
+        imageAsset: 'assets/bureau_manager.webp',
+        height: 165,
+        role: 'ÉQUIPE & STRATÉGIE',
+        name: 'TON MANAGER',
+        subtitle: 'Structure ta carrière et tes opportunités.',
+        nameSize: 24,
+      ),
       const SizedBox(height: 12),
       GameCard(
           child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [

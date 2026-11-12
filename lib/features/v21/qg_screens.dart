@@ -205,7 +205,8 @@ class _Hero extends StatelessWidget {
   Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
         SceneBanner(
           kind: 'studio',
-          height: 150,
+          imageAsset: 'assets/qg.webp',
+          height: 170,
           role: 'Ndolo · année ${yearOf(s)} · ${s['age']} ans',
           name: 'Jour ${dayInYear(s)}',
           nameSize: 30,

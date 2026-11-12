@@ -26,9 +26,12 @@ class SceneBanner extends StatelessWidget {
   /// Décor SVG de assets/svg/ (commissariat, tribunal, cellule…) à la place de assets/scenes/<kind>.svg.
   final String? sceneAsset;
 
+  /// Illustration raster WebP (prioritaire sur le décor SVG par défaut).
+  final String? imageAsset;
+
   /// Garde le nom sur une ligne en le réduisant au besoin (planche 10.3) ; sinon il passe à la ligne (planche 04.1).
   final bool nameSingleLine;
-  const SceneBanner({super.key, required this.kind, this.role, this.name, this.subtitle, this.height = 190, this.nameSize = 24, this.nameSingleLine = false, this.chars = const [], this.top, this.sceneAsset});
+  const SceneBanner({super.key, required this.kind, this.role, this.name, this.subtitle, this.height = 190, this.nameSize = 24, this.nameSingleLine = false, this.chars = const [], this.top, this.sceneAsset, this.imageAsset});
 
   /// Rapport hauteur / largeur des personnages (viewBox torse 260 x 340, buste 220 x 250).
   static double _ratio(String crop) => crop == 'torso' ? 340 / 260 : 250 / 220;
@@ -40,7 +43,10 @@ class SceneBanner extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(22.5),
           child: Stack(fit: StackFit.expand, children: [
-            SvgPicture.asset(sceneAsset ?? 'assets/scenes/$kind.svg', fit: BoxFit.cover, alignment: Alignment.center),
+            if (imageAsset != null)
+              Image.asset(imageAsset!, fit: BoxFit.cover, alignment: Alignment.center)
+            else
+              SvgPicture.asset(sceneAsset ?? 'assets/scenes/$kind.svg', fit: BoxFit.cover, alignment: Alignment.center),
             for (final c in chars) _placed(c),
             Positioned(
               left: 0,
