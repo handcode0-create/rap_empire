@@ -55,6 +55,8 @@ const err21 = {
   'confirm': "Confirme l'achat (15 000 cauris ou plus)",
   'indispo': 'Tenue indisponible : une illustration manque',
   'pasachete': "Achète d'abord cette tenue",
+  'plein': 'Trois concerts acceptés au maximum : joue-en un d’abord',
+  'expire': 'Cette invitation a expiré',
   'inconnu': 'Action impossible',
 };
 

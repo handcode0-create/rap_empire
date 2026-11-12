@@ -41,6 +41,7 @@ flutter:
     - assets/studio.webp
     - assets/studio_high_level.webp
     - assets/training_room.webp
+    - assets/events/
   fonts:
     - family: Poppins
       fonts:
