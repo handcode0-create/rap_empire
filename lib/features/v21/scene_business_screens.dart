@@ -99,6 +99,8 @@ class SceneScreen21 extends ConsumerWidget {
                     status: ('Prête', GameTagStyle.ok),
                     verb: 'Partir en tournée',
                     onTap: () => doAct(context, ref, 'tour', null, () => context.go('/scene/resultat')));
+    final concertInvites = rank < 3 ? <J>[] : cvView21(s);
+    final acceptedConcerts = concertInvites.where((o) => o['status'] == 'accepted').length;
     final booking = _Venue('Booking international', 'Tamarel, Korvane, Aldéra : showcase, tournée ou grande tournée', 'assets/scenes/call.svg',
         lock: rank < Reg21.intlRank ? 'Débloqué au rang N${Reg21.intlRank}' : null,
         status: rank < Reg21.intlRank ? null : ('Agence', GameTagStyle.accent),
@@ -145,6 +147,10 @@ class SceneScreen21 extends ConsumerWidget {
         const SizedBox(height: 10),
       ],
       _VenueCard(concert),
+      if (rank >= 3) ...[
+        _SceneSection('Invitations de concert', '$acceptedConcerts / ${Cv21.maxAccepted} concert(s) accepté(s) · ${concertInvites.where((o) => o['status'] == 'available').length} proposition(s) disponible(s)'),
+        for (final o in concertInvites) _InviteCard(o: o, s: s),
+      ],
       const _SceneSection('Festivals', 'Les promoteurs t’invitent : accepte ou refuse.'),
       for (final i in invites) FestivalInviteCard21(s, '${i['id']}'),
       _VenueCard(festivals),
@@ -1528,6 +1534,64 @@ class _OwnLabelCard extends ConsumerWidget {
           ),
         ],
       ]),
+    );
+  }
+}
+
+/// V22 : une invitation de concert (illustration, cachet, sponsor, public attendu, frais de déplacement).
+class _InviteCard extends ConsumerWidget {
+  final J o;
+  final J s;
+  const _InviteCard({required this.o, required this.s});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final acc = o['status'] == 'accepted';
+    final sp = o['sponsor'] as J?;
+    final travel = cvTravel21(o);
+    final bonus = sp == null ? 0 : _n(sp['bonus']).toInt();
+    final fee = _n(o['fee']).toInt();
+    final wait = Reg21.concertEvery - (_n(s['day']) - _n(s['lastConcert'])).toInt();
+    final fill = (_n(o['fill']) / 100).clamp(0, 1).toDouble();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.asset(o['img'] as String, fit: BoxFit.cover, cacheWidth: 800, errorBuilder: (_, __, ___) => const SizedBox()),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Expanded(child: Text(o['title'] as String, style: V20Text.dm(size: 20))),
+            Text('★' * _n(o['prestige']).toInt(), style: V20Text.bs(color: Tk.gold)),
+          ]),
+          Text('${o['label']} · ${o['cityName']}', style: V20Text.bs()),
+          const SizedBox(height: 6),
+          Text('${fmt21(fee)} cauris', style: V20Text.dm(size: 22, color: Tk.gold)),
+          if (sp != null)
+            Text('Sponsor ${sp['cat']} : +${fmt21(bonus)} cauris${_n(sp['rep']) > 0 ? ' · réputation +${sp['rep']}' : ''} (affiché avant acceptation)', style: V20Text.bs()),
+          Text(travel > 0 ? 'Déplacement : −${fmt21(travel)} cauris (transport et hébergement)' : 'Sur place : aucun frais de déplacement', style: V20Text.bs()),
+          const SizedBox(height: 6),
+          MeterBar(value: fill),
+          const SizedBox(height: 4),
+          Text('${fmt21(_n(o['att']))} / ${fmt21(_n(o['cap']))} spectateurs attendus · ${o['fill']} %', style: V20Text.bs()),
+          const SizedBox(height: 4),
+          Text(acc ? 'Accepté · cachet figé à l’acceptation' : 'Expire au jour ${o['exp']}', style: V20Text.bs()),
+          const SizedBox(height: 8),
+          if (!acc) ...[
+            PrimaryGlowButton(label: 'ACCEPTER', onPressed: () => doAct(context, ref, 'cvAccept', o['id'])),
+            const SizedBox(height: 6),
+            PrimaryButton(label: 'REFUSER', style: GameButtonStyle.ghost, onPressed: () => doAct(context, ref, 'cvDecline', o['id'])),
+          ] else if (wait > 0)
+            GameTag('Prochaine date dans $wait j', style: GameTagStyle.outline)
+          else
+            PrimaryGlowButton(label: 'JOUER LE CONCERT', onPressed: () => doAct(context, ref, 'cvPlay', o['id'], () => context.go('/scene/resultat'))),
+        ]),
+      ),
     );
   }
 }

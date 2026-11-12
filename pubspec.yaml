@@ -41,6 +41,7 @@ flutter:
     - assets/patrimoine/
     - assets/merch/
     - assets/awards/
+    - assets/events/
     - assets/covers/
     - assets/logos/
   fonts:
