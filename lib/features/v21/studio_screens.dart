@@ -171,10 +171,15 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
     if (_title.text.isEmpty && (ui['title'] ?? '') != '' && !FocusScope.of(context).hasFocus) {
       _title.text = ui['title'] as String;
     }
-    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+    return LayoutBuilder(builder: (context, constraints) {
+      final desktop = constraints.maxWidth >= 1000;
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: desktop ? 1360 : double.infinity),
+          child: ListView(padding: EdgeInsets.fromLTRB(desktop ? 28 : 16, desktop ? 24 : 12, desktop ? 28 : 16, 24), children: [
       SceneBanner(
         kind: 'studio',
-        height: 200,
+        height: desktop ? 244 : 200,
         role: hs ? 'STUDIO · HOME STUDIO' : 'STUDIO · CABINE DE NDOLO',
         name: cur == null ? 'Nouveau son' : '${cur['title']}',
         nameSingleLine: true,
@@ -375,7 +380,10 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
           text: nothingYet
               ? 'Instru, cabine et mix : un titre se fait en trois temps. Un titre non sorti n’apparaît pas dans la discographie.'
               : 'Un titre non sorti n’apparaît pas dans la discographie. Un clip se prépare avant la sortie.'),
-    ]);
+          ]),
+        ),
+      );
+    });
   }
 }
 
