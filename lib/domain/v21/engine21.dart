@@ -21,6 +21,7 @@ export 'social21.dart';
 export 'wardrobe21.dart';
 
 part 'copyright21.dart';
+part 'concert21.dart';
 
 /// Moteur RAP EMPIRE v21. Port de docs/design-ref/v21/sources/engine21.js : mêmes règles, mêmes valeurs, mêmes codes d'erreur.
 /// Écarts assumés avec le prototype (extensions déjà présentes dans l'application) : 10 thèmes de la bibliothèque musicale, titres générés,
@@ -1232,6 +1233,10 @@ Res _mkBuy(J s, String id, bool ok) {
 
 final Map<String, Action> actions21 = {
   ...crActions21,
+  // V22 — invitations dynamiques de concert
+  'cvAccept': cvAccept21,
+  'cvDecline': cvDecline21,
+  'cvPlay': cvPlay21,
   // ---- Espace Réseau (21-N0 à 21-N8) [VALIDÉ 20/10, valeurs provisoires] ----
   'kv': (s, a) {
     final i = a is num ? a.toInt() : int.tryParse('$a') ?? -1;
