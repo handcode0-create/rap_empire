@@ -37,7 +37,7 @@ def main():
     os.makedirs(OUT_C, exist_ok=True); os.makedirs(OUT_S, exist_ok=True)
     jobs = set()
     for who in CAST:
-        for m in MOODS:
+        for m in CAST[who].get('moods', MOODS):
             for c in CROPS: jobs.add((who, m, '', '', c))
     for who, mood, g, _st, crop, _view, pose in USED: jobs.add((who, mood, g, pose, crop))
     files = []
@@ -58,6 +58,35 @@ def main():
                         svg = clean(figure(STYLE, 'front', skin=SKINS[sk], hair=hair, hc='#1B1424', beard='stubble', mood=mood, outfit={**base, **tv}, acc=('chain',), crop=crop))
                         fn = 'me_%s_%s_%d_%s_%s.svg' % (hair, tk, sk, mood, crop)
                         open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
+    # portraits uniques des enfants du joueur (v21, espace enfant) : identité fixe par enfant, trois étapes de vie,
+    # kid_<enfant>_<étape>_<humeur>_<cadrage>.svg ; étape : bebe (moins de 1 an), enfant (1 à 11 ans), ado (12 ans et plus)
+    kids = {
+        'nayla': dict(skin=SKINS[4], hair='knots', hc='#1B1424', acc=('fem', 'ring'), outfit=dict(top='#FFC83D', pants='#2B2459', shoe='#F43F9D', accent='#F43F9D', kind='tee', logo=False)),
+        'kenzo': dict(skin=SKINS[3], hair='afro', hc='#1B1424', acc=(), outfit=dict(top='#3CD6F2', pants='#2B2459', shoe='#F8F7FF', accent='#14102B', kind='hoodie', logo=False)),
+    }
+    stages = {'bebe': (.62, 1.22, 1.0, 26), 'enfant': (.78, 1.12, .92, 18), 'ado': (.92, 1.02, .97, 8)}
+    for who, kd in kids.items():
+        for st, sc in stages.items():
+            for mood in ('neutral', 'smile', 'laugh'):
+                for crop in ('head', 'bust'):
+                    svg = clean(figure(STYLE, 'front', skin=kd['skin'], hair=kd['hair'], hc=kd['hc'], beard='none', mood=mood, outfit={**base, **kd['outfit']}, acc=kd['acc'], crop=crop, kid=sc))
+                    fn = 'kid_%s_%s_%s_%s.svg' % (who, st, mood, crop)
+                    open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
+    # avatars des artistes du catalogue (v21, label du joueur et annuaire) : un portrait par fiche, d'après son champ « portrait »
+    # (teint, coiffure, couleur, barbe, accessoires) ; tenue choisie par graine stable sur l'identifiant. art<numéro>_smile_head.svg.
+    # Les artistes nommés (Top 10, Ayana Dembé, DJ Kôrô…) gardent leur illustration dédiée du cast.
+    cat = json.load(open(os.path.join(ROOT, 'assets', 'data', 'artistes-demo.json'), encoding='utf-8'))['artistes']
+    named = {v['name'] for v in CAST.values()}
+    kinds = ['hoodie', 'tee', 'bomber', 'blazer']
+    tcols = ['#F43F9D', '#3CD6F2', '#8B5CF6', '#3DDC97', '#FFC83D', '#3A3270', '#F8F7FF', '#C21E78', '#0E7C86', '#1B2A5C']
+    for a in cat:
+        if a['nom'] in named: continue
+        num = int(a['id'].split('-')[1]); pt = a['portrait']
+        k = kinds[(num * 7) % 4]; tc = tcols[(num * 13) % len(tcols)]
+        outfit = dict(top=tc, pants='#14102B' if num % 2 else '#2B2459', shoe=tcols[(num * 5) % len(tcols)], accent=tcols[(num * 3 + 4) % len(tcols)], kind=k, logo=False)
+        svg = clean(figure(STYLE, 'front', skin=SKINS[pt['peau']], hair=pt['coiffure'], hc=pt['couleur'], beard=pt['barbe'], mood='smile', outfit=outfit, acc=tuple(pt['accessoires']), crop='head'))
+        fn = 'art%04d_smile_head.svg' % num
+        open(os.path.join(OUT_C, fn), 'w', encoding='utf-8').write(svg); files.append(fn)
     json.dump({'style': STYLE, 'cast': {k: v['name'] for k, v in CAST.items()}, 'files': files}, open(os.path.join(OUT_C, 'manifest.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     for kind, f in scenes.BGS.items():
         open(os.path.join(OUT_S, kind + '.svg'), 'w', encoding='utf-8').write(clean(f()))

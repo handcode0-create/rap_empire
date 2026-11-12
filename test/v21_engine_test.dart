@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:io';
+import 'package:rap_empire/domain/v21/artists21.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
 
@@ -25,10 +27,11 @@ void main() {
     expect(r.err, isNull);
     s = must(s, 'job', 'livraison');
     r = run(s, 'job', 'mc');
-    expect(r.err, 'tard');
+    expect(r.err, 'rang'); // MC : rang N2 requis (boulots rentables plus tard)
     s = must(s, 'endDay');
     expect([s['day'], s['hour'], s['en']], [2, 8, 100]);
-    expect(m(s['bil'])['cash'], 3500 + 3000 + 4500 + 3500);
+    // Open mic sans cachet (décision de Smith du 04/11/2026) : seuls les trois boulots rapportent.
+    expect(m(s['bil'])['cash'], 3500 + 4500 + 3500);
     expect(l(m(s['bil'])['acts']).length, greaterThanOrEqualTo(3));
   });
 
@@ -174,6 +177,7 @@ void main() {
     expect(tot, inInclusiveRange(3000, 5000));
     final c0 = (s['cash'] as num) + 200000;
     s['cash'] = c0;
+    s['rep'] = 12;
     s = must(s, 'ask', 'homestudio');
     s = must(s, 'assetBuy');
     expect(m(s['own'])['homestudio'], isNotNull);
@@ -214,6 +218,7 @@ void main() {
     var y2 = init21();
     y2['age'] = 29;
     y2['cash'] = 400000;
+    y2['rep'] = 15;
     y2 = must(y2, 'ask', 'appart');
     y2 = must(y2, 'assetBuy');
     y2 = must(y2, 'skipYear');
@@ -251,7 +256,7 @@ void main() {
     expect(m(c['ms'])['m3'], isNull);
     expect(act21(c, 'evc', 'a').err, 'rien');
     c = act21(c, 'battle', 2).s;
-    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 28000, 60]);
+    expect([c['hour'], c['en'], c['rep'], c['fans'], c['cash'], c['xp']], [9, 85, 14, 270, 25000, 60]); // battle de quartier sans cachet (04/11/2026)
     c = act21(c, 'setui', 'title=Ndolo en feu').s;
     c = act21(c, 'create', ['quartier', 'sombre']).s;
     expect(m(c['cur'])['title'], 'Ndolo en feu');
@@ -259,14 +264,14 @@ void main() {
     c = act21(c, 'record').s;
     expect(m(c['ms'])['m1'], isNotNull);
     // L'offre de Kôrô est une scène de dialogue (plus un événement) déclenchée par le premier enregistrement.
-    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 33000]);
+    expect([c['ev'], m(c['dlg'])['id'], c['cash']], [null, 'kore', 30000]); // battle de quartier sans cachet (04/11/2026)
     final poor = clone21(c)..['cash'] = 100;
     c = act21(c, 'dch', 'a').s;
     expect(act21(poor, 'dch', 'a').s['dlg'], isNotNull);
     expect(act21(act21(poor, 'dch', 'a').s, 'dch', 'a').err, 'cash');
     c = act21(c, 'dch', 'b').s;
     c = act21(c, 'dch', 'a').s;
-    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 26000, 'Accord à 35 %']);
+    expect([m(c['kc'])['left'], m(c['kc'])['bonus'], c['cash'], m(c['dlg'])['end']], [3, 12, 23000, 'Accord à 35 %']); // 3 000 de moins : battle sans cachet (04/11/2026)
     c = act21(c, 'dclose').s;
     c = act21(c, 'release').s;
     expect(m(c['ms'])['m2'], isNotNull);
@@ -373,7 +378,8 @@ void main() {
     var win = act21(init21(), 'preset', 'debut').s;
     win = act21(win, 'evc', 'a').s;
     win = act21(win, 'battle', 3).s;
-    expect([win['cash'], win['fans'], win['rep'], win['xp'], m(win['btl'])['win']], [28000, 270, 14, 60, 1]);
+    // Battle de quartier sans cachet (décision de Smith du 04/11/2026).
+    expect([win['cash'], win['fans'], win['rep'], win['xp'], m(win['btl'])['win']], [25000, 270, 14, 60, 1]);
     var loss = act21(init21(), 'preset', 'debut').s;
     loss = act21(loss, 'evc', 'a').s;
     loss = act21(loss, 'battle', 1).s;
@@ -407,7 +413,8 @@ void main() {
     // Le rang du concert n’est pas requis ici, on vérifie la commission via un cachet open mic.
     final opened = act21(hired.s, 'openmic');
     expect(opened.err, isNull);
-    expect(opened.s['cash'], 27700); // 3 000 − 10 %
+    // L'open mic ne paie plus de cachet (04/11/2026) : aucune commission prélevée.
+    expect([opened.s['cash'], opened.s['mgrTot'] ?? 0], [25000, hired.s['mgrTot'] ?? 0]);
     final charged = act21(hired.s, 'endDay');
     expect(charged.s['cash'], hired.s['cash']! - 1500);
     expect(commissioned.err, anyOf(isNull, 'rang'));
@@ -498,5 +505,89 @@ void main() {
     expect(result.s['day'], 2);
     expect(m(l(result.s['disco']).single)['L'], greaterThan(10000));
     expect(m(m(l(result.s['disco']).single)['platforms'])['ondea'], greaterThan(7000));
+  });
+
+  test('battle : zone du mini-jeu de Flow, plus large avec le Flow ; au-delà de 40 la réussite annonce le bon style', () {
+    expect(Reg21.flowZone(17), closeTo(.1825, 1e-9));
+    expect(Reg21.flowZone(40), greaterThan(Reg21.flowZone(17)));
+    expect(Reg21.flowZone(1000), Reg21.flowZoneMax);
+    expect(Reg21.flowZone(0), Reg21.flowZoneMin);
+    expect(Reg21.flowHintLevel(17), 1); // une mauvaise réponse écartée
+    expect(Reg21.flowHintLevel(39), 1);
+    expect(Reg21.flowHintLevel(40), 2); // le bon style est annoncé
+  });
+
+  test('patrimoine : catégories, déblocage par réputation, effets sans cumul abusif', () {
+    for (final e in Reg21.assets.entries) {
+      expect(Reg21.assetCats.containsKey(e.value['cat']), isTrue, reason: e.key);
+      expect(e.value['rep'], isA<int>(), reason: e.key);
+    }
+    for (final cat in Reg21.assetCats.keys) {
+      final items = Reg21.assets.values.where((a) => a['cat'] == cat).toList();
+      expect(items.length, greaterThanOrEqualTo(3), reason: cat);
+      // dans une catégorie, plus un bien est cher, plus la réputation demandée est élevée (ou égale)
+      items.sort((a, b) => (a['cost'] as num).compareTo(b['cost'] as num));
+      for (var i = 1; i < items.length; i++) {
+        expect(items[i]['rep'] as num, greaterThanOrEqualTo(items[i - 1]['rep'] as num), reason: cat);
+      }
+    }
+    var s = init21();
+    s['cash'] = 20000000;
+    s['rep'] = 8;
+    expect(assetLock21(s, 'villa'), 'rep');
+    expect(run(s, 'ask', 'villa').err, 'rep');
+    expect(run(s, 'assetBuy', 'villa').err, 'rep');
+    expect(assetLock21(s, 'bague'), isNull); // rep 8 : accessible dès le départ
+    s = must(s, 'ask', 'bague');
+    s = must(s, 'assetBuy');
+    expect(s['rep'], 10); // prestige +2
+    expect(assetLock21(s, 'bague'), 'deja');
+    // logements : cumul d'énergie plafonné
+    s['rep'] = 100;
+    for (final id in ['studiomeuble', 'appart', 'maison', 'villa', 'penthouse']) {
+      s = must(s, 'ask', id);
+      s = must(s, 'assetBuy');
+    }
+    expect(homeEnergy21(s), Reg21.homeEnergyCap);
+    // véhicules : le meilleur compte, pas la somme
+    s = must(s, 'ask', 'scooter');
+    s = must(s, 'assetBuy');
+    s = must(s, 'ask', 'moto');
+    s = must(s, 'assetBuy');
+    expect(bestAsset21(s, 'saveAll'), 5);
+    expect(bestAsset21(s, 'sceneEnergy'), 0);
+    s = must(s, 'ask', 'suv');
+    s = must(s, 'assetBuy');
+    s = must(s, 'ask', 'voiture');
+    s = must(s, 'assetBuy');
+    expect(bestAsset21(s, 'sceneEnergy'), 10);
+  });
+
+  test('annuaire des artistes : 1 000 fiches, recherche sans accent, filtres et tri', () {
+    final d = parseDirectory21(File('assets/data/artistes-demo.json').readAsStringSync());
+    expect(d.artists.length, 1000);
+    expect(d.artists.first.nom, 'Kaïra Nox');
+    expect(d.artists.map((a) => a.id).toSet().length, 1000);
+    expect(d.labels.length, 10);
+    expect(filterArtists21(d, q: 'KAIRA').map((a) => a.nom), ['Kaïra Nox']);
+    expect(filterArtists21(d, q: 'bakoma sound').every((a) => a.label == 'BSR'), isTrue);
+    final signes = filterArtists21(d, statut: 'signé');
+    expect(signes.length, 520);
+    expect(signes.every((a) => a.label != null), isTrue);
+    final genre = d.genres.first;
+    expect(filterArtists21(d, genre: genre).every((a) => a.genre == genre), isTrue);
+    final pop = filterArtists21(d, tri: 'pop');
+    for (var i = 1; i < pop.length; i++) {
+      expect(pop[i].popularite, lessThanOrEqualTo(pop[i - 1].popularite));
+    }
+    expect(filterArtists21(d, tri: 'hausse').first.tendance, 'en hausse');
+    // alliés et rivaux pointent vers des fiches existantes
+    for (final a in d.artists) {
+      for (final id in [...a.allies, ...a.rivaux]) {
+        expect(d.byId(id), isNotNull, reason: '${a.id} → $id');
+      }
+    }
+    expect(rivalKeyOf21('Zaki Mbela'), 'zaki');
+    expect(rivalKeyOf21('Kaïra Nox'), isNull);
   });
 }

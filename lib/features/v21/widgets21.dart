@@ -46,6 +46,34 @@ class Chip21 extends StatelessWidget {
       );
 }
 
+/// Idées de titres tirées du dictionnaire (5 000 titres) : trois pastilles à toucher pour remplir le champ, « Autres idées » en montre trois nouvelles.
+/// [ideas] renvoie les titres d'une page ; aucune règle ici, le tirage et l'exclusion des titres déjà pris sont dans le moteur.
+class TitleIdeas21 extends StatefulWidget {
+  final List<String> Function(int page) ideas;
+  final ValueChanged<String> onPick;
+  final String label;
+  const TitleIdeas21({super.key, required this.ideas, required this.onPick, this.label = 'Idées du dictionnaire'});
+  @override
+  State<TitleIdeas21> createState() => _TitleIdeas21State();
+}
+
+class _TitleIdeas21State extends State<TitleIdeas21> {
+  int _page = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = widget.ideas(_page);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Lab21(widget.label),
+      const SizedBox(height: 4),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final t in list) Chip21(t, onTap: () => widget.onPick(t)),
+        Chip21('Autres idées', selected: true, onTap: () => setState(() => _page++)),
+      ]),
+    ]);
+  }
+}
+
 /// Étapes de la création (.stp) : quatre segments, les faits en blanc, l'actuel en rose.
 class Steps21 extends StatelessWidget {
   final int current; // 0 à 3
@@ -89,15 +117,63 @@ class Conseq21 extends StatelessWidget {
   final ConsequenceKind kind;
   final String text;
   const Conseq21(this.kind, this.text, {super.key});
+
+  static IconData? _icon(String s) {
+    final l = s.toLowerCase();
+    if (l.contains('cauris')) return Icons.monetization_on_outlined;
+    if (l.contains('énergie')) return Icons.bolt;
+    if (l.contains('fans')) return Icons.groups_outlined;
+    if (l.contains('réputation')) return Icons.local_fire_department_outlined;
+    if (l.contains('popularité')) return Icons.trending_up;
+    if (l.contains('xp')) return Icons.star_outline;
+    if (RegExp(r'\d+ ?(h|min)\b').hasMatch(l)) return Icons.schedule;
+    if (l.contains('relation')) return Icons.favorite_border;
+    return null;
+  }
+
+  static Color _tone(String s) {
+    final t = s.trimLeft();
+    if (t.startsWith('−') || t.startsWith('-')) return const Color(0xFFFF8AC4);
+    if (t.startsWith('+')) return const Color(0xFF3DDC97);
+    return Tk.ink;
+  }
+
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ConsequenceTag(kind),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, style: V20Text.bs(color: Tk.ink))),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final parts = text.split(' · ').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    // Une phrase longue reste une phrase ; des effets courts deviennent des pastilles icône + valeur.
+    final chips = parts.length > 1 || text.length <= 32;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Semantics(
+        label: text,
+        child: ExcludeSemantics(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            ConsequenceTag(kind),
+            const SizedBox(width: 8),
+            Expanded(
+              child: chips
+                  ? Wrap(spacing: 6, runSpacing: 6, children: [
+                      for (final p in parts)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(255, 255, 255, .07),
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            if (_icon(p) != null) ...[Icon(_icon(p), size: 14, color: _tone(p)), const SizedBox(width: 4)],
+                            Flexible(child: Text(p, style: V20Text.bs(color: _tone(p)).copyWith(fontWeight: FontWeight.w600))),
+                          ]),
+                        ),
+                    ])
+                  : Text(text, style: V20Text.bs(color: Tk.ink)),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
 }
 
 /// Barre de relation ou de jauge : libellé à gauche, barre, valeur.

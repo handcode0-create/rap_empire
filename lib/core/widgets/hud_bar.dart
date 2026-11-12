@@ -83,7 +83,7 @@ class HudBar extends StatelessWidget {
                   ]),
                 ),
                 const SizedBox(width: 2),
-                _Cell(label: 'Temps', child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: V20Text.nm())),
+                _Cell(label: 'Temps', child: Align(alignment: Alignment.centerLeft, child: FittedBox(fit: BoxFit.scaleDown, child: Text(time, maxLines: 1, style: V20Text.nm())))),
               ]),
             ),
           ),

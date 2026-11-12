@@ -74,8 +74,20 @@ class GameScaffold extends StatelessWidget {
             child: Column(children: [
               if (hud != null)
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: hud),
+                  padding: EdgeInsets.fromLTRB(
+                    MediaQuery.sizeOf(context).width >= 1000 ? 32 : 16,
+                    8,
+                    MediaQuery.sizeOf(context).width >= 1000 ? 32 : 16,
+                    0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1600),
+                      child: hud,
+                    ),
+                  ),
+                ),
               Expanded(child: body),
             ]),
           ),
