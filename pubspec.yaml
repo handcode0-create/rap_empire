@@ -34,6 +34,13 @@ flutter:
     - assets/klipo/crowd/
     - assets/patrimoine/
     - assets/awards/
+    - assets/bureau_manager.webp
+    - assets/label_hall.webp
+    - assets/qg.webp
+    - assets/qg2.webp
+    - assets/studio.webp
+    - assets/studio_high_level.webp
+    - assets/training_room.webp
   fonts:
     - family: Poppins
       fonts:
