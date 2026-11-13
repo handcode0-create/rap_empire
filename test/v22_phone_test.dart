@@ -97,7 +97,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
     final acceptButton = find.widgetWithText(PrimaryGlowButton, 'ACCEPTER');
-    expect(acceptButton, findsNWidgets(3));
+    expect(acceptButton, findsOneWidget);
     await tester.ensureVisible(acceptButton.first);
     final widget = tester.widget<PrimaryGlowButton>(acceptButton.first);
     expect(widget.onPressed, isNotNull);
