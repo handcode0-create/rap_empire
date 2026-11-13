@@ -55,8 +55,8 @@ void main() {
     addTearDown(container.dispose);
     await container.read(game21Provider.future);
 
-    await tester.pumpWidget(ProviderScope(
-      parent: container,
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
       child: MaterialApp.router(
         theme: ThemeData.dark(useMaterial3: true),
         routerConfig: buildRouter21(initialLocation: '/telephone'),
@@ -86,8 +86,8 @@ void main() {
     addTearDown(container.dispose);
     await container.read(game21Provider.future);
 
-    await tester.pumpWidget(ProviderScope(
-      parent: container,
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
       child: MaterialApp(
         theme: ThemeData.dark(useMaterial3: true),
         home: const Scaffold(body: SceneScreen21()),
@@ -127,7 +127,9 @@ void main() {
     expect(find.text('TON TÉLÉPHONE'), findsNothing);
     await tester.scrollUntilVisible(find.text('RÉPERTOIRE'), 250);
     expect(find.text('RÉPERTOIRE'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Manager'), 250);
     expect(find.text('Manager'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Réseaux sociaux'), 250);
     expect(find.text('Réseaux sociaux'), findsOneWidget);
   });
 }
