@@ -6,6 +6,7 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/features/v21/scene_business_screens.dart' show SceneScreen21;
 
 class _FakeSave21Repository extends Save21Repository {
   final J current;
@@ -64,6 +65,37 @@ void main() {
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('ACCEPTER L’INVITATION').first, 250);
     await tester.tap(find.text('ACCEPTER L’INVITATION').first);
+    await tester.pumpAndSettle();
+
+    final saved = container.read(game21Provider).requireValue;
+    final offers = cvView21(saved);
+    expect(offers.where((offer) => offer['status'] == 'accepted'), hasLength(1));
+    expect(offers.where((offer) => offer['status'] == 'available'), hasLength(3));
+  });
+
+  testWidgets('le bouton ACCEPTER de la page Scène enregistre bien une invitation V22', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final s = act21(init21(), 'preset', 'carriere').s;
+    s['rank'] = 4;
+    final container = ProviderContainer(
+      overrides: [save21RepoProvider.overrideWithValue(_FakeSave21Repository(s))],
+    );
+    addTearDown(container.dispose);
+    await container.read(game21Provider.future);
+
+    await tester.pumpWidget(ProviderScope(
+      parent: container,
+      child: MaterialApp(
+        theme: ThemeData.dark(useMaterial3: true),
+        home: const Scaffold(body: SceneScreen21()),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('ACCEPTER').first, 300);
+    await tester.tap(find.text('ACCEPTER').first);
     await tester.pumpAndSettle();
 
     final saved = container.read(game21Provider).requireValue;

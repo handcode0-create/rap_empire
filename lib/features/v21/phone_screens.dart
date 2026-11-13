@@ -141,24 +141,25 @@ class PhoneScreen extends ConsumerWidget {
               accent: GlassAccent.cyan,
               halo: false,
               onTap: () => context.go('/scene'),
-              child: Row(children: [
-                const Icon(Icons.event_available_rounded, color: Tk.cy, size: 25),
-                const SizedBox(width: 10),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(offer['title'] as String, style: V20Text.nm()),
-                  Text('${offer['cityName']} · Cachet ${fmt21(_phoneN(offer['fee']))} cauris', style: V20Text.bs()),
-                  Text(wait > 0 ? 'Date jouable dans $wait jour(s)' : 'Date prête à être jouée', style: V20Text.bs(color: V20.ink2)),
-                ])),
-                const Icon(Icons.event_available_rounded, color: Tk.cy, size: 25),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  const Icon(Icons.event_available_rounded, color: Tk.cy, size: 25),
+                  const SizedBox(width: 10),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(offer['title'] as String, style: V20Text.nm()),
+                    Text('${offer['cityName']} · Cachet ${fmt21(_phoneN(offer['fee']))} cauris', style: V20Text.bs()),
+                    Text(wait > 0 ? 'Date jouable dans $wait jour(s)' : 'Date prête à être jouée', style: V20Text.bs(color: V20.ink2)),
+                  ])),
+                ]),
+                const SizedBox(height: 8),
+                if (wait > 0)
+                  GameTag('Prochaine date dans $wait j', style: GameTagStyle.outline)
+                else
+                  PrimaryGlowButton(
+                    label: 'JOUER LE CONCERT',
+                    onPressed: () => doAct(context, ref, 'cvPlay', offer['id'], () => context.go('/scene/resultat')),
+                  ),
               ]),
-              const SizedBox(height: 8),
-              if (wait > 0)
-                GameTag('Prochaine date dans $wait j', style: GameTagStyle.outline)
-              else
-                PrimaryGlowButton(
-                  label: 'JOUER LE CONCERT',
-                  onPressed: () => doAct(context, ref, 'cvPlay', offer['id'], () => context.go('/scene/resultat')),
-                ),
             ]),
           ),
       ],
