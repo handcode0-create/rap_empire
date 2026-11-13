@@ -93,10 +93,12 @@ void main() {
         home: const Scaffold(body: SceneScreen21()),
       ),
     ));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
     await tester.scrollUntilVisible(find.text('ACCEPTER').first, 300);
     await tester.tap(find.text('ACCEPTER').first);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
 
     final saved = container.read(game21Provider).requireValue;
     final offers = cvView21(saved);
