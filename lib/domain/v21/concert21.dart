@@ -138,7 +138,12 @@ J _cvGen(J s, int gen, int seq, Set<String> used) {
 void _cvRefresh(J n) {
   final cv = _cvOf(n);
   final day = _n(n['day']).toInt();
-  if (_n(cv['sd']) == day && _n(cv['sg']) == _n(cv['gen'])) return;
+  final currentAvailable = _l(cv['list'])
+      .where((x) => _m(x)['status'] == 'available' && _n(_m(x)['exp']) >= day)
+      .length;
+  if (_n(cv['sd']) == day &&
+      _n(cv['sg']) == _n(cv['gen']) &&
+      currentAvailable >= Cv21.offers) return;
   final keep = _l(cv['list']).map(_m).where((o) => o['status'] == 'accepted' || (o['status'] == 'available' && _n(o['exp']) >= day)).toList();
   final avail = keep.where((o) => o['status'] == 'available').toList();
   final used = avail.map((o) => o['type'] as String).toSet();
@@ -179,6 +184,7 @@ Res cvAccept21(J s, dynamic a) {
   if (acc >= Cv21.maxAccepted) return _no(s, 'plein');
   o['status'] = 'accepted';
   o['accDay'] = n['day'];
+  _cvRefresh(n); // garde trois propositions disponibles en plus des dates déjà acceptées.
   _log(n, 'Invitation acceptée : ${o['title']} à ${o['cityName']} · cachet ${fmt21(_n(o['fee']))}', 'scene');
   return _ok(n);
 }
@@ -191,6 +197,7 @@ Res cvDecline21(J s, dynamic a) {
   if (o == null || o['status'] != 'available') return _no(s, 'inconnu');
   final cv = _m(n['cv']);
   cv['list'] = _l(cv['list']).where((x) => _m(x)['id'] != a).toList();
+  _cvRefresh(n); // remplace immédiatement une invitation refusée.
   return _ok(n);
 }
 

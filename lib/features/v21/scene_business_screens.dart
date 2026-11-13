@@ -1229,7 +1229,13 @@ class _InviteCard extends ConsumerWidget {
           Text(acc ? 'Accepté · cachet figé à l’acceptation' : 'Expire au jour ${o['exp']}', style: V20Text.bs()),
           const SizedBox(height: 8),
           if (!acc) ...[
-            PrimaryGlowButton(label: 'ACCEPTER', onPressed: () => doAct(context, ref, 'cvAccept', o['id'])),
+            if (cvView21(s).where((offer) => offer['status'] == 'accepted').length < Cv21.maxAccepted)
+              PrimaryGlowButton(label: 'ACCEPTER', onPressed: () => doAct(context, ref, 'cvAccept', o['id']))
+            else
+              const GameHint(
+                icon: 'info',
+                text: 'Tu as déjà trois concerts acceptés. Joue une date pour libérer un créneau.',
+              ),
             const SizedBox(height: 6),
             PrimaryButton(label: 'REFUSER', style: GameButtonStyle.ghost, onPressed: () => doAct(context, ref, 'cvDecline', o['id'])),
           ] else if (wait > 0)
