@@ -92,10 +92,10 @@ class PhoneScreen extends ConsumerWidget {
                   Text('INVITATION DE CONCERT', style: V20Text.lab(color: Tk.gold)),
                   Text(offer['title'] as String, style: V20Text.nm()),
                   Text(
-                    '\${offer['cityName']} · \${fmt21(_phoneN(offer['fee']))} cauris',
+                    '${offer['cityName']} · ${fmt21(_phoneN(offer['fee']))} cauris',
                     style: V20Text.bs(),
                   ),
-                  Text('Réponse avant le jour \${offer['exp']}', style: V20Text.bs(color: V20.ink2)),
+                  Text('Réponse avant le jour ${offer['exp']}', style: V20Text.bs(color: V20.ink2)),
                 ]),
               ),
               const Icon(Icons.chevron_right_rounded, color: V20.ink2),
@@ -118,7 +118,7 @@ class PhoneScreen extends ConsumerWidget {
                 const SizedBox(width: 10),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(offer['title'] as String, style: V20Text.nm()),
-                  Text('\${offer['cityName']} · Invitation acceptée', style: V20Text.bs()),
+                  Text('${offer['cityName']} · Invitation acceptée', style: V20Text.bs()),
                 ])),
                 const Icon(Icons.chevron_right_rounded, color: V20.ink2),
               ]),
