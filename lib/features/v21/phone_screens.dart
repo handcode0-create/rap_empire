@@ -62,7 +62,7 @@ class PhoneScreen extends ConsumerWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('RAP PHONE', style: V20Text.baloo(size: 23, line: 26)),
-              Text('Ta carrière, tes contacts, tes messages.', style: V20Text.bs()),
+              Text('Notifications, invitations et contacts.', style: V20Text.bs()),
             ]),
           ),
           const GameTag('V22'),
@@ -146,7 +146,7 @@ class PhoneScreen extends ConsumerWidget {
                 arrow: false,
                 onPressed: () => doAct(context, ref, 'cvDecline', offer['id']),
               ),
-            ),
+            ]),
           ),
         ),
       if (accepted.isNotEmpty) ...[
@@ -179,7 +179,7 @@ class PhoneScreen extends ConsumerWidget {
                     onPressed: () => doAct(context, ref, 'cvPlay', offer['id'], () => context.go('/scene/resultat')),
                   ),
               ]),
-            ]),
+            ),
           ),
       ],
       const SizedBox(height: 18),
