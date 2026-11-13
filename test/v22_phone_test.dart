@@ -102,8 +102,7 @@ void main() {
     final widget = tester.widget<PrimaryGlowButton>(acceptButton.first);
     expect(widget.onPressed, isNotNull);
     await tester.tap(acceptButton.first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle(timeout: const Duration(seconds: 3));
 
     final saved = container.read(game21Provider).requireValue;
     final offers = cvView21(saved);
