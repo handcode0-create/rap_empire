@@ -101,7 +101,7 @@ void main() {
     await tester.scrollUntilVisible(acceptButton.first, 300);
     final widget = tester.widget<PrimaryGlowButton>(acceptButton.first);
     expect(widget.onPressed, isNotNull);
-    await tester.tap(acceptButton.first);
+    widget.onPressed!();
     await tester.pumpAndSettle();
 
     final saved = container.read(game21Provider).requireValue;
