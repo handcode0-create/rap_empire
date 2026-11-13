@@ -55,6 +55,28 @@ class QgScreen extends ConsumerWidget {
     final dl = s['dlg'] == null ? null : _m(s['dlg']);
     return ListView(padding: const EdgeInsets.all(16), children: [
       _Hero(s),
+      const SizedBox(height: 12),
+      GlassCard(
+        padding: const EdgeInsets.all(14),
+        onTap: () => context.go('/telephone'),
+        child: Row(children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              gradient: V20.tileIcon,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.smartphone_rounded, color: Colors.white, size: 25),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('TON TÉLÉPHONE', style: V20Text.lab(color: Tk.cy)),
+            Text('Messages, invitations et contacts', style: V20Text.nm()),
+          ])),
+          const Icon(Icons.chevron_right_rounded, color: V20.ink2),
+        ]),
+      ),
       if (s['jail'] != null) ...[
         const SizedBox(height: 12),
         GlassCard(

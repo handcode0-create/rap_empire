@@ -11,6 +11,7 @@ import '../features/v21/music_screens.dart';
 import '../features/v21/network_screens.dart';
 import '../features/v21/social_screens.dart';
 import '../features/v21/profile_screens.dart';
+import '../features/v21/phone_screens.dart';
 import '../features/v21/qg_screens.dart';
 import '../features/v21/reserve_screens.dart';
 import '../features/v21/scene_business_screens.dart';
@@ -285,6 +286,10 @@ GoRouter buildRouter21({String initialLocation = '/'}) => GoRouter(
             ]),
           ],
         ),
+        GoRoute(
+            path: '/telephone',
+            name: '22-Telephone',
+            builder: (_, __) => const PhoneScreen()),
         GoRoute(
             path: '/journee',
             name: '21-Q2-Journee',

@@ -44,11 +44,37 @@ void main() {
     final a = cvView21(s).map((o) => o['id']).toList();
     final b = cvView21(s).map((o) => o['id']).toList();
     expect(a, b);
-    // L'acceptation ne change pas non plus les autres invitations.
     final r = act21(s, 'cvAccept', a.first);
     expect(r.err, isNull);
-    expect(cvView21(r.s).map((o) => o['id']).toList(), a);
-    expect(cvView21(r.s).firstWhere((o) => o['id'] == a.first)['status'], 'accepted');
+    final after = cvView21(r.s);
+    expect(after.where((o) => o['status'] == 'accepted'), hasLength(1));
+    expect(after.where((o) => o['status'] == 'available'), hasLength(3));
+    expect(after.map((o) => o['id']).toSet(), hasLength(after.length));
+    expect(after.firstWhere((o) => o['id'] == a.first)['status'], 'accepted');
+  });
+
+  test('refuser une invitation la remplace immédiatement sans doublon', () {
+    final s = start();
+    final first = cvView21(s).first;
+    final r = act21(s, 'cvDecline', first['id']);
+    expect(r.err, isNull);
+    final after = cvView21(r.s);
+    expect(after.where((o) => o['status'] == 'available'), hasLength(3));
+    expect(after.any((o) => o['id'] == first['id']), isFalse);
+    expect(after.map((o) => o['id']).toSet(), hasLength(after.length));
+  });
+
+  test('trois concerts acceptés bloquent explicitement un quatrième', () {
+    var s = start();
+    for (var i = 0; i < Cv21.maxAccepted; i++) {
+      final offer = cvView21(s).firstWhere((o) => o['status'] == 'available');
+      final result = act21(s, 'cvAccept', offer['id']);
+      expect(result.err, isNull);
+      s = result.s;
+    }
+    final next = cvView21(s).firstWhere((o) => o['status'] == 'available');
+    expect(act21(s, 'cvAccept', next['id']).err, 'plein');
+    expect(cvView21(s).where((o) => o['status'] == 'available'), hasLength(3));
   });
 
   test('plus de prestige à haut rang qu’à bas rang (tendance, pas une règle)', () {
