@@ -5,6 +5,7 @@ import 'package:rap_empire/app/game21.dart';
 import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
+import 'package:rap_empire/domain/v21/reg21.dart';
 
 class _FakeSave21Repository extends Save21Repository {
   final J current;
