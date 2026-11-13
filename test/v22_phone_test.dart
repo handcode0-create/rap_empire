@@ -6,6 +6,7 @@ import 'package:rap_empire/app/router21.dart';
 import 'package:rap_empire/data/save21_repository.dart';
 import 'package:rap_empire/domain/v21/engine21.dart';
 import 'package:rap_empire/domain/v21/reg21.dart';
+import 'package:rap_empire/core/widgets/primary_glow_button.dart';
 import 'package:rap_empire/features/v21/scene_business_screens.dart' show SceneScreen21;
 
 class _FakeSave21Repository extends Save21Repository {
@@ -95,8 +96,12 @@ void main() {
     ));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
-    await tester.scrollUntilVisible(find.text('ACCEPTER').first, 300);
-    await tester.tap(find.text('ACCEPTER').first);
+    final acceptButton = find.widgetWithText(PrimaryGlowButton, 'ACCEPTER');
+    expect(acceptButton, findsNWidgets(3));
+    await tester.ensureVisible(acceptButton.first);
+    final widget = tester.widget<PrimaryGlowButton>(acceptButton.first);
+    expect(widget.onPressed, isNotNull);
+    await tester.tap(acceptButton.first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
