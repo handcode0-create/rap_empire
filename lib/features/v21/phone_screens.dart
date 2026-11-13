@@ -66,7 +66,7 @@ class PhoneScreen extends ConsumerWidget {
       if (officialMessages.isNotEmpty) PhoneInbox21(s),
       if (invitations.isEmpty && officialMessages.isEmpty)
         const GameHint(
-          icon: 'mail',
+          icon: 'info',
           text: 'Ta boîte de réception est vide. Les invitations et notifications importantes apparaîtront ici.',
         ),
       for (final offer in invitations)
