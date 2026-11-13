@@ -14,7 +14,6 @@ import '../../core/widgets/primary_glow_button.dart';
 import '../../domain/v21/engine21.dart';
 import '../../domain/v21/reg21.dart';
 import 'widgets21.dart' show doAct;
-import 'copyright_screens.dart' show PhoneInbox21, crPhone21;
 import 'shell21.dart';
 
 num _phoneN(dynamic value) => (value ?? 0) as num;
@@ -29,7 +28,9 @@ class PhoneScreen extends ConsumerWidget {
     final s = ref.watch(game21Provider).valueOrNull;
     if (s == null) return const Center(child: CircularProgressIndicator());
 
-    final officialMessages = crPhone21(s);
+    final recentActivity = (s['log'] as List<dynamic>? ?? const <dynamic>[])
+        .take(5)
+        .toList();
     final concerts = cvView21(s);
     final invitations = concerts
         .where((offer) => offer['status'] == 'available')
@@ -70,8 +71,26 @@ class PhoneScreen extends ConsumerWidget {
       const SizedBox(height: 18),
       Text('BOÎTE DE RÉCEPTION', style: V20Text.lab()),
       const SizedBox(height: 8),
-      if (officialMessages.isNotEmpty) PhoneInbox21(s),
-      if (invitations.isEmpty && accepted.isEmpty && officialMessages.isEmpty)
+      if (recentActivity.isNotEmpty) ...[
+        Text('NOTIFICATIONS RÉCENTES', style: V20Text.lab(color: Tk.cy)),
+        for (final item in recentActivity)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: GlassCard(
+              halo: false,
+              child: Row(children: [
+                const Icon(Icons.notifications_active_outlined, color: Tk.cy),
+                const SizedBox(width: 10),
+                Expanded(child: Text(
+                  (item as Map)['t']?.toString() ?? 'Nouvelle activité dans ta carrière',
+                  style: V20Text.bs(),
+                )),
+                Text('J${item['d'] ?? s['day']}', style: V20Text.bs(color: V20.ink2)),
+              ]),
+            ),
+          ),
+      ],
+      if (invitations.isEmpty && accepted.isEmpty && recentActivity.isEmpty)
         const GameHint(
           icon: 'info',
           text: 'Ta boîte de réception est vide. Les invitations et notifications importantes apparaîtront ici.',
@@ -127,7 +146,7 @@ class PhoneScreen extends ConsumerWidget {
                 arrow: false,
                 onPressed: () => doAct(context, ref, 'cvDecline', offer['id']),
               ),
-            ]),
+            ),
           ),
         ),
       if (accepted.isNotEmpty) ...[
