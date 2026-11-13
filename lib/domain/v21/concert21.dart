@@ -19,6 +19,7 @@ class CvType21 {
 class Cv21 {
   static const nationales = ['bakoma', 'portambre', 'selene'];
   static const mondiales = ['tamarel', 'korvane', 'aldera'];
+  static const cityImages = ['portambre', 'selene', 'tamarel', 'korvane', 'aldera']; // illustrations de villes (assets/cities/<clé>.webp)
   static const toutes = ['bakoma', 'portambre', 'selene', 'tamarel', 'korvane', 'aldera'];
 
   static const types = <String, CvType21>{

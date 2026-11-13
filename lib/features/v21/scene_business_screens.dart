@@ -1205,7 +1205,17 @@ class _InviteCard extends ConsumerWidget {
             Expanded(child: Text(o['title'] as String, style: V20Text.dm(size: 20))),
             Text('★' * _n(o['prestige']).toInt(), style: V20Text.bs(color: Tk.gold)),
           ]),
-          Text('${o['label']} · ${o['cityName']}', style: V20Text.bs()),
+          Row(children: [
+            if (Cv21.cityImages.contains(o['city']))
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/cities/${o['city']}.webp', width: 56, height: 32, fit: BoxFit.cover, cacheWidth: 160, errorBuilder: (_, __, ___) => const SizedBox()),
+                ),
+              ),
+            Expanded(child: Text('${o['label']} · ${o['cityName']}', style: V20Text.bs())),
+          ]),
           const SizedBox(height: 6),
           Text('${fmt21(fee)} cauris', style: V20Text.dm(size: 22, color: Tk.gold)),
           if (sp != null)
